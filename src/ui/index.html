@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://textures.minecraft.net; font-src 'self'; media-src 'self'; connect-src 'none'; object-src 'none'">
+  <title>Backrooms Launcher</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="cargando">
+
+  <!-- Fondo: pasillo del Nivel 0 en WebGL (o la imagen de fondo si existe) -->
+  <canvas id="pasillo" aria-hidden="true"></canvas>
+  <div id="fondo-imagen" aria-hidden="true"></div>
+  <div class="velo" aria-hidden="true"></div>
+  <canvas id="grano" aria-hidden="true"></canvas>
+  <div class="lineas" aria-hidden="true"></div>
+
+  <!-- Arranque tipo cinta: PLAY sobre ruido -->
+  <div id="cinta" aria-hidden="true"><span>&#9654; PLAY</span></div>
+
+  <!-- HUD de la camara -->
+  <header class="hud-superior">
+    <div class="rec"><span class="punto"></span>REC <span id="timecode">00:00:00</span></div>
+    <div class="hud-derecha">
+      <span id="aviso-actualizacion" class="chip" hidden></span>
+      <button id="btn-sonido" class="hud-btn" title="Sonido">&#9835; <span id="txt-sonido">ON</span></button>
+      <button id="btn-menu" class="hud-btn" title="Ajustes">MENU</button>
+      <span class="sp">SP</span>
+      <span class="bateria" title=""><i></i><i></i><i></i></span>
+      <button id="btn-min" class="ventana-btn" title="Minimizar">&#8212;</button>
+      <button id="btn-cerrar" class="ventana-btn" title="Cerrar">&#10005;</button>
+    </div>
+  </header>
+
+  <main class="escena">
+
+    <!-- Columna izquierda: titulo + pase + JUGAR -->
+    <section class="izquierda">
+      <div class="titulo">
+        <span id="subtitulo" class="sub">NIVEL 0</span>
+        <h1 id="nombre-evento" data-texto="BACKROOMS">BACKROOMS</h1>
+        <p class="lema">Si sales de la realidad por accidente, acabas aquí.</p>
+      </div>
+
+      <div class="pase" id="pase">
+        <div class="pase-cinta"><span>PASE DE EXPLORADOR</span><span class="pase-num" id="pase-num">N.º 0000</span></div>
+        <div class="pase-cuerpo">
+          <div class="foto"><canvas id="cara" width="8" height="8"></canvas><span class="foto-pie">FOTO</span></div>
+          <div class="datos">
+            <label class="campo">
+              <span class="etiqueta">NOMBRE</span>
+              <input id="nick" type="text" maxlength="16" spellcheck="false" autocomplete="off" placeholder="tu nick">
+            </label>
+            <span id="nick-error" class="nick-error" role="alert"></span>
+            <label class="interruptor">
+              <input id="premium" type="checkbox">
+              <span class="pista"><span class="bola"></span></span>
+              <span class="interruptor-txt">TENGO CUENTA PREMIUM</span>
+            </label>
+            <div id="cuenta-premium" class="cuenta-premium" hidden>
+              <span>Microsoft: <b id="cuenta-nombre"></b></span>
+              <button id="btn-logout" class="enlace">cerrar sesión</button>
+            </div>
+          </div>
+        </div>
+        <div id="sello" class="sello" hidden>VERIFICADO</div>
+      </div>
+
+      <button id="btn-jugar" class="jugar" disabled>
+        <span class="tubo" aria-hidden="true"></span>
+        <span id="jugar-txt" class="jugar-txt">JUGAR</span>
+      </button>
+
+      <div id="progreso" class="progreso" hidden>
+        <div class="progreso-txt"><span id="progreso-etapa"></span><span id="progreso-pct"></span></div>
+        <div class="progreso-barra"><div id="progreso-relleno"></div></div>
+      </div>
+    </section>
+
+    <!-- Columna derecha: estado del servidor + registro -->
+    <aside class="derecha">
+      <div class="estado">
+        <div class="cuenta-atras" id="cuenta-atras">
+          <span class="ca-titulo" id="ca-titulo">CONECTANDO</span>
+          <span class="ca-valor" id="ca-valor">--:--:--</span>
+        </div>
+        <div class="senal">
+          <div class="barras" id="barras"><i></i><i></i><i></i><i></i></div>
+          <div class="senal-txt">
+            <span id="srv-estado">BUSCANDO SEÑAL</span>
+            <span id="srv-jugadores">ERRANTES --</span>
+          </div>
+        </div>
+      </div>
+
+      <article class="registro">
+        <header>
+          <span>REGISTRO DE EXPEDICIÓN</span>
+          <span class="clip" aria-hidden="true"></span>
+        </header>
+        <ol id="noticias">
+          <li class="vacio">Sin entradas todavía.</li>
+        </ol>
+      </article>
+
+      <nav class="enlaces">
+        <button id="btn-discord" class="hud-enlace" disabled>[ DISCORD ]</button>
+        <button id="btn-tienda" class="hud-enlace" disabled>[ TIENDA ]</button>
+      </nav>
+    </aside>
+  </main>
+
+  <footer class="hud-inferior">
+    <span id="aviso" class="aviso" role="status"></span>
+    <span id="fecha" class="fecha"></span>
+  </footer>
+
+  <!-- Menu OSD (ajustes) -->
+  <div id="osd" class="osd" hidden>
+    <div class="osd-caja" role="dialog" aria-labelledby="osd-titulo">
+      <h2 id="osd-titulo">MENU</h2>
+      <div class="osd-fila">
+        <span>MEMORIA</span>
+        <input id="ram" type="range" min="2048" max="8192" step="512">
+        <span id="ram-txt" class="osd-valor"></span>
+      </div>
+      <div class="osd-fila">
+        <span>VOLUMEN</span>
+        <input id="volumen" type="range" min="0" max="1" step="0.05">
+        <span id="volumen-txt" class="osd-valor"></span>
+      </div>
+      <div class="osd-fila">
+        <span>EFECTOS</span>
+        <button id="efectos" class="osd-toggle"></button>
+        <span class="osd-valor"></span>
+      </div>
+      <p class="osd-nota" id="osd-nota"></p>
+      <button id="osd-salir" class="osd-salir">&#9664; SALIR</button>
+    </div>
+  </div>
+
+  <script src="sonido.js"></script>
+  <script src="pasillo.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

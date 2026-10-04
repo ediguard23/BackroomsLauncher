@@ -1,0 +1,32 @@
+{
+  "name": "backrooms-launcher",
+  "productName": "Backrooms Launcher",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Launcher cerrado para el evento Backrooms: nick o premium, JUGAR y dentro.",
+  "main": "main.js",
+  "author": "xgdier_",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --enable-logging",
+    "build": "electron-builder --win --publish never",
+    "release": "electron-builder --win --publish always",
+    "publicar-pack": "node tools/publicar-pack.js",
+    "sonidos": "node tools/sonidos/generar.js",
+    "probar": "node tools/probar-local.js"
+  },
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "electron-updater": "^6.8.9"
+  },
+  "devDependencies": {
+    "electron": "^44.5.1",
+    "electron-builder": "^26.15.3",
+    "wasm-media-encoders": "^0.7.0"
+  },
+  "allowScripts": {
+    "electron@44.5.1": true,
+    "electron-winstaller@5.4.0": true
+  }
+}

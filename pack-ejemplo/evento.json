@@ -1,0 +1,21 @@
+{
+  "name": "BACKROOMS",
+  "minecraft": "1.21.11",
+  "loader": "fabric",
+  "loaderVersion": "0.19.5",
+  "server": { "host": "play.tuservidor.net", "port": 25565 },
+  "links": {
+    "discord": "https://discord.gg/tu-invitacion",
+    "tienda": "https://tienda.tuservidor.net"
+  },
+  "eventStart": "2026-10-31T21:00:00-06:00",
+  "staff": ["xgdier_"],
+  "ram": { "recommended": 4096 },
+  "news": [
+    {
+      "date": "2026-10-04",
+      "title": "Se abre el registro",
+      "text": "Descarga el launcher, pon tu nick y espera a que la puerta se abra."
+    }
+  ]
+}

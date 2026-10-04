@@ -1,0 +1,47 @@
+appId: com.backrooms.launcher
+productName: Backrooms Launcher
+copyright: Copyright © 2026
+
+directories:
+  output: dist
+  buildResources: assets
+
+# Solo lo que necesita el programa. pack/, dist-pack/ y tools/ son del
+# organizador y no viajan en el instalador.
+files:
+  - main.js
+  - preload.js
+  - package.json
+  - src/**/*
+  - assets/**/*
+  - '!assets/**/*.psd'
+  - '!**/*.map'
+
+asar: true
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  icon: assets/icon.png
+
+nsis:
+  # Sin espacios: latest.yml referencia el archivo con guiones y, si el .exe
+  # lleva espacios, la actualizacion automatica da 404 al buscarlo.
+  artifactName: Backrooms-Launcher-Setup-${version}.${ext}
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  perMachine: false
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Backrooms Launcher
+  differentialPackage: true
+
+# El launcher se actualiza solo desde las releases de este repositorio. El
+# pack del evento vive en la release con tag "pack", que se crea con
+# make_latest=false para que el actualizador no la confunda con una version.
+publish:
+  provider: github
+  owner: ediguard23
+  repo: BackroomsLauncher
+  releaseType: release
