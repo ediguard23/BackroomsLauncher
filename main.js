@@ -235,6 +235,14 @@ ipcMain.handle('abrir-enlace', (e, cual) => {
   if (typeof url === 'string' && /^https:\/\//.test(url)) shell.openExternal(url);
 });
 
+// Olvida que archivos estaban bien: el proximo JUGAR vuelve a hashear todo y
+// repone lo que no cuadre (Minecraft, librerias, assets y pack).
+ipcMain.handle('reparar', () => resultado(async () => {
+  if (juego || ocupado) throw new Error('Cierra el juego antes de reparar');
+  fs.rmSync(path.join(root(), 'cache', 'verificados.json'), { force: true });
+  return true;
+}));
+
 ipcMain.handle('ventana:minimizar', () => win && win.minimize());
 ipcMain.handle('ventana:cerrar', () => {
   if (juego) {
@@ -340,6 +348,7 @@ async function jugar () {
     // Lo que sale en F3 y en los informes de error en vez de "fabric-loader-...".
     nombreVersion: manifest.name || evento.nombre
   });
+  if (cfg.pantallaCompleta) args.push('--fullscreen');
   const hijo = lanzar(javaPath, args, { gameDir, logFile: path.join(dir, 'logs', 'launcher-salida.log') });
   juego = hijo;
   enviar('juego', { estado: 'abriendo' });

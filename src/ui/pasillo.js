@@ -154,6 +154,7 @@ void main() {
       this.activo = Boolean(this.gl) && this._compilar();
       this.luz = 1;
       this.mover = true;
+      this.velocidad = 1;
       this.z = 0;
       this.ultimo = 0;
       this.t0 = performance.now();
@@ -227,7 +228,7 @@ void main() {
       if (!this.corriendo) return;
       const dt = Math.min(0.1, (ahora - (this.ultimo || ahora)) / 1000);
       this.ultimo = ahora;
-      if (this.mover) this.z += dt * 0.55;
+      if (this.mover) this.z += dt * 0.55 * this.velocidad;
       this._dibujar((ahora - this.t0) / 1000);
       requestAnimationFrame(this._frame);
     }

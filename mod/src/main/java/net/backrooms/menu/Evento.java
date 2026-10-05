@@ -75,4 +75,14 @@ public final class Evento {
 	public boolean tieneServidor() {
 		return !this.host.isBlank();
 	}
+
+	private static String titulo;
+
+	/** Titulo de la ventana del juego: el nombre del evento (se lee una vez). */
+	public static String titulo() {
+		if (titulo == null) {
+			titulo = cargar().nombre.toUpperCase();
+		}
+		return titulo;
+	}
 }

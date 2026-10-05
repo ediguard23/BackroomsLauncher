@@ -11,7 +11,7 @@
 const fs = require('fs');
 const path = require('path');
 
-const POR_DEFECTO = { nick: '', premium: false, ramMB: 0, volumen: 0.6, silencio: false, efectos: true };
+const POR_DEFECTO = { nick: '', premium: false, ramMB: 0, volumen: 0.6, silencio: false, efectos: true, pantallaCompleta: false };
 
 class Config {
   constructor (dir, safeStorage) {

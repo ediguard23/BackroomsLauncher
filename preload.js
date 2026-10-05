@@ -24,6 +24,7 @@ contextBridge.exposeInMainWorld('launcher', {
   acceso: (nombre) => ipcRenderer.invoke('evento:acceso', nombre),
   jugar: () => ipcRenderer.invoke('jugar'),
   abrirEnlace: (cual) => ipcRenderer.invoke('abrir-enlace', cual),
+  reparar: () => ipcRenderer.invoke('reparar'),
   minimizar: () => ipcRenderer.invoke('ventana:minimizar'),
   cerrar: () => ipcRenderer.invoke('ventana:cerrar'),
   instalarActualizacion: () => ipcRenderer.invoke('actualizacion:instalar'),

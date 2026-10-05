@@ -3,9 +3,10 @@
   "id": "backrooms",
   "version": "${version}",
   "name": "Backrooms Menu",
-  "description": "Menu del evento Backrooms: el mismo aspecto que el launcher, servidor fijo y pantallas bloqueadas.",
-  "authors": ["xgdier_"],
+  "description": "Menu, pausa y pantalla de carga del evento Backrooms: el mismo aspecto que el launcher, servidor fijo y pantallas bloqueadas. Desarrollado por PeakMC Studio.",
+  "authors": ["PeakMC Studio", "xgdier_"],
   "license": "All-Rights-Reserved",
+  "icon": "assets/backrooms/icon.png",
   "environment": "client",
   "entrypoints": {
     "client": ["net.backrooms.menu.BackroomsMenu"]

@@ -1,8 +1,22 @@
 # Backrooms Launcher
 
-Launcher cerrado para el evento Backrooms. El jugador solo pone su nick (o
-inicia sesión premium) y pulsa **JUGAR**: los mods, la configuración y el
-servidor los decide el organizador.
+Launcher cerrado para el evento Backrooms, desarrollado por **PeakMC Studio**.
+El jugador solo pone su nick (o inicia sesión premium) y pulsa **JUGAR**: los
+mods, la configuración y el servidor los decide el organizador.
+
+**Descarga:** [última versión del instalador](https://github.com/ediguard23/BackroomsLauncher/releases/latest).
+Se actualiza solo.
+
+## La interfaz
+
+- Arranca como una cinta VHS: ▶ PLAY y la firma «PeakMC Studio presenta»
+  (un clic o una tecla la saltan).
+- Pasillo del Nivel 0 en tiempo real, el logo del evento con glitch de cinta,
+  pase de explorador (nick o premium), JUGAR, cuenta atrás, estado del
+  servidor, noticias y «Desarrollado por PeakMC Studio» en el pie.
+- MENU: memoria, volumen, efectos, ventana o pantalla completa para el juego y
+  **REPARAR** (el siguiente JUGAR vuelve a comprobar cada archivo por su hash).
+- Escribe `noclip` fuera del campo del nick.
 
 ## Qué hace al pulsar JUGAR
 
@@ -75,6 +89,15 @@ que se dibuja en tiempo real con un shader propio (`assets/backrooms/shaders`).
   cualquier camino hacia ellos acaba en este menú (`MinecraftMixin`).
 - Si el servidor echa al jugador, sale «SEÑAL PERDIDA» con el motivo,
   REINTENTAR y VOLVER, en vez de la pantalla de Minecraft.
+- La pantalla de carga roja de Mojang Studios es una cinta VHS: logo del evento
+  con su tubo parpadeando, barra de carga del launcher, consejos de explorador
+  y «Desarrollado por PeakMC Studio». Como en la primera carga no hay fuentes
+  todavía, las letras son de píxeles dibujados a mano (`render/Osd.java`) y los
+  logos se leen del jar (`render/Logos.java`).
+- La ventana se llama como el evento (no «Minecraft* 1.21.11») y lleva de icono
+  la puerta del logo. El F3 no enseña la marca «fabric».
+- Menú de pausa propio: VOLVER, CONFIGURACIÓN, LOGROS, ESTADÍSTICAS, DISCORD,
+  TIENDA y DESCONECTAR, sin «abrir a LAN» ni enlaces de Mojang.
 - Todos los menús (opciones, conectando...) tienen el pasillo de fondo.
 - Sonidos propios de las Piscinas (`npm run sonidos:piscinas`): depuradora,
   agua, gotas y una música en Sol lidio. Sustituyen a la música de menú.
@@ -92,6 +115,21 @@ JAVA_HOME="$LOCALAPPDATA/Programs/jdk-25" ./gradlew build
 El jar sale en `mod/build/libs/` y se copia a `pack/mods/`. Si Gradle falla con
 «Failed to clean up stale outputs», es OneDrive bloqueando `build/`: se repite
 y pasa.
+
+## Imágenes
+
+Los dos logos (Backrooms y PeakMC Studio) se generaron con IA sobre fondo
+magenta; los originales y los prompts están en `assets/fuentes-ia/` y
+`assets/PROMPTS.md`. Todo lo demás sale de ellos:
+
+```bash
+npm run imagenes
+```
+
+Quita el magenta, recorta, y escribe los logos del launcher, el icono
+(`assets/icon.png`, que electron-builder convierte en `.ico`), los iconos de la
+ventana de Minecraft y las texturas del mod en varios tamaños (Minecraft no
+hace mipmaps de las texturas de la interfaz).
 
 ## Sonidos
 
@@ -117,4 +155,22 @@ launcher usa los tuyos.
 npm run build
 ```
 
-Falta `assets/icon.png` (se generará con el resto de imágenes).
+Deja en `dist/` el instalador NSIS (`Backrooms-Launcher-Setup-<versión>.exe`).
+No está firmado: la primera vez Windows SmartScreen avisa («Más información →
+Ejecutar de todas formas»).
+
+## Publicar una versión nueva del launcher
+
+1. Sube `version` en `package.json`.
+2. Con un `GH_TOKEN` con permiso `repo`:
+
+   ```bash
+   npm run release
+   ```
+
+   Compila y crea la release `v<versión>` con el instalador, su `.blockmap` y
+   `latest.yml`. Los launchers ya instalados la descargan solos al abrirse y
+   la instalan al cerrar (o al pulsar el aviso «ACTUALIZACIÓN · REINICIAR»).
+
+El pack del evento va aparte (`npm run publicar-pack`): cambiar mods, noticias o
+servidor no necesita una versión nueva del launcher.

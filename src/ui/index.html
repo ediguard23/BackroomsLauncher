@@ -16,8 +16,14 @@
   <canvas id="grano" aria-hidden="true"></canvas>
   <div class="lineas" aria-hidden="true"></div>
 
-  <!-- Arranque tipo cinta: PLAY sobre ruido -->
-  <div id="cinta" aria-hidden="true"><span>&#9654; PLAY</span></div>
+  <!-- Arranque tipo cinta: PLAY sobre ruido y la firma del estudio (clic para saltar) -->
+  <div id="cinta" aria-hidden="true">
+    <span class="cinta-play">&#9654; PLAY</span>
+    <div class="presenta">
+      <img src="../../assets/logo-peakmc-studio.png" alt="">
+      <span>PRESENTA</span>
+    </div>
+  </div>
 
   <!-- HUD de la camara -->
   <header class="hud-superior">
@@ -38,9 +44,16 @@
     <!-- Columna izquierda: titulo + pase + JUGAR -->
     <section class="izquierda">
       <div class="titulo">
-        <span id="subtitulo" class="sub">NIVEL 0</span>
-        <h1 id="nombre-evento" data-texto="BACKROOMS">BACKROOMS</h1>
-        <p class="lema">Si sales de la realidad por accidente, acabas aquí.</p>
+        <div class="logo" aria-hidden="true">
+          <img class="logo-base" src="../../assets/logo-backrooms.png" alt="">
+          <img class="logo-eco eco-a" src="../../assets/logo-backrooms.png" alt="">
+          <img class="logo-eco eco-b" src="../../assets/logo-backrooms.png" alt="">
+        </div>
+        <div class="titulo-txt">
+          <span id="subtitulo" class="sub">NIVEL 0</span>
+          <h1 id="nombre-evento" class="solo-lector">BACKROOMS</h1>
+          <p class="lema">Si sales de la realidad por accidente, acabas aquí.</p>
+        </div>
       </div>
 
       <div class="pase" id="pase">
@@ -113,6 +126,10 @@
 
   <footer class="hud-inferior">
     <span id="aviso" class="aviso" role="status"></span>
+    <div class="credito" title="Evento desarrollado por PeakMC Studio">
+      <span>DESARROLLADO POR</span>
+      <img src="../../assets/logo-peakmc-studio.png" alt="PeakMC Studio">
+    </div>
     <span id="fecha" class="fecha"></span>
   </footer>
 
@@ -135,7 +152,18 @@
         <button id="efectos" class="osd-toggle"></button>
         <span class="osd-valor"></span>
       </div>
+      <div class="osd-fila">
+        <span>JUEGO</span>
+        <button id="pantalla" class="osd-toggle"></button>
+        <span class="osd-valor"></span>
+      </div>
+      <div class="osd-fila">
+        <span>ARCHIVOS</span>
+        <button id="reparar" class="osd-toggle">REPARAR</button>
+        <span class="osd-valor"></span>
+      </div>
       <p class="osd-nota" id="osd-nota"></p>
+      <p class="osd-nota">EVENTO DESARROLLADO POR PEAKMC STUDIO</p>
       <button id="osd-salir" class="osd-salir">&#9664; SALIR</button>
     </div>
   </div>

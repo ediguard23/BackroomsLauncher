@@ -288,10 +288,7 @@
     }
     estado.manifest = r.datos;
     if (r.datos.desdeCache) aviso('Sin conexión: se usa la última configuración descargada.', true);
-    if (r.datos.nombre) {
-      $('nombre-evento').textContent = r.datos.nombre.toUpperCase();
-      $('nombre-evento').dataset.texto = r.datos.nombre.toUpperCase();
-    }
+    if (r.datos.nombre) $('nombre-evento').textContent = r.datos.nombre.toUpperCase();
     pintarNoticias(r.datos.news);
     $('btn-discord').disabled = !r.datos.links.discord;
     $('btn-tienda').disabled = !r.datos.links.tienda;
@@ -409,6 +406,28 @@
     sonido && sonido.click();
   });
 
+  function aplicarPantalla () {
+    $('pantalla').textContent = estado.config.pantallaCompleta ? 'PANTALLA COMPLETA' : 'VENTANA';
+  }
+  $('pantalla').addEventListener('click', async () => {
+    estado.config = await L.guardarConfig({ pantallaCompleta: !estado.config.pantallaCompleta });
+    sonido && sonido.click();
+    aplicarPantalla();
+  });
+
+  // Borra la cache de verificados: el proximo JUGAR comprueba cada archivo por su hash.
+  $('reparar').addEventListener('click', async () => {
+    sonido && sonido.click();
+    const r = await L.reparar();
+    if (r.ok) {
+      $('reparar').textContent = 'AL PULSAR JUGAR';
+      $('reparar').disabled = true;
+      aviso('Al pulsar JUGAR se comprobarán todos los archivos uno a uno.');
+    } else {
+      aviso(r.error, true);
+    }
+  });
+
   $('btn-min').addEventListener('click', () => L.minimizar());
   $('btn-cerrar').addEventListener('click', () => L.cerrar());
 
@@ -437,6 +456,30 @@
       parpadeoAleatorio();
     }, 7000 + Math.random() * 16000);
   }
+
+  /* ---------------------------------------------------------------- noclip */
+
+  // Escribir "noclip" fuera del campo del nick: atraviesas la pared.
+  let tecleado = '';
+  let atravesando = false;
+  document.addEventListener('keydown', (e) => {
+    if (e.target && e.target.tagName === 'INPUT') return;
+    if (e.key.length !== 1) return;
+    tecleado = (tecleado + e.key.toLowerCase()).slice(-6);
+    if (tecleado !== 'noclip' || atravesando || estado.jugando) return;
+    tecleado = '';
+    atravesando = true;
+    document.body.classList.add('noclip');
+    pasillo.velocidad = 9;
+    pasillo.luz = 0.4;
+    if (sonido) { sonido.parpadeo(0.4); sonido.jugar(); }
+    setTimeout(() => { pasillo.velocidad = 1; pasillo.luz = 1; }, 1500);
+    setTimeout(() => {
+      document.body.classList.remove('noclip');
+      atravesando = false;
+      aviso('Has atravesado la pared. Esto ya no es el mismo pasillo.');
+    }, 1700);
+  });
 
   /* ------------------------------------------------------ imagen de fondo */
 
@@ -471,7 +514,6 @@
     estado.jugando = s.juegoAbierto;
     $('subtitulo').textContent = s.evento.subtitulo || '';
     $('nombre-evento').textContent = s.evento.nombre;
-    $('nombre-evento').dataset.texto = s.evento.nombre;
 
     const maxRam = Math.max(2048, Math.min(16384, Math.floor((s.memoriaMB - 2048) / 512) * 512));
     $('ram').max = maxRam;
@@ -484,6 +526,7 @@
     pintarPase();
     aplicarSonido();
     aplicarEfectos();
+    aplicarPantalla();
     probarFondo();
     relojHud();
     setInterval(relojHud, 1000);
@@ -493,12 +536,20 @@
     // Los sonidos cargan en paralelo: la intro no los espera.
     const sonidosListos = sonido ? sonido.cargar().catch(() => {}) : Promise.resolve();
     await document.fonts.ready;
-    setTimeout(() => {
+    // La firma de PeakMC Studio dura lo que su animacion; un clic o una tecla la saltan.
+    let abierto = false;
+    const abrir = () => {
+      if (abierto) return;
+      abierto = true;
       document.body.classList.remove('cargando');
       document.body.classList.add('listo');
       parpadeoAleatorio();
       sonidosListos.then(() => sonido && sonido.iniciarAmbiente());
-    }, 900);
+    };
+    setTimeout(() => sonidosListos.then(() => !abierto && sonido && sonido.parpadeo(0.2)), 380);
+    setTimeout(abrir, 2900);
+    $('cinta').addEventListener('click', abrir);
+    document.addEventListener('keydown', abrir, { once: true });
 
     cargarManifest();
   }

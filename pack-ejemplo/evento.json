@@ -5,8 +5,8 @@
   "loaderVersion": "0.19.5",
   "server": { "host": "play.tuservidor.net", "port": 25565 },
   "links": {
-    "discord": "https://discord.gg/tu-invitacion",
-    "tienda": "https://tienda.tuservidor.net"
+    "discord": "https://dc.peakmc.lat",
+    "tienda": "https://tienda.peakmc.lat"
   },
   "eventStart": "2026-10-31T21:00:00-06:00",
   "staff": ["xgdier_"],

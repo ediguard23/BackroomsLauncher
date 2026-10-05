@@ -1,11 +1,11 @@
 {
   "name": "backrooms-launcher",
   "productName": "Backrooms Launcher",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
-  "description": "Launcher cerrado para el evento Backrooms: nick o premium, JUGAR y dentro.",
+  "description": "Launcher cerrado del evento Backrooms de PeakMC Studio: nick o premium, JUGAR y dentro.",
   "main": "main.js",
-  "author": "xgdier_",
+  "author": "PeakMC Studio",
   "license": "UNLICENSED",
   "scripts": {
     "start": "electron .",
@@ -15,7 +15,8 @@
     "publicar-pack": "node tools/publicar-pack.js",
     "sonidos": "node tools/sonidos/generar.js",
     "probar": "node tools/probar-local.js",
-    "sonidos:piscinas": "node tools/sonidos/piscinas.js"
+    "sonidos:piscinas": "node tools/sonidos/piscinas.js",
+    "imagenes": "node tools/imagenes/generar.js"
   },
   "dependencies": {
     "adm-zip": "^0.6.1",

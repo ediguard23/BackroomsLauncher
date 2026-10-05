@@ -1,5 +1,6 @@
 package net.backrooms.menu.mixin;
 
+import net.backrooms.menu.Evento;
 import net.backrooms.menu.MenuBackrooms;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -26,6 +27,12 @@ public abstract class MinecraftMixin {
 	@ModifyVariable(method = "setScreen", at = @At("HEAD"), argsOnly = true)
 	private @Nullable Screen backrooms$sustituirPantalla(@Nullable Screen pantalla) {
 		return MenuBackrooms.sustituir(pantalla, this.level != null);
+	}
+
+	/** La barra de titulo de la ventana dice el nombre del evento, no "Minecraft* 1.21.11". */
+	@Inject(method = "createTitle", at = @At("HEAD"), cancellable = true)
+	private void backrooms$titulo(CallbackInfoReturnable<String> cir) {
+		cir.setReturnValue(Evento.titulo());
 	}
 
 	/** Sin musica de menu de Minecraft: en los menus suenan los bucles de las Piscinas. */

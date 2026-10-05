@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 import net.backrooms.menu.render.Degradado;
+import net.backrooms.menu.render.Logos;
 import net.backrooms.menu.render.Piscinas;
 import net.backrooms.menu.render.Texto;
 import net.minecraft.client.gui.GuiGraphics;
@@ -72,6 +73,9 @@ public class MenuBackrooms extends Screen {
 		}
 		if (pantalla instanceof net.minecraft.client.gui.screens.DisconnectedScreen d) {
 			return new SenalPerdida(((net.backrooms.menu.mixin.DisconnectedScreenAccessor) d).backrooms$detalles().reason());
+		}
+		if (pantalla.getClass() == net.minecraft.client.gui.screens.PauseScreen.class) {
+			return new MenuPausa(((net.minecraft.client.gui.screens.PauseScreen) pantalla).showsPauseMenu());
 		}
 		String n = pantalla.getClass().getName();
 		if (pantalla instanceof net.minecraft.client.gui.screens.TitleScreen
@@ -213,11 +217,11 @@ public class MenuBackrooms extends Screen {
 		super.render(g, mx, my, parcial);
 	}
 
-	private static int alfa(int color, float a) {
+	static int alfa(int color, float a) {
 		return (Math.round(Math.max(0, Math.min(1, a)) * 255) << 24) | (color & 0xFFFFFF);
 	}
 
-	private static String dos(long n) {
+	static String dos(long n) {
 		return n < 10 ? "0" + n : Long.toString(n);
 	}
 
@@ -241,14 +245,35 @@ public class MenuBackrooms extends Screen {
 	}
 
 	private void titulo(GuiGraphics g) {
-		Texto.hud(g, "NIVEL 37", 44, 126, 26, 0.5F, AGUA);
-		String nombre = this.evento.nombre.toUpperCase();
+		int alto = logo(g, 44, 66, 200, this.escala);
+		int tx = 44 + Math.round(alto * Logos.BACKROOMS.proporcion()) + 22;
+		Texto.hud(g, "NIVEL 37", tx, 150, 26, 0.5F, AGUA);
+		Texto.parrafo(g, "El agua está templada. No recuerdas haber entrado.", tx, 184, 14, 496 - tx, 1.45F, alfa(TUBO, 0.75F));
+	}
+
+	/**
+	 * El logo del evento con el corrimiento de color de la cinta (y un tiron
+	 * mas fuerte cada 7 s, como el glitch del titulo del launcher).
+	 */
+	static int logo(GuiGraphics g, int x, int y, int alto, float escala) {
+		float px = escala * Logos.escalaGui();
 		float t = Piscinas.segundos() % 7.0F;
-		float glitch = t > 6.5F ? (float) Math.sin(t * 90) * 5 : 0;
-		Texto.hud(g, nombre, 44 + 3 + glitch, 150, 108, 0.03F, 0x8CFF1E46);
-		Texto.hud(g, nombre, 44 - 3 - glitch, 150, 108, 0.03F, 0x7300D2FF);
-		Texto.hud(g, nombre, 44, 150, 108, 0.03F, TUBO);
-		Texto.maquina(g, "El agua está templada. No recuerdas haber entrado.", 44, 258, 14, 0.02F, alfa(TUBO, 0.75F));
+		int glitch = t > 6.5F ? Math.round((float) Math.sin(t * 90) * 5) : 0;
+		Logos.BACKROOMS.dibujar(g, x + 2 + glitch, y, alto, px, 0x59FF1E46);
+		Logos.BACKROOMS.dibujar(g, x - 2 - glitch, y, alto, px, 0x4D00D2FF);
+		Logos.BACKROOMS.dibujar(g, x, y, alto, px, 0xFFFFFFFF);
+		return alto;
+	}
+
+	/** "DESARROLLADO POR" y el logo de PeakMC Studio, centrados en `cx`. */
+	static void firma(GuiGraphics g, float cx, int y, float escala, int color) {
+		int alto = 34;
+		int ancho = Math.round(alto * Logos.PEAKMC_STUDIO.proporcion());
+		String por = "DESARROLLADO POR";
+		float texto = Texto.anchoHud(por, 17, 0.22F);
+		float x = cx - (texto + 10 + ancho) / 2.0F;
+		Texto.hud(g, por, x, y + alto / 2.0F - 8, 17, 0.22F, alfa(color, 0.85F));
+		Logos.PEAKMC_STUDIO.dibujar(g, Math.round(x + texto + 10), y, alto, escala * Logos.escalaGui(), 0xFFFFFFFF);
 	}
 
 	private void pase(GuiGraphics g) {
@@ -315,12 +340,13 @@ public class MenuBackrooms extends Screen {
 	}
 
 	private void botonJugar(GuiGraphics g) {
-		int x0 = 44;
-		int y0 = 512;
-		int x1 = 496;
-		int y1 = 598;
-		boolean activo = this.jugar.active;
-		boolean encima = activo && this.jugar.isHoveredOrFocused();
+		botonTubo(g, this.jugar, 44, 512, 496, 598, "JUGAR", "SIN SERVIDOR");
+	}
+
+	/** El boton grande de tubo fluorescente del launcher (JUGAR, VOLVER...). */
+	static void botonTubo(GuiGraphics g, BotonInvisible boton, int x0, int y0, int x1, int y1, String texto, String inactivo) {
+		boolean activo = boton.active;
+		boolean encima = activo && boton.isHoveredOrFocused();
 		if (activo) {
 			// halo del tubo
 			int capas = encima ? 10 : 8;
@@ -334,7 +360,7 @@ public class MenuBackrooms extends Screen {
 			float t = (System.currentTimeMillis() % 4000) / 4000.0F;
 			float vida = 1.0F;
 			if (encima) {
-				vida = parpadeoEntrada((System.currentTimeMillis() - this.jugar.encimaDesde) / 900.0F);
+				vida = parpadeoEntrada((System.currentTimeMillis() - boton.encimaDesde) / 900.0F);
 			} else if (t > 0.47F && t < 0.49F) {
 				vida = 0.93F;
 			}
@@ -345,7 +371,7 @@ public class MenuBackrooms extends Screen {
 		} else {
 			g.fill(x0 + 7, y0 + 7, x1 - 7, y1 - 7, 0xFF2A3A3C);
 		}
-		String txt = activo ? "JUGAR" : "SIN SERVIDOR";
+		String txt = activo ? texto : inactivo;
 		float tam = activo ? 58 : 40;
 		float esp = activo ? 0.32F : 0.18F;
 		float ancho = Texto.anchoHud(txt, tam, esp);
@@ -488,11 +514,17 @@ public class MenuBackrooms extends Screen {
 	}
 
 	private void pie(GuiGraphics g) {
-		LocalDateTime d = LocalDateTime.now();
-		String f = MESES[d.getMonthValue() - 1] + ". " + dos(d.getDayOfMonth()) + " " + d.getYear() + "   " + dos(d.getHour()) + ":" + dos(d.getMinute());
-		Texto.hud(g, f, 1148 - Texto.anchoHud(f, 22, 0.05F), 686, 22, 0.05F, alfa(TUBO, 0.9F));
+		fecha(g, alfa(TUBO, 0.9F));
+		firma(g, 643, 678, this.escala, TUBO);
 		if (!this.aviso.isEmpty() && System.currentTimeMillis() < this.avisoHasta) {
 			Texto.hud(g, this.aviso, 32, 686, 22, 0.05F, TUBO);
 		}
+	}
+
+	/** Fecha y hora de la camara, abajo a la derecha. */
+	static void fecha(GuiGraphics g, int color) {
+		LocalDateTime d = LocalDateTime.now();
+		String f = MESES[d.getMonthValue() - 1] + ". " + dos(d.getDayOfMonth()) + " " + d.getYear() + "   " + dos(d.getHour()) + ":" + dos(d.getMinute());
+		Texto.hud(g, f, 1148 - Texto.anchoHud(f, 22, 0.05F), 686, 22, 0.05F, color);
 	}
 }
