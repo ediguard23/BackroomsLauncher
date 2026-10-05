@@ -46,7 +46,9 @@ public final class Objetos {
 	/** Agua de almendras: la unica que sube la cordura. */
 	public static final Item AGUA_ALMENDRAS = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("agua_almendras")),
 		net.backrooms.evento.supervivencia.AguaAlmendras::new,
-		new Item.Properties().stacksTo(4).food(new FoodProperties(2, 1.0F, true), Consumables.DEFAULT_DRINK));
+		new Item.Properties().stacksTo(4).food(new FoodProperties(2, 1.0F, true),
+			Consumables.defaultDrink().sound(net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(net.backrooms.evento.Sonidos.AGUA_BEBER)).consumeSeconds(2.0F)
+				.soundAfterConsume(net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(net.backrooms.evento.Sonidos.AGUA_SUSPIRO)).build()));
 	public static final Item GALLETAS = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("galletas")), Item::new,
 		new Item.Properties().stacksTo(8).food(new FoodProperties(4, 3.0F, false)));
 	public static final Item PIZZA = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("pizza")), Item::new,

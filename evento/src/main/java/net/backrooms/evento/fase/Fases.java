@@ -122,13 +122,13 @@ public final class Fases {
 		}
 		Misiones.Estado e = Misiones.get().estado(j);
 		if (e == null || e.actual < e.misiones.size()) {
-			j.level().playSound(null, panel, SoundEvents.NOTE_BLOCK_BASS.value(), SoundSource.BLOCKS, 0.8F, 0.5F);
+			j.level().playSound(null, panel, net.backrooms.evento.Sonidos.ASCENSOR_DENEGADO, SoundSource.BLOCKS, 0.9F, 1.0F);
 			j.displayClientMessage(Component.literal("ACCESO DENEGADO · Completa tus misiones").withStyle(ChatFormatting.RED), true);
 			return;
 		}
 		Fase sig = f.siguiente();
 		ServerPlayNetworking.send(j, sig == null ? new ViajeAscensor(0, "LA SALIDA", "") : new ViajeAscensor(sig.numero(), sig.nombre(), sig.dificultad()));
-		j.level().playSound(null, panel, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.BLOCKS, 1.0F, 1.2F);
+		j.level().playSound(null, panel, net.backrooms.evento.Sonidos.ASCENSOR_PANEL, SoundSource.BLOCKS, 1.0F, 1.0F);
 		j.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, BAJADA + 20, 6, false, false, false));
 		this.viajes.put(j.getUUID(), this.ticks + BAJADA);
 	}
@@ -194,7 +194,7 @@ public final class Fases {
 		this.servidor.getPlayerList().broadcastSystemMessage(
 			Component.literal(nombre + " ha escapado de los Backrooms (puesto #" + puesto + ")").withStyle(ChatFormatting.GOLD), false);
 		for (ServerPlayer o : this.servidor.getPlayerList().getPlayers()) {
-			o.level().playSound(null, o.getX(), o.getY(), o.getZ(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.MASTER, 0.6F, 1.0F);
+			net.backrooms.evento.Sonidos.aJugador(o, net.backrooms.evento.Sonidos.ESCAPADO, 0.9F);
 		}
 		BackroomsEvento.LOG.info("{} ha escapado (puesto {})", nombre, puesto);
 	}

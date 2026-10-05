@@ -206,5 +206,107 @@
         "name": "backrooms_evento:moqueta_mojada_paso4"
       }
     ]
+  },
+  "casete.coger": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:casete_coger",
+        "attenuation_distance": 8
+      }
+    ]
+  },
+  "agua.coger": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:agua_coger",
+        "attenuation_distance": 8
+      }
+    ]
+  },
+  "comida.coger": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:comida_coger",
+        "attenuation_distance": 8
+      }
+    ]
+  },
+  "agua.beber": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:agua_trago1",
+        "attenuation_distance": 8
+      },
+      {
+        "name": "backrooms_evento:agua_trago2",
+        "attenuation_distance": 8
+      },
+      {
+        "name": "backrooms_evento:agua_trago3",
+        "attenuation_distance": 8
+      }
+    ]
+  },
+  "nota.leer": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:nota_leer",
+        "attenuation_distance": 6
+      }
+    ]
+  },
+  "butaca": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:butaca",
+        "attenuation_distance": 8
+      }
+    ]
+  },
+  "bacteria.golpe": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:bacteria_golpe",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "ascensor.denegado": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:ascensor_denegado",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "ascensor.panel": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:ascensor_panel",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "mision.completa": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:mision_completa"
+      }
+    ]
+  },
+  "escapado": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:escapado"
+      }
+    ]
+  },
+  "agua.suspiro": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:agua_suspiro",
+        "attenuation_distance": 8
+      }
+    ]
   }
 }

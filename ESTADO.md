@@ -1,8 +1,27 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-05 17:50 (hora de Honduras). Mod `backrooms_evento` 0.9.0, launcher 1.0.0.
+Última actualización: 2026-10-05 18:00 (hora de Honduras). Mod `backrooms_evento` 0.9.2, launcher 1.0.0.
 
-## En qué se quedó la última sesión (leer primero)
+## 0.9.2 (2026-10-05, tarde)
+
+- **Probado en el juego**: la 0.9.x arranca; el miedo se ve (bordes que laten y colores
+  separados con una Bacteria cazando); la pantalla de muerte del eliminado sale bien
+  («HAS CAÍDO», solo «SALIR DEL EVENTO»); entradas con pase: entra el bueno y fuera un
+  cliente sin mod, un pase falsificado, el de otro nick y el copiado a otro PC.
+- Arreglado: en el apagón la mano salía iluminada (la pasada de la mano iba antes de que el
+  juego la dibujara: ahora va al final de renderLevel). Linterna con más alcance y luz.
+- **Sonidos sin nada genérico** (el usuario dijo que varios lo eran): tools/sonidos/acciones.js
+  hace herido y muerte del jugador por el respirador del traje (sustituyen al «auch» de
+  Minecraft con assets/minecraft/sounds.json), coger casete/agua/comida, tragos y suspiro al
+  beber agua, leer nota, sentarse, zarpazo de la Bacteria, zumbador y campanilla del
+  ascensor, misión completada y escapado. La eliminación lleva antes un monitor cardiaco
+  que se queda plano (tools/sonidos/eliminado.js).
+- Muestrario para que el usuario escuche: `video/muestrario-sonidos.mp3` + `.txt` con los
+  segundos (no va al repo; se rehace con ffmpeg concatenando los ogg).
+- Voces (Higgsfield, 3,5 créditos): megafonía del vestíbulo y de la alarma, y dos susurros
+  para las alucinaciones (tools/sonidos/voces.js, originales en tools/sonidos/voces/).
+
+## En qué se quedó la sesión anterior
 
 Se hizo la 0.9.0 (compila, arranca sin errores en cliente y servidor), pero **falta probarla
 a fondo en el juego**. Lo último fue una prueba con la orden `andar 5`: el jugador avanzó 21 bloques

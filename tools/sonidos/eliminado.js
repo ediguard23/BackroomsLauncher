@@ -5,9 +5,10 @@
  *
  *   node tools/sonidos/eliminado.js
  *
- * Un corte de cinta: estatica que tartamudea, un tono que se hunde como una
- * cinta que se para, un golpe grave y un acorde disonante que se apaga con
- * reverb. Va en estereo y sin posicion (es un aviso, no un ruido del mundo).
+ * Primero el monitor de constantes del traje: dos pitidos y la linea plana.
+ * Luego se corta la senal: estatica que tartamudea, un tono que se hunde como
+ * una cinta que se para, un golpe grave y un acorde disonante que se apaga
+ * con reverb. Va en estereo y sin posicion (es un aviso, no un ruido del mundo).
  */
 
 const fs = require('fs');
@@ -97,8 +98,46 @@ function eliminado () {
   return D.fundidos(buf, 0.001, 0.4);
 }
 
+/** El monitor: pitido, pitido... y la linea plana hasta que se corta la senal. */
+function monitor (corte) {
+  const n = Math.round(corte * SR);
+  const out = new Float32Array(n);
+  const tono = (t) => Math.sin(TAU * 1000 * t) * 0.7 + Math.sin(TAU * 2000 * t) * 0.12;
+  for (let k = 0; k < n; k++) {
+    const t = k / SR;
+    let v = 0;
+    for (const p of [0.0, 0.5]) {
+      if (t >= p && t < p + 0.11) v = tono(t) * suave(p, p + 0.004, t) * (1 - suave(p + 0.1, p + 0.11, t));
+    }
+    if (t >= 1.0) v = tono(t) * suave(1.0, 1.006, t); // la linea plana
+    out[k] = v * 0.32;
+  }
+  return out;
+}
+
+/** El aviso entero: el monitor y, a los 2 s, el corte de la senal de siempre. */
+function completo () {
+  const CORTE = 2.0;
+  const m = monitor(CORTE);
+  const resto = eliminado();
+  const n = m.length + resto[0].length;
+  const out = [new Float32Array(n), new Float32Array(n)];
+  // el pitido suena en un altavoz pequeno: algo de sala y un poco a la izquierda
+  const rv = new D.Freeverb({ sala: 0.5, amortiguacion: 0.5 });
+  for (let k = 0; k < m.length; k++) {
+    const [a, b] = rv.paso(m[k]);
+    out[0][k] = m[k] * 0.9 + a * 0.3;
+    out[1][k] = m[k] * 0.7 + b * 0.3;
+  }
+  for (let k = 0; k < resto[0].length; k++) {
+    out[0][m.length + k] += resto[0][k];
+    out[1][m.length + k] += resto[1][k];
+  }
+  return out;
+}
+
 (async () => {
-  const audio = eliminado();
+  const audio = completo();
   const bytes = await D.guardarOgg(path.join(ASSETS, 'sounds', 'eliminado.ogg'), audio, 5);
   console.log(`  eliminado.ogg  ${(audio[0].length / SR).toFixed(2)} s  ${(bytes / 1024).toFixed(0)} KB`);
   // sounds.json: solo se anade la entrada, lo demas se respeta

@@ -29,8 +29,9 @@ public abstract class GameRendererEfectosMixin {
 		EfectosMundo.mundo(proyeccion, vista, this.getMainCamera(), tiempo.getGameTimeDeltaPartialTick(true));
 	}
 
-	@Inject(method = "renderLevel", at = @At(value = "INVOKE",
-		target = "Lnet/minecraft/client/renderer/GameRenderer;renderItemInHand(FZLorg/joml/Matrix4f;)V", shift = At.Shift.AFTER))
+	// al final: renderItemInHand solo encola la mano, que se dibuja despues con los
+	// efectos de pantalla; si se oscureciera antes, en el apagon la mano saldria iluminada
+	@Inject(method = "renderLevel", at = @At("TAIL"))
 	private void backrooms$mano(DeltaTracker tiempo, CallbackInfo ci) {
 		EfectosMundo.mano();
 	}

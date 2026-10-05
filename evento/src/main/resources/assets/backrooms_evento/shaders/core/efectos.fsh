@@ -97,9 +97,9 @@ void main() {
             // centro mas fuerte y un anillo, como el reflector de una linterna de verdad
             float centro = smoothstep(0.975, 0.997, c) * 0.55;
             float anillo = smoothstep(0.93, 0.945, c) * smoothstep(0.96, 0.945, c) * 0.18;
-            float caida = 1.0 / (1.0 + d * d * 0.010) * smoothstep(34.0, 14.0, d);
+            float caida = 1.0 / (1.0 + d * d * 0.007) * smoothstep(40.0, 16.0, d);
             float cara = clamp(dot(normal, -dir), 0.0, 1.0) * 0.8 + 0.2;
-            luz += (cono * (0.95 + centro + anillo) * caida * cara) * a.w;
+            luz += (cono * (1.2 + centro + anillo) * caida * cara) * a.w;
             // lo poco que salpica alrededor de quien la lleva
             luz += a.w * 0.06 / (1.0 + d * d * 0.6);
         }

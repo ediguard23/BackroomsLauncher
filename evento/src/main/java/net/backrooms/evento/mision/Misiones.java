@@ -213,7 +213,7 @@ public final class Misiones {
 		e.pendientes.get(i)[2] = 1;
 		e.casetes++;
 		this.sucio = true;
-		jugador.level().playSound(null, jugador.blockPosition(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.6F, 0.7F);
+		jugador.level().playSound(null, jugador.blockPosition(), net.backrooms.evento.Sonidos.CASETE_COGER, SoundSource.PLAYERS, 0.9F, 0.95F + jugador.getRandom().nextFloat() * 0.1F);
 		jugador.displayClientMessage(Component.literal("CASETE " + e.casetes + "/" + necesarios(e)).withStyle(ChatFormatting.YELLOW), true);
 		if (e.actual < e.misiones.size() && e.misiones.get(e.actual) == TipoMision.CASETES && e.casetes >= necesarios(e)) {
 			this.completar(jugador, TipoMision.CASETES);
@@ -235,7 +235,7 @@ public final class Misiones {
 		e.actual++;
 		e.grabado = 0;
 		this.sucio = true;
-		jugador.level().playSound(null, jugador.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 0.5F, 0.8F);
+		net.backrooms.evento.Sonidos.aJugador(jugador, net.backrooms.evento.Sonidos.MISION_COMPLETA, 0.9F);
 		if (e.actual >= e.misiones.size()) {
 			jugador.displayClientMessage(Component.literal("Misiones completadas. El radar ya marca el ascensor de salida: síguelo.").withStyle(ChatFormatting.GOLD), false);
 		} else {

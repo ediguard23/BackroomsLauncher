@@ -30,6 +30,19 @@ public final class Sonidos {
 	public static final SoundEvent LATIDO = registrar("latido");
 	public static final SoundEvent MEGAFONIA_VESTIBULO = registrar("megafonia.vestibulo");
 	public static final SoundEvent MEGAFONIA_ALERTA = registrar("megafonia.alerta");
+	// acciones del jugador (tools/sonidos/acciones.js): ninguna con el sonido generico de Minecraft
+	public static final SoundEvent CASETE_COGER = registrar("casete.coger");
+	public static final SoundEvent AGUA_COGER = registrar("agua.coger");
+	public static final SoundEvent COMIDA_COGER = registrar("comida.coger");
+	public static final SoundEvent AGUA_BEBER = registrar("agua.beber");
+	public static final SoundEvent AGUA_SUSPIRO = registrar("agua.suspiro");
+	public static final SoundEvent NOTA_LEER = registrar("nota.leer");
+	public static final SoundEvent BUTACA = registrar("butaca");
+	public static final SoundEvent BACTERIA_GOLPE = registrar("bacteria.golpe");
+	public static final SoundEvent ASCENSOR_DENEGADO = registrar("ascensor.denegado");
+	public static final SoundEvent ASCENSOR_PANEL = registrar("ascensor.panel");
+	public static final SoundEvent MISION_COMPLETA = registrar("mision.completa");
+	public static final SoundEvent ESCAPADO = registrar("escapado");
 	public static final SoundEvent ELIMINADO = registrar("eliminado");
 	public static final SoundEvent MOQUETA_PASO = registrar("moqueta.paso");
 	public static final SoundEvent MOQUETA_MOJADA_PASO = registrar("moqueta_mojada.paso");

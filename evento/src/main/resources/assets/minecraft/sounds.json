@@ -1,0 +1,56 @@
+{
+  "entity.player.hurt": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "backrooms_evento:jugador_herido1"
+      },
+      {
+        "name": "backrooms_evento:jugador_herido2"
+      },
+      {
+        "name": "backrooms_evento:jugador_herido3"
+      }
+    ]
+  },
+  "entity.player.hurt_drown": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "backrooms_evento:jugador_herido2"
+      }
+    ]
+  },
+  "entity.player.hurt_on_fire": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "backrooms_evento:jugador_herido3"
+      }
+    ]
+  },
+  "entity.player.hurt_freeze": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "backrooms_evento:jugador_herido1"
+      }
+    ]
+  },
+  "entity.player.hurt_sweet_berry_bush": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "backrooms_evento:jugador_herido1"
+      }
+    ]
+  },
+  "entity.player.death": {
+    "replace": true,
+    "sounds": [
+      {
+        "name": "backrooms_evento:jugador_muerte"
+      }
+    ]
+  }
+}

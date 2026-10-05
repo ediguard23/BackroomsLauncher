@@ -192,7 +192,8 @@ public final class Comida {
 		this.vivas.remove(nivel.dimension().identifier() + " " + c.getBlockX() + " " + c.getBlockZ());
 		c.discard();
 		this.sucio = true;
-		nivel.playSound(null, c.getX(), c.getY(), c.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.6F, 1.1F);
+		nivel.playSound(null, c.getX(), c.getY(), c.getZ(), c.tipo() == 1 ? net.backrooms.evento.Sonidos.AGUA_COGER : net.backrooms.evento.Sonidos.COMIDA_COGER,
+			SoundSource.PLAYERS, 0.9F, 0.95F + nivel.getRandom().nextFloat() * 0.1F);
 	}
 
 	private void materializar(ServerLevel nivel, String dim, int x, int z, int tipo) {

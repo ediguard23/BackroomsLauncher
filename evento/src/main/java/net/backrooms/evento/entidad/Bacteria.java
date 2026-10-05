@@ -191,6 +191,7 @@ public class Bacteria extends Monster {
 		boolean dio = super.doHurtTarget(nivel, objetivo);
 		if (dio && objetivo instanceof ServerPlayer j) {
 			Supervivencia.get().asustar(j, 10.0F);
+			nivel.playSound(null, j.getX(), j.getEyeY(), j.getZ(), Sonidos.BACTERIA_GOLPE, SoundSource.HOSTILE, 1.2F, 0.9F + this.random.nextFloat() * 0.2F);
 		}
 		return dio;
 	}

@@ -44,6 +44,7 @@ public class Butaca extends EnSuelo {
 		a.setYRot(mira.toYRot());
 		sl.addFreshEntity(a);
 		jugador.startRiding(a);
+		sl.playSound(null, pos, net.backrooms.evento.Sonidos.BUTACA, net.minecraft.sounds.SoundSource.BLOCKS, 0.7F, 0.9F + sl.getRandom().nextFloat() * 0.2F);
 		jugador.setYRot(mira.toYRot());
 		return InteractionResult.SUCCESS;
 	}

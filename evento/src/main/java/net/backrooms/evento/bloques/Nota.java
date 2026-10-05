@@ -51,6 +51,7 @@ public class Nota extends EnSuelo {
 	@Override
 	protected InteractionResult useWithoutItem(BlockState estado, Level nivel, BlockPos pos, Player jugador, BlockHitResult golpe) {
 		if (!nivel.isClientSide()) {
+			nivel.playSound(null, pos, net.backrooms.evento.Sonidos.NOTA_LEER, net.minecraft.sounds.SoundSource.BLOCKS, 0.8F, 0.9F + nivel.getRandom().nextFloat() * 0.2F);
 			jugador.displayClientMessage(Component.literal("Una nota arrugada:").withStyle(ChatFormatting.GRAY), false);
 			jugador.displayClientMessage(Component.literal("«" + texto(pos) + "»").withStyle(ChatFormatting.ITALIC, ChatFormatting.YELLOW), false);
 		}
