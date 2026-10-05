@@ -3,12 +3,13 @@
 /**
  * Sonidos de la expedicion (mod evento/), todos sintetizados aqui:
  *
- *   node tools/sonidos/expedicion.js
+ *   node tools/sonidos/expedicion.js [prefijo]   (sin prefijo, todos)
  *
  *  Entidades (mono: Minecraft solo situa en 3D los sonidos mono)
- *   bacteria_grito    te ha visto: chillido rasgado de dos voces + chirrido de insecto
- *   bacteria_acecho   chasquidos de hueso, respiracion ronca y un gorgoteo
- *   bacteria_pasos    golpe seco de pata fina sobre la moqueta
+ *   bacteria_grito    te ha visto: rugido grave con grunido, golpe en el pecho y eco de pasillo
+ *   bacteria_caza     jadeos con grunido mientras te persigue
+ *   bacteria_acecho   chasquidos de hueso, respiracion ronca y un grunido de pecho
+ *   bacteria_pasos    pisada pesada sobre la moqueta
  *   smiler_flash      el fogonazo al mirarle: estallido y un chirrido agudisimo
  *   smiler_grito      cuando te alcanza
  *   linterna, camara  clic del interruptor; servo y pitido de la camara
@@ -191,58 +192,146 @@ function garganta (dur, curva, { voces = 5, semilla = 1, formantes, carraspeo = 
   return out;
 }
 
-function bacteriaGrito () {
-  const dur = 2.6;
-  const buf = mono(dur);
-  // sube de golpe, se queda temblando arriba y se quiebra hacia abajo
-  const curva = (t) => 310 + 420 * suave(0, 0.18, t) + 60 * Math.sin(t * 9) * suave(0.2, 0.6, t) - 260 * suave(1.3, 2.5, t);
-  const voz = garganta(dur, curva, { semilla: 11, formantes: [[[750, 600], 5], [[1150, 2300], 7], [[2700, 3100], 9], [[3600, 4200], 11]], carraspeo: 0.7, aspereza: 0.2 });
-  // una segunda garganta mas grave y rota debajo
-  const grave = garganta(dur, (t) => curva(t) * 0.5, { semilla: 12, voces: 3, formantes: [[[420, 380], 4], [[900, 1300], 6]], carraspeo: 0.9, aspereza: 0.1 });
-  // chirrido de insecto: tono agudo con trino rapido
-  const env = (t) => suave(0, 0.04, t) * (1 - suave(1.7, dur, t));
-  for (let i = 0; i < buf.length; i++) {
-    const t = i / SR;
-    const trino = Math.sin(TAU * (3300 + 500 * Math.sin(TAU * 0.7 * t)) * t + 3 * Math.sin(TAU * 61 * t)) * (0.5 + 0.5 * Math.sin(TAU * 23 * t));
-    buf[i] = (voz[i] * 0.8 + grave[i] * 0.5 + trino * 0.12 * suave(0.05, 0.4, t)) * env(t);
+/**
+ * Rugido de bestia: muchas sierras desafinadas sobre una fundamental grave
+ * (60-120 Hz, nada de voz aguda), un subarmonico a media frecuencia que da el
+ * grunido de pecho, la voz rompiendose a golpes (vocal fry) y ronquera, todo
+ * por formantes de una garganta enorme y bien saturado.
+ */
+function rugido (dur, curva, { semilla = 1, voces = 7, formantes, rotura = 0.8, ronquera = 0.35, sub = 0.6, cuerpo = 0.25 }) {
+  const rnd = D.azar(semilla);
+  const out = new Float32Array(Math.round(dur * SR));
+  const vs = [];
+  for (let k = 0; k < voces; k++) {
+    vs.push({ fase: rnd(), det: k === 0 ? 1 : 1 + (rnd() - 0.5) * 0.05, vib: 3 + rnd() * 4, j: 0, a: k === 0 ? 1 : 0.6 });
   }
-  // un chasquido seco al empezar, como si se le desencajara la mandibula
-  poner(buf, 0, 0.06, clic(1800, 0.01, 15));
-  return pico(reverb(buf, 0.7, 0.3, { predelayMs: 20 }), -0.5);
+  const bps = formantes.map(([f, q]) => new D.Biquad('bp', f[0], q));
+  const pecho = new D.Biquad('lp', 320, 0.9);
+  const ruido = new D.Biquad('bp', 1200, 0.8);
+  let subFase = 0;
+  let g = 1; let gObj = 1; let siguiente = 0;
+  for (let i = 0; i < out.length; i++) {
+    const t = i / SR;
+    const u = t / dur;
+    const f0 = curva(t);
+    let src = 0;
+    for (const v of vs) {
+      v.j += (rnd() - 0.5) * 0.1; v.j *= 0.997;
+      const f = f0 * v.det * (1 + Math.sin(TAU * v.vib * t + v.det * 7) * 0.02 + v.j * 0.03);
+      v.fase = (v.fase + f / SR) % 1;
+      src += D.sierra(v.fase, f / SR) * v.a;
+    }
+    subFase = (subFase + f0 * 0.5 / SR) % 1;
+    src += Math.tanh(Math.sin(TAU * subFase) * 3) * sub * voces * 0.4;
+    // la voz se rompe a golpes rapidos: el grunido
+    if (t >= siguiente) { siguiente = t + 1 / (26 + rnd() * 24); gObj = 1 - rotura * rnd(); }
+    g += (gObj - g) * 0.03;
+    src = src * g + ruido.paso(rnd() * 2 - 1) * ronquera * voces * g;
+    if (i % 64 === 0) formantes.forEach(([f, q], k) => bps[k].ajustar(f[0] + (f[1] - f[0]) * u, q));
+    let v = pecho.paso(src) * cuerpo;
+    formantes.forEach((fq, k) => { v += bps[k].paso(src) * (k === 0 ? 1 : 1.3 / k); });
+    out[i] = Math.tanh(v * 0.5);
+  }
+  return out;
+}
+
+/** Ecos de pasillo: cada rebote llega mas tarde, mas oscuro y mas bajo. */
+function ecos (buf, tiempos, ganancia = 0.45, corte = 2000) {
+  const out = Float32Array.from(buf);
+  tiempos.forEach((tt, k) => {
+    const d = Math.round(tt * SR);
+    const lp = new D.Biquad('lp', corte / (1 + k * 0.5), 0.7);
+    const gk = ganancia * Math.pow(0.65, k);
+    for (let i = d; i < out.length; i++) out[i] += lp.paso(buf[i - d]) * gk;
+  });
+  return out;
+}
+
+/**
+ * Mas alto sin recortar: quita lo que no se oye (por debajo de 40 Hz solo gasta
+ * margen), lo empuja contra una saturacion suave (sube el volumen percibido y
+ * la cola) y lo deja en el pico.
+ */
+function fuerte (buf, empuje = 2, picoDb = -0.5) {
+  const hp = new D.Biquad('hp', 40, 0.7);
+  for (let i = 0; i < buf.length; i++) buf[i] = hp.paso(buf[i]);
+  let m = 0;
+  for (const v of buf) m = Math.max(m, Math.abs(v));
+  const k = Math.tanh(empuje);
+  for (let i = 0; i < buf.length; i++) buf[i] = Math.tanh(buf[i] / (m || 1) * empuje) / k;
+  return pico(buf, picoDb);
+}
+
+function bacteriaGrito () {
+  const dur = 3.4;
+  const buf = mono(dur + 2.4);
+  // arranca grave, se abre de golpe, tiembla arriba y se hunde en un gorgoteo
+  const curva = (t) => 60 + 62 * suave(0.06, 0.32, t) + 9 * Math.sin(TAU * 5.5 * t) * suave(0.4, 0.9, t) - 72 * suave(2.1, 3.3, t);
+  const voz = rugido(dur, curva, { semilla: 51, formantes: [[[300, 420], 2.5], [[620, 880], 3], [[1450, 1800], 4], [[2500, 2700], 5]], rotura: 0.85, ronquera: 0.3, sub: 0.45 });
+  // por encima, un alarido rasgado (solo octava y media arriba: grave, de garganta) con un temblor metalico
+  const alarido = garganta(dur, (t) => curva(t) * 2.8, { semilla: 52, voces: 4, formantes: [[[850, 1250], 4], [[2100, 2500], 6], [[3300, 3600], 8]], carraspeo: 0.9, aspereza: 0.35 });
+  const env = (t) => suave(0.0, 0.07, t) * (1 - suave(2.6, dur, t));
+  for (let i = 0; i < voz.length; i++) {
+    const t = i / SR;
+    const anillo = 0.6 + 0.4 * Math.sin(TAU * 38 * t);
+    buf[i] += (voz[i] + alarido[i] * 0.6 * anillo * suave(0.08, 0.35, t) * (1 - suave(1.7, 2.7, t))) * env(t);
+  }
+  // el golpe grave del principio (se nota en el pecho) y la mandibula que cruje
+  poner(buf, 0, 1.6, golpe(52, 28, 0.4, 0.5, 53));
+  poner(buf, 0, 0.08, clic(1400, 0.012, 54));
+  poner(buf, 0.03, 0.1, clic(650, 0.02, 55));
+  // gorgoteo al apagarse
+  const rnd = D.azar(56);
+  for (let k = 0; k < 9; k++) poner(buf, 2.75 + k * (0.05 + rnd() * 0.05), 0.12, golpe(190 + rnd() * 120, 80, 0.03, 0.4, 57 + k));
+  // y resuena por los pasillos: ecos que rebotan y una sala enorme
+  const conEcos = ecos(buf, [0.19, 0.37, 0.58, 0.83], 0.5, 1800);
+  return fuerte(reverb(conEcos, 0.93, 0.6, { predelayMs: 40, amortiguacion: 0.25 }), 2.4, -0.3);
+}
+
+/** Cazando: jadeos con grunido, dos bufidos seguidos. Suena cada dos segundos mientras te persigue. */
+function bacteriaCaza () {
+  const buf = mono(2.6);
+  for (const [t0, d, f, s] of [[0.0, 0.6, 76, 61], [0.78, 0.75, 68, 62]]) {
+    const gr = rugido(d, (t) => f + 16 * Math.sin(Math.PI * t / d), { semilla: s, voces: 4, formantes: [[[380, 300], 2.5], [[850, 700], 3], [[1900, 1700], 4]], rotura: 0.95, ronquera: 0.9, sub: 0.5, cuerpo: 0.6 });
+    const aire = ruidoBp(d, 520, 0.9, s + 10);
+    poner(buf, t0, d, (t) => {
+      const i = Math.min(gr.length - 1, Math.floor(t * SR));
+      const e = Math.pow(Math.sin(Math.PI * Math.min(1, t / d)), 0.6);
+      return (gr[i] * 0.9 + aire[i] * 1.2) * e;
+    });
+  }
+  return fuerte(reverb(ecos(buf, [0.16, 0.33], 0.35, 1500), 0.85, 0.4, { predelayMs: 25 }), 1.8, -1);
 }
 
 function bacteriaAcecho () {
-  const dur = 3.2;
-  const buf = mono(dur);
+  const dur = 3.4;
+  const buf = mono(dur + 1.0);
   const rnd = D.azar(21);
   // rafagas de chasquidos (como huesos o patas de insecto)
   for (const r0 of [0.1, 0.9, 1.7, 2.4]) {
     const n = 4 + Math.floor(rnd() * 6);
-    for (let k = 0; k < n; k++) poner(buf, r0 + k * (0.035 + rnd() * 0.03), 0.05, clic(1500 + rnd() * 2500, 0.006, 22 + k));
+    for (let k = 0; k < n; k++) poner(buf, r0 + k * (0.035 + rnd() * 0.03), 0.05, clic(1200 + rnd() * 2000, 0.006, 22 + k));
   }
-  // respiracion ronca: entra y sale
-  const resp = ruidoBp(dur, 700, 1.4, 23);
-  const ronco = ruidoBp(dur, 160, 4, 24);
-  for (let i = 0; i < buf.length; i++) {
+  // respiracion ronca y grave: entra y sale
+  const resp = ruidoBp(dur, 520, 1.2, 23);
+  const ronco = ruidoBp(dur, 110, 3, 24);
+  for (let i = 0; i < resp.length; i++) {
     const t = i / SR;
-    const ciclo = Math.max(0, Math.sin(TAU * t / 1.6)) ** 2;
-    buf[i] += (resp[i] * 0.5 + ronco[i] * 1.2 * (0.6 + 0.4 * Math.sin(TAU * 31 * t))) * ciclo * 0.6;
+    const ciclo = Math.max(0, Math.sin(TAU * t / 1.7)) ** 2;
+    buf[i] += (resp[i] * 0.5 + ronco[i] * 1.4 * (0.6 + 0.4 * Math.sin(TAU * 29 * t))) * ciclo * 0.6;
   }
-  // y un gemido grave, muy bajito, entre respiracion y respiracion
-  const gemido = garganta(dur, (t) => 140 + 30 * Math.sin(t * 2), { semilla: 25, voces: 2, formantes: [[[500, 420], 5], [[1100, 900], 6]], carraspeo: 0.8, aspereza: 0.05 });
-  for (let i = 0; i < buf.length; i++) {
-    const t = i / SR;
-    buf[i] += gemido[i] * 0.12 * suave(0.6, 1.0, t) * (1 - suave(1.4, 1.8, t));
-  }
-  return pico(reverb(buf, 0.5, 0.2), -3);
+  // y un grunido de pecho entre respiracion y respiracion
+  const gr = rugido(1.4, (t) => 58 + 10 * Math.sin(t * 3), { semilla: 25, voces: 4, formantes: [[[340, 300], 3], [[780, 650], 4]], rotura: 0.9, ronquera: 0.4, sub: 0.6, cuerpo: 0.7 });
+  poner(buf, 0.75, 1.4, (t) => gr[Math.min(gr.length - 1, Math.floor(t * SR))] * 0.45 * suave(0, 0.3, t) * (1 - suave(1.0, 1.4, t)));
+  return fuerte(reverb(ecos(buf, [0.21, 0.43], 0.3, 1400), 0.8, 0.35), 1.0, -4);
 }
 
 function bacteriaPasos () {
-  const buf = mono(0.35);
-  poner(buf, 0, 0.3, golpe(140, 60, 0.05, 0.6, 31));
-  poner(buf, 0.002, 0.05, clic(2600, 0.004, 32));
-  poner(buf, 0.03, 0.08, clic(900, 0.012, 33));
-  return pico(buf, -4);
+  const buf = mono(0.55);
+  poner(buf, 0, 0.45, golpe(105, 40, 0.07, 0.7, 31));
+  poner(buf, 0.002, 0.05, clic(2200, 0.005, 32));
+  poner(buf, 0.025, 0.1, clic(800, 0.015, 33));
+  return pico(reverb(buf, 0.6, 0.18), -2);
 }
 
 function smilerFlash () {
@@ -487,35 +576,39 @@ function latido () {
 
 (async () => {
   console.log('Sonidos de la expedicion');
-  await guardarMono('bacteria_grito', bacteriaGrito());
-  await guardarMono('bacteria_acecho', bacteriaAcecho());
-  await guardarMono('bacteria_pasos', bacteriaPasos());
-  await guardarMono('smiler_flash', smilerFlash());
-  await guardarMono('smiler_grito', smilerGrito());
-  await guardarMono('linterna', linterna());
-  await guardarMono('camara', camara());
-  await guardarMono('susurros', susurros());
-  await guardarEst('apagon', apagon());
-  await guardarEst('luz_vuelve', luzVuelve());
-  await guardarEst('alarma', alarma());
-  await guardarEst('ascensor', ascensor());
-  await guardarEst('vestibulo', vestibulo(), 4);
-  await guardarEst('pitido', pitido());
-  await guardarEst('latido', latido());
+  // node tools/sonidos/expedicion.js bacteria  -> solo los que empiezan asi
+  const solo = process.argv[2];
+  const toca = (n) => !solo || n.startsWith(solo);
+  if (toca('bacteria_grito')) await guardarMono('bacteria_grito', bacteriaGrito());
+  if (toca('bacteria_caza')) await guardarMono('bacteria_caza', bacteriaCaza());
+  if (toca('bacteria_acecho')) await guardarMono('bacteria_acecho', bacteriaAcecho());
+  if (toca('bacteria_pasos')) await guardarMono('bacteria_pasos', bacteriaPasos());
+  if (toca('smiler_flash')) await guardarMono('smiler_flash', smilerFlash());
+  if (toca('smiler_grito')) await guardarMono('smiler_grito', smilerGrito());
+  if (toca('linterna')) await guardarMono('linterna', linterna());
+  if (toca('camara')) await guardarMono('camara', camara());
+  if (toca('susurros')) await guardarMono('susurros', susurros());
+  if (toca('apagon')) await guardarEst('apagon', apagon());
+  if (toca('luz_vuelve')) await guardarEst('luz_vuelve', luzVuelve());
+  if (toca('alarma')) await guardarEst('alarma', alarma());
+  if (toca('ascensor')) await guardarEst('ascensor', ascensor());
+  if (toca('vestibulo')) await guardarEst('vestibulo', vestibulo(), 4);
+  if (toca('pitido')) await guardarEst('pitido', pitido());
+  if (toca('latido')) await guardarEst('latido', latido());
 
   // sounds.json: lo que no es de aqui se respeta
   const f = path.join(SALIDA, '..', 'sounds.json');
   const j = JSON.parse(fs.readFileSync(f, 'utf8'));
   const s = (nombre, extra = {}) => ({ sounds: [{ name: `backrooms_evento:${nombre}`, ...extra }] });
   Object.assign(j, {
-    'bacteria.grito': s('bacteria_grito', { attenuation_distance: 48 }),
+    'bacteria.grito': s('bacteria_grito', { attenuation_distance: 64 }),
+    'bacteria.caza': s('bacteria_caza', { attenuation_distance: 28 }),
     'bacteria.acecho': s('bacteria_acecho', { attenuation_distance: 24 }),
     'bacteria.pasos': s('bacteria_pasos', { attenuation_distance: 20 }),
     'smiler.flash': s('smiler_flash', { attenuation_distance: 32 }),
     'smiler.grito': s('smiler_grito', { attenuation_distance: 32 }),
     linterna: s('linterna', { attenuation_distance: 12 }),
     camara: s('camara', { attenuation_distance: 10 }),
-    susurros: s('susurros'),
     apagon: s('apagon'),
     luz_vuelve: s('luz_vuelve'),
     alarma: s('alarma', { stream: true }),
@@ -524,5 +617,7 @@ function latido () {
     pitido: s('pitido'),
     latido: s('latido')
   });
+  // los susurros los amplia voces.js con mas voces: si ya estan, no se tocan
+  if (!j.susurros) j.susurros = s('susurros');
   fs.writeFileSync(f, JSON.stringify(j, null, 2) + '\n');
 })();

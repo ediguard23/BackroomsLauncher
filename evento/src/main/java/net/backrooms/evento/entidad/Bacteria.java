@@ -33,23 +33,37 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * La Bacteria: la entidad del Nivel 0. Alta, flaca, negra, hecha de hilos de
- * Hay Bacillus. Vaga por los pasillos; si te ve (o te oye correr cerca) grita
- * y va a por ti, casi tan rapida como un jugador corriendo. Para escapar hay
- * que romper la linea de vista y aguantar: a los 8 s sin verte, te pierde.
+ * Hay Bacillus. Vaga por los pasillos; si te ve (o te oye correr cerca) ruge
+ * y va a por ti, mas rapida que alguien andando y casi tan rapida como un
+ * jugador corriendo: mientras te persigue se la oye jadear y pisar fuerte.
+ * Para escapar hay que correr, romper la linea de vista y aguantar: a los 8 s
+ * sin verte, te pierde.
  *
  * Con la alarma encendida esta mas furiosa: ve y oye mas lejos y corre mas
  * que tu (hay que esconderse, no basta con correr). En cada fase es mas
  * rapida (Fase.velocidad). No se le puede hacer dano.
  */
 public class Bacteria extends Monster {
-	private static final double VELOCIDAD = 0.29;
+	/**
+	 * Bloques por segundo cazando en la fase 1. Un jugador anda a 4,3 y corre
+	 * a 5,6: si corres en linea recta te le escapas por muy poco, y en cuanto
+	 * se te acaba la estamina te alcanza.
+	 */
+	private static final double CAZA_BPS = 5.3;
+	/** Paseando por los pasillos sin presa. */
+	private static final double PASEO_BPS = 1.6;
+	/** Con la alarma corre esto mas. */
+	private static final double FURIA = 1.15;
 	/** Ticks sin verte para dejar de perseguirte. */
 	private static final int OLVIDA = 160;
+	/** Cada cuanto jadea mientras te persigue. */
+	private static final int JADEO = 40;
 
 	private static final EntityDataAccessor<Boolean> CAZANDO = SynchedEntityData.defineId(Bacteria.class, EntityDataSerializers.BOOLEAN);
 
 	private int sinVer;
 	private int ultimoGrito = -1000;
+	private int siguienteJadeo;
 	/** En el cliente: 0..1 suavizado de si esta cazando (para la animacion). */
 	private float caza;
 	private float cazaAntes;
@@ -60,10 +74,20 @@ public class Bacteria extends Monster {
 		this.setPersistenceRequired();
 	}
 
+	/**
+	 * El atributo de velocidad de un mob no va en bloques por segundo, ni
+	 * siquiera es lineal: en llano (moqueta, rozamiento 0,6) un mob avanza
+	 * 20 · 0,98·v² / (1 − 0,546) ≈ 43,2·v² bloques por segundo (Mob#setSpeed
+	 * usa v como empuje y como multiplicador a la vez). Esto lo invierte.
+	 */
+	static double atributo(double bps) {
+		return Math.sqrt(bps / 43.17);
+	}
+
 	public static AttributeSupplier.Builder atributos() {
 		return Monster.createMonsterAttributes()
 			.add(Attributes.MAX_HEALTH, 200.0)
-			.add(Attributes.MOVEMENT_SPEED, VELOCIDAD)
+			.add(Attributes.MOVEMENT_SPEED, atributo(CAZA_BPS))
 			.add(Attributes.ATTACK_DAMAGE, 9.0)
 			.add(Attributes.ATTACK_KNOCKBACK, 0.6)
 			.add(Attributes.FOLLOW_RANGE, 48.0)
@@ -94,7 +118,8 @@ public class Bacteria extends Monster {
 	@Override
 	protected void registerGoals() {
 		this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.0, true));
-		this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.45));
+		// el modificador multiplica el atributo, y la velocidad va con su cuadrado
+		this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, Math.sqrt(PASEO_BPS / CAZA_BPS)));
 		this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 12.0F));
 		this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
 		this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, 5, false, false, (p, nivel) -> this.detecta(p)));
@@ -124,7 +149,8 @@ public class Bacteria extends Monster {
 		if (objetivo != null && antes == null && this.tickCount - this.ultimoGrito > 100) {
 			// te ha visto
 			this.ultimoGrito = this.tickCount;
-			this.level().playSound(null, this.getX(), this.getEyeY(), this.getZ(), Sonidos.BACTERIA_GRITO, SoundSource.HOSTILE, 3.0F, 0.9F + this.random.nextFloat() * 0.2F);
+			this.level().playSound(null, this.getX(), this.getEyeY(), this.getZ(), Sonidos.BACTERIA_GRITO, SoundSource.HOSTILE, 3.0F, 0.88F + this.random.nextFloat() * 0.14F);
+			this.siguienteJadeo = this.tickCount + 70;
 			if (objetivo instanceof ServerPlayer j) {
 				Supervivencia.get().asustar(j, 4.0F);
 			}
@@ -136,13 +162,18 @@ public class Bacteria extends Monster {
 		super.customServerAiStep(nivel);
 		// mas rapida en las fases altas y con la alarma
 		Fase f = Fase.de(nivel);
-		double v = VELOCIDAD * (f == null ? 1.0 : f.velocidad()) * (this.furiosa() ? 1.28 : 1.0);
+		double v = atributo(CAZA_BPS * (f == null ? 1.0 : f.velocidad()) * (this.furiosa() ? FURIA : 1.0));
 		AttributeInstance a = this.getAttribute(Attributes.MOVEMENT_SPEED);
 		if (a != null && Math.abs(a.getBaseValue() - v) > 1e-4) {
 			a.setBaseValue(v);
 		}
 		LivingEntity t = this.getTarget();
 		this.entityData.set(CAZANDO, t != null);
+		if (t != null && this.tickCount >= this.siguienteJadeo) {
+			// jadea mientras te persigue: se la oye venir aunque no la veas
+			this.siguienteJadeo = this.tickCount + JADEO + this.random.nextInt(12);
+			this.level().playSound(null, this.getX(), this.getEyeY(), this.getZ(), Sonidos.BACTERIA_CAZA, SoundSource.HOSTILE, 2.0F, 0.9F + this.random.nextFloat() * 0.15F);
+		}
 		if (t != null) {
 			if (!t.isAlive() || (t instanceof ServerPlayer j && (j.isCreative() || j.isSpectator())) || t.level() != nivel) {
 				this.setTarget(null);
@@ -186,13 +217,23 @@ public class Bacteria extends Monster {
 	}
 
 	@Override
+	public void playAmbientSound() {
+		// cazando ya suenan los jadeos
+		if (!this.entityData.get(CAZANDO)) {
+			super.playAmbientSound();
+		}
+	}
+
+	@Override
 	protected float getSoundVolume() {
 		return 1.6F;
 	}
 
 	@Override
 	protected void playStepSound(BlockPos pos, BlockState estado) {
-		this.playSound(Sonidos.BACTERIA_PASOS, 0.7F, 0.8F + this.random.nextFloat() * 0.4F);
+		// cazando pisa fuerte: se la oye correr detras de ti
+		boolean caza = this.entityData.get(CAZANDO);
+		this.playSound(Sonidos.BACTERIA_PASOS, caza ? 1.5F : 0.7F, (caza ? 0.75F : 0.8F) + this.random.nextFloat() * 0.3F);
 	}
 
 	@Override

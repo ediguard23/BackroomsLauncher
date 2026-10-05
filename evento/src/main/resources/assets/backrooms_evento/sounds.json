@@ -19,7 +19,7 @@
     "sounds": [
       {
         "name": "backrooms_evento:bacteria_grito",
-        "attenuation_distance": 48
+        "attenuation_distance": 64
       }
     ]
   },
@@ -162,6 +162,14 @@
     "sounds": [
       {
         "name": "backrooms_evento:eliminado"
+      }
+    ]
+  },
+  "bacteria.caza": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:bacteria_caza",
+        "attenuation_distance": 28
       }
     ]
   }

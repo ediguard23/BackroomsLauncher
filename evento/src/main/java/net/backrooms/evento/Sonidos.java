@@ -22,6 +22,7 @@ public final class Sonidos {
 	public static final SoundEvent BACTERIA_GRITO = registrar("bacteria.grito");
 	public static final SoundEvent BACTERIA_ACECHO = registrar("bacteria.acecho");
 	public static final SoundEvent BACTERIA_PASOS = registrar("bacteria.pasos");
+	public static final SoundEvent BACTERIA_CAZA = registrar("bacteria.caza");
 	public static final SoundEvent SMILER_FLASH = registrar("smiler.flash");
 	public static final SoundEvent SMILER_GRITO = registrar("smiler.grito");
 	public static final SoundEvent PITIDO = registrar("pitido");

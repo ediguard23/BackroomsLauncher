@@ -1,6 +1,6 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-05 17:15 (hora de Honduras). Mod `backrooms_evento` 0.8.0, launcher 1.0.0.
+Última actualización: 2026-10-05 17:40 (hora de Honduras). Mod `backrooms_evento` 0.8.1, launcher 1.0.0.
 
 Leer esto antes de tocar nada. Lo que se va haciendo se anota aquí y se sube.
 
@@ -35,6 +35,14 @@ Leer esto antes de tocar nada. Lo que se va haciendo se anota aquí y se sube.
   llegada (400 con 200 jugadores). Se guarda en `<mundo>/backrooms/aguas.json`;
   `/backrooms comida reponer` la limpia entre partidas.
 - Estamina ~23 s corriendo; cordura y estamina en paneles a los lados de la barra.
+- Bacteria (0.8.1): persigue a 5,3 bloques/s en la fase 1 (medido en el juego; antes ~3,6,
+  más lenta que andar). Un jugador corre a 5,6, así que solo se escapa corriendo y rompiendo
+  la línea de vista. Ojo: el atributo de velocidad de un mob va al cuadrado (≈43,2·v² b/s);
+  `Bacteria.atributo()` lo convierte, y Fase.velocidad y la alarma multiplican b/s.
+  Voz nueva: rugido grave (60-120 Hz) con gruñido, golpe en el pecho, ecos de pasillo y sala
+  grande (antes era una voz a ~700 Hz, «de niña»). Mientras caza jadea cada ~2 s
+  (`bacteria.caza`) y pisa fuerte. Sonidos: `node tools/sonidos/expedicion.js bacteria`
+  (con prefijo solo rehace esos; ya no pisa los susurros que añade voces.js).
 - Acceso con entrada (pase Ed25519 de la tienda): si la config se rompe, el servidor queda
   CERRADO (antes quedaba abierto).
 
@@ -53,6 +61,8 @@ Leer esto antes de tocar nada. Lo que se va haciendo se anota aquí y se sube.
    (ver arriba) da la traza.
 7. Probar la pantalla de muerte en su variante «eliminado» con captura (la lógica está;
    la animación y el ban ya se vieron funcionar).
+8. Que el usuario escuche el rugido nuevo de la Bacteria y diga si le convence
+   (`/backrooms invocar bacteria` en supervivencia).
 
 ## Avisos
 
