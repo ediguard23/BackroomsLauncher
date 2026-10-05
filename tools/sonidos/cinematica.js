@@ -721,8 +721,8 @@ function sordera (bus) {
   }
 }
 
-if (require.main === module) (async () => {
-  const t0 = Date.now();
+/** Mezcla la banda entera: [L, R] a 44.1 kHz, ya limitada a -1 dBFS. */
+function renderizar () {
   componer();
   mezclarBus(A);
   sordera(A);
@@ -746,6 +746,14 @@ if (require.main === module) (async () => {
   const g = db(-1) / pico2;
   for (let i = 0; i < N; i++) { L[i] *= g; R[i] *= g; }
   const audio = D.fundidos([L, R], 0.01, 0.8);
+  return audio;
+}
+
+module.exports = { renderizar, poner, paneo, suave, db, midi, ruidoEstereo, campana, golpeMetal, bum, crujido, alarma, braaam, shepard, latido, respiracion, fuego, chirrido, viento, DUR };
+
+if (require.main === module) (async () => {
+  const t0 = Date.now();
+  const audio = renderizar();
   // volumen por tramos (para revisar la mezcla sin oirla)
   for (let s = 0; s < DUR; s += 2.5) {
     let e = 0;
