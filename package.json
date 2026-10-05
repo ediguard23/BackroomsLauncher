@@ -16,7 +16,8 @@
     "sonidos": "node tools/sonidos/generar.js",
     "probar": "node tools/probar-local.js",
     "sonidos:piscinas": "node tools/sonidos/piscinas.js",
-    "imagenes": "node tools/imagenes/generar.js"
+    "imagenes": "node tools/imagenes/generar.js",
+    "texturas": "node tools/texturas/generar.js"
   },
   "dependencies": {
     "adm-zip": "^0.6.1",

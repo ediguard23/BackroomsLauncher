@@ -6,6 +6,7 @@
  *   node tools/publicar-pack.js            sube a GitHub Releases (tag "pack"); necesita GH_TOKEN
  *   node tools/publicar-pack.js --limpiar  ademas borra de la release los archivos que ya no se usan
  *   node tools/publicar-pack.js --local    genera dist-pack/ y lo sirve en http://127.0.0.1:8765/ para probar
+ *   ... --ficha=pack/.evento-local.json    usa otra ficha (los archivos que empiezan por punto no viajan en el pack)
  *
  * Estructura de la carpeta pack/ (no se sube al repositorio):
  *
@@ -31,6 +32,8 @@ const args = process.argv.slice(2);
 const LOCAL = args.includes('--local');
 const LIMPIAR = args.includes('--limpiar');
 const PUERTO = Number((args.find((a) => a.startsWith('--puerto=')) || '').split('=')[1]) || 8765;
+// --ficha=<archivo>: otra ficha del evento (p. ej. pack/.evento-local.json, con el servidor de pruebas)
+const FICHA = (args.find((a) => a.startsWith('--ficha=')) || '').slice('--ficha='.length);
 
 function sha1 (buf) { return crypto.createHash('sha1').update(buf).digest('hex'); }
 
@@ -44,7 +47,7 @@ function recorrer (dir, out = []) {
 }
 
 function leerPack () {
-  const fichaRuta = path.join(PACK, 'evento.json');
+  const fichaRuta = FICHA ? path.resolve(FICHA) : path.join(PACK, 'evento.json');
   if (!fs.existsSync(fichaRuta)) {
     console.error('Falta pack/evento.json. Copia pack-ejemplo/ a pack/ y rellenalo.');
     process.exit(1);

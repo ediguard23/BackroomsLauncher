@@ -351,6 +351,8 @@ async function jugar () {
     nombreVersion: manifest.name || evento.nombre
   });
   if (cfg.pantallaCompleta) args.push('--fullscreen');
+  // Solo en desarrollo: BACKROOMS_QUICKPLAY=host:puerto entra directo a ese servidor (pruebas sin manos).
+  if (!app.isPackaged && process.env.BACKROOMS_QUICKPLAY) args.push('--quickPlayMultiplayer', process.env.BACKROOMS_QUICKPLAY);
   const hijo = lanzar(javaPath, args, { gameDir, logFile: path.join(dir, 'logs', 'launcher-salida.log') });
   juego = hijo;
   enviar('juego', { estado: 'abriendo' });

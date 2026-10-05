@@ -1,0 +1,11 @@
+{
+  "block.backrooms_evento.papel_pintado": "Wallpaper",
+  "block.backrooms_evento.papel_pintado_sucio": "Stained wallpaper",
+  "block.backrooms_evento.zocalo": "Baseboard",
+  "block.backrooms_evento.moqueta": "Carpet",
+  "block.backrooms_evento.moqueta_mojada": "Wet carpet",
+  "block.backrooms_evento.techo": "Ceiling tile",
+  "block.backrooms_evento.fluorescente": "Fluorescent light",
+  "block.backrooms_evento.fluorescente_apagado": "Dead fluorescent light",
+  "block.backrooms_evento.fluorescente_parpadeo": "Flickering fluorescent light"
+}

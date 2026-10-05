@@ -1,0 +1,14 @@
+{
+  "dimensions": {
+    "minecraft:overworld": {
+      "type": "backrooms_evento:nivel_0",
+      "generator": {
+        "type": "backrooms_evento:nivel_0",
+        "biome_source": {
+          "type": "minecraft:fixed",
+          "biome": "backrooms_evento:nivel_0"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "nivel0.zumbido": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:nivel0_zumbido",
+        "stream": true
+      }
+    ]
+  }
+}

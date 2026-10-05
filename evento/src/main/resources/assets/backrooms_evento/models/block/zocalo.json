@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "side": "backrooms_evento:block/zocalo",
+    "top": "backrooms_evento:block/papel_pintado",
+    "bottom": "backrooms_evento:block/papel_pintado"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=true": {
+      "model": "backrooms_evento:block/fluorescente"
+    },
+    "lit=false": {
+      "model": "backrooms_evento:block/fluorescente_apagado"
+    }
+  }
+}
