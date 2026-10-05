@@ -29,5 +29,7 @@
   "item.backrooms_evento.traje_casco": "Hazmat hood",
   "item.backrooms_evento.traje_chaqueta": "Hazmat jacket",
   "item.backrooms_evento.traje_pantalon": "Hazmat trousers",
-  "item.backrooms_evento.traje_botas": "Hazmat boots"
+  "item.backrooms_evento.traje_botas": "Hazmat boots",
+  "item.backrooms_evento.casete": "Cassette tape",
+  "entity.backrooms_evento.casete": "Cassette tape"
 }

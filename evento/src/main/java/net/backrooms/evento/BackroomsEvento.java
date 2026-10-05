@@ -1,7 +1,11 @@
 package net.backrooms.evento;
 
 import net.backrooms.evento.bloques.Bloques;
+import net.backrooms.evento.mision.Entidades;
+import net.backrooms.evento.mision.Misiones;
 import net.backrooms.evento.mundo.GeneradorNivel0;
+import net.backrooms.evento.red.SyncMisiones;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.backrooms.evento.objetos.Equipo;
 import net.backrooms.evento.objetos.Objetos;
 import net.fabricmc.api.ModInitializer;
@@ -32,6 +36,9 @@ public class BackroomsEvento implements ModInitializer {
 		Sonidos.iniciar();
 		Objetos.iniciar();
 		Equipo.registrar();
+		Entidades.iniciar();
+		PayloadTypeRegistry.playS2C().register(SyncMisiones.TYPE, SyncMisiones.CODEC);
+		Misiones.registrar();
 		Comandos.registrar();
 		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("nivel_0"), GeneradorNivel0.CODEC);
 	}

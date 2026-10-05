@@ -140,11 +140,32 @@ public class MenuPausa extends PauseScreen {
 		MenuBackrooms.botonHud(g, this.tienda, 390, 454, 106, 40, "TIENDA");
 		this.botonSalir(g);
 		this.estado(g);
+		this.notaMisiones(g);
 		MenuBackrooms.fecha(g, MenuBackrooms.alfa(this.tema.tubo, 0.9F));
 		MenuBackrooms.firma(g, 643, 678, this.escala, this.tema.tubo);
 		p.popMatrix();
 
 		super.render(g, mx, my, parcial);
+	}
+
+	/** Las misiones van en el inventario: aqui solo un recordatorio clavado. */
+	private void notaMisiones(GuiGraphics g) {
+		int x0 = 790;
+		int y0 = 272;
+		int x1 = 1140;
+		int y1 = 352;
+		Matrix3x2fStack p = g.pose();
+		p.pushMatrix();
+		p.rotateAbout((float) Math.toRadians(-0.8), (x0 + x1) / 2.0F, y0);
+		for (int i = 1; i <= 3; i++) {
+			g.fill(x0 + i, y0 + i * 3, x1 + i, y1 + i * 3, 0x1E000000);
+		}
+		g.fill(x0, y0, x1, y1, this.tema.papel);
+		g.fill(x0 + 34, y0, x0 + 36, y1, 0x59BE3228);
+		Texto.maquina(g, "MISIONES DEL EXPLORADOR", x0 + 46, y0 + 14, 13, 0.18F, this.tema.papelTinta);
+		String tecla = this.minecraft.options.keyInventory.getTranslatedKeyMessage().getString().toUpperCase();
+		Texto.parrafo(g, "Están en tu inventario: pulsa " + tecla + ".", x0 + 46, y0 + 42, 14, x1 - x0 - 62, 1.4F, this.tema.papelTexto);
+		p.popMatrix();
 	}
 
 	/** Desconectar va en rojo al pasar por encima: es la salida. */

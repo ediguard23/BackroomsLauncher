@@ -26,7 +26,7 @@ while powershell -NoProfile -Command "if (Get-CimInstance Win32_Process -Filter 
 rm -f "$SERVIDOR"/mods/backrooms-evento-*.jar pack/mods/backrooms-evento-*.jar
 cp "$JAR" "$SERVIDOR/mods/" && cp "$JAR" pack/mods/
 if [ "${1:-}" = "--mundo-nuevo" ]; then rm -rf "$SERVIDOR/nivel0"; fi
-sed -i 's/^pauseOnLostFocus:.*/pauseOnLostFocus:false/' "$APPDATA/.backrooms-event/options.txt" 2>/dev/null
+sed -i "s/^pauseOnLostFocus:.*/pauseOnLostFocus:${PAUSA_FOCO:-false}/" "$APPDATA/.backrooms-event/options.txt" 2>/dev/null
 
 # servidor y pack en segundo plano
 ( cd "$SERVIDOR" && nohup "$JAVA" -Xms2G -Xmx4G -jar fabric-server.jar nogui > servidor.log 2>&1 & )
@@ -39,7 +39,7 @@ node tools/rcon.js "setworldspawn 3 33 3" "gamerule respawn_radius 0" "gamerule 
 
 # launcher: entra solo al servidor de pruebas
 N=$(grep -c "joined the game" "$SERVIDOR/servidor.log")
-BACKROOMS_MANIFEST=http://127.0.0.1:8765/manifest.json BACKROOMS_QUICKPLAY=127.0.0.1:25566 BACKROOMS_PRUEBA="$GUION" \
+BACKROOMS_PRUEBAS=1 BACKROOMS_MANIFEST=http://127.0.0.1:8765/manifest.json BACKROOMS_QUICKPLAY=127.0.0.1:25566 BACKROOMS_PRUEBA="$GUION" \
   nohup ./node_modules/electron/dist/electron.exe . > /dev/null 2>&1 &
 until [ "$(grep -c "joined the game" "$SERVIDOR/servidor.log")" -gt "$N" ]; do sleep 3; done
 grep "logged in" "$SERVIDOR/servidor.log" | tail -1

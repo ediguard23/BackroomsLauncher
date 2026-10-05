@@ -29,5 +29,7 @@
   "item.backrooms_evento.traje_casco": "Capucha antirradiación",
   "item.backrooms_evento.traje_chaqueta": "Chaqueta antirradiación",
   "item.backrooms_evento.traje_pantalon": "Pantalón antirradiación",
-  "item.backrooms_evento.traje_botas": "Botas antirradiación"
+  "item.backrooms_evento.traje_botas": "Botas antirradiación",
+  "item.backrooms_evento.casete": "Casete",
+  "entity.backrooms_evento.casete": "Casete"
 }

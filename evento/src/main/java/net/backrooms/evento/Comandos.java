@@ -5,6 +5,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import java.util.List;
 import java.util.Locale;
+import net.backrooms.evento.mision.Misiones;
+import net.backrooms.evento.mision.TipoMision;
 import net.backrooms.evento.mundo.GeneradorNivel0;
 import net.backrooms.evento.mundo.Plano;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -21,6 +23,10 @@ import net.minecraft.server.level.ServerPlayer;
  *
  *  buscar <cosa> [jugador]   lleva al jugador a mirar la <cosa> mas cercana del
  *                            Nivel 0 (la busca en el plano, sin cargar chunks)
+ *  misiones dar <jugador>    le asigna sus 3 misiones y reparte sus casetes alrededor
+ *  misiones ver <jugador>    estado de sus misiones
+ *  misiones completar <jugador>  da por hecha la mision en curso (pruebas)
+ *  misiones olvidar <jugador>    le quita las misiones
  */
 public final class Comandos {
 	private static final List<String> COSAS = List.of(
@@ -41,7 +47,48 @@ public final class Comandos {
 					.suggests((c, b) -> SharedSuggestionProvider.suggest(COSAS, b))
 					.executes(c -> buscar(c, c.getSource().getPlayerOrException()))
 					.then(Commands.argument("jugador", EntityArgument.player())
-						.executes(c -> buscar(c, EntityArgument.getPlayer(c, "jugador")))))));
+						.executes(c -> buscar(c, EntityArgument.getPlayer(c, "jugador"))))))
+			.then(Commands.literal("misiones")
+				.then(Commands.literal("dar").then(Commands.argument("jugador", EntityArgument.player()).executes(c -> {
+					ServerPlayer j = EntityArgument.getPlayer(c, "jugador");
+					Misiones.get().asignar(j, j.blockPosition());
+					c.getSource().sendSuccess(() -> Component.literal("Misiones asignadas a " + j.getGameProfile().name()), true);
+					return 1;
+				})))
+				.then(Commands.literal("ver").then(Commands.argument("jugador", EntityArgument.player()).executes(c -> verMisiones(c, EntityArgument.getPlayer(c, "jugador")))))
+				.then(Commands.literal("completar").then(Commands.argument("jugador", EntityArgument.player()).executes(c -> {
+					ServerPlayer j = EntityArgument.getPlayer(c, "jugador");
+					Misiones.Estado e = Misiones.get().estado(j);
+					if (e == null || e.actual >= e.misiones.size()) {
+						c.getSource().sendFailure(Component.literal("No tiene mision en curso."));
+						return 0;
+					}
+					Misiones.get().completar(j, e.misiones.get(e.actual));
+					return 1;
+				})))
+				.then(Commands.literal("olvidar").then(Commands.argument("jugador", EntityArgument.player()).executes(c -> {
+					Misiones.get().olvidar(EntityArgument.getPlayer(c, "jugador"));
+					return 1;
+				})))));
+	}
+
+	private static int verMisiones(CommandContext<CommandSourceStack> c, ServerPlayer j) {
+		Misiones.Estado e = Misiones.get().estado(j);
+		if (e == null) {
+			c.getSource().sendFailure(Component.literal(j.getGameProfile().name() + " no tiene misiones."));
+			return 0;
+		}
+		StringBuilder sb = new StringBuilder(j.getGameProfile().name() + ": ");
+		for (int i = 0; i < e.misiones.size(); i++) {
+			TipoMision m = e.misiones.get(i);
+			sb.append(i < e.actual ? "[hecha] " : i == e.actual ? "[en curso] " : "[ ] ").append(m.titulo).append(i < e.misiones.size() - 1 ? " | " : "");
+		}
+		sb.append(" | casetes ").append(e.casetes).append('/').append(Misiones.CASETES);
+		for (int[] pos : e.pendientes) {
+			sb.append(pos[2] == 1 ? " [x]" : " (" + pos[0] + "," + pos[1] + ")");
+		}
+		c.getSource().sendSuccess(() -> Component.literal(sb.toString()), false);
+		return 1;
 	}
 
 	private static int buscar(CommandContext<CommandSourceStack> c, ServerPlayer jugador) {

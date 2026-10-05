@@ -67,6 +67,12 @@ public class MenuBackrooms extends Screen {
 		if (pantalla instanceof net.minecraft.client.gui.screens.DisconnectedScreen d) {
 			return new SenalPerdida(((net.backrooms.menu.mixin.DisconnectedScreenAccessor) d).backrooms$detalles().reason());
 		}
+		if (pantalla.getClass() == net.minecraft.client.gui.screens.inventory.InventoryScreen.class) {
+			var jugador = net.minecraft.client.Minecraft.getInstance().player;
+			if (jugador != null && !jugador.hasInfiniteMaterials()) {
+				return new InventarioBackrooms(jugador);
+			}
+		}
 		if (pantalla.getClass() == net.minecraft.client.gui.screens.PauseScreen.class) {
 			return new MenuPausa(((net.minecraft.client.gui.screens.PauseScreen) pantalla).showsPauseMenu());
 		}

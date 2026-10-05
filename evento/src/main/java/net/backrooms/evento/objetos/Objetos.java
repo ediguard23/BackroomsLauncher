@@ -29,6 +29,9 @@ public final class Objetos {
 	public static final Item TRAJE_PANTALON = traje("traje_pantalon", ArmorType.LEGGINGS);
 	public static final Item TRAJE_BOTAS = traje("traje_botas", ArmorType.BOOTS);
 
+	/** El casete de las misiones (en el suelo es una entidad; el objeto es su icono). */
+	public static final Item CASETE = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("casete")), Item::new, new Item.Properties().stacksTo(16));
+
 	private Objetos() {
 	}
 

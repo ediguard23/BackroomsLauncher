@@ -29,6 +29,18 @@ public abstract class MinecraftMixin {
 		return MenuBackrooms.sustituir(pantalla, this.level != null);
 	}
 
+	/**
+	 * Solo para pruebas automaticas (variable BACKROOMS_PRUEBAS, que ningun
+	 * jugador tiene): el juego no se pausa solo al perder el foco, asi se
+	 * pueden sacar capturas del mundo sin tocar la ventana.
+	 */
+	@Inject(method = "pauseGame", at = @At("HEAD"), cancellable = true)
+	private void backrooms$sinPausaEnPruebas(boolean soloMenu, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+		if (System.getenv("BACKROOMS_PRUEBAS") != null) {
+			ci.cancel();
+		}
+	}
+
 	/** La barra de titulo de la ventana dice el nombre del evento, no "Minecraft* 1.21.11". */
 	@Inject(method = "createTitle", at = @At("HEAD"), cancellable = true)
 	private void backrooms$titulo(CallbackInfoReturnable<String> cir) {
