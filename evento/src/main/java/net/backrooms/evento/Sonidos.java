@@ -31,6 +31,8 @@ public final class Sonidos {
 	public static final SoundEvent MEGAFONIA_VESTIBULO = registrar("megafonia.vestibulo");
 	public static final SoundEvent MEGAFONIA_ALERTA = registrar("megafonia.alerta");
 	public static final SoundEvent ELIMINADO = registrar("eliminado");
+	public static final SoundEvent MOQUETA_PASO = registrar("moqueta.paso");
+	public static final SoundEvent MOQUETA_MOJADA_PASO = registrar("moqueta_mojada.paso");
 
 	private Sonidos() {
 	}

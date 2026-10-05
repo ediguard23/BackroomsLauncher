@@ -1,8 +1,10 @@
 package net.backrooms.evento.bloques;
 
 import net.backrooms.evento.BackroomsEvento;
+import net.backrooms.evento.Sonidos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -26,10 +28,16 @@ public final class Bloques {
 		propiedades(MapColor.COLOR_YELLOW, SoundType.WOOL, 1.5F));
 	public static final Block ZOCALO = registrar("zocalo",
 		propiedades(MapColor.COLOR_YELLOW, SoundType.WOOD, 1.5F));
+	/** La moqueta suena como la lana y la mojada como la esponja, salvo las pisadas: esas son propias (ver Sonidos). */
+	private static final SoundType SONIDO_MOQUETA = new SoundType(1.0F, 1.0F,
+		SoundEvents.WOOL_BREAK, Sonidos.MOQUETA_PASO, SoundEvents.WOOL_PLACE, SoundEvents.WOOL_HIT, SoundEvents.WOOL_FALL);
+	private static final SoundType SONIDO_MOQUETA_MOJADA = new SoundType(1.0F, 1.0F,
+		SoundEvents.WET_SPONGE_BREAK, Sonidos.MOQUETA_MOJADA_PASO, SoundEvents.WET_SPONGE_PLACE, SoundEvents.WET_SPONGE_HIT, SoundEvents.WET_SPONGE_FALL);
+
 	public static final Block MOQUETA = registrar("moqueta",
-		propiedades(MapColor.SAND, SoundType.WOOL, 0.8F));
+		propiedades(MapColor.SAND, SONIDO_MOQUETA, 0.8F));
 	public static final Block MOQUETA_MOJADA = registrar("moqueta_mojada",
-		propiedades(MapColor.DIRT, SoundType.WET_SPONGE, 0.8F));
+		propiedades(MapColor.DIRT, SONIDO_MOQUETA_MOJADA, 0.8F));
 	public static final Block TECHO = registrar("techo",
 		propiedades(MapColor.SAND, SoundType.CALCITE, 1.0F));
 	public static final Block FLUORESCENTE = registrar("fluorescente",

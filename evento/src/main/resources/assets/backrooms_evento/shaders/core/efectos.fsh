@@ -1,7 +1,8 @@
 #version 330
 
 // Efectos del Nivel 0 sobre la imagen del mundo (ver EfectosMundo.java):
-// apagon con linternas, alarma roja, camara (y su vision nocturna) y cordura.
+// apagon con linternas, alarma roja, camara (y su vision nocturna), cordura y
+// miedo (una Bacteria cazandote cerca, ver Miedo.java).
 
 uniform sampler2D ColorSampler;
 uniform sampler2D DepthSampler;
@@ -11,6 +12,7 @@ layout(std140) uniform Efectos {
     vec4 Estado;   // oscuridad 0-1, alarma 0-1, tiempo (s), cordura baja 0-1
     vec4 Estado2;  // camara levantada 0-1, linterna propia, flash blanco, numero de luces
     vec4 Estado3;  // numero de brillos, aspecto, susto, -
+    vec4 Estado4;  // miedo 0-1, golpe del latido 0-1, -, -
     vec4 Luces[32];  // por luz: (pos relativa, intensidad) y (direccion, coseno del cono)
     vec4 Brillos[8]; // (pos relativa, radio)
 };
@@ -37,7 +39,14 @@ void main() {
     float t = Estado.z;
     float cordura = Estado.w;
     float camara = Estado2.x;
+    float miedo = Estado4.x;
+    float golpe = Estado4.y * miedo;
     vec2 uv = texCoord;
+
+    // ---- miedo: con cada latido la vista se encoge un poco
+    if (miedo > 0.0) {
+        uv = 0.5 + (uv - 0.5) * (1.0 - 0.012 * golpe);
+    }
 
     // ---- cordura baja: la imagen respira y ondula
     if (cordura > 0.0) {
@@ -55,7 +64,7 @@ void main() {
     }
 
     vec3 col = texture(ColorSampler, uv).rgb;
-    float sep = 0.0025 * cordura + 0.0012 * camara;
+    float sep = 0.0025 * cordura + 0.0012 * camara + (0.001 + 0.0035 * Estado4.y) * miedo;
     if (sep > 0.0) {
         col.r = texture(ColorSampler, uv + vec2(sep, 0.0)).r;
         col.b = texture(ColorSampler, uv - vec2(sep, 0.0)).b;
@@ -142,6 +151,14 @@ void main() {
         float pulso = 0.85 + 0.15 * sin(t * 2.4);
         col = mix(col, vec3(luma(col)), cordura * 0.55);
         col *= 1.0 - smoothstep(0.15, 0.75, length(v) * (1.0 + cordura * pulso)) * cordura;
+    }
+
+    // ---- miedo: el color se apaga un poco y los bordes se cierran y laten
+    if (miedo > 0.0) {
+        float borde = smoothstep(0.22, 0.8, length(texCoord - 0.5) * (1.0 + 0.25 * golpe));
+        col = mix(col, vec3(luma(col)), miedo * 0.3);
+        col *= 1.0 - borde * (0.45 + 0.3 * golpe) * miedo;
+        col.r += borde * 0.06 * golpe;
     }
 
     // ---- susto (alucinacion): un fogonazo de negativo

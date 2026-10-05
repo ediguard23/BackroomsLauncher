@@ -3,6 +3,7 @@ package net.backrooms.evento.cliente;
 import net.backrooms.evento.Sonidos;
 import net.backrooms.evento.cliente.efectos.Cordura;
 import net.backrooms.evento.cliente.efectos.Flash;
+import net.backrooms.evento.cliente.efectos.Miedo;
 import net.backrooms.evento.red.EstadoJugador;
 import net.backrooms.evento.red.Susto;
 import net.backrooms.menu.render.Texto;
@@ -59,6 +60,11 @@ public final class SupervivenciaCliente {
 		return estado.activa() && estado.agotado();
 	}
 
+	/** Estamina 0..1 (suavizada); 1 fuera de la expedicion. */
+	public static float estamina() {
+		return estado.activa() ? Math.max(0.0F, Math.min(1.0F, estaminaSuave / 100.0F)) : 1.0F;
+	}
+
 	public static void olvidar() {
 		estado = new EstadoJugador(100, 100, false, false);
 		estaminaSuave = 100;
@@ -73,7 +79,8 @@ public final class SupervivenciaCliente {
 			return;
 		}
 		float c = estado.cordura();
-		if (c < 30 && --latido <= 0) {
+		// con una Bacteria encima ya late el corazon del miedo (Miedo)
+		if (c < 30 && !Miedo.latiendo() && --latido <= 0) {
 			latido = c < 15 ? 16 : 24;
 			mc.getSoundManager().play(SimpleSoundInstance.forUI(Sonidos.LATIDO, c < 15 ? 0.9F : 0.6F, 1.0F));
 		}

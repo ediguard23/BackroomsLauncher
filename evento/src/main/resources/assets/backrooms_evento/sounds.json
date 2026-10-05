@@ -172,5 +172,39 @@
         "attenuation_distance": 28
       }
     ]
+  },
+  "moqueta.paso": {
+    "subtitle": "subtitles.block.generic.footsteps",
+    "sounds": [
+      {
+        "name": "backrooms_evento:moqueta_paso1"
+      },
+      {
+        "name": "backrooms_evento:moqueta_paso2"
+      },
+      {
+        "name": "backrooms_evento:moqueta_paso3"
+      },
+      {
+        "name": "backrooms_evento:moqueta_paso4"
+      }
+    ]
+  },
+  "moqueta_mojada.paso": {
+    "subtitle": "subtitles.block.generic.footsteps",
+    "sounds": [
+      {
+        "name": "backrooms_evento:moqueta_mojada_paso1"
+      },
+      {
+        "name": "backrooms_evento:moqueta_mojada_paso2"
+      },
+      {
+        "name": "backrooms_evento:moqueta_mojada_paso3"
+      },
+      {
+        "name": "backrooms_evento:moqueta_mojada_paso4"
+      }
+    ]
   }
 }

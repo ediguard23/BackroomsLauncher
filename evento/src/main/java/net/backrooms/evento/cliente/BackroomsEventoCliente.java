@@ -14,6 +14,7 @@ import net.backrooms.evento.red.Susto;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.backrooms.evento.cliente.efectos.EfectosMundo;
 import net.backrooms.evento.cliente.efectos.Flash;
+import net.backrooms.evento.cliente.efectos.Miedo;
 import net.backrooms.evento.mision.Entidades;
 import net.backrooms.evento.red.EstadoAmbiente;
 import net.backrooms.evento.red.IniciarCinematica;
@@ -69,6 +70,8 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			AmbienteCliente.tick();
 			Cordura.tick();
 			SupervivenciaCliente.tick(mc);
+			Balanceo.tick(mc);
+			Miedo.tick(mc);
 		});
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("supervivencia"), SupervivenciaCliente::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("camara"), CamaraHud::render);
@@ -95,6 +98,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			Cordura.olvidar();
 			Flash.olvidar();
 			SupervivenciaCliente.olvidar();
+			Miedo.olvidar();
 		});
 		PantallaCinematica.cargar();
 		EfectosMundo.cargar();

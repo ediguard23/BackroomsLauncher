@@ -14,7 +14,8 @@
     "cliente.SonidoAmbienteMixin",
     "cliente.LocalPlayerAlientoMixin",
     "cliente.BrazoTrajeMixin",
-    "cliente.TablaJugadoresMixin"
+    "cliente.TablaJugadoresMixin",
+    "cliente.BalanceoMixin"
   ],
   "injectors": {
     "defaultRequire": 1

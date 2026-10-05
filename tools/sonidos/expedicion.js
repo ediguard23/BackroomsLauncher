@@ -10,6 +10,7 @@
  *   bacteria_caza     jadeos con grunido mientras te persigue
  *   bacteria_acecho   chasquidos de hueso, respiracion ronca y un grunido de pecho
  *   bacteria_pasos    pisada pesada sobre la moqueta
+ *   moqueta_paso1-4, moqueta_mojada_paso1-4   pisadas de los jugadores (seca y encharcada)
  *   smiler_flash      el fogonazo al mirarle: estallido y un chirrido agudisimo
  *   smiler_grito      cuando te alcanza
  *   linterna, camara  clic del interruptor; servo y pitido de la camara
@@ -326,6 +327,47 @@ function bacteriaAcecho () {
   return fuerte(reverb(ecos(buf, [0.21, 0.43], 0.3, 1400), 0.8, 0.35), 1.0, -4);
 }
 
+/**
+ * Pisada de jugador sobre la moqueta: talon sordo, el roce de la tela y la
+ * punta del pie. En la mojada, ademas, el chof del agua y unas burbujas.
+ * Minecraft las pone al 15 % del volumen: aqui van normalizadas.
+ */
+function pasoMoqueta (semilla, mojada) {
+  const rnd = D.azar(semilla);
+  const buf = mono(0.42);
+  const tono = 0.9 + rnd() * 0.25;
+  // talon: golpe grave y amortiguado
+  const lpTalon = new D.Biquad('lp', 380 * tono, 0.7);
+  const rt = D.azar(semilla + 100);
+  poner(buf, 0, 0.18, (t) => (Math.sin(TAU * (48 + 30 * Math.exp(-t * 40)) * tono * t) * 0.9 + lpTalon.paso(rt() * 2 - 1) * 1.6) * Math.exp(-t / 0.035));
+  // roce de la tela
+  const bpRoce = new D.Biquad('bp', (1700 + rnd() * 900) * tono, 0.9);
+  const rr = D.azar(semilla + 200);
+  const r0 = 0.008 + rnd() * 0.01;
+  poner(buf, r0, 0.14, (t) => bpRoce.paso(rr() * 2 - 1) * suave(0, 0.012, t) * Math.exp(-t / 0.045) * 0.55);
+  // punta del pie, mas floja
+  const p0 = 0.06 + rnd() * 0.035;
+  const lpPunta = new D.Biquad('lp', 520 * tono, 0.7);
+  const rp = D.azar(semilla + 300);
+  poner(buf, p0, 0.12, (t) => (Math.sin(TAU * 70 * tono * t) * 0.4 + lpPunta.paso(rp() * 2 - 1)) * Math.exp(-t / 0.025) * 0.5);
+  if (mojada) {
+    // chof: ruido por una resonancia que sube
+    const bpChof = new D.Biquad('bp', 500, 4);
+    const rc = D.azar(semilla + 400);
+    poner(buf, 0.012, 0.16, (t) => {
+      if (Math.floor(t * SR) % 32 === 0) bpChof.ajustar(500 + 1100 * Math.min(1, t / 0.09), 4);
+      return bpChof.paso(rc() * 2 - 1) * suave(0, 0.008, t) * Math.exp(-t / 0.05) * 1.4;
+    });
+    // burbujas que revientan
+    const n = 2 + Math.floor(rnd() * 3);
+    for (let k = 0; k < n; k++) {
+      const f = 900 + rnd() * 900;
+      poner(buf, 0.05 + rnd() * 0.2, 0.04, (t) => Math.sin(TAU * f * (1 + t * 14) * t) * Math.exp(-t / 0.009) * 0.35);
+    }
+  }
+  return pico(reverb(buf, 0.35, 0.06), -2);
+}
+
 function bacteriaPasos () {
   const buf = mono(0.55);
   poner(buf, 0, 0.45, golpe(105, 40, 0.07, 0.7, 31));
@@ -583,6 +625,11 @@ function latido () {
   if (toca('bacteria_caza')) await guardarMono('bacteria_caza', bacteriaCaza());
   if (toca('bacteria_acecho')) await guardarMono('bacteria_acecho', bacteriaAcecho());
   if (toca('bacteria_pasos')) await guardarMono('bacteria_pasos', bacteriaPasos());
+  const PISADAS = 4;
+  for (let k = 1; k <= PISADAS; k++) {
+    if (toca('moqueta_paso')) await guardarMono(`moqueta_paso${k}`, pasoMoqueta(700 + k * 7, false));
+    if (toca('moqueta_mojada_paso')) await guardarMono(`moqueta_mojada_paso${k}`, pasoMoqueta(800 + k * 7, true));
+  }
   if (toca('smiler_flash')) await guardarMono('smiler_flash', smilerFlash());
   if (toca('smiler_grito')) await guardarMono('smiler_grito', smilerGrito());
   if (toca('linterna')) await guardarMono('linterna', linterna());
@@ -617,6 +664,10 @@ function latido () {
     pitido: s('pitido'),
     latido: s('latido')
   });
+  // con el subtitulo de pasos de Minecraft ("Pasos"), como las pisadas de siempre
+  const variantes = (nombre) => ({ subtitle: 'subtitles.block.generic.footsteps', sounds: Array.from({ length: PISADAS }, (_, k) => ({ name: `backrooms_evento:${nombre}${k + 1}` })) });
+  j['moqueta.paso'] = variantes('moqueta_paso');
+  j['moqueta_mojada.paso'] = variantes('moqueta_mojada_paso');
   // los susurros los amplia voces.js con mas voces: si ya estan, no se tocan
   if (!j.susurros) j.susurros = s('susurros');
   fs.writeFileSync(f, JSON.stringify(j, null, 2) + '\n');

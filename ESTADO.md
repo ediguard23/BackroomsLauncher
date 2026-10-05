@@ -1,6 +1,36 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-05 17:40 (hora de Honduras). Mod `backrooms_evento` 0.8.1, launcher 1.0.0.
+Última actualización: 2026-10-05 17:50 (hora de Honduras). Mod `backrooms_evento` 0.9.0, launcher 1.0.0.
+
+## En qué se quedó la última sesión (leer primero)
+
+Se hizo la 0.9.0 (compila, arranca sin errores en cliente y servidor), pero **falta probarla
+a fondo en el juego**. Lo último fue una prueba con la orden `andar 5`: el jugador avanzó 21 bloques
+por la moqueta y el log no dio «unknown sound». La captura `andando.png` está en
+`%APPDATA%/.backrooms-event/screenshots`, sin revisar. Falta:
+- Oír las pisadas nuevas (el usuario o un bot) y ver el balanceo en movimiento.
+- Probar el miedo: `/backrooms invocar bacteria` con el jugador en aventura y Resistencia
+  255, y una `captura` mientras le persigue. Se deben ver bordes oscuros que laten y oír
+  el corazón cada vez más rápido.
+- Estado del servidor de pruebas al cortar: xgdier_ en el Nivel 0 (overworld, ~3 33 25),
+  ya devuelto a creativo y sin efectos. Para volver a probar, ponerle en aventura con
+  `effect give xgdier_ resistance 300 255 true`.
+
+Novedades de la 0.9.0 (todo en `evento/`):
+- **Pisadas propias**: la moqueta y la moqueta mojada tienen SoundType propio (Bloques.java).
+  Pisadas en `moqueta.paso` y `moqueta_mojada.paso`, 4 variantes cada una, con el
+  subtítulo «Pasos». Se rompen y se ponen con los sonidos de siempre (lana / esponja).
+  Se generan con `node tools/sonidos/expedicion.js moqueta`.
+- **Balanceo de cámara** (cliente/Balanceo.java + mixin/cliente/BalanceoMixin.java):
+  sustituye el bobView de Minecraft. Al andar es más suave que el original; al girar la vista
+  se inclina; parado respira; sin aliento jadea; con la cordura baja la vista se tambalea.
+  Si el jugador quita la opción «Balanceo de la vista», no hay ninguno.
+- **Miedo** (cliente/efectos/Miedo.java + efectos.fsh/efectos_mano.fsh, nuevo `Estado4`
+  en el UBO): con una Bacteria cazándote a menos de 32 bloques suena el corazón
+  (latido.ogg), cada vez más rápido. Con cada latido la imagen se encoge un poco, los bordes
+  se oscurecen y se separan los colores. Si la Bacteria aún no te ha visto, el efecto es suave.
+  Mientras late, el corazón de la cordura baja se calla para que no suenen los dos.
+- Órdenes de prueba nuevas: `andar [s]` y `correr [s]`.
 
 Leer esto antes de tocar nada. Lo que se va haciendo se anota aquí y se sube.
 
@@ -13,7 +43,7 @@ Leer esto antes de tocar nada. Lo que se va haciendo se anota aquí y se sube.
   traza de los comandos que fallan («An unexpected error occurred»).
 - Órdenes al cliente sin tocar la ventana (solo con BACKROOMS_PRUEBAS): escribir en
   `%TEMP%/backrooms-ordenes.txt` una de `inventario | pausa | cerrar | cinematica |
-  linterna | camara | tab [n] | captura <nombre>`. `tab 200` llena el TAB con 200
+  linterna | camara | tab [n] | andar [s] | correr [s] | captura <nombre>`. `tab 200` llena el TAB con 200
   jugadores ficticios. Las capturas salen en `%APPDATA%/.backrooms-event/screenshots`.
 - Compilar el mod: `cd evento && JAVA_HOME="$LOCALAPPDATA/Programs/jdk-25" ./gradlew build`
   (si falla por OneDrive, borrar `evento/build/resources` y repetir).
@@ -54,8 +84,9 @@ Leer esto antes de tocar nada. Lo que se va haciendo se anota aquí y se sube.
 2. **No publicar el pack** (`npm run publicar-pack`) hasta que la tienda esté desplegada:
    `pack/evento.json` ya lleva `acceso.api` y sin la tienda nadie podría canjear ni entrar.
 3. IP real del servidor en `pack/evento.json` (sigue `play.tuservidor.net`).
-4. Pasos propios suaves sobre la moqueta y balanceo de cámara al andar (pedido, sin hacer).
-5. Simple Voice Chat: comprobar licencia y versión 1.21.11 y si el host abre el puerto UDP.
+4. Pisadas, balanceo y miedo: hechos en la 0.9.0, falta probarlos en el juego (ver arriba).
+5. Simple Voice Chat: comprobar licencia y versión 1.21.11 y si el host abre el puerto UDP
+   (sin empezar). AmbientSounds 2 probablemente no encaja; tampoco se ha mirado.
 6. Fallo raro una vez: `tp` del vestíbulo al Nivel 0 dio «unexpected error» y dejó al
    cliente en «Cargando el terreno». No se ha repetido; si vuelve, el log de depuración
    (ver arriba) da la traza.

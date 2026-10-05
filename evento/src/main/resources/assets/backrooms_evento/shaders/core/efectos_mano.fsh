@@ -10,6 +10,7 @@ layout(std140) uniform Efectos {
     vec4 Estado;
     vec4 Estado2;
     vec4 Estado3;
+    vec4 Estado4;
     vec4 Luces[32];
     vec4 Brillos[8];
 };
@@ -27,6 +28,13 @@ void main() {
     vec3 f = vec3(mix(1.0, luz, Estado.x));
     float latido = 0.55 + 0.45 * sin(Estado.z * 5.2);
     f *= mix(vec3(1.0), vec3(1.25, 0.3, 0.25) * (0.6 + 0.5 * latido), Estado.y * 0.85);
+    // el miedo cierra los bordes tambien sobre la mano
+    float miedo = Estado4.x;
+    if (miedo > 0.0) {
+        float golpe = Estado4.y * miedo;
+        float borde = smoothstep(0.22, 0.8, length(texCoord - 0.5) * (1.0 + 0.25 * golpe));
+        f *= 1.0 - borde * (0.45 + 0.3 * golpe) * miedo;
+    }
     f = mix(f, vec3(1.0), Estado2.z);
     fragColor = vec4(f, 1.0);
 }
