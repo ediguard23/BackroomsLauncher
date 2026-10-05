@@ -25,5 +25,9 @@
   "block.backrooms_evento.senal_alto_reves": "Pots sign",
   "block.backrooms_evento.senal_siga_reves": "Og sign",
   "block.backrooms_evento.pared_fina": "Thin wallpaper",
-  "block.backrooms_evento.pared_fina_sucia": "Thin stained wallpaper"
+  "block.backrooms_evento.pared_fina_sucia": "Thin stained wallpaper",
+  "item.backrooms_evento.traje_casco": "Hazmat hood",
+  "item.backrooms_evento.traje_chaqueta": "Hazmat jacket",
+  "item.backrooms_evento.traje_pantalon": "Hazmat trousers",
+  "item.backrooms_evento.traje_botas": "Hazmat boots"
 }

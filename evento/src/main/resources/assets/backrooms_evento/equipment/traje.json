@@ -1,0 +1,14 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "backrooms_evento:traje"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "backrooms_evento:traje"
+      }
+    ]
+  }
+}

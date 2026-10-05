@@ -25,5 +25,9 @@
   "block.backrooms_evento.senal_alto_reves": "Señal de otla",
   "block.backrooms_evento.senal_siga_reves": "Señal de agis",
   "block.backrooms_evento.pared_fina": "Pared fina",
-  "block.backrooms_evento.pared_fina_sucia": "Pared fina manchada"
+  "block.backrooms_evento.pared_fina_sucia": "Pared fina manchada",
+  "item.backrooms_evento.traje_casco": "Capucha antirradiación",
+  "item.backrooms_evento.traje_chaqueta": "Chaqueta antirradiación",
+  "item.backrooms_evento.traje_pantalon": "Pantalón antirradiación",
+  "item.backrooms_evento.traje_botas": "Botas antirradiación"
 }

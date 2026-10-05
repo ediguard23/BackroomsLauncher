@@ -2,6 +2,8 @@ package net.backrooms.evento;
 
 import net.backrooms.evento.bloques.Bloques;
 import net.backrooms.evento.mundo.GeneradorNivel0;
+import net.backrooms.evento.objetos.Equipo;
+import net.backrooms.evento.objetos.Objetos;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -28,6 +30,8 @@ public class BackroomsEvento implements ModInitializer {
 	public void onInitialize() {
 		Bloques.iniciar();
 		Sonidos.iniciar();
+		Objetos.iniciar();
+		Equipo.registrar();
 		Comandos.registrar();
 		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("nivel_0"), GeneradorNivel0.CODEC);
 	}
