@@ -1,0 +1,256 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "tela": "backrooms_evento:block/silla_tela",
+    "plastico": "backrooms_evento:block/silla_plastico",
+    "particle": "backrooms_evento:block/silla_tela"
+  },
+  "elements": [
+    {
+      "from": [
+        3,
+        -4,
+        7.25
+      ],
+      "to": [
+        13,
+        -3,
+        8.75
+      ],
+      "faces": {
+        "north": {
+          "texture": "#plastico"
+        },
+        "south": {
+          "texture": "#plastico"
+        },
+        "east": {
+          "texture": "#plastico"
+        },
+        "west": {
+          "texture": "#plastico"
+        },
+        "up": {
+          "texture": "#plastico"
+        },
+        "down": {
+          "texture": "#plastico"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "x",
+        "origin": [
+          8,
+          0,
+          8
+        ]
+      }
+    },
+    {
+      "from": [
+        7.25,
+        -4,
+        3
+      ],
+      "to": [
+        8.75,
+        -3,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#plastico"
+        },
+        "south": {
+          "texture": "#plastico"
+        },
+        "east": {
+          "texture": "#plastico"
+        },
+        "west": {
+          "texture": "#plastico"
+        },
+        "up": {
+          "texture": "#plastico"
+        },
+        "down": {
+          "texture": "#plastico"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "x",
+        "origin": [
+          8,
+          0,
+          8
+        ]
+      }
+    },
+    {
+      "from": [
+        7.5,
+        -3,
+        7.5
+      ],
+      "to": [
+        8.5,
+        2,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#plastico"
+        },
+        "south": {
+          "texture": "#plastico"
+        },
+        "east": {
+          "texture": "#plastico"
+        },
+        "west": {
+          "texture": "#plastico"
+        },
+        "up": {
+          "texture": "#plastico"
+        },
+        "down": {
+          "texture": "#plastico"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "x",
+        "origin": [
+          8,
+          0,
+          8
+        ]
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        13,
+        4,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#tela"
+        },
+        "south": {
+          "texture": "#tela"
+        },
+        "east": {
+          "texture": "#tela"
+        },
+        "west": {
+          "texture": "#tela"
+        },
+        "up": {
+          "texture": "#tela"
+        },
+        "down": {
+          "texture": "#tela"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "x",
+        "origin": [
+          8,
+          0,
+          8
+        ]
+      }
+    },
+    {
+      "from": [
+        3.5,
+        4,
+        12
+      ],
+      "to": [
+        12.5,
+        14,
+        13.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#tela"
+        },
+        "south": {
+          "texture": "#tela"
+        },
+        "east": {
+          "texture": "#tela"
+        },
+        "west": {
+          "texture": "#tela"
+        },
+        "up": {
+          "texture": "#tela"
+        },
+        "down": {
+          "texture": "#tela"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "x",
+        "origin": [
+          8,
+          0,
+          8
+        ]
+      }
+    },
+    {
+      "from": [
+        7.25,
+        2,
+        13
+      ],
+      "to": [
+        8.75,
+        7,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#plastico"
+        },
+        "south": {
+          "texture": "#plastico"
+        },
+        "east": {
+          "texture": "#plastico"
+        },
+        "west": {
+          "texture": "#plastico"
+        },
+        "up": {
+          "texture": "#plastico"
+        },
+        "down": {
+          "texture": "#plastico"
+        }
+      },
+      "rotation": {
+        "angle": 45,
+        "axis": "x",
+        "origin": [
+          8,
+          0,
+          8
+        ]
+      }
+    }
+  ]
+}

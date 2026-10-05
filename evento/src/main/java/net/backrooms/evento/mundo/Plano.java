@@ -228,6 +228,128 @@ public final class Plano {
 		return ruido2(x / 22.0, z / 22.0, 40) > 0.72;
 	}
 
+	/* ------------------------------------------------------ decoracion */
+
+	public static final int D_NADA = 0;
+	public static final int D_ENCHUFE = 1;
+	public static final int D_ENCHUFE_MANCHADO = 2;
+	public static final int D_DIBUJO = 3;
+	public static final int D_SALIDA = 4;
+	public static final int D_NOTA = 5;
+	public static final int D_SILLA = 6;
+	public static final int D_SILLA_VOLCADA = 7;
+	public static final int D_SENAL = 8;
+	public static final int D_VENA = 9;
+
+	/** Decoracion de una columna libre: tipo, hacia donde mira (0 N, 1 E, 2 S, 3 O) y variante. */
+	public record Deco(int tipo, int mira, int variante) {
+	}
+
+	public static final Deco NADA = new Deco(D_NADA, 0, 0);
+
+	/** Pared maciza (no fina) en (x, z): donde se puede pegar algo. */
+	private boolean paredMaciza(int x, int z) {
+		return this.pared(x, z) && this.paredFina(x, z) == 0;
+	}
+
+	/**
+	 * Que hay en el suelo o en la pared de una columna libre. Pegado a una
+	 * pared: enchufes, pintadas, cintas y (muy raro) un cartel de salida. En
+	 * medio: notas, sillas hundidas y senales. A oscuras hay mas pintadas y el
+	 * suelo se llena de venas de Hay Bacillus.
+	 */
+	public Deco decoracion(int x, int z) {
+		boolean oscuro = this.oscuridad(x, z) == 2;
+		if (oscuro && ruido2(x / 9.0, z / 9.0, 70) > 0.71) {
+			return new Deco(D_VENA, 0, 0);
+		}
+		int[] lados = new int[4];
+		int n = 0;
+		if (this.paredMaciza(x, z - 1)) {
+			lados[n++] = 2;
+		}
+		if (this.paredMaciza(x + 1, z)) {
+			lados[n++] = 3;
+		}
+		if (this.paredMaciza(x, z + 1)) {
+			lados[n++] = 0;
+		}
+		if (this.paredMaciza(x - 1, z)) {
+			lados[n++] = 1;
+		}
+		double r = azar(x, z, 60);
+		if (n > 0) {
+			int mira = lados[(int) (azar(x, z, 61) * n)];
+			double pintadas = oscuro ? 0.022 : 0.011;
+			if (r < 0.009) {
+				return new Deco(this.sucio(x, 2, z) || azar(x, z, 62) < 0.25 ? D_ENCHUFE_MANCHADO : D_ENCHUFE, mira, 0);
+			}
+			if (r < 0.009 + pintadas) {
+				return new Deco(D_DIBUJO, mira, (int) (azar(x, z, 63) * 12));
+			}
+			if (r < 0.009 + pintadas + 0.004) {
+				return new Deco(D_DIBUJO, mira, azar(x, z, 64) < 0.5 ? 12 : 13);
+			}
+			if (r < 0.009 + pintadas + 0.0042) {
+				return new Deco(D_SALIDA, mira, 0);
+			}
+			return NADA;
+		}
+		int mira = (int) (azar(x, z, 65) * 4);
+		if (r < 0.0010) {
+			return new Deco(D_NOTA, mira, 0);
+		}
+		if (r < 0.0026) {
+			return new Deco(azar(x, z, 66) < 0.4 ? D_SILLA_VOLCADA : D_SILLA, mira, 0);
+		}
+		if (r < 0.0031) {
+			return new Deco(D_SENAL, mira, (int) (azar(x, z, 67) * 5));
+		}
+		return NADA;
+	}
+
+	/** Ventilador colgado del techo en (x, z): 0 ninguno, 1 normal, 2 grande. Uno como mucho por celda. */
+	public int ventilador(int x, int z) {
+		int gx = Math.floorDiv(x, G);
+		int gz = Math.floorDiv(z, G);
+		if (x - gx * G != 4 || z - gz * G != 4) {
+			return 0;
+		}
+		boolean salon = this.zona(gx, gz) == SALON;
+		if (azar(gx, gz, 68) >= (salon ? 0.08 : 0.045)) {
+			return 0;
+		}
+		return salon && azar(gx, gz, 69) < 0.4 ? 2 : 1;
+	}
+
+	/**
+	 * Pared fina: algunos tramos de las salas son un tabique delgado en vez
+	 * de pared maciza. 0 = no, 1 = tramo a lo largo de x, 2 = a lo largo de z.
+	 */
+	public int paredFina(int x, int z) {
+		int gx = Math.floorDiv(x, G);
+		int gz = Math.floorDiv(z, G);
+		int lx = x - gx * G;
+		int lz = z - gz * G;
+		if (lx == 0 && lz == 0) {
+			return 0;
+		}
+		boolean alongX = lz == 0;
+		if (!alongX && lx != 0) {
+			return 0;
+		}
+		int zona = alongX ? zonaMedia(gx, gz, gx + 1, gz) : zonaMedia(gx, gz, gx, gz + 1);
+		if (zona != SALAS || azar(gx, gz, alongX ? 71 : 72) >= 0.2) {
+			return 0;
+		}
+		return alongX ? 1 : 2;
+	}
+
+	/** Pared cubierta de Hay Bacillus (solo a oscuras). */
+	public boolean paredBacilo(int x, int z) {
+		return this.oscuridad(x, z) == 2 && ruido2(x / 7.0, z / 7.0, 73) > 0.6;
+	}
+
 	/** Papel pintado manchado: cerca de la moqueta mojada y algun lamparon suelto. */
 	public boolean sucio(int x, int y, int z) {
 		double m = ruido2(x / 22.0, z / 22.0, 40);

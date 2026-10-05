@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "backrooms_evento:block/senal_alto_reves"
+    },
+    "facing=east": {
+      "model": "backrooms_evento:block/senal_alto_reves",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "backrooms_evento:block/senal_alto_reves",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "backrooms_evento:block/senal_alto_reves",
+      "y": 270
+    }
+  }
+}

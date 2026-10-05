@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/carpet",
+  "textures": {
+    "wool": "backrooms_evento:block/capa_bacilo"
+  }
+}

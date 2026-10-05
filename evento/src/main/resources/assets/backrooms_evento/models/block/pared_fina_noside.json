@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/template_glass_pane_noside",
+  "textures": {
+    "pane": "backrooms_evento:block/papel_pintado",
+    "particle": "backrooms_evento:block/papel_pintado"
+  }
+}

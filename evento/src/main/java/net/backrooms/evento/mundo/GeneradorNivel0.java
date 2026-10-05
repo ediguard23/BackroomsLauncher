@@ -6,7 +6,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import net.backrooms.evento.BackroomsEvento;
 import net.backrooms.evento.bloques.Bloques;
+import net.backrooms.evento.bloques.Dibujo;
+import net.backrooms.evento.bloques.EnPared;
+import net.backrooms.evento.bloques.EnSuelo;
+import net.backrooms.evento.bloques.Silla;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.WorldGenRegion;
@@ -18,7 +23,9 @@ import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.BiomeManager;
 import net.minecraft.world.level.biome.BiomeSource;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CrossCollisionBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -65,7 +72,7 @@ public class GeneradorNivel0 extends ChunkGenerator {
 	}
 
 	/** El plano de este mundo: su semilla se deriva de la del mundo. */
-	private Plano plano(RandomState estado) {
+	public Plano plano(RandomState estado) {
 		Plano p = this.plano;
 		if (p == null || this.estadoPlano != estado) {
 			long semilla = estado.getOrCreateRandomFactory(BackroomsEvento.id("plano")).at(0, 0, 0).nextLong();
@@ -91,11 +98,13 @@ public class GeneradorNivel0 extends ChunkGenerator {
 				int wz = bz + z;
 				poner(chunk, pos.set(x, SUELO, z), p.mojado(wx, wz) ? Bloques.MOQUETA_MOJADA.defaultBlockState() : Bloques.MOQUETA.defaultBlockState(), fondo, superficie);
 				if (p.pared(wx, wz)) {
-					poner(chunk, pos.set(x, SUELO + 1, z), Bloques.ZOCALO.defaultBlockState(), fondo, superficie);
-					for (int y = SUELO + 2; y < TECHO_Y; y++) {
-						BlockState papel = p.sucio(wx, y - SUELO, wz) ? Bloques.PAPEL_PINTADO_SUCIO.defaultBlockState() : Bloques.PAPEL_PINTADO.defaultBlockState();
-						poner(chunk, pos.set(x, y, z), papel, fondo, superficie);
-					}
+					this.pared(chunk, pos, p, x, z, wx, wz, fondo, superficie);
+				} else {
+					this.decorar(chunk, pos, p, x, z, wx, wz, fondo, superficie);
+				}
+				int ventilador = p.ventilador(wx, wz);
+				if (ventilador > 0) {
+					poner(chunk, pos.set(x, TECHO_Y - 1, z), (ventilador == 2 ? Bloques.VENTILADOR_GRANDE : Bloques.VENTILADOR).defaultBlockState(), fondo, superficie);
 				}
 				BlockState techo = switch (p.techo(wx, wz)) {
 					case Plano.TUBO -> Bloques.FLUORESCENTE.defaultBlockState();
@@ -109,6 +118,53 @@ public class GeneradorNivel0 extends ChunkGenerator {
 			}
 		}
 		return CompletableFuture.completedFuture(chunk);
+	}
+
+	private static final Direction[] MIRA = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+
+	/** Columna de pared: maciza (zocalo + papel), tabique fino o cubierta de Hay Bacillus. */
+	private void pared(ChunkAccess chunk, BlockPos.MutableBlockPos pos, Plano p, int x, int z, int wx, int wz, Heightmap a, Heightmap b) {
+		if (p.paredFina(wx, wz) != 0) {
+			boolean sucia = p.sucio(wx, 2, wz);
+			BlockState fina = (sucia ? Bloques.PARED_FINA_SUCIA : Bloques.PARED_FINA).defaultBlockState()
+				.setValue(CrossCollisionBlock.NORTH, p.pared(wx, wz - 1))
+				.setValue(CrossCollisionBlock.SOUTH, p.pared(wx, wz + 1))
+				.setValue(CrossCollisionBlock.EAST, p.pared(wx + 1, wz))
+				.setValue(CrossCollisionBlock.WEST, p.pared(wx - 1, wz));
+			for (int y = SUELO + 1; y < TECHO_Y; y++) {
+				poner(chunk, pos.set(x, y, z), fina, a, b);
+			}
+			return;
+		}
+		boolean bacilo = p.paredBacilo(wx, wz);
+		poner(chunk, pos.set(x, SUELO + 1, z), (bacilo ? Bloques.RAIZ_BACILO : Bloques.ZOCALO).defaultBlockState(), a, b);
+		for (int y = SUELO + 2; y < TECHO_Y; y++) {
+			Block bloque = bacilo ? Bloques.BACILO : p.sucio(wx, y - SUELO, wz) ? Bloques.PAPEL_PINTADO_SUCIO : Bloques.PAPEL_PINTADO;
+			poner(chunk, pos.set(x, y, z), bloque.defaultBlockState(), a, b);
+		}
+	}
+
+	/** Columna libre: lo que haya pegado a la pared de al lado o tirado en el suelo. */
+	private void decorar(ChunkAccess chunk, BlockPos.MutableBlockPos pos, Plano p, int x, int z, int wx, int wz, Heightmap a, Heightmap b) {
+		Plano.Deco d = p.decoracion(wx, wz);
+		Direction mira = MIRA[d.mira()];
+		switch (d.tipo()) {
+			case Plano.D_ENCHUFE, Plano.D_ENCHUFE_MANCHADO -> poner(chunk, pos.set(x, SUELO + 1, z),
+				(d.tipo() == Plano.D_ENCHUFE ? Bloques.ENCHUFE : Bloques.ENCHUFE_MANCHADO).defaultBlockState().setValue(EnPared.FACING, mira), a, b);
+			case Plano.D_DIBUJO -> poner(chunk, pos.set(x, SUELO + 2, z),
+				Bloques.DIBUJO.defaultBlockState().setValue(EnPared.FACING, mira).setValue(Dibujo.DIBUJO, d.variante()), a, b);
+			case Plano.D_SALIDA -> poner(chunk, pos.set(x, TECHO_Y - 1, z),
+				Bloques.SALIDA.defaultBlockState().setValue(EnPared.FACING, mira), a, b);
+			case Plano.D_NOTA -> poner(chunk, pos.set(x, SUELO + 1, z),
+				Bloques.NOTA.defaultBlockState().setValue(EnSuelo.FACING, mira), a, b);
+			case Plano.D_SILLA, Plano.D_SILLA_VOLCADA -> poner(chunk, pos.set(x, SUELO + 1, z),
+				Bloques.SILLA.defaultBlockState().setValue(EnSuelo.FACING, mira).setValue(Silla.VOLCADA, d.tipo() == Plano.D_SILLA_VOLCADA), a, b);
+			case Plano.D_SENAL -> poner(chunk, pos.set(x, SUELO + 1, z),
+				Bloques.SENALES[d.variante()].defaultBlockState().setValue(EnSuelo.FACING, mira), a, b);
+			case Plano.D_VENA -> poner(chunk, pos.set(x, SUELO + 1, z), Bloques.CAPA_BACILO.defaultBlockState(), a, b);
+			default -> {
+			}
+		}
 	}
 
 	private static void poner(ChunkAccess chunk, BlockPos pos, BlockState estado, Heightmap a, Heightmap b) {

@@ -6,6 +6,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CarpetBlock;
+import net.minecraft.world.level.block.IronBarsBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
@@ -37,8 +39,54 @@ public final class Bloques {
 	public static final Block FLUORESCENTE_PARPADEO = Blocks.register(clave("fluorescente_parpadeo"), TuboParpadeante::new,
 		propiedades(MapColor.SNOW, SoundType.GLASS, 0.6F).lightLevel(e -> e.getValue(TuboParpadeante.LIT) ? 15 : 0));
 
+	/* ---------------------------------------------------- decoracion */
+
+	public static final Block ENCHUFE = conObjeto(Blocks.register(clave("enchufe"), EnPared::new,
+		propiedades(MapColor.SNOW, SoundType.STONE, 0.5F).noCollision().noOcclusion()));
+	public static final Block ENCHUFE_MANCHADO = conObjeto(Blocks.register(clave("enchufe_manchado"), EnPared::new,
+		propiedades(MapColor.SAND, SoundType.STONE, 0.5F).noCollision().noOcclusion()));
+	public static final Block DIBUJO = conObjeto(Blocks.register(clave("dibujo"), Dibujo::new,
+		propiedades(MapColor.NONE, SoundType.WOOL, 0.2F).noCollision().noOcclusion().replaceable()));
+	public static final Block SALIDA = conObjeto(Blocks.register(clave("salida"), EnPared::new,
+		propiedades(MapColor.COLOR_GREEN, SoundType.METAL, 0.8F).noCollision().noOcclusion().lightLevel(e -> 7)));
+	public static final Block VENTILADOR = conObjeto(Blocks.register(clave("ventilador"), Ventilador::new,
+		propiedades(MapColor.METAL, SoundType.METAL, 0.8F).noCollision().noOcclusion()));
+	public static final Block VENTILADOR_GRANDE = conObjeto(Blocks.register(clave("ventilador_grande"), Ventilador::new,
+		propiedades(MapColor.METAL, SoundType.METAL, 0.8F).noCollision().noOcclusion()));
+	public static final Block NOTA = conObjeto(Blocks.register(clave("nota"), Nota::new,
+		propiedades(MapColor.SNOW, SoundType.WOOL, 0.2F).noOcclusion()));
+	public static final Block SILLA = conObjeto(Blocks.register(clave("silla"), Silla::new,
+		propiedades(MapColor.COLOR_BLUE, SoundType.WOOD, 1.0F).noOcclusion()));
+	public static final Block SENAL_ALTO = senal("senal_alto");
+	public static final Block SENAL_PELIGRO = senal("senal_peligro");
+	public static final Block SENAL_SIGA = senal("senal_siga");
+	public static final Block SENAL_ALTO_REVES = senal("senal_alto_reves");
+	public static final Block SENAL_SIGA_REVES = senal("senal_siga_reves");
+	public static final Block BACILO = registrar("bacilo", propiedades(MapColor.COLOR_BLACK, SoundType.SCULK, 1.0F));
+	public static final Block RAIZ_BACILO = registrar("raiz_bacilo", propiedades(MapColor.COLOR_BLACK, SoundType.SCULK, 1.0F));
+	public static final Block CAPA_BACILO = conObjeto(Blocks.register(clave("capa_bacilo"), CarpetBlock::new,
+		propiedades(MapColor.COLOR_BLACK, SoundType.SCULK_VEIN, 0.2F).noOcclusion()));
+	public static final Block PARED_FINA = conObjeto(Blocks.register(clave("pared_fina"), IronBarsBlock::new,
+		propiedades(MapColor.COLOR_YELLOW, SoundType.WOOL, 1.5F).noOcclusion()));
+	public static final Block PARED_FINA_SUCIA = conObjeto(Blocks.register(clave("pared_fina_sucia"), IronBarsBlock::new,
+		propiedades(MapColor.COLOR_YELLOW, SoundType.WOOL, 1.5F).noOcclusion()));
+
+	/** Las senales en el orden del reparto del generador. */
+	public static final Block[] SENALES = {SENAL_ALTO, SENAL_PELIGRO, SENAL_SIGA, SENAL_ALTO_REVES, SENAL_SIGA_REVES};
+
 	static {
 		Items.registerBlock(FLUORESCENTE_PARPADEO);
+	}
+
+	private static Block conObjeto(Block bloque) {
+		Items.registerBlock(bloque);
+		return bloque;
+	}
+
+	private static Block senal(String id) {
+		return conObjeto(Blocks.register(clave(id),
+			p -> new EnSuelo(p, Block.box(2, 0, 7, 14, 16, 10), Block.box(7, 0, 8, 9, 16, 10)),
+			propiedades(MapColor.METAL, SoundType.METAL, 1.0F).noOcclusion()));
 	}
 
 	private Bloques() {

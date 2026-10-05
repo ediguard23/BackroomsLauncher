@@ -1,0 +1,214 @@
+{
+  "variants": {
+    "dibujo=0,facing=north": {
+      "model": "backrooms_evento:block/dibujo_0"
+    },
+    "dibujo=1,facing=north": {
+      "model": "backrooms_evento:block/dibujo_1"
+    },
+    "dibujo=2,facing=north": {
+      "model": "backrooms_evento:block/dibujo_2"
+    },
+    "dibujo=3,facing=north": {
+      "model": "backrooms_evento:block/dibujo_3"
+    },
+    "dibujo=4,facing=north": {
+      "model": "backrooms_evento:block/dibujo_4"
+    },
+    "dibujo=5,facing=north": {
+      "model": "backrooms_evento:block/dibujo_5"
+    },
+    "dibujo=6,facing=north": {
+      "model": "backrooms_evento:block/dibujo_6"
+    },
+    "dibujo=7,facing=north": {
+      "model": "backrooms_evento:block/dibujo_7"
+    },
+    "dibujo=8,facing=north": {
+      "model": "backrooms_evento:block/dibujo_8"
+    },
+    "dibujo=9,facing=north": {
+      "model": "backrooms_evento:block/dibujo_9"
+    },
+    "dibujo=10,facing=north": {
+      "model": "backrooms_evento:block/dibujo_10"
+    },
+    "dibujo=11,facing=north": {
+      "model": "backrooms_evento:block/dibujo_11"
+    },
+    "dibujo=12,facing=north": {
+      "model": "backrooms_evento:block/dibujo_12"
+    },
+    "dibujo=13,facing=north": {
+      "model": "backrooms_evento:block/dibujo_13"
+    },
+    "dibujo=0,facing=east": {
+      "model": "backrooms_evento:block/dibujo_0",
+      "y": 90
+    },
+    "dibujo=1,facing=east": {
+      "model": "backrooms_evento:block/dibujo_1",
+      "y": 90
+    },
+    "dibujo=2,facing=east": {
+      "model": "backrooms_evento:block/dibujo_2",
+      "y": 90
+    },
+    "dibujo=3,facing=east": {
+      "model": "backrooms_evento:block/dibujo_3",
+      "y": 90
+    },
+    "dibujo=4,facing=east": {
+      "model": "backrooms_evento:block/dibujo_4",
+      "y": 90
+    },
+    "dibujo=5,facing=east": {
+      "model": "backrooms_evento:block/dibujo_5",
+      "y": 90
+    },
+    "dibujo=6,facing=east": {
+      "model": "backrooms_evento:block/dibujo_6",
+      "y": 90
+    },
+    "dibujo=7,facing=east": {
+      "model": "backrooms_evento:block/dibujo_7",
+      "y": 90
+    },
+    "dibujo=8,facing=east": {
+      "model": "backrooms_evento:block/dibujo_8",
+      "y": 90
+    },
+    "dibujo=9,facing=east": {
+      "model": "backrooms_evento:block/dibujo_9",
+      "y": 90
+    },
+    "dibujo=10,facing=east": {
+      "model": "backrooms_evento:block/dibujo_10",
+      "y": 90
+    },
+    "dibujo=11,facing=east": {
+      "model": "backrooms_evento:block/dibujo_11",
+      "y": 90
+    },
+    "dibujo=12,facing=east": {
+      "model": "backrooms_evento:block/dibujo_12",
+      "y": 90
+    },
+    "dibujo=13,facing=east": {
+      "model": "backrooms_evento:block/dibujo_13",
+      "y": 90
+    },
+    "dibujo=0,facing=south": {
+      "model": "backrooms_evento:block/dibujo_0",
+      "y": 180
+    },
+    "dibujo=1,facing=south": {
+      "model": "backrooms_evento:block/dibujo_1",
+      "y": 180
+    },
+    "dibujo=2,facing=south": {
+      "model": "backrooms_evento:block/dibujo_2",
+      "y": 180
+    },
+    "dibujo=3,facing=south": {
+      "model": "backrooms_evento:block/dibujo_3",
+      "y": 180
+    },
+    "dibujo=4,facing=south": {
+      "model": "backrooms_evento:block/dibujo_4",
+      "y": 180
+    },
+    "dibujo=5,facing=south": {
+      "model": "backrooms_evento:block/dibujo_5",
+      "y": 180
+    },
+    "dibujo=6,facing=south": {
+      "model": "backrooms_evento:block/dibujo_6",
+      "y": 180
+    },
+    "dibujo=7,facing=south": {
+      "model": "backrooms_evento:block/dibujo_7",
+      "y": 180
+    },
+    "dibujo=8,facing=south": {
+      "model": "backrooms_evento:block/dibujo_8",
+      "y": 180
+    },
+    "dibujo=9,facing=south": {
+      "model": "backrooms_evento:block/dibujo_9",
+      "y": 180
+    },
+    "dibujo=10,facing=south": {
+      "model": "backrooms_evento:block/dibujo_10",
+      "y": 180
+    },
+    "dibujo=11,facing=south": {
+      "model": "backrooms_evento:block/dibujo_11",
+      "y": 180
+    },
+    "dibujo=12,facing=south": {
+      "model": "backrooms_evento:block/dibujo_12",
+      "y": 180
+    },
+    "dibujo=13,facing=south": {
+      "model": "backrooms_evento:block/dibujo_13",
+      "y": 180
+    },
+    "dibujo=0,facing=west": {
+      "model": "backrooms_evento:block/dibujo_0",
+      "y": 270
+    },
+    "dibujo=1,facing=west": {
+      "model": "backrooms_evento:block/dibujo_1",
+      "y": 270
+    },
+    "dibujo=2,facing=west": {
+      "model": "backrooms_evento:block/dibujo_2",
+      "y": 270
+    },
+    "dibujo=3,facing=west": {
+      "model": "backrooms_evento:block/dibujo_3",
+      "y": 270
+    },
+    "dibujo=4,facing=west": {
+      "model": "backrooms_evento:block/dibujo_4",
+      "y": 270
+    },
+    "dibujo=5,facing=west": {
+      "model": "backrooms_evento:block/dibujo_5",
+      "y": 270
+    },
+    "dibujo=6,facing=west": {
+      "model": "backrooms_evento:block/dibujo_6",
+      "y": 270
+    },
+    "dibujo=7,facing=west": {
+      "model": "backrooms_evento:block/dibujo_7",
+      "y": 270
+    },
+    "dibujo=8,facing=west": {
+      "model": "backrooms_evento:block/dibujo_8",
+      "y": 270
+    },
+    "dibujo=9,facing=west": {
+      "model": "backrooms_evento:block/dibujo_9",
+      "y": 270
+    },
+    "dibujo=10,facing=west": {
+      "model": "backrooms_evento:block/dibujo_10",
+      "y": 270
+    },
+    "dibujo=11,facing=west": {
+      "model": "backrooms_evento:block/dibujo_11",
+      "y": 270
+    },
+    "dibujo=12,facing=west": {
+      "model": "backrooms_evento:block/dibujo_12",
+      "y": 270
+    },
+    "dibujo=13,facing=west": {
+      "model": "backrooms_evento:block/dibujo_13",
+      "y": 270
+    }
+  }
+}

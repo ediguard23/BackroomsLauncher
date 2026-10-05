@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "backrooms_evento:block/enchufe"
+    },
+    "facing=east": {
+      "model": "backrooms_evento:block/enchufe",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "backrooms_evento:block/enchufe",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "backrooms_evento:block/enchufe",
+      "y": 270
+    }
+  }
+}

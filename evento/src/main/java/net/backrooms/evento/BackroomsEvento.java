@@ -28,6 +28,7 @@ public class BackroomsEvento implements ModInitializer {
 	public void onInitialize() {
 		Bloques.iniciar();
 		Sonidos.iniciar();
+		Comandos.registrar();
 		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("nivel_0"), GeneradorNivel0.CODEC);
 	}
 }

@@ -14,6 +14,9 @@
   "entrypoints": {
     "main": [
       "net.backrooms.evento.BackroomsEvento"
+    ],
+    "client": [
+      "net.backrooms.evento.cliente.BackroomsEventoCliente"
     ]
   },
   "depends": {

@@ -1,0 +1,50 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "all": "backrooms_evento:block/salida",
+    "back": "backrooms_evento:block/metal",
+    "particle": "backrooms_evento:block/salida"
+  },
+  "elements": [
+    {
+      "from": [
+        1,
+        9,
+        14
+      ],
+      "to": [
+        15,
+        16,
+        16
+      ],
+      "shade": false,
+      "light_emission": 15,
+      "faces": {
+        "north": {
+          "texture": "#all",
+          "uv": [
+            0,
+            3,
+            16,
+            12.5
+          ]
+        },
+        "south": {
+          "texture": "#back"
+        },
+        "east": {
+          "texture": "#back"
+        },
+        "west": {
+          "texture": "#back"
+        },
+        "up": {
+          "texture": "#back"
+        },
+        "down": {
+          "texture": "#back"
+        }
+      }
+    }
+  ]
+}

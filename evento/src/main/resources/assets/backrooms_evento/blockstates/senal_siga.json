@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "backrooms_evento:block/senal_siga"
+    },
+    "facing=east": {
+      "model": "backrooms_evento:block/senal_siga",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "backrooms_evento:block/senal_siga",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "backrooms_evento:block/senal_siga",
+      "y": 270
+    }
+  }
+}

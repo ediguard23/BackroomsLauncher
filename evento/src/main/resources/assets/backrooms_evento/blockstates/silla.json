@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,volcada=false": {
+      "model": "backrooms_evento:block/silla"
+    },
+    "facing=north,volcada=true": {
+      "model": "backrooms_evento:block/silla_volcada"
+    },
+    "facing=east,volcada=false": {
+      "model": "backrooms_evento:block/silla",
+      "y": 90
+    },
+    "facing=east,volcada=true": {
+      "model": "backrooms_evento:block/silla_volcada",
+      "y": 90
+    },
+    "facing=south,volcada=false": {
+      "model": "backrooms_evento:block/silla",
+      "y": 180
+    },
+    "facing=south,volcada=true": {
+      "model": "backrooms_evento:block/silla_volcada",
+      "y": 180
+    },
+    "facing=west,volcada=false": {
+      "model": "backrooms_evento:block/silla",
+      "y": 270
+    },
+    "facing=west,volcada=true": {
+      "model": "backrooms_evento:block/silla_volcada",
+      "y": 270
+    }
+  }
+}
