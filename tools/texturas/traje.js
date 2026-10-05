@@ -80,6 +80,24 @@ console.log('Traje antirradiacion');
   l.rect(8, 16, 11, 19, GOMA);                          // suela
 
   guardar(path.join(ASSETS, 'textures', 'entity', 'equipment', 'humanoid'), 'traje', l);
+
+  // Brazo en primera persona: Minecraft dibuja tu brazo con la skin, no con la
+  // armadura. Esta "skin" solo lleva la manga y el guante del traje en los dos
+  // brazos (derecho en 40,16 y el izquierdo de las skins nuevas en 32,48); la
+  // usa BrazoTrajeMixin mientras llevas puesta la chaqueta.
+  const brazo = new Lienzo(64, 64);
+  const copiar = (x0, y0, dx, dy) => {
+    for (let y = 0; y < 16; y++) {
+      for (let x = 0; x < 16; x++) {
+        const i = ((y0 + y) * l.width + (x0 + x)) * 4;
+        if (l.data[i + 3] === 0) continue;
+        brazo.punto(dx + x, dy + y, [l.data[i], l.data[i + 1], l.data[i + 2]], l.data[i + 3] / 255);
+      }
+    }
+  };
+  copiar(40, 16, 40, 16);
+  copiar(40, 16, 32, 48);
+  guardar(path.join(ASSETS, 'textures', 'entity'), 'traje_brazo', brazo);
 }
 
 // -------------------------------------------------------------- pantalon

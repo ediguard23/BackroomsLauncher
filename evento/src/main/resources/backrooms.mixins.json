@@ -3,6 +3,7 @@
   "package": "net.backrooms.menu.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "DeathScreenAccessor",
     "DebugEntryVersionMixin",
     "DisconnectedScreenAccessor",
     "IconSetMixin",

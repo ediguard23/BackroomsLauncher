@@ -177,6 +177,7 @@ public final class Fases {
 		j.removeEffect(MobEffects.SLOWNESS);
 		Equipo.vestir(j);
 		Misiones.get().asignar(j, p, f);
+		net.backrooms.evento.supervivencia.Comida.get().repartirAguas(nivel, p);
 		BackroomsEvento.LOG.info("{} llega a la fase {} en {} {}", j.getGameProfile().name(), f.numero(), p.getX(), p.getZ());
 	}
 

@@ -207,7 +207,8 @@ public final class Plano {
 			return C_NADA;
 		}
 		double r = azar(gx, gz, 97);
-		int c = r < 0.0035 ? C_AGUA : r < 0.0105 ? C_GALLETAS : r < 0.014 ? C_PIZZA : C_NADA;
+		// el agua de almendras ya no sale del plano: van 2 por jugador junto a donde llega (Comida.repartirAguas)
+		int c = r < 0.0035 ? C_NADA : r < 0.0105 ? C_GALLETAS : r < 0.014 ? C_PIZZA : C_NADA;
 		if (c == C_NADA || this.cercaAscensor(gx, gz, 1) || this.pared(x, z) || this.decoracion(x, z).tipo() != D_NADA) {
 			return C_NADA;
 		}

@@ -54,9 +54,11 @@ public class BackroomsEvento implements ModInitializer {
 		PayloadTypeRegistry.playS2C().register(ViajeAscensor.TYPE, ViajeAscensor.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.EstadoJugador.TYPE, net.backrooms.evento.red.EstadoJugador.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Susto.TYPE, net.backrooms.evento.red.Susto.CODEC);
+		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Eliminado.TYPE, net.backrooms.evento.red.Eliminado.CODEC);
 		PayloadTypeRegistry.playC2S().register(AccionJugador.TYPE, AccionJugador.CODEC);
 		Misiones.registrar();
 		net.backrooms.evento.expedicion.Expedicion.registrar();
+		net.backrooms.evento.expedicion.Eliminacion.registrar();
 		Ambiente.registrar();
 		HerramientasServidor.registrar();
 		Fases.registrar();

@@ -142,6 +142,7 @@ public final class Expedicion {
 		Equipo.vestir(j);
 		j.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 20 * 25, 1, false, false, false));
 		Misiones.get().asignar(j, destino, Fase.TODAS[0]);
+		net.backrooms.evento.supervivencia.Comida.get().repartirAguas(nivel, destino);
 		BackroomsEvento.LOG.info("{} ha caido en el Nivel 0 en {} {}", j.getGameProfile().name(), destino.getX(), destino.getZ());
 	}
 

@@ -41,6 +41,7 @@ import net.minecraft.server.level.ServerPlayer;
  *  fase <n> [jugador]        lo manda ya a la fase n con misiones nuevas
  *  vestibulo [jugador]       lo lleva al vestibulo; "vestibulo rehacer" repone los rotulos
  *  muerte eliminar|reaparecer  morir saca de la expedicion (por defecto) o reaparece en la fase
+ *  perdonar                   quita el ban a todos los que cayeron (al acabar el evento o tras una prueba)
  *  escapados [olvidar]       quienes han escapado y en que puesto
  *
  * Y /start [jugadores]: manda al Nivel 0 a todos (los que no esten en
@@ -144,7 +145,7 @@ public final class Comandos {
 				})
 				.then(Commands.literal("rehacer").executes(c -> {
 					Vestibulo.get().decorar();
-					c.getSource().sendSuccess(() -> Component.literal("Rotulos del vestibulo repuestos."), true);
+					c.getSource().sendSuccess(() -> Component.literal("Reponiendo los rotulos del vestibulo (tarda unos segundos)."), true);
 					return 1;
 				}))
 				.then(Commands.argument("jugador", EntityArgument.player()).executes(c -> {
@@ -154,6 +155,11 @@ public final class Comandos {
 			.then(Commands.literal("muerte")
 				.then(Commands.literal("eliminar").executes(c -> muerte(c, true)))
 				.then(Commands.literal("reaparecer").executes(c -> muerte(c, false))))
+			.then(Commands.literal("perdonar").executes(c -> {
+				int n = net.backrooms.evento.expedicion.Eliminacion.get().perdonar();
+				c.getSource().sendSuccess(() -> Component.literal("Ban quitado a " + n + " eliminado" + (n == 1 ? "" : "s") + "."), true);
+				return n;
+			}))
 			.then(Commands.literal("escapados")
 				.executes(c -> {
 					List<String> l = Fases.get().escapados();

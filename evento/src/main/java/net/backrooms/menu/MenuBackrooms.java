@@ -76,6 +76,13 @@ public class MenuBackrooms extends Screen {
 				return new InventarioBackrooms(jugador);
 			}
 		}
+		if (pantalla.getClass() == net.minecraft.client.gui.screens.DeathScreen.class) {
+			var jugador = net.minecraft.client.Minecraft.getInstance().player;
+			if (jugador != null) {
+				var d = (net.backrooms.menu.mixin.DeathScreenAccessor) pantalla;
+				return new PantallaMuerte(d.backrooms$causa(), d.backrooms$hardcore(), jugador);
+			}
+		}
 		if (pantalla.getClass() == net.minecraft.client.gui.screens.PauseScreen.class) {
 			return new MenuPausa(((net.minecraft.client.gui.screens.PauseScreen) pantalla).showsPauseMenu());
 		}
@@ -365,7 +372,15 @@ public class MenuBackrooms extends Screen {
 		float tam = activo ? 58 : 40;
 		float esp = activo ? 0.32F : 0.18F;
 		float ancho = Texto.anchoHud(txt, tam, esp);
-		Texto.hud(g, txt, (x0 + x1) / 2.0F - ancho / 2.0F, activo ? y0 + 17 : y0 + 26, tam, esp, activo ? t.tuboTinta : t.tuboTintaOff);
+		// las etiquetas largas (REAPARECER...) se encogen hasta caber en el tubo
+		float cabe = (x1 - x0) - 44;
+		float base = tam;
+		if (ancho > cabe) {
+			tam *= cabe / ancho;
+			ancho = cabe;
+		}
+		float yTexto = (activo ? y0 + 17 : y0 + 26) + (base - tam) / 2.0F;
+		Texto.hud(g, txt, (x0 + x1) / 2.0F - ancho / 2.0F, yTexto, tam, esp, activo ? t.tuboTinta : t.tuboTintaOff);
 	}
 
 	/** Mismo parpadeo que el launcher al pasar por encima (keyframes de parpadeo-tubo). */

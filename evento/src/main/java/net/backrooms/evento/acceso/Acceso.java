@@ -47,7 +47,9 @@ import org.jspecify.annotations.Nullable;
  *  activo        false para un servidor de pruebas sin entradas
  *  clavePublica  la de la tienda (node tools/backrooms.js clave)
  *  evento        tiene que coincidir con el del pase (BACKROOMS_EVENTO de la tienda)
- *  staff         nicks que entran sin pase (para emergencias; mejor darles entrada)
+ *  staff         nicks que entran sin pase. OJO: el servidor esta en offline-mode y
+ *                cualquiera puede ponerse ese nick; dejarlo vacio y dar entradas al
+ *                staff con tools/backrooms.js de la tienda.
  */
 public final class Acceso {
 	public static final Identifier CANAL = BackroomsEvento.id("pase");
@@ -76,7 +78,15 @@ public final class Acceso {
 	public static void registrar() {
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTING.register(Acceso::cargar);
 		ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, sincronizador) -> {
-			if (!config.activo || clave == null) {
+			if (!config.activo) {
+				return;
+			}
+			if (clave == null) {
+				// Configuracion rota: cerrado para todos antes que abierto para cualquiera
+				// (el servidor esta en offline-mode, el nick solo no prueba nada).
+				handler.disconnect(Component.literal("BACKROOMS\n\n").withStyle(ChatFormatting.GOLD)
+					.append(Component.literal("El servidor del evento está en mantenimiento. Vuelve a intentarlo en unos minutos.")
+						.withStyle(ChatFormatting.WHITE)));
 				return;
 			}
 			byte[] reto = new byte[32];
@@ -119,7 +129,7 @@ public final class Acceso {
 			BackroomsEvento.LOG.info("Acceso con entrada: {} (evento {})", config.activo ? "ACTIVO" : "apagado", config.evento);
 		} catch (Exception e) {
 			clave = null;
-			BackroomsEvento.LOG.error("config/backrooms-acceso.json no vale: el servidor queda ABIERTO sin comprobar entradas", e);
+			BackroomsEvento.LOG.error("config/backrooms-acceso.json no vale: el servidor queda CERRADO hasta que se arregle (o se ponga activo:false)", e);
 		}
 	}
 

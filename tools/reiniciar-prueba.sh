@@ -3,6 +3,7 @@
 # servidor Fabric de D:\backrooms-prueba, pack local y launcher entrando solo.
 #
 #   bash tools/reiniciar-prueba.sh [--mundo-nuevo]
+#   JVM_EXTRA="-D..." bash tools/reiniciar-prueba.sh   (opciones extra para el Java del servidor)
 #
 # Solo para desarrollo en el PC del organizador (rutas fijas).
 set -u
@@ -30,7 +31,7 @@ if [ "${1:-}" = "--mundo-nuevo" ]; then rm -rf "$SERVIDOR/nivel0"; fi
 sed -i "s/^pauseOnLostFocus:.*/pauseOnLostFocus:${PAUSA_FOCO:-false}/" "$APPDATA/.backrooms-event/options.txt" 2>/dev/null
 
 # servidor y pack en segundo plano
-( cd "$SERVIDOR" && nohup "$JAVA" -Xms2G -Xmx4G -jar fabric-server.jar nogui > servidor.log 2>&1 & )
+( cd "$SERVIDOR" && nohup "$JAVA" -Xms2G -Xmx4G ${JVM_EXTRA:-} -jar fabric-server.jar nogui > servidor.log 2>&1 & )
 nohup node tools/publicar-pack.js --local --ficha=pack/.evento-local.json > /tmp/pack-local.log 2>&1 &
 sleep 3
 until grep -q -E "RCON running|Exception|ERROR" "$SERVIDOR/servidor.log" 2>/dev/null; do sleep 2; done

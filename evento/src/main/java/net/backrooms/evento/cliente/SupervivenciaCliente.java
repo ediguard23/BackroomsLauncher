@@ -135,25 +135,38 @@ public final class SupervivenciaCliente {
 		if (!estado.activa() || mc.options.hideGui || mc.player == null || HerramientasCliente.subida(1.0F) > 0.5F) {
 			return;
 		}
-		float x = 8;
-		float y = h - 34;
+		// Paneles a los lados de la barra de objetos, a su altura (debajo del chat):
+		// la cordura a la izquierda, siempre; la estamina a la derecha, cuando se gasta.
+		int ancho = 124;
+		int alto = 24;
+		int y = h - alto - 1;
+		int hueco = 91 + 32; // media barra de objetos + el hueco de la mano izquierda
 		float c = Cordura.mostrada();
-		int colorCordura = c > 50 ? 0xFFE8D9A0 : c > 25 ? 0xFFE0A040 : ((Util.getMillis() / 300) % 2 == 0 ? 0xFFE5281E : 0xFF7A1410);
-		Texto.hud(g, "CORDURA " + Math.round(c) + "%", x, y, 10, 0.06F, colorCordura);
-		barra(g, x, y + 11, 80, c / 100.0F, colorCordura);
+		boolean parpadea = (Util.getMillis() / 300) % 2 == 0;
+		int colorCordura = c > 50 ? 0xFFE8D9A0 : c > 25 ? 0xFFE0A040 : (parpadea ? 0xFFE5281E : 0xFF7A1410);
+		panel(g, w / 2 - hueco - ancho, y, ancho, alto, "CORDURA", Math.round(c) + "%", c / 100.0F, colorCordura, c <= 25);
 		float e = estaminaSuave;
 		if (e < 99.5F || estado.agotado()) {
-			int colorEst = estado.agotado() ? 0xFFB04030 : 0xFFF2EEE4;
-			Texto.hud(g, estado.agotado() ? "SIN ALIENTO" : "ESTAMINA", x, y - 16, 8, 0.06F, colorEst);
-			barra(g, x, y - 7, 60, e / 100.0F, colorEst);
+			int colorEst = estado.agotado() ? (parpadea ? 0xFFE5281E : 0xFFB04030) : 0xFFF2EEE4;
+			panel(g, w / 2 + hueco, y, ancho, alto, estado.agotado() ? "SIN ALIENTO" : "ESTAMINA", Math.round(e) + "%", e / 100.0F, colorEst, estado.agotado());
 		}
 	}
 
-	private static void barra(GuiGraphics g, float x, float y, int ancho, float valor, int color) {
-		int x0 = Math.round(x);
-		int y0 = Math.round(y);
-		g.fill(x0, y0, x0 + ancho, y0 + 4, 0x90000000);
-		g.fill(x0 + 1, y0 + 1, x0 + 1 + Math.round((ancho - 2) * Mth.clamp(valor, 0, 1)), y0 + 3, color);
+	/** Un panel del HUD: nombre, porcentaje grande y una barra a segmentos de cinta. */
+	private static void panel(GuiGraphics g, int x, int y, int ancho, int alto, String nombre, String valor, float lleno, int color, boolean alerta) {
+		g.fill(x, y, x + ancho, y + alto, 0xB8080604);
+		g.renderOutline(x, y, ancho, alto, alerta ? (color & 0xFFFFFF) | 0xC0000000 : 0x50F2E6A0);
+		Texto.hud(g, nombre, x + 5, y + 2, 10, 0.12F, color);
+		Texto.hud(g, valor, x + ancho - 5 - Texto.anchoHud(valor, 13, 0.04F), y + 1, 13, 0.04F, color);
+		int bx0 = x + 5;
+		int bx1 = x + ancho - 5;
+		int by = y + alto - 7;
+		g.fill(bx0, by, bx1, by + 4, 0x90000000);
+		int segmentos = (bx1 - bx0) / 4;
+		int encendidos = Math.round(segmentos * Mth.clamp(lleno, 0, 1));
+		for (int i = 0; i < encendidos; i++) {
+			g.fill(bx0 + i * 4, by, bx0 + i * 4 + 3, by + 4, color);
+		}
 	}
 
 	/** La sonrisa que se te echa encima: ojos y dientes blancos sobre negro, temblando. */

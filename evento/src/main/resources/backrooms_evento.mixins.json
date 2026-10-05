@@ -12,7 +12,9 @@
     "cliente.GameRendererEfectosMixin",
     "cliente.LightTextureMixin",
     "cliente.SonidoAmbienteMixin",
-    "cliente.LocalPlayerAlientoMixin"
+    "cliente.LocalPlayerAlientoMixin",
+    "cliente.BrazoTrajeMixin",
+    "cliente.TablaJugadoresMixin"
   ],
   "injectors": {
     "defaultRequire": 1

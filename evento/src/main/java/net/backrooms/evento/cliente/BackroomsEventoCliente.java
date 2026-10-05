@@ -61,6 +61,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(ViajeAscensor.TYPE, (s, ctx) -> AscensorCliente.empezar(s));
 		ClientPlayNetworking.registerGlobalReceiver(EstadoJugador.TYPE, (s, ctx) -> SupervivenciaCliente.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(Susto.TYPE, (s, ctx) -> SupervivenciaCliente.susto(s));
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Eliminado.TYPE, (s, ctx) -> Eliminaciones.recibir(s));
 		HerramientasCliente.registrar();
 		AccesoCliente.registrar();
 
@@ -72,6 +73,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("supervivencia"), SupervivenciaCliente::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("camara"), CamaraHud::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("ascensor"), AscensorCliente::render);
+		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("eliminaciones"), Eliminaciones::render);
 		// con la camara levantada no se ve la barra ni la mira del juego: solo el visor
 		HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, viejo -> (g, t) -> {
 			if (HerramientasCliente.subida(1.0F) < 0.5F) {

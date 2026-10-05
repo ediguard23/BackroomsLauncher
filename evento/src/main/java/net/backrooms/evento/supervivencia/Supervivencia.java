@@ -49,8 +49,9 @@ public final class Supervivencia {
 
 	/** Minutos de 100 a 0 sin nada que la acelere, en la fase 1. */
 	private static final float MINUTOS_CORDURA = 50.0F;
-	private static final float GASTO_CORRER = 0.6F;
-	private static final float RECARGA = 0.45F;
+	// ~23 s corriendo hasta agotarse y ~12 s en recargarse entera (a 20 ticks por segundo)
+	private static final float GASTO_CORRER = 0.22F;
+	private static final float RECARGA = 0.4F;
 	private static final float RECUPERADO = 35.0F;
 
 	private static final Supervivencia INSTANCIA = new Supervivencia();

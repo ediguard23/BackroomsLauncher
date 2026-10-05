@@ -55,6 +55,8 @@ public final class Vestibulo {
 	private long ticks;
 	/** Proximo aviso por megafonia en el vestibulo. */
 	private long proximoAviso = 20 * 60;
+	private boolean decorarPendiente;
+	private long decorarLimite;
 
 	private Vestibulo() {
 	}
@@ -65,7 +67,10 @@ public final class Vestibulo {
 			INSTANCIA.decorarSiFalta();
 		});
 		ServerPlayConnectionEvents.JOIN.register((h, e, s) -> INSTANCIA.alEntrar(h.player));
-		net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(s -> INSTANCIA.megafonia());
+		net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(s -> {
+			INSTANCIA.megafonia();
+			INSTANCIA.tickDecorar();
+		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entidad, fuente) -> {
 			if (entidad instanceof ServerPlayer j) {
 				INSTANCIA.alMorir(j);
@@ -140,9 +145,12 @@ public final class Vestibulo {
 		if (Fase.de(j.level()) == null || !this.muerteElimina) {
 			return;
 		}
+		boolean estaba = Misiones.get().enExpedicion(j);
 		Misiones.get().eliminar(j);
-		this.servidor.getPlayerList().broadcastSystemMessage(
-			Component.literal(j.getGameProfile().name() + " no ha salido del Nivel 0.").withStyle(ChatFormatting.DARK_RED), false);
+		if (estaba) {
+			net.backrooms.evento.expedicion.Eliminacion.get().eliminado(j);
+		}
+		// el aviso en el chat lo pone Eliminacion#mensajeMuerte, en la misma linea que la causa
 	}
 
 	private void alReaparecer(ServerPlayer j, Level donde) {
@@ -184,18 +192,60 @@ public final class Vestibulo {
 		}
 	}
 
-	/** Quita los rotulos que hubiera y los vuelve a poner. */
+	/**
+	 * Quita los rotulos que hubiera y los vuelve a poner. Las entidades de un
+	 * chunk se cargan aparte y despues que sus bloques: si se buscasen ya (por
+	 * ejemplo con nadie en el vestibulo), los rotulos viejos no aparecerian y
+	 * quedarian duplicados. Asi que se fuerzan los chunks del edificio y el
+	 * trabajo se hace en cuanto sus entidades estan cargadas (tickDecorar).
+	 */
 	public void decorar() {
 		ServerLevel v = this.nivel();
 		if (v == null) {
 			return;
 		}
-		// carga el edificio entero (es pequeno) para poder poner las entidades
 		for (int cx = PlanoVestibulo.X0 >> 4; cx <= PlanoVestibulo.X1 >> 4; cx++) {
 			for (int cz = PlanoVestibulo.Z0 >> 4; cz <= PlanoVestibulo.Z1 >> 4; cz++) {
-				v.getChunk(cx, cz);
+				v.setChunkForced(cx, cz, true);
 			}
 		}
+		this.decorarPendiente = true;
+		this.decorarLimite = this.ticks + 20 * 30;
+	}
+
+	private void tickDecorar() {
+		if (!this.decorarPendiente) {
+			return;
+		}
+		ServerLevel v = this.nivel();
+		if (v == null) {
+			return;
+		}
+		boolean listos = true;
+		for (int cx = PlanoVestibulo.X0 >> 4; cx <= PlanoVestibulo.X1 >> 4 && listos; cx++) {
+			for (int cz = PlanoVestibulo.Z0 >> 4; cz <= PlanoVestibulo.Z1 >> 4; cz++) {
+				if (!v.areEntitiesLoaded(net.minecraft.world.level.ChunkPos.asLong(cx, cz))) {
+					listos = false;
+					break;
+				}
+			}
+		}
+		if (!listos && this.ticks < this.decorarLimite) {
+			return;
+		}
+		if (!listos) {
+			BackroomsEvento.LOG.warn("Las entidades del vestibulo no terminaron de cargar: se decora igualmente");
+		}
+		this.decorarPendiente = false;
+		this.decorarAhora(v);
+		for (int cx = PlanoVestibulo.X0 >> 4; cx <= PlanoVestibulo.X1 >> 4; cx++) {
+			for (int cz = PlanoVestibulo.Z0 >> 4; cz <= PlanoVestibulo.Z1 >> 4; cz++) {
+				v.setChunkForced(cx, cz, false);
+			}
+		}
+	}
+
+	private void decorarAhora(ServerLevel v) {
 		for (Display d : v.getEntitiesOfClass(Display.class, new net.minecraft.world.phys.AABB(
 			PlanoVestibulo.X0, PlanoVestibulo.Y0, PlanoVestibulo.Z0, PlanoVestibulo.X1 + 1, PlanoVestibulo.Y1 + 1, PlanoVestibulo.Z1 + 1))) {
 			if (d.getTags().contains(ETIQUETA)) {
@@ -204,9 +254,11 @@ public final class Vestibulo {
 		}
 		int y = PlanoVestibulo.SUELO;
 		// pantalla del escenario: el logo del evento y, debajo, el de PeakMC Studio
-		// (giro 0 = mira al sur; las paredes ocupan su bloque entero, asi que el rotulo va 0,05 por delante de su cara)
-		objeto(v, 0.5, y + 10.6, -66.9, "logo_pantalla", 0, 8.6F);
-		objeto(v, 0.5, y + 5.6, -66.9, "logo_peakmc", 0, 4.6F);
+		// (las paredes ocupan su bloque entero, asi que el rotulo va 0,1 por delante de su cara).
+		// Un item_display 'fixed' dibuja el objeto plano mirando al reves que un text_display:
+		// con giro 0 se veia espejado desde el patio de butacas, por eso va a 180.
+		objeto(v, 0.5, y + 10.6, -66.9, "logo_pantalla", 180, 8.6F);
+		objeto(v, 0.5, y + 5.6, -66.9, "logo_peakmc", 180, 4.6F);
 		// rotulos del vestibulo
 		texto(v, 0.5, y + 10.6, 32.94, 180, "CENTRO DE EXPEDICIONES", "#E8D9A0", 4.5F, true);
 		texto(v, 0.5, y + 8.6, 32.94, 180, "ASCENSORES · NIVEL 0", "#C8BC90", 2.4F, false);
