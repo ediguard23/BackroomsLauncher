@@ -1,0 +1,8 @@
+{
+  "menu.ambiente": { "sounds": [ { "name": "backrooms:piscinas_ambiente", "stream": true } ] },
+  "menu.musica": { "sounds": [ { "name": "backrooms:piscinas_musica", "stream": true } ] },
+  "ui.gota": { "sounds": [ "backrooms:gota" ] },
+  "ui.toque": { "sounds": [ "backrooms:toque" ] },
+  "ui.inmersion": { "sounds": [ "backrooms:inmersion" ] },
+  "ui.eco": { "sounds": [ "backrooms:eco" ] }
+}

@@ -14,7 +14,8 @@
     "release": "electron-builder --win --publish always",
     "publicar-pack": "node tools/publicar-pack.js",
     "sonidos": "node tools/sonidos/generar.js",
-    "probar": "node tools/probar-local.js"
+    "probar": "node tools/probar-local.js",
+    "sonidos:piscinas": "node tools/sonidos/piscinas.js"
   },
   "dependencies": {
     "adm-zip": "^0.6.1",

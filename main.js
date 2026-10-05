@@ -316,11 +316,14 @@ async function jugar () {
   // 6. Datos para el mod del menu: servidor fijo y enlaces
   const cfgMod = path.join(gameDir, 'config', 'backrooms-event.json');
   fs.mkdirSync(path.dirname(cfgMod), { recursive: true });
+  const pub = manifestMod.publico(manifest);
   fs.writeFileSync(cfgMod, JSON.stringify({
     nombre: manifest.name || evento.nombre,
     packVersion: manifest.packVersion || null,
-    server: { host: manifest.server.host, port: manifest.server.port || 25565 },
-    links: manifestMod.publico(manifest).links
+    server: pub.server,
+    links: pub.links,
+    eventStart: pub.eventStart,
+    news: pub.news
   }, null, 2));
 
   // 7. Arrancar

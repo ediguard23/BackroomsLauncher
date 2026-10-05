@@ -236,4 +236,19 @@ function fundidos ([l, r], entradaS = 0.004, salidaS = 0.03) {
   return [l, r];
 }
 
-module.exports = { SR, azar, sierra, Biquad, rosa, marron, Freeverb, Cinta, estereo, cerrarBucle, masterizar, fundidos };
+/** Codifica a OGG Vorbis estereo y lo guarda. */
+async function guardarOgg (file, [l, r], calidad = 5) {
+  const { createOggEncoder } = require('wasm-media-encoders');
+  const fs = require('fs');
+  const path = require('path');
+  const enc = await createOggEncoder();
+  enc.configure({ sampleRate: SR, channels: 2, vbrQuality: calidad });
+  const trozos = [];
+  for (let i = 0; i < l.length; i += 4096) trozos.push(Buffer.from(enc.encode([l.subarray(i, i + 4096), r.subarray(i, i + 4096)])));
+  trozos.push(Buffer.from(enc.finalize()));
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, Buffer.concat(trozos));
+  return fs.statSync(file).size;
+}
+
+module.exports = { guardarOgg, SR, azar, sierra, Biquad, rosa, marron, Freeverb, Cinta, estereo, cerrarBucle, masterizar, fundidos };

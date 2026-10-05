@@ -1,0 +1,6 @@
+lang:es_es
+guiScale:2
+onboardAccessibility:false
+skipMultiplayerWarning:true
+joinedFirstServer:true
+tutorialStep:none

@@ -61,6 +61,38 @@ SHA1 como nombre) y reemplaza el `manifest.json`. Los jugadores reciben el
 cambio la próxima vez que pulsan JUGAR, sin reinstalar nada. Con `--limpiar`
 borra de la release lo que ya no se usa.
 
+## El menú dentro de Minecraft (`mod/`)
+
+Mod de Fabric propio (`backrooms-menu`, solo cliente) que va dentro del pack en
+`pack/mods/`. Sustituye el menú de inicio por uno con el mismo diseño que el
+launcher, pero en otro nivel: **las Piscinas** (Nivel 37), un pasillo inundado
+que se dibuja en tiempo real con un shader propio (`assets/backrooms/shaders`).
+
+- Botones: JUGAR (entra directo al servidor del manifest, aceptando su resource
+  pack), CONFIGURACIÓN, SALIR, DISCORD y TIENDA (con la confirmación de enlace
+  de Minecraft).
+- Un jugador, multijugador, Realms y la lista de servidores no se pueden abrir:
+  cualquier camino hacia ellos acaba en este menú (`MinecraftMixin`).
+- Si el servidor echa al jugador, sale «SEÑAL PERDIDA» con el motivo,
+  REINTENTAR y VOLVER, en vez de la pantalla de Minecraft.
+- Todos los menús (opciones, conectando...) tienen el pasillo de fondo.
+- Sonidos propios de las Piscinas (`npm run sonidos:piscinas`): depuradora,
+  agua, gotas y una música en Sol lidio. Sustituyen a la música de menú.
+- Lee servidor, enlaces, noticias y cuenta atrás de
+  `config/backrooms-event.json`, que escribe el launcher antes de abrir el juego.
+
+Compilar (Loom 1.18 necesita Java 25 para ejecutar Gradle; el mod se compila
+para Java 21):
+
+```bash
+cd mod
+JAVA_HOME="$LOCALAPPDATA/Programs/jdk-25" ./gradlew build
+```
+
+El jar sale en `mod/build/libs/` y se copia a `pack/mods/`. Si Gradle falla con
+«Failed to clean up stale outputs», es OneDrive bloqueando `build/`: se repite
+y pasa.
+
 ## Sonidos
 
 `assets/sounds/*.ogg` salen de `npm run sonidos`

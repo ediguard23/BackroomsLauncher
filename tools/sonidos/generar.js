@@ -25,7 +25,6 @@
 
 const fs = require('fs');
 const path = require('path');
-const { createOggEncoder } = require('wasm-media-encoders');
 const D = require('./dsp');
 
 const { SR } = D;
@@ -416,19 +415,9 @@ function jugar () {
 
 /* ------------------------------------------------------------- salida */
 
-async function aOgg (nombre, [l, r], calidad) {
-  const enc = await createOggEncoder();
-  enc.configure({ sampleRate: SR, channels: 2, vbrQuality: calidad });
-  const trozos = [];
-  const PASO = 4096;
-  for (let i = 0; i < l.length; i += PASO) {
-    trozos.push(Buffer.from(enc.encode([l.subarray(i, i + PASO), r.subarray(i, i + PASO)])));
-  }
-  trozos.push(Buffer.from(enc.finalize()));
-  const file = path.join(SALIDA, `${nombre}.ogg`);
-  fs.writeFileSync(file, Buffer.concat(trozos));
-  const kb = (fs.statSync(file).size / 1024).toFixed(0);
-  console.log(`  ${nombre}.ogg  ${(l.length / SR).toFixed(2)} s  ${kb} KB`);
+async function aOgg (nombre, audio, calidad) {
+  const bytes = await D.guardarOgg(path.join(SALIDA, `${nombre}.ogg`), audio, calidad);
+  console.log(`  ${nombre}.ogg  ${(audio[0].length / SR).toFixed(2)} s  ${(bytes / 1024).toFixed(0)} KB`);
 }
 
 module.exports = { ambiente, musica, hover, click, parpadeo, jugar };
