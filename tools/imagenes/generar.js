@@ -18,7 +18,7 @@ const png = require('./png');
 
 const RAIZ = path.join(__dirname, '..', '..');
 const FUENTES = path.join(RAIZ, 'assets', 'fuentes-ia');
-const MOD = path.join(RAIZ, 'mod', 'src', 'main', 'resources', 'assets', 'backrooms');
+const MOD = path.join(RAIZ, 'evento', 'src', 'main', 'resources', 'assets', 'backrooms');
 
 /* ------------------------------------------------------------- utilidades */
 

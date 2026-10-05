@@ -20,6 +20,8 @@ node tools/rcon.js stop > /dev/null 2>&1
 powershell -NoProfile -Command "Get-Process java,javaw -ErrorAction SilentlyContinue | Where-Object { \$_.MainWindowTitle -eq 'BACKROOMS' } | Stop-Process -Force; Get-Process electron -ErrorAction SilentlyContinue | Stop-Process -Force"
 for p in $(netstat -ano | grep "127.0.0.1:8765 .*LISTENING" | awk '{print $5}'); do taskkill //F //PID "$p" > /dev/null; done
 until ! netstat -ano | grep -q ":25566 .*LISTENING"; do sleep 1; done
+# el puerto se libera antes de que el proceso suelte los jars: esperar a que muera
+while powershell -NoProfile -Command "if (Get-CimInstance Win32_Process -Filter \"Name='java.exe'\" | Where-Object { \$_.CommandLine -like '*fabric-server.jar*' }) { exit 0 } else { exit 1 }"; do sleep 1; done
 
 rm -f "$SERVIDOR"/mods/backrooms-evento-*.jar pack/mods/backrooms-evento-*.jar
 cp "$JAR" "$SERVIDOR/mods/" && cp "$JAR" pack/mods/

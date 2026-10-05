@@ -76,7 +76,13 @@ SHA1 como nombre) y reemplaza el `manifest.json`. Los jugadores reciben el
 cambio la próxima vez que pulsan JUGAR, sin reinstalar nada. Con `--limpiar`
 borra de la release lo que ya no se usa.
 
-## El menú dentro de Minecraft (`mod/`)
+## El mod del evento (`evento/`)
+
+Un solo jar (`backrooms_evento`) que va en el cliente y en el servidor: el Nivel 0
+como mundo procedural, sus bloques y decoración, el traje antirradiación y el
+menú del juego (lo que antes era el mod `backrooms-menu`, en `net.backrooms.menu`).
+
+### El menú dentro de Minecraft
 
 Mod de Fabric propio (`backrooms-menu`, solo cliente) que va dentro del pack en
 `pack/mods/`. Sustituye el menú de inicio por uno con el mismo diseño que el
@@ -112,11 +118,11 @@ Compilar (Loom 1.18 necesita Java 25 para ejecutar Gradle; el mod se compila
 para Java 21):
 
 ```bash
-cd mod
+cd evento
 JAVA_HOME="$LOCALAPPDATA/Programs/jdk-25" ./gradlew build
 ```
 
-El jar sale en `mod/build/libs/` y se copia a `pack/mods/`. Si Gradle falla con
+El jar sale en `evento/build/libs/` y se copia a `pack/mods/` y a la carpeta `mods` del servidor. Si Gradle falla con
 «Failed to clean up stale outputs», es OneDrive bloqueando `build/`: se repite
 y pasa.
 

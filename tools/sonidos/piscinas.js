@@ -2,7 +2,7 @@
 'use strict';
 /**
  * Sonidos del menu de Minecraft: las Piscinas (npm run sonidos:piscinas).
- * Salen en mod/src/main/resources/assets/backrooms/sounds/.
+ * Salen en evento/src/main/resources/assets/backrooms/sounds/.
  *
  * Referencias de diseno:
  *  - Una gota que cae al agua suena por la burbuja de aire que atrapa: su
@@ -28,7 +28,7 @@ const D = require('./dsp');
 
 const { SR } = D;
 const TAU = Math.PI * 2;
-const SALIDA = path.join(__dirname, '..', '..', 'mod', 'src', 'main', 'resources', 'assets', 'backrooms', 'sounds');
+const SALIDA = path.join(__dirname, '..', '..', 'evento', 'src', 'main', 'resources', 'assets', 'backrooms', 'sounds');
 
 const paneo = (p) => [Math.cos((p + 1) * Math.PI / 4), Math.sin((p + 1) * Math.PI / 4)];
 const suave = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };

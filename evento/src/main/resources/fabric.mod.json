@@ -3,7 +3,7 @@
   "id": "backrooms_evento",
   "version": "${version}",
   "name": "Backrooms Evento",
-  "description": "El evento Backrooms de PeakMC Studio: el Nivel 0 como mundo, sus bloques y sus entidades. Va en el cliente y en el servidor.",
+  "description": "El evento Backrooms de PeakMC Studio: el Nivel 0 como mundo, sus bloques, el traje, el menú, la pausa y la pantalla de carga. Va en el cliente y en el servidor.",
   "authors": [
     "PeakMC Studio",
     "xgdier_"
@@ -16,6 +16,7 @@
       "net.backrooms.evento.BackroomsEvento"
     ],
     "client": [
+      "net.backrooms.menu.BackroomsMenu",
       "net.backrooms.evento.cliente.BackroomsEventoCliente"
     ]
   },
@@ -26,6 +27,7 @@
     "fabric-api": "*"
   },
   "mixins": [
-    "backrooms_evento.mixins.json"
+    "backrooms_evento.mixins.json",
+    "backrooms.mixins.json"
   ]
 }

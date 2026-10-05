@@ -36,8 +36,8 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 /**
- * Genera el Nivel 0 segun el Plano: moqueta en y=32, pasillo de 3 bloques de
- * alto (y=33..35, como una oficina) y techo en y=36 con sus tubos. La
+ * Genera el Nivel 0 segun el Plano: moqueta en y=32, pasillo de 4 bloques de
+ * alto (y=33..36) y techo en y=37 con sus tubos. La
  * dimension mide 48 de alto y solo la seccion de arriba tiene bloques, asi que
  * cada chunk cuesta casi nada de generar, guardar y enviar: es lo que permite
  * un mapa enorme con 200 jugadores.
@@ -56,7 +56,7 @@ public class GeneradorNivel0 extends ChunkGenerator {
 	);
 
 	public static final int SUELO = 32;
-	public static final int TECHO_Y = 36;
+	public static final int TECHO_Y = 37;
 	public static final int ALTO = 48;
 
 	private volatile RandomState estadoPlano;
