@@ -5,6 +5,10 @@
   "mixins": [
     "PlayerSpawnFinderMixin"
   ],
+  "client": [
+    "cliente.CinematicaBlurMixin",
+    "cliente.CinematicaSonidoMixin"
+  ],
   "injectors": {
     "defaultRequire": 1
   }

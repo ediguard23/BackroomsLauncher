@@ -38,7 +38,9 @@ public class BackroomsEvento implements ModInitializer {
 		Equipo.registrar();
 		Entidades.iniciar();
 		PayloadTypeRegistry.playS2C().register(SyncMisiones.TYPE, SyncMisiones.CODEC);
+		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.IniciarCinematica.TYPE, net.backrooms.evento.red.IniciarCinematica.CODEC);
 		Misiones.registrar();
+		net.backrooms.evento.expedicion.Expedicion.registrar();
 		Comandos.registrar();
 		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("nivel_0"), GeneradorNivel0.CODEC);
 	}

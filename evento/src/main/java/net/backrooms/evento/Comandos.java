@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import java.util.List;
 import java.util.Locale;
+import net.backrooms.evento.expedicion.Expedicion;
 import net.backrooms.evento.mision.Misiones;
 import net.backrooms.evento.mision.TipoMision;
 import net.backrooms.evento.mundo.GeneradorNivel0;
@@ -27,6 +28,10 @@ import net.minecraft.server.level.ServerPlayer;
  *  misiones ver <jugador>    estado de sus misiones
  *  misiones completar <jugador>  da por hecha la mision en curso (pruebas)
  *  misiones olvidar <jugador>    le quita las misiones
+ *  cinematica [jugador]      le pone la cinematica del ascensor, sin viaje
+ *
+ * Y /start [jugadores]: manda al Nivel 0 a todos (los que no esten en
+ * creativo ni espectador) o a los indicados, poco a poco y con cinematica.
  */
 public final class Comandos {
 	private static final List<String> COSAS = List.of(
@@ -40,6 +45,12 @@ public final class Comandos {
 	}
 
 	private static void registrar(CommandDispatcher<CommandSourceStack> d) {
+		d.register(Commands.literal("start")
+			.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+			.executes(c -> empezar(c, c.getSource().getServer().getPlayerList().getPlayers().stream()
+				.filter(j -> !j.isCreative() && !j.isSpectator()).toList()))
+			.then(Commands.argument("jugadores", EntityArgument.players())
+				.executes(c -> empezar(c, List.copyOf(EntityArgument.getPlayers(c, "jugadores"))))));
 		d.register(Commands.literal("backrooms")
 			.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 			.then(Commands.literal("buscar")
@@ -48,6 +59,10 @@ public final class Comandos {
 					.executes(c -> buscar(c, c.getSource().getPlayerOrException()))
 					.then(Commands.argument("jugador", EntityArgument.player())
 						.executes(c -> buscar(c, EntityArgument.getPlayer(c, "jugador"))))))
+			.then(Commands.literal("cinematica")
+				.executes(c -> cinematica(c, c.getSource().getPlayerOrException()))
+				.then(Commands.argument("jugador", EntityArgument.player())
+					.executes(c -> cinematica(c, EntityArgument.getPlayer(c, "jugador")))))
 			.then(Commands.literal("misiones")
 				.then(Commands.literal("dar").then(Commands.argument("jugador", EntityArgument.player()).executes(c -> {
 					ServerPlayer j = EntityArgument.getPlayer(c, "jugador");
@@ -70,6 +85,23 @@ public final class Comandos {
 					Misiones.get().olvidar(EntityArgument.getPlayer(c, "jugador"));
 					return 1;
 				})))));
+	}
+
+	private static int empezar(CommandContext<CommandSourceStack> c, List<ServerPlayer> jugadores) {
+		int n = Expedicion.get().empezar(jugadores);
+		if (n == 0) {
+			c.getSource().sendFailure(Component.literal("Nadie que mandar (los de creativo y espectador se quedan)."));
+			return 0;
+		}
+		int segundos = (int) Math.ceil(n / 3.0 * 0.5) + 55;
+		c.getSource().sendSuccess(() -> Component.literal("Empieza la expedicion: " + n + " jugadores, todos dentro en unos " + segundos + " s."), true);
+		return n;
+	}
+
+	private static int cinematica(CommandContext<CommandSourceStack> c, ServerPlayer j) {
+		Expedicion.get().verCinematica(j);
+		c.getSource().sendSuccess(() -> Component.literal("Cinematica para " + j.getGameProfile().name()), false);
+		return 1;
 	}
 
 	private static int verMisiones(CommandContext<CommandSourceStack> c, ServerPlayer j) {

@@ -61,6 +61,9 @@ public class MenuBackrooms extends Screen {
 
 	/** Pantallas que el jugador no debe ver: todas llevan a este menu. */
 	public static Screen sustituir(Screen pantalla, boolean hayMundo) {
+		if (pantalla == null && net.backrooms.evento.cliente.cinematica.CinematicaCliente.activa()) {
+			return net.backrooms.evento.cliente.cinematica.CinematicaCliente.pantalla(); // nada corta la cinematica
+		}
 		if (pantalla == null) {
 			return hayMundo ? null : new MenuBackrooms();
 		}

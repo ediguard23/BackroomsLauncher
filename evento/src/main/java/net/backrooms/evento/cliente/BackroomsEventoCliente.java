@@ -23,7 +23,12 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			Bloques.SENAL_ALTO, Bloques.SENAL_PELIGRO, Bloques.SENAL_SIGA, Bloques.SENAL_ALTO_REVES, Bloques.SENAL_SIGA_REVES);
 		EntityRenderers.register(Entidades.CASETE, CaseteRenderer::new);
 		ClientPlayNetworking.registerGlobalReceiver(SyncMisiones.TYPE, (s, ctx) -> MisionesCliente.recibir(s));
-		ClientPlayConnectionEvents.DISCONNECT.register((h, c) -> MisionesCliente.olvidar());
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.IniciarCinematica.TYPE, (s, ctx) -> net.backrooms.evento.cliente.cinematica.CinematicaCliente.empezar());
+		ClientPlayConnectionEvents.DISCONNECT.register((h, c) -> {
+			MisionesCliente.olvidar();
+			net.backrooms.evento.cliente.cinematica.CinematicaCliente.olvidar();
+		});
+		net.backrooms.evento.cliente.cinematica.PantallaCinematica.cargar();
 		OrdenesPrueba.registrar();
 	}
 }

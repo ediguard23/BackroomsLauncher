@@ -13,7 +13,7 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
  * jugador tiene): el cliente lee ordenes de <tmp>/backrooms-ordenes.txt para
  * abrir pantallas sin tocar la ventana ni robar el foco.
  *
- *   inventario | pausa | cerrar
+ *   inventario | pausa | cerrar | cinematica
  */
 final class OrdenesPrueba {
 	private static int ticks;
@@ -45,6 +45,7 @@ final class OrdenesPrueba {
 			case "inventario" -> mc.setScreen(new InventoryScreen(mc.player));
 			case "pausa" -> mc.setScreen(new PauseScreen(true));
 			case "cerrar" -> mc.setScreen(null);
+			case "cinematica" -> net.backrooms.evento.cliente.cinematica.CinematicaCliente.empezar();
 			default -> { }
 		}
 	}

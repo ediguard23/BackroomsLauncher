@@ -6,5 +6,13 @@
         "stream": true
       }
     ]
+  },
+  "cinematica": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica",
+        "stream": true
+      }
+    ]
   }
 }
