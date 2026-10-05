@@ -47,6 +47,6 @@ public class BotonInvisible extends AbstractButton {
 
 	@Override
 	public void playDownSound(SoundManager sm) {
-		Sonidos.ui(Sonidos.TOQUE, 0.7F);
+		Sonidos.ui(Tema.actual().clic, 0.7F);
 	}
 }

@@ -1,7 +1,6 @@
 package net.backrooms.menu;
 
 import java.util.List;
-import net.backrooms.menu.render.Piscinas;
 import net.backrooms.menu.render.Texto;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
@@ -17,6 +16,7 @@ import org.joml.Matrix3x2fStack;
 public class SenalPerdida extends Screen {
 	private final Component motivo;
 	private final Evento evento = Evento.cargar();
+	private final Tema tema = Tema.actual();
 	private BotonInvisible reintentar;
 	private BotonInvisible volver;
 	private float escala;
@@ -52,8 +52,8 @@ public class SenalPerdida extends Screen {
 
 	@Override
 	public void renderBackground(GuiGraphics g, int mx, int my, float parcial) {
-		Piscinas.dibujar(g, this.width, this.height);
-		g.fill(0, 0, this.width, this.height, 0xB8041A20);
+		this.tema.dibujarFondo(g, this.width, this.height);
+		g.fill(0, 0, this.width, this.height, MenuBackrooms.alfa(this.tema.velo, 0.72F));
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class SenalPerdida extends Screen {
 		for (BotonInvisible b : List.of(this.reintentar, this.volver)) {
 			boolean encima = b.isHovered() && b.active;
 			if (encima && !b.encimaAntes) {
-				Sonidos.ui(Sonidos.GOTA, 0.45F);
+				Sonidos.ui(this.tema.encima, 0.45F);
 			}
 			b.encimaAntes = encima;
 		}
@@ -74,7 +74,7 @@ public class SenalPerdida extends Screen {
 		if (punto) {
 			g.fill(30, 17, 43, 30, 0xFFFF4A3D);
 		}
-		Texto.hud(g, "REC", 52, 13, 24, 0.06F, 0xFFEAFCFF);
+		Texto.hud(g, "REC", 52, 13, 24, 0.06F, this.tema.tubo);
 		Texto.hud(g, "SIN SEÑAL", 1148 - Texto.anchoHud("SIN SEÑAL", 24, 0.06F), 13, 24, 0.06F, 0xFFFF6A5C);
 
 		String titulo = "SEÑAL PERDIDA";
@@ -82,9 +82,9 @@ public class SenalPerdida extends Screen {
 		float glitch = (System.currentTimeMillis() % 3000) > 2850 ? 4 : 0;
 		Texto.hud(g, titulo, 590 - ancho / 2 + 3 + glitch, 220, 72, 0.12F, 0x8CFF1E46);
 		Texto.hud(g, titulo, 590 - ancho / 2 - 3 - glitch, 220, 72, 0.12F, 0x7300D2FF);
-		Texto.hud(g, titulo, 590 - ancho / 2, 220, 72, 0.12F, 0xFFEAFCFF);
-		String sub = "El agua se lo ha llevado. Esto es lo último que llegó:";
-		Texto.maquina(g, sub, 590 - Texto.anchoMaquina(sub, 15, 0.02F) / 2, 318, 15, 0.02F, 0xBFEAFCFF);
+		Texto.hud(g, titulo, 590 - ancho / 2, 220, 72, 0.12F, this.tema.tubo);
+		String sub = this.tema.desconexion;
+		Texto.maquina(g, sub, 590 - Texto.anchoMaquina(sub, 15, 0.02F) / 2, 318, 15, 0.02F, MenuBackrooms.alfa(this.tema.tubo, 0.75F));
 
 		// el motivo con la fuente normal: puede traer colores del servidor
 		float k = 1.6F;

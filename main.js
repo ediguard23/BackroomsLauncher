@@ -327,6 +327,8 @@ async function jugar () {
   const pub = manifestMod.publico(manifest);
   fs.writeFileSync(cfgMod, JSON.stringify({
     nombre: manifest.name || evento.nombre,
+    // nivel de las Backrooms del evento: el mod elige con el su fondo, colores y sonidos
+    nivel: pub.nivel,
     packVersion: manifest.packVersion || null,
     server: pub.server,
     links: pub.links,

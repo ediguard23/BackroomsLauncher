@@ -82,6 +82,7 @@ function crearManifest (ficha, archivos, urlDe) {
   const dos = (n) => String(n).padStart(2, '0');
   return {
     name: ficha.name,
+    level: ficha.level != null ? String(ficha.level) : '0',
     packVersion: `${d.getFullYear()}.${dos(d.getMonth() + 1)}.${dos(d.getDate())}-${huella}`,
     minecraft: ficha.minecraft,
     loader: ficha.loader || 'vanilla',

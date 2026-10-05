@@ -23,6 +23,8 @@ public final class Evento {
 	}
 
 	public String nombre = "BACKROOMS";
+	/** Nivel del evento ("0", "37"...): decide el Tema de los menus. */
+	public String nivel = "0";
 	public String host = "";
 	public int puerto = 25565;
 	public String discord = "";
@@ -37,6 +39,7 @@ public final class Evento {
 		try {
 			JsonObject o = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
 			e.nombre = texto(o, "nombre", e.nombre);
+			e.nivel = texto(o, "nivel", e.nivel);
 			if (o.has("server")) {
 				JsonObject s = o.getAsJsonObject("server");
 				e.host = texto(s, "host", "");

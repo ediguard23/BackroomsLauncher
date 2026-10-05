@@ -11,7 +11,8 @@ Se actualiza solo.
 
 - Arranca como una cinta VHS: ▶ PLAY y la firma «PeakMC Studio presenta»
   (un clic o una tecla la saltan).
-- Pasillo del Nivel 0 en tiempo real, el logo del evento con glitch de cinta,
+- Pasillo del Nivel 0 en tiempo real (de vez en cuando la cinta salta a las
+  Piscinas, el próximo evento, con su rótulo de avance), el logo del evento con glitch de cinta,
   pase de explorador (nick o premium), JUGAR, cuenta atrás, estado del
   servidor, noticias y «Desarrollado por PeakMC Studio» en el pie.
 - MENU: memoria, volumen, efectos, ventana o pantalla completa para el juego y
@@ -57,7 +58,7 @@ La primera vez descarga Minecraft entero (~600 MB).
 | `config/`, `resourcepacks/`, `shaderpacks/`, ... | Se imponen tal cual |
 | `una-vez/` | Se copian solo si no existen (p. ej. `options.txt`): el jugador conserva sus ajustes |
 
-Campos de `evento.json`: `name`, `minecraft`, `loader` (`fabric`, `quilt` o
+Campos de `evento.json`: `name`, `level` (nivel de las Backrooms del evento: `"0"` por defecto, `"37"` para las Piscinas; cambia el fondo, los colores y los sonidos de los menús del juego), `minecraft`, `loader` (`fabric`, `quilt` o
 `vanilla`), `loaderVersion`, `server` (`host`, `port`), `links` (`discord`,
 `tienda`), `eventStart` (fecha ISO; antes de esa hora solo entra el `staff`),
 `staff` (nicks), `ram.recommended` (MB), `news` (`date`, `title`, `text`) y
@@ -79,8 +80,10 @@ borra de la release lo que ya no se usa.
 
 Mod de Fabric propio (`backrooms-menu`, solo cliente) que va dentro del pack en
 `pack/mods/`. Sustituye el menú de inicio por uno con el mismo diseño que el
-launcher, pero en otro nivel: **las Piscinas** (Nivel 37), un pasillo inundado
-que se dibuja en tiempo real con un shader propio (`assets/backrooms/shaders`).
+launcher, sobre el pasillo del nivel del evento dibujado en tiempo real con un
+shader propio (`assets/backrooms/shaders`): el **Nivel 0** por defecto, el
+mismo que el fondo del launcher, con sus sonidos. **Las Piscinas** (Nivel 37)
+quedan listas para el próximo evento: basta `"level": "37"` en el pack.
 
 - Botones: JUGAR (entra directo al servidor del manifest, aceptando su resource
   pack), CONFIGURACIÓN, SALIR, DISCORD y TIENDA (con la confirmación de enlace
@@ -99,8 +102,9 @@ que se dibuja en tiempo real con un shader propio (`assets/backrooms/shaders`).
 - Menú de pausa propio: VOLVER, CONFIGURACIÓN, LOGROS, ESTADÍSTICAS, DISCORD,
   TIENDA y DESCONECTAR, sin «abrir a LAN» ni enlaces de Mojang.
 - Todos los menús (opciones, conectando...) tienen el pasillo de fondo.
-- Sonidos propios de las Piscinas (`npm run sonidos:piscinas`): depuradora,
-  agua, gotas y una música en Sol lidio. Sustituyen a la música de menú.
+- Sonidos de cada nivel en vez de la música de menú: los del launcher en el
+  Nivel 0 y los de las Piscinas (`npm run sonidos:piscinas`: depuradora, agua,
+  gotas y una música en Sol lidio) en el Nivel 37.
 - Lee servidor, enlaces, noticias y cuenta atrás de
   `config/backrooms-event.json`, que escribe el launcher antes de abrir el juego.
 

@@ -24,11 +24,10 @@ import org.joml.Matrix3x2fStack;
 public class MenuPausa extends PauseScreen {
 	private static final float ANCHO = 1180.0F;
 	private static final float ALTO = 720.0F;
-	private static final int TUBO = 0xFFEAFCFF;
-	private static final int AGUA = 0xFF8FE3EA;
 	private static final int ROJO = 0xFFFF4A3D;
 
 	private final Evento evento = Evento.cargar();
+	private final Tema tema = Tema.actual();
 	private final long abierto = System.currentTimeMillis();
 	private float escala;
 	private float ox;
@@ -100,9 +99,9 @@ public class MenuPausa extends PauseScreen {
 		super.renderBackground(g, mx, my, parcial);
 		int w = this.width;
 		int h = this.height;
-		g.fill(0, 0, w, h, 0x8C041A20);
-		g.fillGradient(0, 0, w, h / 6, 0x99041A20, 0x00041A20);
-		g.fillGradient(0, h - h / 5, w, h, 0x00041A20, 0xB0041A20);
+		g.fill(0, 0, w, h, MenuBackrooms.alfa(this.tema.velo, 0.55F));
+		g.fillGradient(0, 0, w, h / 6, MenuBackrooms.alfa(this.tema.velo, 0.6F), MenuBackrooms.alfa(this.tema.velo, 0));
+		g.fillGradient(0, h - h / 5, w, h, MenuBackrooms.alfa(this.tema.velo, 0), MenuBackrooms.alfa(this.tema.velo, 0.69F));
 		for (int y = 0; y < h; y += 2) {
 			g.fill(0, y, w, y + 1, 0x1A000000);
 		}
@@ -117,7 +116,7 @@ public class MenuPausa extends PauseScreen {
 		for (BotonInvisible b : this.botones) {
 			boolean encima = b.isHovered() && b.active;
 			if (encima && !b.encimaAntes) {
-				Sonidos.ui(Sonidos.GOTA, 0.45F);
+				Sonidos.ui(this.tema.encima, 0.45F);
 				b.encimaDesde = System.currentTimeMillis();
 			}
 			b.encimaAntes = encima;
@@ -130,8 +129,8 @@ public class MenuPausa extends PauseScreen {
 		this.hud(g);
 		int alto = MenuBackrooms.logo(g, 44, 74, 200, this.escala);
 		int tx = 44 + Math.round(alto * net.backrooms.menu.render.Logos.BACKROOMS.proporcion()) + 22;
-		Texto.hud(g, "PAUSA", tx, 136, 64, 0.12F, TUBO);
-		Texto.parrafo(g, "La cinta sigue grabando. Ellos no se paran.", tx, 204, 14, 496 - tx, 1.45F, MenuBackrooms.alfa(TUBO, 0.75F));
+		Texto.hud(g, "PAUSA", tx, 136, 64, 0.12F, this.tema.tubo);
+		Texto.parrafo(g, "La cinta sigue grabando. Ellos no se paran.", tx, 204, 14, 496 - tx, 1.45F, MenuBackrooms.alfa(this.tema.tubo, 0.75F));
 
 		MenuBackrooms.botonTubo(g, this.volver, 44, 300, 496, 386, "VOLVER", "VOLVER");
 		MenuBackrooms.botonHud(g, this.configuracion, 44, 404, 221, 40, "CONFIGURACIÓN");
@@ -141,8 +140,8 @@ public class MenuPausa extends PauseScreen {
 		MenuBackrooms.botonHud(g, this.tienda, 390, 454, 106, 40, "TIENDA");
 		this.botonSalir(g);
 		this.estado(g);
-		MenuBackrooms.fecha(g, MenuBackrooms.alfa(TUBO, 0.9F));
-		MenuBackrooms.firma(g, 643, 678, this.escala, TUBO);
+		MenuBackrooms.fecha(g, MenuBackrooms.alfa(this.tema.tubo, 0.9F));
+		MenuBackrooms.firma(g, 643, 678, this.escala, this.tema.tubo);
 		p.popMatrix();
 
 		super.render(g, mx, my, parcial);
@@ -156,29 +155,29 @@ public class MenuPausa extends PauseScreen {
 		int y = 524;
 		int w = 452;
 		int h = 40;
-		g.fill(x, y, x + w, y + h, encima ? 0xFFB3241B : 0x8C04141A);
+		g.fill(x, y, x + w, y + h, encima ? 0xFFB3241B : MenuBackrooms.alfa(this.tema.caja, 0.55F));
 		g.renderOutline(x, y, w, h, encima ? 0xFFFF6A5C : MenuBackrooms.alfa(0xFF6A5C, b.active ? 0.6F : 0.25F));
 		String texto = b.active ? "DESCONECTAR" : "SALIENDO...";
 		float ancho = Texto.anchoHud(texto, 24, 0.1F);
-		Texto.hud(g, texto, x + w / 2.0F - ancho / 2.0F, y + h / 2.0F - 9, 24, 0.1F, encima ? TUBO : MenuBackrooms.alfa(0xFF8A7E, b.active ? 1.0F : 0.5F));
+		Texto.hud(g, texto, x + w / 2.0F - ancho / 2.0F, y + h / 2.0F - 9, 24, 0.1F, encima ? this.tema.tubo : MenuBackrooms.alfa(0xFF8A7E, b.active ? 1.0F : 0.5F));
 	}
 
 	/** HUD de camara en pausa: las dos barras parpadeando y el tiempo parado. */
 	private void hud(GuiGraphics g) {
 		boolean on = (System.currentTimeMillis() / 550) % 2 == 0;
 		if (on) {
-			g.fill(30, 16, 36, 32, TUBO);
-			g.fill(40, 16, 46, 32, TUBO);
+			g.fill(30, 16, 36, 32, this.tema.tubo);
+			g.fill(40, 16, 46, 32, this.tema.tubo);
 		}
-		Texto.hud(g, "PAUSE", 56, 13, 24, 0.06F, TUBO);
+		Texto.hud(g, "PAUSE", 56, 13, 24, 0.06F, this.tema.tubo);
 		long s = (System.currentTimeMillis() - this.abierto) / 1000;
-		Texto.hud(g, MenuBackrooms.dos(s / 60) + ":" + MenuBackrooms.dos(s % 60), 124, 13, 24, 0.06F, MenuBackrooms.alfa(TUBO, 0.85F));
-		Texto.hud(g, "SP", 1076, 13, 24, 0.06F, MenuBackrooms.alfa(TUBO, 0.8F));
-		g.renderOutline(1106, 16, 30, 15, TUBO);
-		g.fill(1136, 20, 1139, 27, TUBO);
+		Texto.hud(g, MenuBackrooms.dos(s / 60) + ":" + MenuBackrooms.dos(s % 60), 124, 13, 24, 0.06F, MenuBackrooms.alfa(this.tema.tubo, 0.85F));
+		Texto.hud(g, "SP", 1076, 13, 24, 0.06F, MenuBackrooms.alfa(this.tema.tubo, 0.8F));
+		g.renderOutline(1106, 16, 30, 15, this.tema.tubo);
+		g.fill(1136, 20, 1139, 27, this.tema.tubo);
 		for (int i = 0; i < 3; i++) {
 			if (i < 2 || on) {
-				g.fill(1109 + i * 9, 19, 1115 + i * 9, 28, TUBO);
+				g.fill(1109 + i * 9, 19, 1115 + i * 9, 28, this.tema.tubo);
 			}
 		}
 	}
@@ -189,12 +188,12 @@ public class MenuPausa extends PauseScreen {
 		int y0 = 62;
 		int x1 = 1140;
 		int y1 = 250;
-		g.fill(x0, y0, x1, y1, 0x9E04141A);
-		g.renderOutline(x0, y0, x1 - x0, y1 - y0, 0x38EAFCFF);
-		Texto.hud(g, "EXPEDICIÓN EN CURSO", x0 + 18, y0 + 14, 19, 0.22F, AGUA);
-		Texto.hud(g, this.evento.nombre.toUpperCase(), x0 + 18, y0 + 38, 50, 0.05F, TUBO);
+		g.fill(x0, y0, x1, y1, MenuBackrooms.alfa(this.tema.caja, 0.62F));
+		g.renderOutline(x0, y0, x1 - x0, y1 - y0, MenuBackrooms.alfa(this.tema.tubo, 0.22F));
+		Texto.hud(g, "EXPEDICIÓN EN CURSO", x0 + 18, y0 + 14, 19, 0.22F, this.tema.acento);
+		Texto.hud(g, this.evento.nombre.toUpperCase(), x0 + 18, y0 + 38, 50, 0.05F, this.tema.tubo);
 		for (int x = x0 + 18; x < x1 - 18; x += 6) {
-			g.fill(x, y0 + 100, x + 3, y0 + 101, 0x33EAFCFF);
+			g.fill(x, y0 + 100, x + 3, y0 + 101, MenuBackrooms.alfa(this.tema.tubo, 0.2F));
 		}
 
 		int errantes = 0;
@@ -209,13 +208,13 @@ public class MenuPausa extends PauseScreen {
 		int nivel = latencia < 0 ? 0 : latencia < 60 ? 4 : latencia < 120 ? 3 : latencia < 220 ? 2 : 1;
 		for (int i = 0; i < 4; i++) {
 			int a = 7 + i * 6;
-			g.fill(x0 + 18 + i * 10, y0 + 140 - a, x0 + 25 + i * 10, y0 + 140, i < nivel ? TUBO : 0x29EAFCFF);
+			g.fill(x0 + 18 + i * 10, y0 + 140 - a, x0 + 25 + i * 10, y0 + 140, i < nivel ? this.tema.tubo : MenuBackrooms.alfa(this.tema.tubo, 0.16F));
 		}
-		Texto.hud(g, latencia < 0 ? "SEÑAL --" : "SEÑAL · " + latencia + " MS", x0 + 70, y0 + 112, 20, 0.05F, TUBO);
-		Texto.hud(g, "ERRANTES DENTRO " + errantes, x0 + 70, y0 + 132, 20, 0.05F, TUBO);
+		Texto.hud(g, latencia < 0 ? "SEÑAL --" : "SEÑAL · " + latencia + " MS", x0 + 70, y0 + 112, 20, 0.05F, this.tema.tubo);
+		Texto.hud(g, "ERRANTES DENTRO " + errantes, x0 + 70, y0 + 132, 20, 0.05F, this.tema.tubo);
 		if ((System.currentTimeMillis() / 800) % 2 == 0) {
 			g.fill(x0 + 18, y0 + 160, x0 + 28, y0 + 170, ROJO);
 		}
-		Texto.hud(g, "LA CINTA SIGUE GRABANDO", x0 + 36, y0 + 156, 19, 0.12F, MenuBackrooms.alfa(TUBO, 0.85F));
+		Texto.hud(g, "LA CINTA SIGUE GRABANDO", x0 + 36, y0 + 156, 19, 0.12F, MenuBackrooms.alfa(this.tema.tubo, 0.85F));
 	}
 }

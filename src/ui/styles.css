@@ -64,6 +64,37 @@ body.con-imagen #pasillo { opacity: 0; }
 }
 @keyframes tracking { from { top: 105%; } to { top: -15%; } }
 
+/* ------------------------------------- avance del proximo evento (Piscinas) */
+
+/* centrado en el hueco entre las dos columnas */
+.avance {
+  position: fixed; z-index: 9; left: calc(50vw + 48px); bottom: 92px; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  color: #eafcff; text-align: center; white-space: nowrap; pointer-events: none;
+  text-shadow: 2px 0 rgba(255, 30, 70, 0.5), -2px 0 rgba(0, 210, 255, 0.5), 0 0 18px rgba(4, 26, 32, 0.9);
+  opacity: 0; transition: opacity 0.6s ease;
+}
+body.en-piscinas .avance { opacity: 1; }
+.avance-pre { font-size: 18px; letter-spacing: 0.22em; padding-left: 0.22em; color: #bff3f7; }
+.avance-nivel { font-size: 60px; line-height: 0.9; letter-spacing: 0.04em; }
+.avance-nombre { font-size: 22px; letter-spacing: 0.32em; padding-left: 0.32em; }
+body.en-piscinas .velo {
+  background:
+    linear-gradient(90deg, rgba(4, 26, 32, 0.82) 0%, rgba(4, 26, 32, 0.5) 30%, rgba(4, 26, 32, 0) 50%, rgba(4, 26, 32, 0) 62%, rgba(4, 26, 32, 0.55) 100%),
+    linear-gradient(0deg, rgba(4, 26, 32, 0.7) 0%, transparent 18%, transparent 86%, rgba(4, 26, 32, 0.6) 100%);
+}
+
+/* salto de cinta al cambiar de nivel */
+body.cambio-nivel #pasillo { animation: cambio-nivel 0.7s steps(7); }
+body.cambio-nivel #grano { opacity: 0.4; }
+@keyframes cambio-nivel {
+  0% { filter: none; transform: none; }
+  30% { filter: brightness(2.2) contrast(1.6) saturate(0); transform: skewX(6deg) scale(1.03); }
+  45% { filter: brightness(0.2); transform: translateX(-20px); }
+  60% { filter: invert(0.8); transform: none; }
+  100% { filter: none; transform: none; }
+}
+
 /* ------------------------------------------------------- arranque de cinta */
 
 #cinta {

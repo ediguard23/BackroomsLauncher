@@ -1,8 +1,15 @@
 {
-  "menu.ambiente": { "sounds": [ { "name": "backrooms:piscinas_ambiente", "stream": true } ] },
-  "menu.musica": { "sounds": [ { "name": "backrooms:piscinas_musica", "stream": true } ] },
-  "ui.gota": { "sounds": [ "backrooms:gota" ] },
-  "ui.toque": { "sounds": [ "backrooms:toque" ] },
-  "ui.inmersion": { "sounds": [ "backrooms:inmersion" ] },
-  "ui.eco": { "sounds": [ "backrooms:eco" ] }
+  "nivel0.ambiente": { "sounds": [ { "name": "backrooms:nivel0_ambiente", "stream": true } ] },
+  "nivel0.musica": { "sounds": [ { "name": "backrooms:nivel0_musica", "stream": true } ] },
+  "nivel0.encima": { "sounds": [ "backrooms:nivel0_hover" ] },
+  "nivel0.clic": { "sounds": [ "backrooms:nivel0_click" ] },
+  "nivel0.entrar": { "sounds": [ "backrooms:nivel0_jugar" ] },
+  "nivel0.destello": { "sounds": [ "backrooms:nivel0_parpadeo" ] },
+
+  "piscinas.ambiente": { "sounds": [ { "name": "backrooms:piscinas_ambiente", "stream": true } ] },
+  "piscinas.musica": { "sounds": [ { "name": "backrooms:piscinas_musica", "stream": true } ] },
+  "piscinas.encima": { "sounds": [ "backrooms:gota" ] },
+  "piscinas.clic": { "sounds": [ "backrooms:toque" ] },
+  "piscinas.entrar": { "sounds": [ "backrooms:inmersion" ] },
+  "piscinas.destello": { "sounds": [ "backrooms:eco" ] }
 }

@@ -5,10 +5,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.Instant;
 import java.util.List;
-import java.util.Random;
 import net.backrooms.menu.render.Degradado;
+import net.backrooms.menu.render.Fondo;
 import net.backrooms.menu.render.Logos;
-import net.backrooms.menu.render.Piscinas;
 import net.backrooms.menu.render.Texto;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.ConfirmLinkScreen;
@@ -25,7 +24,7 @@ import org.joml.Matrix3x2fStack;
 /**
  * El menu de inicio del evento. Es el mismo diseno que el launcher (HUD de
  * videocamara, pase de explorador, boton de tubo fluorescente, registro de
- * expedicion), pero en otro nivel: las Piscinas.
+ * expedicion), en el nivel del evento (Tema): el Nivel 0 por defecto.
  *
  * Todo se dibuja en un lienzo de diseno de 1180x720, el tamano de la ventana
  * del launcher, escalado y centrado sobre la pantalla; asi las medidas son las
@@ -37,15 +36,11 @@ public class MenuBackrooms extends Screen {
 	private static final float ALTO = 720.0F;
 	private static final String[] MESES = {"ENE", "FEB", "MAR", "ABR", "MAY", "JUN", "JUL", "AGO", "SEP", "OCT", "NOV", "DIC"};
 
-	// paleta de las Piscinas
-	private static final int TUBO = 0xFFEAFCFF;
-	private static final int AGUA = 0xFF8FE3EA;
-	private static final int NEGRO = 0xFF06161A;
-	private static final int ROJO = 0xFFFF4A3D;
+	static final int ROJO = 0xFFFF4A3D;
 
 	private final Evento evento = Evento.cargar();
 	private final long abierto = System.currentTimeMillis();
-	private final Random azar = new Random();
+	private final Tema tema = Tema.actual();
 
 	private float escala;
 	private float ox;
@@ -59,8 +54,6 @@ public class MenuBackrooms extends Screen {
 
 	private String aviso = "";
 	private long avisoHasta;
-	private long proximoDestello = System.currentTimeMillis() + 9000;
-	private long destelloDesde;
 
 	public MenuBackrooms() {
 		super(Component.literal("Backrooms"));
@@ -140,7 +133,7 @@ public class MenuBackrooms extends Screen {
 		if (!evento.tieneServidor()) {
 			return;
 		}
-		Sonidos.ui(Sonidos.INMERSION, 0.9F);
+		Sonidos.ui(Tema.actual().entrar, 0.9F);
 		String dir = evento.host + ":" + evento.puerto;
 		ServerData datos = new ServerData(evento.nombre, dir, ServerData.Type.OTHER);
 		// el resource pack del servidor se acepta solo: es parte del evento
@@ -163,27 +156,14 @@ public class MenuBackrooms extends Screen {
 
 	@Override
 	public void renderBackground(GuiGraphics g, int mx, int my, float parcial) {
-		this.destellos();
-		Piscinas.dibujar(g, this.width, this.height);
-		// velos: el lado del texto mas oscuro para que se lea sobre el agua
+		this.tema.dibujarFondo(g, this.width, this.height);
+		// velos: el lado del texto mas oscuro para que se lea sobre el pasillo
 		int w = this.width;
 		int h = this.height;
-		Degradado.horizontal(g, 0, 0, w * 0.52F, h, 0xD2041A20, 0x00041A20);
-		Degradado.horizontal(g, w * 0.6F, 0, w, h, 0x00041A20, 0xA8041A20);
-		g.fillGradient(0, 0, w, (int) (h * 0.14F), 0x99041A20, 0x00041A20);
-		g.fillGradient(0, (int) (h * 0.84F), w, h, 0x00041A20, 0xB0041A20);
-	}
-
-	/** Cada 15-35 s entra un golpe de luz por los arcos y suena un chapoteo lejano. */
-	private void destellos() {
-		long ahora = System.currentTimeMillis();
-		if (ahora >= this.proximoDestello) {
-			this.destelloDesde = ahora;
-			this.proximoDestello = ahora + 15000 + this.azar.nextInt(20000);
-			Sonidos.ui(Sonidos.ECO, 0.6F);
-		}
-		float d = (ahora - this.destelloDesde) / 1000.0F;
-		Piscinas.luz = d < 1.6F ? 1.0F + 0.22F * (float) Math.sin(Math.PI * d / 1.6F) : 1.0F;
+		Degradado.horizontal(g, 0, 0, w * 0.52F, h, alfa(this.tema.velo, 0.82F), alfa(this.tema.velo, 0));
+		Degradado.horizontal(g, w * 0.6F, 0, w, h, alfa(this.tema.velo, 0), alfa(this.tema.velo, 0.66F));
+		g.fillGradient(0, 0, w, (int) (h * 0.14F), alfa(this.tema.velo, 0.6F), alfa(this.tema.velo, 0));
+		g.fillGradient(0, (int) (h * 0.84F), w, h, alfa(this.tema.velo, 0), alfa(this.tema.velo, 0.69F));
 	}
 
 	@Override
@@ -191,7 +171,7 @@ public class MenuBackrooms extends Screen {
 		for (BotonInvisible b : List.of(this.jugar, this.configuracion, this.salir, this.discord, this.tienda)) {
 			boolean encima = b.isHovered() && b.active;
 			if (encima && !b.encimaAntes) {
-				Sonidos.ui(Sonidos.GOTA, 0.45F);
+				Sonidos.ui(this.tema.encima, 0.45F);
 				b.encimaDesde = System.currentTimeMillis();
 			}
 			b.encimaAntes = encima;
@@ -231,15 +211,15 @@ public class MenuBackrooms extends Screen {
 		if (punto) {
 			g.fill(30, 17, 43, 30, ROJO);
 		}
-		Texto.hud(g, "REC", 52, 13, 24, 0.06F, TUBO);
-		Texto.hud(g, dos(s / 3600) + ":" + dos(s / 60 % 60) + ":" + dos(s % 60), 104, 13, 24, 0.06F, alfa(TUBO, 0.85F));
-		Texto.hud(g, "SP", 1076, 13, 24, 0.06F, alfa(TUBO, 0.8F));
+		Texto.hud(g, "REC", 52, 13, 24, 0.06F, this.tema.tubo);
+		Texto.hud(g, dos(s / 3600) + ":" + dos(s / 60 % 60) + ":" + dos(s % 60), 104, 13, 24, 0.06F, alfa(this.tema.tubo, 0.85F));
+		Texto.hud(g, "SP", 1076, 13, 24, 0.06F, alfa(this.tema.tubo, 0.8F));
 		// bateria
-		g.renderOutline(1106, 16, 30, 15, TUBO);
-		g.fill(1136, 20, 1139, 27, TUBO);
+		g.renderOutline(1106, 16, 30, 15, this.tema.tubo);
+		g.fill(1136, 20, 1139, 27, this.tema.tubo);
 		for (int i = 0; i < 3; i++) {
 			if (i < 2 || punto) {
-				g.fill(1109 + i * 9, 19, 1115 + i * 9, 28, TUBO);
+				g.fill(1109 + i * 9, 19, 1115 + i * 9, 28, this.tema.tubo);
 			}
 		}
 	}
@@ -247,8 +227,8 @@ public class MenuBackrooms extends Screen {
 	private void titulo(GuiGraphics g) {
 		int alto = logo(g, 44, 66, 200, this.escala);
 		int tx = 44 + Math.round(alto * Logos.BACKROOMS.proporcion()) + 22;
-		Texto.hud(g, "NIVEL 37", tx, 150, 26, 0.5F, AGUA);
-		Texto.parrafo(g, "El agua está templada. No recuerdas haber entrado.", tx, 184, 14, 496 - tx, 1.45F, alfa(TUBO, 0.75F));
+		Texto.hud(g, this.tema.nivel, tx, 150, 26, 0.5F, this.tema.acento);
+		Texto.parrafo(g, this.tema.lema, tx, 184, 14, 496 - tx, 1.45F, alfa(this.tema.tubo, 0.75F));
 	}
 
 	/**
@@ -257,7 +237,7 @@ public class MenuBackrooms extends Screen {
 	 */
 	static int logo(GuiGraphics g, int x, int y, int alto, float escala) {
 		float px = escala * Logos.escalaGui();
-		float t = Piscinas.segundos() % 7.0F;
+		float t = Fondo.segundos() % 7.0F;
 		int glitch = t > 6.5F ? Math.round((float) Math.sin(t * 90) * 5) : 0;
 		Logos.BACKROOMS.dibujar(g, x + 2 + glitch, y, alto, px, 0x59FF1E46);
 		Logos.BACKROOMS.dibujar(g, x - 2 - glitch, y, alto, px, 0x4D00D2FF);
@@ -288,36 +268,36 @@ public class MenuBackrooms extends Screen {
 		for (int i = 1; i <= 4; i++) {
 			g.fill(x0 + i * 2, y0 + i * 4, x1 + i * 2, y1 + i * 4, 0x1E000000);
 		}
-		g.fill(x0, y0, x1, y1, 0xFFEEF5F3);
-		g.fillGradient(x0, y0, x1, y0 + 56, 0xFFA6DFE3, 0xFF6CBCC4);
+		g.fill(x0, y0, x1, y1, this.tema.paseFondo);
+		g.fillGradient(x0, y0, x1, y0 + 56, this.tema.paseCintaArriba, this.tema.paseCintaAbajo);
 		g.fill(x0, y0 + 56, x1, y0 + 58, 0x59000000);
-		g.fill(243, y0 + 9, 297, y0 + 18, 0xFF15292C);
-		Texto.hud(g, "PASE DE EXPLORADOR", x0 + 18, y0 + 30, 22, 0.14F, 0xFF0F2629);
+		g.fill(243, y0 + 9, 297, y0 + 18, this.tema.paseRanura);
+		Texto.hud(g, "PASE DE EXPLORADOR", x0 + 18, y0 + 30, 22, 0.14F, this.tema.paseTinta);
 		String nombre = this.minecraft.getUser().getName();
 		boolean premium = this.minecraft.getUser().getAccessToken().length() > 32;
 		String num = "N.º " + numeroPase(premium ? this.minecraft.getUser().getProfileId().toString() : nombre);
-		Texto.hud(g, num, x1 - 18 - Texto.anchoHud(num, 18, 0.14F), y0 + 33, 18, 0.14F, 0xBF0F2629);
+		Texto.hud(g, num, x1 - 18 - Texto.anchoHud(num, 18, 0.14F), y0 + 33, 18, 0.14F, alfa(this.tema.paseTinta, 0.75F));
 
 		// foto: la cabeza del jugador con su skin
-		g.fill(x0 + 18, y0 + 74, x0 + 114, y0 + 186, 0xFF8FA6A3);
-		g.fill(x0 + 20, y0 + 76, x0 + 112, y0 + 184, 0xFFC9D6D3);
+		g.fill(x0 + 18, y0 + 74, x0 + 114, y0 + 186, this.tema.fotoMarco);
+		g.fill(x0 + 20, y0 + 76, x0 + 112, y0 + 184, this.tema.fotoFondo);
 		Component cara = Component.object(new PlayerSprite(ResolvableProfile.createResolved(this.minecraft.getGameProfile()), true));
 		p.pushMatrix();
 		p.translate(x0 + 30, y0 + 84);
 		p.scale(9.0F, 9.0F);
 		g.drawString(this.font, cara, 0, 0, 0xFFFFFFFF, false);
 		p.popMatrix();
-		Texto.hud(g, "FOTO", x0 + 46, y0 + 162, 15, 0.3F, 0x8C0F2629);
+		Texto.hud(g, "FOTO", x0 + 46, y0 + 162, 15, 0.3F, alfa(this.tema.paseTinta, 0.55F));
 
-		Texto.hud(g, "NOMBRE", x0 + 132, y0 + 74, 16, 0.3F, 0x990F2629);
-		Texto.hud(g, nombre, x0 + 132, y0 + 92, 38, 0.0F, 0xFF0F2629);
-		g.fill(x0 + 132, y0 + 132, x1 - 18, y0 + 134, 0xFF0F2629);
+		Texto.hud(g, "NOMBRE", x0 + 132, y0 + 74, 16, 0.3F, alfa(this.tema.paseTinta, 0.6F));
+		Texto.hud(g, nombre, x0 + 132, y0 + 92, 38, 0.0F, this.tema.paseTinta);
+		g.fill(x0 + 132, y0 + 132, x1 - 18, y0 + 134, this.tema.paseTinta);
 		// estado de la cuenta, como el interruptor del launcher
-		int pista = premium ? 0xFF3D7A6A : 0xFF8FA09E;
+		int pista = premium ? this.tema.pistaOn : this.tema.pistaOff;
 		g.fill(x0 + 132, y0 + 152, x0 + 176, y0 + 174, pista);
 		int bx = premium ? x0 + 157 : x0 + 135;
-		g.fill(bx, y0 + 155, bx + 16, y0 + 171, 0xFFF6FBFA);
-		Texto.hud(g, premium ? "CUENTA PREMIUM" : "CUENTA SIN VERIFICAR", x0 + 186, y0 + 152, 19, 0.08F, 0xFF0F2629);
+		g.fill(bx, y0 + 155, bx + 16, y0 + 171, this.tema.bola);
+		Texto.hud(g, premium ? "CUENTA PREMIUM" : "CUENTA SIN VERIFICAR", x0 + 186, y0 + 152, 19, 0.08F, this.tema.paseTinta);
 
 		if (premium) {
 			p.pushMatrix();
@@ -345,37 +325,38 @@ public class MenuBackrooms extends Screen {
 
 	/** El boton grande de tubo fluorescente del launcher (JUGAR, VOLVER...). */
 	static void botonTubo(GuiGraphics g, BotonInvisible boton, int x0, int y0, int x1, int y1, String texto, String inactivo) {
+		Tema t = Tema.actual();
 		boolean activo = boton.active;
 		boolean encima = activo && boton.isHoveredOrFocused();
 		if (activo) {
 			// halo del tubo
 			int capas = encima ? 10 : 8;
 			for (int i = capas; i >= 1; i--) {
-				g.fill(x0 - i * 5, y0 - i * 5, x1 + i * 5, y1 + i * 5, alfa(0xDDF8FF, encima ? 0.085F : 0.06F));
+				g.fill(x0 - i * 5, y0 - i * 5, x1 + i * 5, y1 + i * 5, alfa(t.tuboHalo, encima ? 0.085F : 0.06F));
 			}
 		}
-		g.fill(x0, y0, x1, y1, 0xFF233A3D);
+		g.fill(x0, y0, x1, y1, t.tuboMarco);
 		if (activo) {
 			// parpadeo al pasar por encima, como en el launcher
-			float t = (System.currentTimeMillis() % 4000) / 4000.0F;
+			float ciclo = (System.currentTimeMillis() % 4000) / 4000.0F;
 			float vida = 1.0F;
 			if (encima) {
 				vida = parpadeoEntrada((System.currentTimeMillis() - boton.encimaDesde) / 900.0F);
-			} else if (t > 0.47F && t < 0.49F) {
+			} else if (ciclo > 0.47F && ciclo < 0.49F) {
 				vida = 0.93F;
 			}
-			g.fillGradient(x0 + 7, y0 + 7, x1 - 7, y1 - 7, alfa(0xF8FFFF, vida), alfa(0xC4EEF2, vida));
+			g.fillGradient(x0 + 7, y0 + 7, x1 - 7, y1 - 7, alfa(t.tuboArriba, vida), alfa(t.tuboAbajo, vida));
 			for (int x = x0 + 9; x < x1 - 7; x += 18) {
 				g.fill(x, y0 + 7, x + 2, y1 - 7, 0x0F000000);
 			}
 		} else {
-			g.fill(x0 + 7, y0 + 7, x1 - 7, y1 - 7, 0xFF2A3A3C);
+			g.fill(x0 + 7, y0 + 7, x1 - 7, y1 - 7, t.tuboApagado);
 		}
 		String txt = activo ? texto : inactivo;
 		float tam = activo ? 58 : 40;
 		float esp = activo ? 0.32F : 0.18F;
 		float ancho = Texto.anchoHud(txt, tam, esp);
-		Texto.hud(g, txt, (x0 + x1) / 2.0F - ancho / 2.0F, activo ? y0 + 17 : y0 + 26, tam, esp, activo ? 0xFF0F2E2F : 0xFF6D8285);
+		Texto.hud(g, txt, (x0 + x1) / 2.0F - ancho / 2.0F, activo ? y0 + 17 : y0 + 26, tam, esp, activo ? t.tuboTinta : t.tuboTintaOff);
 	}
 
 	/** Mismo parpadeo que el launcher al pasar por encima (keyframes de parpadeo-tubo). */
@@ -396,13 +377,14 @@ public class MenuBackrooms extends Screen {
 	}
 
 	static void botonHud(GuiGraphics g, BotonInvisible b, int x, int y, int w, int h, String texto) {
+		Tema t = Tema.actual();
 		boolean encima = b.active && b.isHoveredOrFocused();
 		float a = b.active ? 1.0F : 0.35F;
-		g.fill(x, y, x + w, y + h, encima ? TUBO : alfa(0x04141A, 0.55F * a));
-		g.renderOutline(x, y, w, h, alfa(TUBO, 0.4F * a));
+		g.fill(x, y, x + w, y + h, encima ? t.tubo : alfa(t.caja, 0.55F * a));
+		g.renderOutline(x, y, w, h, alfa(t.tubo, 0.4F * a));
 		float tam = 24;
 		float ancho = Texto.anchoHud(texto, tam, 0.1F);
-		Texto.hud(g, texto, x + w / 2.0F - ancho / 2.0F, y + h / 2.0F - 9, tam, 0.1F, encima ? NEGRO : alfa(TUBO, a));
+		Texto.hud(g, texto, x + w / 2.0F - ancho / 2.0F, y + h / 2.0F - 9, tam, 0.1F, encima ? t.negro : alfa(t.tubo, a));
 	}
 
 	private void estado(GuiGraphics g) {
@@ -410,23 +392,23 @@ public class MenuBackrooms extends Screen {
 		int y0 = 62;
 		int x1 = 1140;
 		int y1 = 226;
-		g.fill(x0, y0, x1, y1, 0x9E04141A);
-		g.renderOutline(x0, y0, x1 - x0, y1 - y0, 0x38EAFCFF);
+		g.fill(x0, y0, x1, y1, alfa(this.tema.caja, 0.62F));
+		g.renderOutline(x0, y0, x1 - x0, y1 - y0, alfa(this.tema.tubo, 0.22F));
 
 		long falta = this.evento.apertura - System.currentTimeMillis();
 		if (this.evento.apertura == 0 || falta <= 0) {
-			Texto.hud(g, "LA PUERTA ESTÁ ABIERTA", x0 + 18, y0 + 14, 19, 0.22F, AGUA);
+			Texto.hud(g, "LA PUERTA ESTÁ ABIERTA", x0 + 18, y0 + 14, 19, 0.22F, this.tema.acento);
 			if ((System.currentTimeMillis() / 800) % 2 == 0) {
 				Texto.hud(g, "EN DIRECTO", x0 + 18, y0 + 38, 50, 0.05F, ROJO);
 			}
 		} else {
 			long s = falta / 1000;
 			long d = s / 86400;
-			Texto.hud(g, "LA PUERTA SE ABRE EN", x0 + 18, y0 + 14, 19, 0.22F, AGUA);
-			Texto.hud(g, (d > 0 ? d + "D " : "") + dos(s / 3600 % 24) + ":" + dos(s / 60 % 60) + ":" + dos(s % 60), x0 + 18, y0 + 38, 50, 0.05F, TUBO);
+			Texto.hud(g, "LA PUERTA SE ABRE EN", x0 + 18, y0 + 14, 19, 0.22F, this.tema.acento);
+			Texto.hud(g, (d > 0 ? d + "D " : "") + dos(s / 3600 % 24) + ":" + dos(s / 60 % 60) + ":" + dos(s % 60), x0 + 18, y0 + 38, 50, 0.05F, this.tema.tubo);
 		}
 		for (int x = x0 + 18; x < x1 - 18; x += 6) {
-			g.fill(x, y0 + 100, x + 3, y0 + 101, 0x33EAFCFF);
+			g.fill(x, y0 + 100, x + 3, y0 + 101, alfa(this.tema.tubo, 0.2F));
 		}
 
 		Ping.Estado st = Ping.estado(this.evento);
@@ -436,7 +418,7 @@ public class MenuBackrooms extends Screen {
 		}
 		for (int i = 0; i < 4; i++) {
 			int alto = 7 + i * 6;
-			int col = st != null && !st.online() ? 0x59FF5A4D : i < nivel ? TUBO : 0x29EAFCFF;
+			int col = st != null && !st.online() ? 0x59FF5A4D : i < nivel ? this.tema.tubo : alfa(this.tema.tubo, 0.16F);
 			g.fill(x0 + 18 + i * 10, y0 + 140 - alto, x0 + 25 + i * 10, y0 + 140, col);
 		}
 		String linea1;
@@ -451,8 +433,8 @@ public class MenuBackrooms extends Screen {
 			linea1 = "SERVIDOR EN LÍNEA · " + st.latencia() + " MS";
 			linea2 = "ERRANTES " + st.jugadores() + "/" + st.maximo();
 		}
-		Texto.hud(g, linea1, x0 + 70, y0 + 112, 20, 0.05F, TUBO);
-		Texto.hud(g, linea2, x0 + 70, y0 + 132, 20, 0.05F, TUBO);
+		Texto.hud(g, linea1, x0 + 70, y0 + 112, 20, 0.05F, this.tema.tubo);
+		Texto.hud(g, linea2, x0 + 70, y0 + 132, 20, 0.05F, this.tema.tubo);
 	}
 
 	private void registro(GuiGraphics g) {
@@ -466,13 +448,13 @@ public class MenuBackrooms extends Screen {
 		for (int i = 1; i <= 4; i++) {
 			g.fill(x0 + i, y0 + i * 4, x1 + i, y1 + i * 4, 0x1E000000);
 		}
-		g.fill(x0, y0, x1, y1, 0xFFF2F5EF);
+		g.fill(x0, y0, x1, y1, this.tema.papel);
 		for (int y = y0 + 26; y < y1; y += 26) {
-			g.fill(x0, y, x1, y + 1, 0x2E3C6EA0);
+			g.fill(x0, y, x1, y + 1, this.tema.papelRayas);
 		}
 		g.fill(x0 + 34, y0, x0 + 36, y1, 0x59BE3228);
-		Texto.maquina(g, "REGISTRO DE EXPEDICIÓN", x0 + 46, y0 + 12, 13, 0.18F, 0xFF1F2A2B);
-		g.fill(x0, y0 + 34, x1, y0 + 35, 0x401F2A2B);
+		Texto.maquina(g, "REGISTRO DE EXPEDICIÓN", x0 + 46, y0 + 12, 13, 0.18F, this.tema.papelTinta);
+		g.fill(x0, y0 + 34, x1, y0 + 35, alfa(this.tema.papelTinta, 0.25F));
 		// clip
 		g.renderOutline(x1 - 40, y0 - 14, 16, 44, 0xFF8D9093);
 		g.renderOutline(x1 - 36, y0 - 8, 8, 30, 0xFF8D9093);
@@ -480,23 +462,23 @@ public class MenuBackrooms extends Screen {
 		g.enableScissor(x0, y0 + 36, x1, y1 - 6);
 		float y = y0 + 46;
 		if (this.evento.noticias.isEmpty()) {
-			Texto.maquina(g, "Sin entradas todavía.", x0 + 46, y, 13, 0.0F, 0xFF6D7A78);
+			Texto.maquina(g, "Sin entradas todavía.", x0 + 46, y, 13, 0.0F, this.tema.papelVacio);
 		}
 		for (Evento.Noticia n : this.evento.noticias) {
 			String f = fecha(n.fecha());
 			if (!f.isEmpty()) {
-				Texto.maquina(g, f, x0 + 46, y, 11, 0.14F, 0xFF2A6F7A);
+				Texto.maquina(g, f, x0 + 46, y, 11, 0.14F, this.tema.papelFecha);
 				y += 16;
 			}
-			y += Texto.parrafo(g, n.titulo(), x0 + 46, y, 15, x1 - x0 - 62, 1.3F, 0xFF1F2A2B);
+			y += Texto.parrafo(g, n.titulo(), x0 + 46, y, 15, x1 - x0 - 62, 1.3F, this.tema.papelTinta);
 			if (!n.texto().isBlank()) {
 				for (String parte : n.texto().split("\n")) {
-					y += Texto.parrafo(g, parte, x0 + 46, y + 2, 12.5F, x1 - x0 - 62, 1.45F, 0xFF4A5553);
+					y += Texto.parrafo(g, parte, x0 + 46, y + 2, 12.5F, x1 - x0 - 62, 1.45F, this.tema.papelTexto);
 				}
 			}
 			y += 10;
 			for (int x = x0 + 46; x < x1 - 16; x += 6) {
-				g.fill(x, (int) y, x + 3, (int) y + 1, 0x381F2A2B);
+				g.fill(x, (int) y, x + 3, (int) y + 1, alfa(this.tema.papelTinta, 0.22F));
 			}
 			y += 12;
 		}
@@ -514,10 +496,10 @@ public class MenuBackrooms extends Screen {
 	}
 
 	private void pie(GuiGraphics g) {
-		fecha(g, alfa(TUBO, 0.9F));
-		firma(g, 643, 678, this.escala, TUBO);
+		fecha(g, alfa(this.tema.tubo, 0.9F));
+		firma(g, 643, 678, this.escala, this.tema.tubo);
 		if (!this.aviso.isEmpty() && System.currentTimeMillis() < this.avisoHasta) {
-			Texto.hud(g, this.aviso, 32, 686, 22, 0.05F, TUBO);
+			Texto.hud(g, this.aviso, 32, 686, 22, 0.05F, this.tema.tubo);
 		}
 	}
 

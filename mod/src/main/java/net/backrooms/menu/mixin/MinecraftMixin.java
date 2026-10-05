@@ -35,7 +35,7 @@ public abstract class MinecraftMixin {
 		cir.setReturnValue(Evento.titulo());
 	}
 
-	/** Sin musica de menu de Minecraft: en los menus suenan los bucles de las Piscinas. */
+	/** Sin musica de menu de Minecraft: en los menus suenan los bucles del nivel (Tema). */
 	@Inject(method = "getSituationalMusic", at = @At("HEAD"), cancellable = true)
 	private void backrooms$sinMusicaDeMenu(CallbackInfoReturnable<@Nullable Music> cir) {
 		if (this.level == null) {

@@ -1,16 +1,24 @@
 {
   "name": "BACKROOMS",
+  "level": "0",
   "minecraft": "1.21.11",
   "loader": "fabric",
   "loaderVersion": "0.19.5",
-  "server": { "host": "play.tuservidor.net", "port": 25565 },
+  "server": {
+    "host": "play.tuservidor.net",
+    "port": 25565
+  },
   "links": {
     "discord": "https://dc.peakmc.lat",
     "tienda": "https://tienda.peakmc.lat"
   },
   "eventStart": "2026-10-31T21:00:00-06:00",
-  "staff": ["xgdier_"],
-  "ram": { "recommended": 4096 },
+  "staff": [
+    "xgdier_"
+  ],
+  "ram": {
+    "recommended": 4096
+  },
   "news": [
     {
       "date": "2026-10-04",

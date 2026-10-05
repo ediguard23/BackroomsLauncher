@@ -16,48 +16,58 @@ import org.joml.Matrix3x2f;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Fondo de los menus: el pasillo inundado de las Piscinas, dibujado en tiempo
- * real por el shader assets/backrooms/shaders/core/piscinas.fsh.
+ * Fondo de los menus: un pasillo de las Backrooms dibujado en tiempo real por
+ * un shader de assets/backrooms/shaders/core/. Hay uno por nivel: el Nivel 0
+ * (el mismo pasillo que el launcher) y las Piscinas (Nivel 37, para el
+ * proximo evento). Cual se usa lo decide el Tema.
  *
  * El GuiRenderer de 1.21.11 no deja enlazar uniforms propios, asi que el
  * tiempo y la posicion de la camara viajan en las UV de los cuatro vertices
  * (iguales en todos, el shader los recibe como si fueran uniforms) y el
  * brillo en el canal rojo del color.
  */
-public final class Piscinas {
-	public static final RenderPipeline PIPELINE = RenderPipelines.register(
-		RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
-			.withLocation(Identifier.fromNamespaceAndPath("backrooms", "pipeline/piscinas"))
-			.withVertexShader(Identifier.fromNamespaceAndPath("backrooms", "core/piscinas"))
-			.withFragmentShader(Identifier.fromNamespaceAndPath("backrooms", "core/piscinas"))
-			.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
-			.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
-			.withDepthWrite(false)
-			.build()
-	);
+public final class Fondo {
+	/** Nivel 0: papel pintado amarillo, moqueta y tubos. Avanza como en el launcher. */
+	public static final Fondo NIVEL_0 = new Fondo("nivel0", 0.55F, 608.0F);
+	/** Nivel 37: el bucle cierra cada 100 arcos (6.4 m), sin saltos visibles. */
+	public static final Fondo PISCINAS = new Fondo("piscinas", 0.45F, 640.0F);
 
 	private static final long INICIO = System.nanoTime();
-	/** El bucle de la camara cierra cada 100 arcos (6.4 m): sin saltos visibles. */
-	private static final float PERIODO_Z = 640.0F;
-	private static final float VELOCIDAD = 0.45F;
 
-	/** Brillo actual (1 = normal). Lo mueve el menu para los destellos de luz. */
+	/** Brillo actual (1 = normal). Lo mueve el menu para los destellos y parpadeos. */
 	public static float luz = 1.0F;
 
-	private Piscinas() {
+	public final RenderPipeline pipeline;
+	private final float velocidad;
+	/** La camara vuelve a 0 cada `periodo` metros: el float de las UV pierde precision si crece. */
+	private final float periodo;
+
+	private Fondo(String shader, float velocidad, float periodo) {
+		this.pipeline = RenderPipelines.register(
+			RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
+				.withLocation(Identifier.fromNamespaceAndPath("backrooms", "pipeline/" + shader))
+				.withVertexShader(Identifier.fromNamespaceAndPath("backrooms", "core/fondo"))
+				.withFragmentShader(Identifier.fromNamespaceAndPath("backrooms", "core/" + shader))
+				.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
+				.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+				.withDepthWrite(false)
+				.build()
+		);
+		this.velocidad = velocidad;
+		this.periodo = periodo;
 	}
 
 	public static float segundos() {
 		return (System.nanoTime() - INICIO) / 1.0e9F;
 	}
 
-	public static void dibujar(GuiGraphics g, int ancho, int alto) {
+	public void dibujar(GuiGraphics g, int ancho, int alto) {
 		float t = segundos() % 3600.0F;
-		float z = (t * VELOCIDAD) % PERIODO_Z;
-		g.guiRenderState.submitGuiElement(new Estado(new Matrix3x2f(g.pose()), 0, 0, ancho, alto, t, z, luz));
+		float z = (t * this.velocidad) % this.periodo;
+		g.guiRenderState.submitGuiElement(new Estado(this.pipeline, new Matrix3x2f(g.pose()), 0, 0, ancho, alto, t, z, luz));
 	}
 
-	private record Estado(Matrix3x2f pose, int x0, int y0, int x1, int y1, float t, float z, float brillo)
+	private record Estado(RenderPipeline pipeline, Matrix3x2f pose, int x0, int y0, int x1, int y1, float t, float z, float brillo)
 		implements GuiElementRenderState {
 
 		@Override
@@ -68,11 +78,6 @@ public final class Piscinas {
 			v.addVertexWith2DPose(this.pose, this.x0, this.y1).setUv(this.t, this.z).setColor(color);
 			v.addVertexWith2DPose(this.pose, this.x1, this.y1).setUv(this.t, this.z).setColor(color);
 			v.addVertexWith2DPose(this.pose, this.x1, this.y0).setUv(this.t, this.z).setColor(color);
-		}
-
-		@Override
-		public RenderPipeline pipeline() {
-			return PIPELINE;
 		}
 
 		@Override

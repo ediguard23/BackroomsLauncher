@@ -388,7 +388,46 @@
     $('efectos').textContent = on ? 'ON' : 'OFF';
     pasillo.mover = on;
     grano.activo = on;
+    if (!on) ponerNivel(0);
     if (on && !estado.jugando) pasillo.iniciar(); else pasillo.parar();
+  }
+
+  /* -------------------------------------- Nivel 0 y avance de las Piscinas */
+
+  // El evento es en el Nivel 0; cada cierto tiempo la cinta salta a las
+  // Piscinas (Nivel 37), el proximo evento, con su rotulo de avance.
+  const DURACION = { 0: 42000, 37: 16000 };
+  let cambiando = false;
+
+  function ponerNivel (nivel) {
+    pasillo.ponerNivel(nivel);
+    document.body.classList.toggle('en-piscinas', nivel === 37);
+  }
+
+  function saltarNivel () {
+    if (cambiando) return;
+    cambiando = true;
+    const nuevo = pasillo.nivel === 37 ? 0 : 37;
+    document.body.classList.add('cambio-nivel');
+    if (sonido) sonido.parpadeo(0.3);
+    setTimeout(() => ponerNivel(nuevo), 300);
+    setTimeout(() => { document.body.classList.remove('cambio-nivel'); cambiando = false; }, 700);
+  }
+
+  function alternarNiveles () {
+    if (!pasillo.conPiscinas) return;
+    const paso = () => {
+      const puede = !estado.jugando && estado.config.efectos !== false && !document.hidden && !atravesando;
+      let siguiente = 0;
+      if (puede) {
+        siguiente = pasillo.nivel === 37 ? 0 : 37;
+        saltarNivel();
+      } else if (pasillo.nivel === 37) {
+        ponerNivel(0);
+      }
+      setTimeout(paso, DURACION[siguiente]);
+    };
+    setTimeout(paso, DURACION[0]);
   }
   $('efectos').addEventListener('click', async () => {
     estado.config = await L.guardarConfig({ efectos: estado.config.efectos === false });
@@ -532,6 +571,7 @@
     setInterval(relojHud, 1000);
     setInterval(cuentaAtras, 1000);
     setInterval(pingServidor, 30000);
+    alternarNiveles();
 
     // Los sonidos cargan en paralelo: la intro no los espera.
     const sonidosListos = sonido ? sonido.cargar().catch(() => {}) : Promise.resolve();
