@@ -23,7 +23,8 @@ until ! netstat -ano | grep -q ":25566 .*LISTENING"; do sleep 1; done
 # el puerto se libera antes de que el proceso suelte los jars: esperar a que muera
 while powershell -NoProfile -Command "if (Get-CimInstance Win32_Process -Filter \"Name='java.exe'\" | Where-Object { \$_.CommandLine -like '*fabric-server.jar*' }) { exit 0 } else { exit 1 }"; do sleep 1; done
 
-rm -f "$SERVIDOR"/mods/backrooms-evento-*.jar pack/mods/backrooms-evento-*.jar
+# el menu viejo (backrooms-menu) ya va dentro del mod del evento: si queda suelto, choca
+rm -f "$SERVIDOR"/mods/backrooms-evento-*.jar pack/mods/backrooms-evento-*.jar pack/mods/backrooms-menu-*.jar "$SERVIDOR"/mods/backrooms-menu-*.jar
 cp "$JAR" "$SERVIDOR/mods/" && cp "$JAR" pack/mods/
 if [ "${1:-}" = "--mundo-nuevo" ]; then rm -rf "$SERVIDOR/nivel0"; fi
 sed -i "s/^pauseOnLostFocus:.*/pauseOnLostFocus:${PAUSA_FOCO:-false}/" "$APPDATA/.backrooms-event/options.txt" 2>/dev/null

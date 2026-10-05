@@ -1,11 +1,17 @@
 package net.backrooms.evento;
 
 import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import java.util.List;
 import java.util.Locale;
+import net.backrooms.evento.ambiente.Ambiente;
 import net.backrooms.evento.expedicion.Expedicion;
+import net.backrooms.evento.fase.Fase;
+import net.backrooms.evento.fase.Fases;
+import net.backrooms.evento.vestibulo.Vestibulo;
 import net.backrooms.evento.mision.Misiones;
 import net.backrooms.evento.mision.TipoMision;
 import net.backrooms.evento.mundo.GeneradorNivel0;
@@ -29,6 +35,13 @@ import net.minecraft.server.level.ServerPlayer;
  *  misiones completar <jugador>  da por hecha la mision en curso (pruebas)
  *  misiones olvidar <jugador>    le quita las misiones
  *  cinematica [jugador]      le pone la cinematica del ascensor, sin viaje
+ *  apagon|alarma [segundos]  fuerza un apagon o una alarma en la fase donde estas
+ *  luz                       vuelve la luz normal
+ *  ambiente [auto on|off]    como esta la luz y si los sucesos van solos
+ *  fase <n> [jugador]        lo manda ya a la fase n con misiones nuevas
+ *  vestibulo [jugador]       lo lleva al vestibulo; "vestibulo rehacer" repone los rotulos
+ *  muerte eliminar|reaparecer  morir saca de la expedicion (por defecto) o reaparece en la fase
+ *  escapados [olvidar]       quienes han escapado y en que puesto
  *
  * Y /start [jugadores]: manda al Nivel 0 a todos (los que no esten en
  * creativo ni espectador) o a los indicados, poco a poco y con cinematica.
@@ -63,10 +76,104 @@ public final class Comandos {
 				.executes(c -> cinematica(c, c.getSource().getPlayerOrException()))
 				.then(Commands.argument("jugador", EntityArgument.player())
 					.executes(c -> cinematica(c, EntityArgument.getPlayer(c, "jugador")))))
+			.then(Commands.literal("apagon")
+				.executes(c -> suceso(c, true, 60))
+				.then(Commands.argument("segundos", IntegerArgumentType.integer(5, 600))
+					.executes(c -> suceso(c, true, IntegerArgumentType.getInteger(c, "segundos")))))
+			.then(Commands.literal("alarma")
+				.executes(c -> suceso(c, false, 45))
+				.then(Commands.argument("segundos", IntegerArgumentType.integer(5, 600))
+					.executes(c -> suceso(c, false, IntegerArgumentType.getInteger(c, "segundos")))))
+			.then(Commands.literal("invocar")
+				.then(Commands.literal("bacteria").executes(c -> {
+					ServerPlayer j = c.getSource().getPlayerOrException();
+					net.minecraft.world.phys.Vec3 delante = j.getViewVector(1.0F).multiply(1, 0, 1).normalize().scale(6);
+					net.backrooms.evento.entidad.Acechadores.get().poner(j.level(), net.minecraft.core.BlockPos.containing(j.position().add(delante)));
+					return 1;
+				}))
+				.then(Commands.literal("smiler").executes(c -> {
+					ServerPlayer j = c.getSource().getPlayerOrException();
+					var s = net.backrooms.evento.entidad.Acechadores.get().smiler(j);
+					if (s == null) {
+						c.getSource().sendFailure(Component.literal("No hay sitio para el Smiler."));
+						return 0;
+					}
+					return 1;
+				})))
+			.then(Commands.literal("acechadores").then(Commands.argument("si", BoolArgumentType.bool()).executes(c -> {
+				boolean si = BoolArgumentType.getBool(c, "si");
+				net.backrooms.evento.entidad.Acechadores.get().activos(si);
+				c.getSource().sendSuccess(() -> Component.literal("Bacterias y Smilers automaticos: " + (si ? "si" : "no")), true);
+				return 1;
+			})))
+			.then(Commands.literal("cordura").then(Commands.argument("valor", IntegerArgumentType.integer(0, 100)).executes(c -> {
+				ServerPlayer j = c.getSource().getPlayerOrException();
+				net.backrooms.evento.supervivencia.Supervivencia.get().cordura(j, IntegerArgumentType.getInteger(c, "valor"));
+				return 1;
+			})))
+			.then(Commands.literal("comida").then(Commands.literal("reponer").executes(c -> {
+				net.backrooms.evento.supervivencia.Comida.get().reponer();
+				c.getSource().sendSuccess(() -> Component.literal("Toda la comida del Nivel 0 vuelve a su sitio."), true);
+				return 1;
+			})))
+			.then(Commands.literal("luz").executes(c -> {
+				Ambiente.get().terminar(c.getSource().getLevel());
+				c.getSource().sendSuccess(() -> Component.literal("Luz normal."), true);
+				return 1;
+			}))
+			.then(Commands.literal("ambiente")
+				.executes(c -> {
+					c.getSource().sendSuccess(() -> Component.literal(Ambiente.get().resumen(c.getSource().getLevel())), false);
+					return 1;
+				})
+				.then(Commands.literal("auto").then(Commands.argument("si", BoolArgumentType.bool()).executes(c -> {
+					boolean si = BoolArgumentType.getBool(c, "si");
+					Ambiente.get().automatico(si);
+					c.getSource().sendSuccess(() -> Component.literal("Apagones y alarmas automaticos: " + (si ? "si" : "no")), true);
+					return 1;
+				}))))
+			.then(Commands.literal("fase")
+				.then(Commands.argument("n", IntegerArgumentType.integer(1, Fase.TODAS.length))
+					.executes(c -> fase(c, c.getSource().getPlayerOrException()))
+					.then(Commands.argument("jugador", EntityArgument.player())
+						.executes(c -> fase(c, EntityArgument.getPlayer(c, "jugador"))))))
+			.then(Commands.literal("vestibulo")
+				.executes(c -> {
+					Vestibulo.get().llevar(c.getSource().getPlayerOrException());
+					return 1;
+				})
+				.then(Commands.literal("rehacer").executes(c -> {
+					Vestibulo.get().decorar();
+					c.getSource().sendSuccess(() -> Component.literal("Rotulos del vestibulo repuestos."), true);
+					return 1;
+				}))
+				.then(Commands.argument("jugador", EntityArgument.player()).executes(c -> {
+					Vestibulo.get().llevar(EntityArgument.getPlayer(c, "jugador"));
+					return 1;
+				})))
+			.then(Commands.literal("muerte")
+				.then(Commands.literal("eliminar").executes(c -> muerte(c, true)))
+				.then(Commands.literal("reaparecer").executes(c -> muerte(c, false))))
+			.then(Commands.literal("escapados")
+				.executes(c -> {
+					List<String> l = Fases.get().escapados();
+					StringBuilder sb = new StringBuilder("Escapados (" + l.size() + "):");
+					for (int i = 0; i < l.size(); i++) {
+						sb.append(" #").append(i + 1).append(' ').append(l.get(i));
+					}
+					c.getSource().sendSuccess(() -> Component.literal(sb.toString()), false);
+					return l.size();
+				})
+				.then(Commands.literal("olvidar").executes(c -> {
+					Fases.get().olvidarEscapados();
+					c.getSource().sendSuccess(() -> Component.literal("Lista de escapados vaciada."), true);
+					return 1;
+				})))
 			.then(Commands.literal("misiones")
 				.then(Commands.literal("dar").then(Commands.argument("jugador", EntityArgument.player()).executes(c -> {
 					ServerPlayer j = EntityArgument.getPlayer(c, "jugador");
-					Misiones.get().asignar(j, j.blockPosition());
+					Fase fase = Fase.de(j.level());
+					Misiones.get().asignar(j, j.blockPosition(), fase == null ? Fase.TODAS[0] : fase);
 					c.getSource().sendSuccess(() -> Component.literal("Misiones asignadas a " + j.getGameProfile().name()), true);
 					return 1;
 				})))
@@ -85,6 +192,34 @@ public final class Comandos {
 					Misiones.get().olvidar(EntityArgument.getPlayer(c, "jugador"));
 					return 1;
 				})))));
+	}
+
+	private static int suceso(CommandContext<CommandSourceStack> c, boolean apagon, int segundos) {
+		ServerLevel nivel = c.getSource().getLevel();
+		if (Fase.de(nivel) == null) {
+			c.getSource().sendFailure(Component.literal("Aqui no hay fase del Nivel 0."));
+			return 0;
+		}
+		if (apagon) {
+			Ambiente.get().apagon(nivel, segundos);
+		} else {
+			Ambiente.get().alarma(nivel, segundos);
+		}
+		c.getSource().sendSuccess(() -> Component.literal((apagon ? "Apagon" : "Alarma") + " de " + segundos + " s."), true);
+		return 1;
+	}
+
+	private static int fase(CommandContext<CommandSourceStack> c, ServerPlayer j) {
+		Fase f = Fase.numero(IntegerArgumentType.getInteger(c, "n"));
+		Fases.get().mandar(j, f);
+		c.getSource().sendSuccess(() -> Component.literal(j.getGameProfile().name() + " a la fase " + f.numero() + " (" + f.nombre() + ")"), true);
+		return 1;
+	}
+
+	private static int muerte(CommandContext<CommandSourceStack> c, boolean elimina) {
+		Vestibulo.get().muerteElimina(elimina);
+		c.getSource().sendSuccess(() -> Component.literal(elimina ? "Morir saca de la expedicion." : "Al morir se reaparece en la misma fase."), true);
+		return 1;
 	}
 
 	private static int empezar(CommandContext<CommandSourceStack> c, List<ServerPlayer> jugadores) {
@@ -115,7 +250,8 @@ public final class Comandos {
 			TipoMision m = e.misiones.get(i);
 			sb.append(i < e.actual ? "[hecha] " : i == e.actual ? "[en curso] " : "[ ] ").append(m.titulo).append(i < e.misiones.size() - 1 ? " | " : "");
 		}
-		sb.append(" | casetes ").append(e.casetes).append('/').append(Misiones.CASETES);
+		sb.append(" | fase ").append(e.fase).append(" | casetes ").append(e.casetes).append('/').append(e.pendientes.size())
+			.append(e.eliminado ? " | ELIMINADO" : "").append(e.escapado > 0 ? " | ESCAPADO #" + e.escapado : "");
 		for (int[] pos : e.pendientes) {
 			sb.append(pos[2] == 1 ? " [x]" : " (" + pos[0] + "," + pos[1] + ")");
 		}

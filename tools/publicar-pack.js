@@ -95,6 +95,8 @@ function crearManifest (ficha, archivos, urlDe) {
     eventStart: ficha.eventStart || null,
     news: ficha.news || [],
     staff: ficha.staff || [],
+    // entrada de pago: api de canje en la tienda y donde se compra
+    acceso: ficha.acceso || null,
     ram: ficha.ram || null,
     strict: ficha.strict,
     files: archivos.map((a) => {
@@ -107,6 +109,10 @@ function crearManifest (ficha, archivos, urlDe) {
 
 function resumen (archivos) {
   const mods = archivos.filter((a) => a.path.startsWith('mods/'));
+  // desde backrooms-evento 0.4.0 el menu va dentro: los dos juntos no arrancan (mixins repetidos)
+  if (mods.some((m) => /^backrooms-menu-/.test(m.nombre)) && mods.some((m) => /^backrooms-evento-/.test(m.nombre))) {
+    throw new Error('pack/mods tiene backrooms-menu y backrooms-evento: quita el menu, ya va dentro del mod del evento');
+  }
   console.log(`\n${archivos.length} archivos (${mods.length} mods), ${(archivos.reduce((s, a) => s + a.size, 0) / 1048576).toFixed(1)} MB`);
   for (const m of mods) console.log(`  ${m.path}  <-  ${m.nombre}`);
 }

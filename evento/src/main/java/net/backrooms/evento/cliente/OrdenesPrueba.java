@@ -13,7 +13,10 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
  * jugador tiene): el cliente lee ordenes de <tmp>/backrooms-ordenes.txt para
  * abrir pantallas sin tocar la ventana ni robar el foco.
  *
- *   inventario | pausa | cerrar | cinematica
+ *   inventario | pausa | cerrar | cinematica | linterna | camara | captura <nombre>
+ *
+ * "captura" guarda lo que se ve (como F2) en screenshots/<nombre>.png: sirve
+ * aunque la ventana este a pantalla completa.
  */
 final class OrdenesPrueba {
 	private static int ticks;
@@ -41,11 +44,18 @@ final class OrdenesPrueba {
 	}
 
 	private static void ejecutar(Minecraft mc, String orden) {
+		if (orden.startsWith("captura")) {
+			String nombre = orden.length() > 8 ? orden.substring(8).trim() + ".png" : null;
+			net.minecraft.client.Screenshot.grab(mc.gameDirectory, nombre, mc.getMainRenderTarget(), 1, c -> { });
+			return;
+		}
 		switch (orden) {
 			case "inventario" -> mc.setScreen(new InventoryScreen(mc.player));
 			case "pausa" -> mc.setScreen(new PauseScreen(true));
 			case "cerrar" -> mc.setScreen(null);
 			case "cinematica" -> net.backrooms.evento.cliente.cinematica.CinematicaCliente.empezar();
+			case "linterna" -> HerramientasCliente.pulsar(net.backrooms.evento.red.AccionJugador.LINTERNA);
+			case "camara" -> HerramientasCliente.pulsar(net.backrooms.evento.red.AccionJugador.CAMARA);
 			default -> { }
 		}
 	}

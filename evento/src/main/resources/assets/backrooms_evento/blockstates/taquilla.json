@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "backrooms_evento:block/taquilla"
+    },
+    "facing=east": {
+      "model": "backrooms_evento:block/taquilla",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "backrooms_evento:block/taquilla",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "backrooms_evento:block/taquilla",
+      "y": 270
+    }
+  }
+}

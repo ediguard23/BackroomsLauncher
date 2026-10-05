@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "backrooms_evento:block/maquina_arriba"
+    },
+    "facing=east": {
+      "model": "backrooms_evento:block/maquina_arriba",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "backrooms_evento:block/maquina_arriba",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "backrooms_evento:block/maquina_arriba",
+      "y": 270
+    }
+  }
+}

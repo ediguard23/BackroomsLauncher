@@ -56,8 +56,42 @@ public final class MisionesCliente {
 		return ultimo.distancia();
 	}
 
-	/** Rumbo absoluto (como el yaw de Minecraft) al casete mas cercano. */
+	/** Rumbo absoluto (como el yaw de Minecraft) al casete mas cercano o a la salida. */
 	public static float rumbo() {
 		return ultimo.rumbo();
+	}
+
+	/** true si ya hizo sus misiones y el radar lleva al ascensor de salida. */
+	public static boolean salida() {
+		return ultimo.salida();
+	}
+
+	public static int fase() {
+		return ultimo.fase();
+	}
+
+	/** 0..1 de la grabacion de la mision en curso. */
+	public static float grabado() {
+		return ultimo.grabado();
+	}
+
+	public static boolean grabando() {
+		return ultimo.grabando();
+	}
+
+	/** Lo que hay que grabar, para el visor de la camara; null si la mision en curso no es de grabar. */
+	public static String objetivoGrabacion() {
+		List<TipoMision> m = misiones();
+		int i = actual();
+		if (i < 0 || i >= m.size()) {
+			return null;
+		}
+		return switch (m.get(i)) {
+			case LUCES_ROJAS -> "OBJETIVO: ALARMAS";
+			case ENTIDAD -> "OBJETIVO: BACTERIA";
+			case ENTIDAD_ALARMA -> "OBJETIVO: BACTERIA EN ALARMA";
+			case SMILER -> "OBJETIVO: SMILER";
+			default -> null;
+		};
 	}
 }

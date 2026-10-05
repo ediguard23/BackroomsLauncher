@@ -1,7 +1,6 @@
 package net.backrooms.evento.expedicion;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,8 +8,9 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import net.backrooms.evento.BackroomsEvento;
+import net.backrooms.evento.fase.Fase;
+import net.backrooms.evento.fase.Fases;
 import net.backrooms.evento.mision.Misiones;
-import net.backrooms.evento.mundo.GeneradorNivel0;
 import net.backrooms.evento.objetos.Equipo;
 import net.backrooms.evento.red.IniciarCinematica;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -30,8 +30,8 @@ import net.minecraft.world.effect.MobEffects;
  * Cada medio segundo salen LOTE jugadores: reciben la cinematica del
  * ascensor y, RETRASO_VIAJE ticks despues (con su pantalla en negro tras el
  * golpe), se les teletransporta a su zona y se les dan las misiones alli.
- * Las zonas se reparten por todo el mapa de 10k x 10k con una separacion
- * minima, para que cada uno empiece solo.
+ * Las zonas se reparten por toda la fase 1 (10k x 10k) con una separacion
+ * minima, para que cada uno empiece solo (Fases.zonaNueva).
  *
  * Si alguien se desconecta antes de viajar, viaja (con su cinematica) al
  * volver a entrar.
@@ -41,9 +41,6 @@ public final class Expedicion {
 	public static final int RETRASO_VIAJE = 820;
 	private static final int LOTE = 3;
 	private static final int CADA = 10;
-	/** Medio lado del cuadrado donde se reparten las zonas (el mapa es de 10k x 10k). */
-	private static final int RADIO = 4800;
-	private static final int SEPARACION = 280;
 
 	private static final Expedicion INSTANCIA = new Expedicion();
 
@@ -55,7 +52,6 @@ public final class Expedicion {
 	private final ArrayDeque<UUID> cola = new ArrayDeque<>();
 	private final Map<UUID, Long> viajes = new HashMap<>();
 	private final Map<UUID, BlockPos> destinos = new HashMap<>();
-	private final List<BlockPos> ocupadas = new ArrayList<>();
 	private final Random azar = new Random();
 	private long ticks;
 
@@ -145,36 +141,12 @@ public final class Expedicion {
 		j.resetFallDistance();
 		Equipo.vestir(j);
 		j.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 20 * 25, 1, false, false, false));
-		Misiones.get().asignar(j, destino);
+		Misiones.get().asignar(j, destino, Fase.TODAS[0]);
 		BackroomsEvento.LOG.info("{} ha caido en el Nivel 0 en {} {}", j.getGameProfile().name(), destino.getX(), destino.getZ());
 	}
 
-	/** Zona al azar en el Nivel 0, separada de las ya repartidas. */
+	/** Zona al azar de la fase 1, separada de las ya repartidas. */
 	private BlockPos zonaNueva() {
-		ServerLevel nivel = this.servidor.overworld();
-		int x = 0;
-		int z = 0;
-		for (int intento = 0; intento < 80; intento++) {
-			x = this.azar.nextInt(RADIO * 2 + 1) - RADIO;
-			z = this.azar.nextInt(RADIO * 2 + 1) - RADIO;
-			boolean lejos = true;
-			for (BlockPos o : this.ocupadas) {
-				long dx = o.getX() - x;
-				long dz = o.getZ() - z;
-				if (dx * dx + dz * dz < (long) SEPARACION * SEPARACION) {
-					lejos = false;
-					break;
-				}
-			}
-			if (lejos) {
-				break;
-			}
-		}
-		BlockPos p = new BlockPos(x, GeneradorNivel0.SUELO + 1, z);
-		if (nivel.getChunkSource().getGenerator() instanceof GeneradorNivel0 gen) {
-			p = gen.puntoLibre(nivel.getChunkSource().randomState(), x, z);
-		}
-		this.ocupadas.add(p);
-		return p;
+		return Fases.get().zonaNueva(this.servidor.overworld(), Fase.TODAS[0]);
 	}
 }

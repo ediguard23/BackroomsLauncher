@@ -71,6 +71,27 @@ public final class Bloques {
 	public static final Block PARED_FINA_SUCIA = conObjeto(Blocks.register(clave("pared_fina_sucia"), IronBarsBlock::new,
 		propiedades(MapColor.COLOR_YELLOW, SoundType.WOOL, 1.5F).noOcclusion()));
 
+	/* ------------------------------------------- ascensor de salida */
+
+	public static final Block ACERO = registrar("acero", propiedades(MapColor.METAL, SoundType.METAL, 3.0F));
+	public static final Block ASCENSOR_SUELO = registrar("ascensor_suelo", propiedades(MapColor.METAL, SoundType.METAL, 3.0F));
+	public static final Block LUZ_ASCENSOR = registrar("luz_ascensor",
+		propiedades(MapColor.SNOW, SoundType.GLASS, 0.6F).lightLevel(e -> 15));
+	public static final Block PANEL_ASCENSOR = conObjeto(Blocks.register(clave("panel_ascensor"), PanelAscensor::new,
+		propiedades(MapColor.METAL, SoundType.METAL, 1.0F).noCollision().noOcclusion().lightLevel(e -> 5)));
+
+	/* ------------------------------------------------------- vestibulo */
+
+	public static final Block BUTACA = conObjeto(Blocks.register(clave("butaca"), net.backrooms.evento.vestibulo.Butaca::new,
+		propiedades(MapColor.COLOR_RED, SoundType.WOOL, 1.0F).noOcclusion()));
+	public static final Block SOFA = conObjeto(Blocks.register(clave("sofa"), net.backrooms.evento.vestibulo.Butaca::new,
+		propiedades(MapColor.COLOR_GRAY, SoundType.WOOL, 1.0F).noOcclusion()));
+	public static final Block MAQUINA_ABAJO = orientado("maquina_abajo", MapColor.COLOR_RED, SoundType.METAL, 0);
+	public static final Block MAQUINA_ARRIBA = orientado("maquina_arriba", MapColor.COLOR_RED, SoundType.METAL, 8);
+	public static final Block TAQUILLA = orientado("taquilla", MapColor.COLOR_GRAY, SoundType.METAL, 0);
+	public static final Block PUERTA_ASCENSOR_IZQ = orientado("puerta_ascensor_izq", MapColor.METAL, SoundType.METAL, 0);
+	public static final Block PUERTA_ASCENSOR_DER = orientado("puerta_ascensor_der", MapColor.METAL, SoundType.METAL, 0);
+
 	/** Las senales en el orden del reparto del generador. */
 	public static final Block[] SENALES = {SENAL_ALTO, SENAL_PELIGRO, SENAL_SIGA, SENAL_ALTO_REVES, SENAL_SIGA_REVES};
 
@@ -87,6 +108,13 @@ public final class Bloques {
 		return conObjeto(Blocks.register(clave(id),
 			p -> new EnSuelo(p, Block.box(2, 0, 7, 14, 16, 10), Block.box(7, 0, 8, 9, 16, 10)),
 			propiedades(MapColor.METAL, SoundType.METAL, 1.0F).noOcclusion()));
+	}
+
+	/** Bloque entero con frente (maquinas, taquillas, puertas): FACING es hacia donde mira el frente. */
+	private static Block orientado(String id, MapColor color, SoundType sonido, int luz) {
+		return conObjeto(Blocks.register(clave(id),
+			p -> new EnSuelo(p, Block.box(0, 0, 0, 16, 16, 16), Block.box(0, 0, 0, 16, 16, 16)),
+			propiedades(color, sonido, 2.0F).lightLevel(e -> luz)));
 	}
 
 	private Bloques() {

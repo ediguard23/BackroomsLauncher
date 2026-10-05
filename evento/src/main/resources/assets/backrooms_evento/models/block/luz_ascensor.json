@@ -1,0 +1,49 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "all": "backrooms_evento:block/luz_ascensor",
+    "particle": "backrooms_evento:block/luz_ascensor"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "shade": false,
+      "light_emission": 15,
+      "faces": {
+        "north": {
+          "texture": "#all",
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#all",
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#all",
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#all",
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#all",
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#all",
+          "tintindex": 0
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "frente": "backrooms_evento:block/maquina_arriba",
+    "lado": "backrooms_evento:block/maquina_lado",
+    "arriba": "backrooms_evento:block/metal_negro",
+    "particle": "backrooms_evento:block/maquina_lado"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "light_emission": 6,
+      "faces": {
+        "north": {
+          "texture": "#frente",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#lado",
+          "cullface": "south"
+        },
+        "east": {
+          "texture": "#lado",
+          "cullface": "east"
+        },
+        "west": {
+          "texture": "#lado",
+          "cullface": "west"
+        },
+        "up": {
+          "texture": "#arriba",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#arriba",
+          "cullface": "down"
+        }
+      }
+    }
+  ]
+}

@@ -196,6 +196,10 @@
       estado.preparando = false;
       ocultarProgreso();
       actualizarJugar();
+      if (r.necesitaCodigo) {
+        abrirEntrada();
+        return;
+      }
       aviso(r.error, true, 12000);
       if (r.relogin) {
         estado.cuenta = null;
@@ -203,6 +207,49 @@
       }
     }
   });
+
+  /* ------------------------------------------------------ codigo de entrada */
+
+  function nickActual () {
+    return estado.config && estado.config.premium ? (estado.cuenta && estado.cuenta.name) || '' : ($('nick').value || '').trim();
+  }
+
+  function abrirEntrada () {
+    $('entrada-nick').textContent = nickActual();
+    $('codigo-error').textContent = '';
+    $('osd-entrada').hidden = false;
+    $('codigo').focus();
+  }
+
+  function cerrarEntrada () {
+    $('osd-entrada').hidden = true;
+  }
+
+  // mientras se escribe: mayusculas y guiones en su sitio
+  $('codigo').addEventListener('input', () => {
+    const s = $('codigo').value.toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/^BR/, '').slice(0, 12);
+    $('codigo').value = s ? 'BR-' + s.match(/.{1,4}/g).join('-') : '';
+  });
+  $('codigo').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('codigo-ok').click(); });
+
+  $('codigo-ok').addEventListener('click', async () => {
+    const boton = $('codigo-ok');
+    if (boton.disabled) return;
+    boton.disabled = true;
+    $('codigo-error').textContent = 'COMPROBANDO...';
+    const r = await L.canjear($('codigo').value);
+    boton.disabled = false;
+    if (!r.ok) {
+      $('codigo-error').textContent = r.error;
+      return;
+    }
+    cerrarEntrada();
+    aviso(`Entrada activada para ${r.datos}. ¡Suerte ahí dentro!`, false, 8000);
+    $('btn-jugar').click();
+  });
+  $('codigo-comprar').addEventListener('click', () => L.abrirEnlace('comprar'));
+  $('codigo-salir').addEventListener('click', cerrarEntrada);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !$('osd-entrada').hidden) cerrarEntrada(); });
 
   /* -------------------------------------------------------------- progreso */
 

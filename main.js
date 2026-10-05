@@ -22,6 +22,7 @@ const { instalar, argumentos, lanzar } = require('./src/core/game');
 const { asegurarJava } = require('./src/core/java');
 const { sincronizar } = require('./src/core/sync');
 const { ping } = require('./src/core/status');
+const acceso = require('./src/core/acceso');
 
 const VERSION = require('./package.json').version;
 
@@ -180,7 +181,7 @@ async function resultado (fn) {
     return { ok: true, datos: await fn() };
   } catch (err) {
     console.error(err);
-    return { ok: false, error: err.message, relogin: Boolean(err.relogin) };
+    return { ok: false, error: err.message, relogin: Boolean(err.relogin), necesitaCodigo: Boolean(err.necesitaCodigo) };
   }
 }
 
@@ -231,12 +232,25 @@ ipcMain.handle('evento:acceso', (e, nombre) => {
 });
 
 ipcMain.handle('abrir-enlace', (e, cual) => {
-  const url = ultimoManifest && ultimoManifest.links && ultimoManifest.links[cual];
+  const m = ultimoManifest;
+  const url = cual === 'comprar'
+    ? m && m.acceso && m.acceso.comprar
+    : m && m.links && m.links[cual];
   if (typeof url === 'string' && /^https:\/\//.test(url)) shell.openExternal(url);
 });
 
 // Olvida que archivos estaban bien: el proximo JUGAR vuelve a hashear todo y
 // repone lo que no cuadre (Minecraft, librerias, assets y pack).
+// Canjea el codigo de entrada para el nick con el que se va a jugar.
+ipcMain.handle('acceso:canjear', (e, codigo) => resultado(async () => {
+  const m = ultimoManifest;
+  if (!m || !m.acceso || !m.acceso.api) throw new Error('Este evento no usa códigos de entrada');
+  const cfg = config.get();
+  const nick = cfg.premium ? (config.cuenta() || {}).name : cfg.nick;
+  if (!nick) throw new Error('Escribe primero tu nick');
+  return acceso.canjear(m.acceso.api, root(), codigo, nick);
+}));
+
 ipcMain.handle('reparar', () => resultado(async () => {
   if (juego || ocupado) throw new Error('Cierra el juego antes de reparar');
   fs.rmSync(path.join(root(), 'cache', 'verificados.json'), { force: true });
@@ -301,6 +315,11 @@ async function jugar () {
   ultimoManifest = manifest;
   if (manifest.eventStart && Date.now() < Date.parse(manifest.eventStart) && !esStaff(manifest, cuenta.name)) {
     throw new Error('El evento todavia no ha empezado');
+  }
+  // Entrada: sin pase firmado por la tienda para este nick, el servidor no deja
+  // entrar (tambien el staff: sus entradas se generan con tools/backrooms.js de la tienda)
+  if (manifest.acceso && manifest.acceso.api && !acceso.paseValido(gameDir, cuenta.name)) {
+    throw Object.assign(new Error('Necesitas tu código de entrada'), { necesitaCodigo: true });
   }
 
   // 3. Minecraft + loader

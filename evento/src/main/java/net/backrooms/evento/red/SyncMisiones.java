@@ -9,23 +9,27 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 /**
  * Estado de las misiones de un jugador, del servidor a su cliente (cada
- * segundo): las tres misiones en orden, cual va, los casetes y la senal del
- * casete pendiente mas cercano (distancia y rumbo en grados, como el yaw de
- * Minecraft) para la pantalla de pausa.
+ * segundo): las misiones en orden, cual va, los casetes, la senal del radar
+ * (distancia y rumbo en grados, como el yaw de Minecraft) y lo que lleva
+ * grabado de la mision de grabar en curso.
  *
  * @param misiones  nombres de TipoMision; vacio si aun no hay expedicion
  * @param actual    indice de la mision en curso (== misiones.size() si las hizo todas)
- * @param distancia metros hasta el casete mas cercano (solo si esta a menos de
- *                  Misiones.ALCANCE_SENAL), -2 si busca casetes pero no hay senal,
- *                  -1 si no aplica
+ * @param distancia metros hasta lo que busca el radar (un casete solo si esta a
+ *                  menos del alcance de la fase), -2 si busca casetes pero no hay
+ *                  senal, -1 si no aplica
+ * @param salida    true si el radar apunta al ascensor de salida (misiones hechas)
+ * @param grabado   0..1 de la grabacion de la mision en curso
+ * @param grabando  si ahora mismo esta grabando lo que pide la mision
+ * @param fase      numero de la fase en la que esta (0 si en ninguna)
  */
-public record SyncMisiones(List<String> misiones, int actual, int casetes, int necesarios, int distancia, float rumbo)
-	implements CustomPacketPayload {
+public record SyncMisiones(List<String> misiones, int actual, int casetes, int necesarios, int distancia, float rumbo,
+	boolean salida, float grabado, boolean grabando, int fase) implements CustomPacketPayload {
 
 	public static final Type<SyncMisiones> TYPE = new Type<>(BackroomsEvento.id("misiones"));
 	public static final StreamCodec<FriendlyByteBuf, SyncMisiones> CODEC = CustomPacketPayload.codec(SyncMisiones::escribir, SyncMisiones::leer);
 
-	public static final SyncMisiones VACIO = new SyncMisiones(List.of(), 0, 0, 0, -1, 0);
+	public static final SyncMisiones VACIO = new SyncMisiones(List.of(), 0, 0, 0, -1, 0, false, 0, false, 0);
 
 	private void escribir(FriendlyByteBuf buf) {
 		buf.writeVarInt(this.misiones.size());
@@ -37,6 +41,10 @@ public record SyncMisiones(List<String> misiones, int actual, int casetes, int n
 		buf.writeVarInt(this.necesarios);
 		buf.writeInt(this.distancia);
 		buf.writeFloat(this.rumbo);
+		buf.writeBoolean(this.salida);
+		buf.writeFloat(this.grabado);
+		buf.writeBoolean(this.grabando);
+		buf.writeVarInt(this.fase);
 	}
 
 	private static SyncMisiones leer(FriendlyByteBuf buf) {
@@ -45,7 +53,8 @@ public record SyncMisiones(List<String> misiones, int actual, int casetes, int n
 		for (int i = 0; i < n; i++) {
 			m.add(buf.readUtf());
 		}
-		return new SyncMisiones(m, buf.readVarInt(), buf.readVarInt(), buf.readVarInt(), buf.readInt(), buf.readFloat());
+		return new SyncMisiones(m, buf.readVarInt(), buf.readVarInt(), buf.readVarInt(), buf.readInt(), buf.readFloat(),
+			buf.readBoolean(), buf.readFloat(), buf.readBoolean(), buf.readVarInt());
 	}
 
 	@Override

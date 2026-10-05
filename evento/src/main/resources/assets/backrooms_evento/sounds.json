@@ -14,5 +14,148 @@
         "stream": true
       }
     ]
+  },
+  "bacteria.grito": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:bacteria_grito",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "bacteria.acecho": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:bacteria_acecho",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "bacteria.pasos": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:bacteria_pasos",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "smiler.flash": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:smiler_flash",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "smiler.grito": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:smiler_grito",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "linterna": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:linterna",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "camara": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:camara",
+        "attenuation_distance": 10
+      }
+    ]
+  },
+  "susurros": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:susurros",
+        "weight": 1
+      },
+      {
+        "name": "backrooms_evento:susurro_detras",
+        "weight": 2
+      },
+      {
+        "name": "backrooms_evento:susurro_atras",
+        "weight": 2
+      }
+    ]
+  },
+  "apagon": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:apagon"
+      }
+    ]
+  },
+  "luz_vuelve": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:luz_vuelve"
+      }
+    ]
+  },
+  "alarma": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:alarma",
+        "stream": true
+      }
+    ]
+  },
+  "ascensor": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:ascensor"
+      }
+    ]
+  },
+  "vestibulo.ambiente": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:vestibulo",
+        "stream": true
+      }
+    ]
+  },
+  "pitido": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:pitido"
+      }
+    ]
+  },
+  "latido": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:latido"
+      }
+    ]
+  },
+  "megafonia.vestibulo": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:megafonia_auditorio",
+        "stream": true
+      },
+      {
+        "name": "backrooms_evento:megafonia_linterna",
+        "stream": true
+      }
+    ]
+  },
+  "megafonia.alerta": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:megafonia_alerta",
+        "stream": true
+      }
+    ]
   }
 }

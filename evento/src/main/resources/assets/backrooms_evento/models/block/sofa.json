@@ -1,0 +1,138 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "tela": "backrooms_evento:block/sofa_tela",
+    "madera": "backrooms_evento:block/madera_oscura",
+    "particle": "backrooms_evento:block/sofa_tela"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        1
+      ],
+      "to": [
+        16,
+        2,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#madera"
+        },
+        "south": {
+          "texture": "#madera"
+        },
+        "east": {
+          "texture": "#madera"
+        },
+        "west": {
+          "texture": "#madera"
+        },
+        "up": {
+          "texture": "#madera"
+        },
+        "down": {
+          "texture": "#madera"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        2,
+        1
+      ],
+      "to": [
+        16,
+        7,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#tela"
+        },
+        "south": {
+          "texture": "#tela"
+        },
+        "east": {
+          "texture": "#tela"
+        },
+        "west": {
+          "texture": "#tela"
+        },
+        "up": {
+          "texture": "#tela"
+        },
+        "down": {
+          "texture": "#tela"
+        }
+      }
+    },
+    {
+      "from": [
+        0.5,
+        7,
+        1.5
+      ],
+      "to": [
+        15.5,
+        9,
+        12
+      ],
+      "faces": {
+        "north": {
+          "texture": "#tela"
+        },
+        "south": {
+          "texture": "#tela"
+        },
+        "east": {
+          "texture": "#tela"
+        },
+        "west": {
+          "texture": "#tela"
+        },
+        "up": {
+          "texture": "#tela"
+        },
+        "down": {
+          "texture": "#tela"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        7,
+        12
+      ],
+      "to": [
+        16,
+        18,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#tela"
+        },
+        "south": {
+          "texture": "#tela"
+        },
+        "east": {
+          "texture": "#tela"
+        },
+        "west": {
+          "texture": "#tela"
+        },
+        "up": {
+          "texture": "#tela"
+        },
+        "down": {
+          "texture": "#tela"
+        }
+      }
+    }
+  ]
+}

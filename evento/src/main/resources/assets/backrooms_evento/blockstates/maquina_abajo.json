@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "backrooms_evento:block/maquina_abajo"
+    },
+    "facing=east": {
+      "model": "backrooms_evento:block/maquina_abajo",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "backrooms_evento:block/maquina_abajo",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "backrooms_evento:block/maquina_abajo",
+      "y": 270
+    }
+  }
+}

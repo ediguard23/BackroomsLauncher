@@ -1,0 +1,49 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "all": "backrooms_evento:block/panel_ascensor",
+    "lado": "backrooms_evento:block/acero",
+    "particle": "backrooms_evento:block/acero"
+  },
+  "elements": [
+    {
+      "from": [
+        4,
+        1,
+        15
+      ],
+      "to": [
+        12,
+        15,
+        16
+      ],
+      "light_emission": 6,
+      "faces": {
+        "north": {
+          "texture": "#all",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#lado"
+        },
+        "east": {
+          "texture": "#lado"
+        },
+        "west": {
+          "texture": "#lado"
+        },
+        "up": {
+          "texture": "#lado"
+        },
+        "down": {
+          "texture": "#lado"
+        }
+      }
+    }
+  ]
+}

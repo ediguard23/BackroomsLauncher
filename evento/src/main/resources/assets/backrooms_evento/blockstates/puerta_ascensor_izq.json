@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "backrooms_evento:block/puerta_ascensor_izq"
+    },
+    "facing=east": {
+      "model": "backrooms_evento:block/puerta_ascensor_izq",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "backrooms_evento:block/puerta_ascensor_izq",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "backrooms_evento:block/puerta_ascensor_izq",
+      "y": 270
+    }
+  }
+}

@@ -3,11 +3,16 @@
   "package": "net.backrooms.evento.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "PlayerSpawnFinderMixin"
+    "PlayerSpawnFinderMixin",
+    "ServerLoginAccessor"
   ],
   "client": [
     "cliente.CinematicaBlurMixin",
-    "cliente.CinematicaSonidoMixin"
+    "cliente.CinematicaSonidoMixin",
+    "cliente.GameRendererEfectosMixin",
+    "cliente.LightTextureMixin",
+    "cliente.SonidoAmbienteMixin",
+    "cliente.LocalPlayerAlientoMixin"
   ],
   "injectors": {
     "defaultRequire": 1

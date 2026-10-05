@@ -51,7 +51,9 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
  */
 public class GeneradorNivel0 extends ChunkGenerator {
 	public static final MapCodec<GeneradorNivel0> CODEC = RecordCodecBuilder.mapCodec(
-		i -> i.group(BiomeSource.CODEC.fieldOf("biome_source").forGetter(ChunkGenerator::getBiomeSource))
+		i -> i.group(
+				BiomeSource.CODEC.fieldOf("biome_source").forGetter(ChunkGenerator::getBiomeSource),
+				com.mojang.serialization.Codec.INT.optionalFieldOf("variante", 1).forGetter(g -> g.variante))
 			.apply(i, i.stable(GeneradorNivel0::new))
 	);
 
@@ -62,8 +64,12 @@ public class GeneradorNivel0 extends ChunkGenerator {
 	private volatile RandomState estadoPlano;
 	private volatile Plano plano;
 
-	public GeneradorNivel0(BiomeSource biomas) {
+	/** Cada fase es otra dimension con este generador y otra variante: otro laberinto con la misma semilla. */
+	private final int variante;
+
+	public GeneradorNivel0(BiomeSource biomas, int variante) {
 		super(biomas);
+		this.variante = variante;
 	}
 
 	@Override
@@ -76,6 +82,9 @@ public class GeneradorNivel0 extends ChunkGenerator {
 		Plano p = this.plano;
 		if (p == null || this.estadoPlano != estado) {
 			long semilla = estado.getOrCreateRandomFactory(BackroomsEvento.id("plano")).at(0, 0, 0).nextLong();
+			if (this.variante != 1) {
+				semilla ^= this.variante * 0x9E3779B97F4A7C15L;
+			}
 			p = new Plano(semilla);
 			this.plano = p;
 			this.estadoPlano = estado;
@@ -96,7 +105,16 @@ public class GeneradorNivel0 extends ChunkGenerator {
 			for (int z = 0; z < 16; z++) {
 				int wx = bx + x;
 				int wz = bz + z;
+				int asc = p.ascensorEn(wx, wz);
+				if (asc != Plano.ASC_NO) {
+					this.ascensor(chunk, pos, p, x, z, wx, wz, asc, fondo, superficie);
+					continue;
+				}
 				poner(chunk, pos.set(x, SUELO, z), p.mojado(wx, wz) ? Bloques.MOQUETA_MOJADA.defaultBlockState() : Bloques.MOQUETA.defaultBlockState(), fondo, superficie);
+				int letrero = p.letreroAscensor(wx, wz);
+				if (letrero >= 0) {
+					poner(chunk, pos.set(x, TECHO_Y - 1, z), Bloques.SALIDA.defaultBlockState().setValue(EnPared.FACING, MIRA[letrero]), fondo, superficie);
+				}
 				if (p.pared(wx, wz)) {
 					this.pared(chunk, pos, p, x, z, wx, wz, fondo, superficie);
 				} else {
@@ -121,6 +139,34 @@ public class GeneradorNivel0 extends ChunkGenerator {
 	}
 
 	private static final Direction[] MIRA = {Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST};
+
+	/**
+	 * Columna del ascensor de salida: paredes de acero, suelo de chapa, luz en
+	 * el techo, el hueco de la puerta con su dintel y el panel de botones en
+	 * la pared de enfrente.
+	 */
+	private void ascensor(ChunkAccess chunk, BlockPos.MutableBlockPos pos, Plano p, int x, int z, int wx, int wz, int asc, Heightmap a, Heightmap b) {
+		BlockState acero = Bloques.ACERO.defaultBlockState();
+		poner(chunk, pos.set(x, SUELO, z), asc == Plano.ASC_PARED ? acero : Bloques.ASCENSOR_SUELO.defaultBlockState(), a, b);
+		if (asc == Plano.ASC_PARED) {
+			for (int y = SUELO + 1; y < TECHO_Y; y++) {
+				poner(chunk, pos.set(x, y, z), acero, a, b);
+			}
+		} else if (asc == Plano.ASC_PUERTA) {
+			poner(chunk, pos.set(x, TECHO_Y - 1, z), acero, a, b);
+		} else {
+			int panel = p.panelAscensor(wx, wz);
+			if (panel >= 0) {
+				poner(chunk, pos.set(x, SUELO + 2, z), Bloques.PANEL_ASCENSOR.defaultBlockState().setValue(EnPared.FACING, MIRA[panel]), a, b);
+			}
+		}
+		Plano.Ascensor as = p.ascensor(Math.floorDiv(wx, Plano.G), Math.floorDiv(wz, Plano.G));
+		int lx = wx - as.gx() * Plano.G;
+		int lz = wz - as.gz() * Plano.G;
+		boolean luz = asc == Plano.ASC_DENTRO && lx >= 2 && lx <= 4 && lz >= 2 && lz <= 4;
+		poner(chunk, pos.set(x, TECHO_Y, z), luz ? Bloques.LUZ_ASCENSOR.defaultBlockState() : acero, a, b);
+		poner(chunk, pos.set(x, TECHO_Y + 1, z), Bloques.TECHO.defaultBlockState(), a, b);
+	}
 
 	/** Columna de pared: maciza (zocalo + papel), tabique fino o cubierta de Hay Bacillus. */
 	private void pared(ChunkAccess chunk, BlockPos.MutableBlockPos pos, Plano p, int x, int z, int wx, int wz, Heightmap a, Heightmap b) {

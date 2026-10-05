@@ -81,13 +81,154 @@ public final class Plano {
 		return ruido(x, z, canal) * 0.7 + ruido(x * 2.7, z * 2.7, canal + 100) * 0.3;
 	}
 
+	/* ------------------------------------------- ascensores de salida */
+
+	/** Cada SUPER celdas de la reticula (642 bloques) hay un ascensor de salida. */
+	public static final int SUPER = 107;
+
+	/**
+	 * Ascensor de salida: ocupa la celda (gx, gz) entera, con paredes de acero
+	 * en sus cuatro lados y la puerta (2 de ancho) en el lado `mira`
+	 * (0 N, 1 E, 2 S, 3 O). Alrededor siempre hay un salon iluminado, para que
+	 * se vea desde lejos.
+	 */
+	public record Ascensor(int gx, int gz, int mira) {
+		public int centroX() {
+			return this.gx * G + 3;
+		}
+
+		public int centroZ() {
+			return this.gz * G + 3;
+		}
+	}
+
+	/** El ascensor de la super celda que contiene el nodo (gx, gz). */
+	public Ascensor ascensor(int gx, int gz) {
+		int sx = Math.floorDiv(gx, SUPER);
+		int sz = Math.floorDiv(gz, SUPER);
+		return new Ascensor(
+			sx * SUPER + 16 + (int) (azar(sx, sz, 90) * (SUPER - 32)),
+			sz * SUPER + 16 + (int) (azar(sx, sz, 91) * (SUPER - 32)),
+			(int) (azar(sx, sz, 92) * 4));
+	}
+
+	/** El ascensor mas cercano a la columna (x, z). */
+	public Ascensor ascensorCercano(int x, int z) {
+		int gx = Math.floorDiv(x, G);
+		int gz = Math.floorDiv(z, G);
+		int sx = Math.floorDiv(gx, SUPER);
+		int sz = Math.floorDiv(gz, SUPER);
+		Ascensor mejor = null;
+		long dMejor = Long.MAX_VALUE;
+		for (int dx = -1; dx <= 1; dx++) {
+			for (int dz = -1; dz <= 1; dz++) {
+				Ascensor a = this.ascensor((sx + dx) * SUPER, (sz + dz) * SUPER);
+				long ax = a.centroX() - x;
+				long az = a.centroZ() - z;
+				long d = ax * ax + az * az;
+				if (d < dMejor) {
+					dMejor = d;
+					mejor = a;
+				}
+			}
+		}
+		return mejor;
+	}
+
+	private boolean cercaAscensor(int gx, int gz, int radio) {
+		Ascensor a = this.ascensor(gx, gz);
+		return Math.max(Math.abs(gx - a.gx), Math.abs(gz - a.gz)) <= radio;
+	}
+
+	public static final int ASC_NO = 0;
+	public static final int ASC_DENTRO = 1;
+	public static final int ASC_PARED = 2;
+	public static final int ASC_PUERTA = 3;
+
+	/** Que parte del ascensor hay en la columna (x, z): nada, dentro, pared o el hueco de la puerta. */
+	public int ascensorEn(int x, int z) {
+		int gx = Math.floorDiv(x, G);
+		int gz = Math.floorDiv(z, G);
+		Ascensor a = this.ascensor(gx, gz);
+		int lx = x - a.gx * G;
+		int lz = z - a.gz * G;
+		if (lx < 0 || lz < 0 || lx > G || lz > G) {
+			return ASC_NO;
+		}
+		if (lx > 0 && lx < G && lz > 0 && lz < G) {
+			return ASC_DENTRO;
+		}
+		return this.pared(x, z) ? ASC_PARED : ASC_PUERTA;
+	}
+
+	private static final int[][] DIRS = {{0, -1}, {1, 0}, {0, 1}, {-1, 0}};
+
+	/**
+	 * Si (x, z) es la columna de fuera, delante de la puerta de un ascensor,
+	 * hacia donde mira el cartel de SALIDA que va encima (0 N .. 3 O); si no, -1.
+	 */
+	public int letreroAscensor(int x, int z) {
+		Ascensor a = this.ascensor(Math.floorDiv(x, G), Math.floorDiv(z, G));
+		int[] d = DIRS[a.mira];
+		// columna del hueco de la puerta que queda detras de (x, z)
+		int px = x - d[0];
+		int pz = z - d[1];
+		return this.ascensorEn(px, pz) == ASC_PUERTA && this.ascensor(Math.floorDiv(px, G), Math.floorDiv(pz, G)).equals(a) ? a.mira : -1;
+	}
+
+	/** Si (x, z) es donde va el panel de botones dentro del ascensor, hacia donde mira; si no, -1. */
+	public int panelAscensor(int x, int z) {
+		Ascensor a = this.ascensor(Math.floorDiv(x, G), Math.floorDiv(z, G));
+		int cx = a.gx * G + 3;
+		int cz = a.gz * G + 3;
+		// en la pared de enfrente de la puerta, mirando hacia ella
+		int[] d = DIRS[a.mira];
+		int px = cx - d[0] * 2;
+		int pz = cz - d[1] * 2;
+		return x == px && z == pz ? a.mira : -1;
+	}
+
+	/* -------------------------------------------------------- comida */
+
+	public static final int C_NADA = 0;
+	public static final int C_AGUA = 1;
+	public static final int C_GALLETAS = 2;
+	public static final int C_PIZZA = 3;
+
+	/**
+	 * Comida tirada en (x, z): agua de almendras (la unica que sube la
+	 * cordura), galletas o pizza. Como mucho una por celda y en suelo libre.
+	 * Es fija para cada mundo; lo que ya se ha cogido lo apunta Comida.
+	 */
+	public int comida(int x, int z) {
+		int gx = Math.floorDiv(x, G);
+		int gz = Math.floorDiv(z, G);
+		if (x - gx * G != 1 + (int) (azar(gx, gz, 95) * 5) || z - gz * G != 1 + (int) (azar(gx, gz, 96) * 5)) {
+			return C_NADA;
+		}
+		double r = azar(gx, gz, 97);
+		int c = r < 0.0035 ? C_AGUA : r < 0.0105 ? C_GALLETAS : r < 0.014 ? C_PIZZA : C_NADA;
+		if (c == C_NADA || this.cercaAscensor(gx, gz, 1) || this.pared(x, z) || this.decoracion(x, z).tipo() != D_NADA) {
+			return C_NADA;
+		}
+		return c;
+	}
+
+	/** La comida de la celda (gx, gz): {x, z, tipo}, o null si no tiene. */
+	public int[] comidaEnCelda(int gx, int gz) {
+		int x = gx * G + 1 + (int) (azar(gx, gz, 95) * 5);
+		int z = gz * G + 1 + (int) (azar(gx, gz, 96) * 5);
+		int c = this.comida(x, z);
+		return c == C_NADA ? null : new int[] {x, z, c};
+	}
+
 	/* -------------------------------------------------------- zonas */
 
 	/** Zona de un nodo de la reticula. */
 	public int zona(int gx, int gz) {
 		int x = gx * G;
 		int z = gz * G;
-		if (x * x + z * z <= LLEGADA * LLEGADA) {
+		if (x * x + z * z <= LLEGADA * LLEGADA || this.cercaAscensor(gx, gz, 3)) {
 			return SALON;
 		}
 		double r = ruido2(x / 110.0, z / 110.0, 1);
@@ -128,6 +269,14 @@ public final class Plano {
 	 * de puerta de 2 bloques.
 	 */
 	private int tramo(int gx, int gz, boolean alongX) {
+		// las cuatro paredes del ascensor, con la puerta en su lado
+		Ascensor a = this.ascensor(gx, gz);
+		if (alongX && gx == a.gx && (gz == a.gz || gz == a.gz + 1)) {
+			return a.mira == (gz == a.gz ? 0 : 2) ? 2 : -1;
+		}
+		if (!alongX && gz == a.gz && (gx == a.gx || gx == a.gx + 1)) {
+			return a.mira == (gx == a.gx ? 3 : 1) ? 2 : -1;
+		}
 		// la zona del tramo es la de su punto medio, para que no dependa de que nodo se mire
 		int zona = alongX ? zonaMedia(gx, gz, gx + 1, gz) : zonaMedia(gx, gz, gx, gz + 1);
 		long canal = alongX ? 11 : 12;
@@ -197,7 +346,8 @@ public final class Plano {
 
 	/** 0 = bien iluminado, 1 = transicion (parpadeos), 2 = a oscuras. */
 	public int oscuridad(int x, int z) {
-		if (x * x + z * z <= (LLEGADA + 20) * (LLEGADA + 20)) {
+		if (x * x + z * z <= (LLEGADA + 20) * (LLEGADA + 20)
+			|| this.cercaAscensor(Math.floorDiv(x, G), Math.floorDiv(z, G), 4)) {
 			return 0;
 		}
 		double o = ruido2(x / 64.0, z / 64.0, 7);
@@ -259,6 +409,9 @@ public final class Plano {
 	 * suelo se llena de venas de Hay Bacillus.
 	 */
 	public Deco decoracion(int x, int z) {
+		if (this.cercaAscensor(Math.floorDiv(x, G), Math.floorDiv(z, G), 1)) {
+			return NADA;
+		}
 		boolean oscuro = this.oscuridad(x, z) == 2;
 		if (oscuro && ruido2(x / 9.0, z / 9.0, 70) > 0.71) {
 			return new Deco(D_VENA, 0, 0);
@@ -312,7 +465,7 @@ public final class Plano {
 	public int ventilador(int x, int z) {
 		int gx = Math.floorDiv(x, G);
 		int gz = Math.floorDiv(z, G);
-		if (x - gx * G != 4 || z - gz * G != 4) {
+		if (x - gx * G != 4 || z - gz * G != 4 || this.cercaAscensor(gx, gz, 1)) {
 			return 0;
 		}
 		boolean salon = this.zona(gx, gz) == SALON;

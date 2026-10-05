@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 import net.backrooms.evento.BackroomsEvento;
+import net.backrooms.evento.fase.Fase;
 import net.backrooms.evento.mundo.GeneradorNivel0;
 import net.backrooms.evento.mundo.Plano;
 import net.backrooms.evento.red.SyncMisiones;
@@ -33,8 +34,9 @@ import net.minecraft.world.level.storage.LevelResource;
 /**
  * Las misiones de cada explorador y sus casetes.
  *
- * Cada jugador tiene 3 misiones: recoger 10 casetes y dos de grabar al azar
- * (TipoMision.deGrabar).
+ * Cada jugador tiene sus misiones de la fase: recoger casetes y dos o tres
+ * de grabar al azar (TipoMision.deGrabar). Al completarlas, el radar apunta
+ * al ascensor de salida mas cercano (Fases).
  * Sus casetes son posiciones fijas repartidas en anillos alrededor de donde
  * empezo (de ~60 a ~600 bloques), siempre en suelo libre: con 200 jugadores
  * repartidos por un mapa de 10k x 10k todos tienen los suyos y nadie puede
@@ -64,6 +66,26 @@ public final class Misiones {
 		public int actual;
 		public int casetes;
 		public List<int[]> pendientes = new ArrayList<>(); // {x, z, recogido 0/1}
+		/** Fase en la que esta (1..4). */
+		public int fase = 1;
+		/** Segundos grabados de la mision de grabar en curso. */
+		public float grabado;
+		/** Ha muerto y esta fuera de la expedicion. */
+		public boolean eliminado;
+		/** Puesto con el que escapo (0 si no ha escapado). */
+		public int escapado;
+		/** Si en el ultimo segundo estaba grabando lo que pide su mision (no se guarda). */
+		public transient boolean grabando;
+	}
+
+	/** Segundos de grabacion que pide cada mision de grabar. */
+	public static float segundosGrabar(TipoMision m) {
+		return switch (m) {
+			case LUCES_ROJAS -> 5.0F;
+			case ENTIDAD, ENTIDAD_ALARMA -> 4.0F;
+			case SMILER -> 3.0F;
+			default -> 0.0F;
+		};
 	}
 
 	private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -129,25 +151,29 @@ public final class Misiones {
 	}
 
 	/**
-	 * Da sus 3 misiones a `jugador` y reparte sus casetes alrededor de
-	 * `origen` (donde empieza tras el /start). Sustituye las que tuviera.
+	 * Da sus misiones de la fase `f` a `jugador` (recoger casetes y las de
+	 * grabar que toquen) y reparte sus casetes alrededor de `origen` (donde
+	 * empieza la fase). Sustituye las que tuviera.
 	 */
-	public void asignar(ServerPlayer jugador, BlockPos origen) {
+	public void asignar(ServerPlayer jugador, BlockPos origen, Fase f) {
 		this.quitarCasetes(jugador.getUUID());
 		Estado e = new Estado();
+		e.fase = f.numero();
 		e.misiones.add(TipoMision.CASETES);
 		List<TipoMision> grabar = TipoMision.deGrabar(this.azar);
 		java.util.Collections.shuffle(grabar, this.azar);
-		e.misiones.add(grabar.get(0));
-		e.misiones.add(grabar.get(1));
+		for (int i = 0; i < Math.min(f.grabar(), grabar.size()); i++) {
+			e.misiones.add(grabar.get(i));
+		}
 		ServerLevel nivel = jugador.level();
 		if (nivel.getChunkSource().getGenerator() instanceof GeneradorNivel0 gen) {
 			Plano p = gen.plano(nivel.getChunkSource().randomState());
 			double base = this.azar.nextDouble() * Math.PI * 2;
-			for (int i = 0; i < CASETES; i++) {
+			int n = f.casetes();
+			for (int i = 0; i < n; i++) {
 				// anillos cada vez mas lejos y repartidos alrededor: siempre hay uno cerca
-				double ang = base + i * (Math.PI * 2 / CASETES) + (this.azar.nextDouble() - 0.5) * 0.9;
-				double dist = 60 + i * 55 + this.azar.nextDouble() * 40;
+				double ang = base + i * (Math.PI * 2 / n) + (this.azar.nextDouble() - 0.5) * 0.9;
+				double dist = (60 + i * 55 + this.azar.nextDouble() * 40) * f.repartoCasetes();
 				int x = origen.getX() + (int) Math.round(Math.cos(ang) * dist);
 				int z = origen.getZ() + (int) Math.round(Math.sin(ang) * dist);
 				int[] libre = sueloLibre(p, x, z);
@@ -207,10 +233,11 @@ public final class Misiones {
 			return false;
 		}
 		e.actual++;
+		e.grabado = 0;
 		this.sucio = true;
 		jugador.level().playSound(null, jugador.blockPosition(), SoundEvents.UI_TOAST_CHALLENGE_COMPLETE, SoundSource.PLAYERS, 0.5F, 0.8F);
 		if (e.actual >= e.misiones.size()) {
-			jugador.displayClientMessage(Component.literal("Has completado tus misiones. La cinta sigue grabando...").withStyle(ChatFormatting.GOLD), false);
+			jugador.displayClientMessage(Component.literal("Misiones completadas. El radar ya marca el ascensor de salida: síguelo.").withStyle(ChatFormatting.GOLD), false);
 		} else {
 			TipoMision sig = e.misiones.get(e.actual);
 			jugador.displayClientMessage(Component.literal("Misión completada. Siguiente: " + sig.titulo).withStyle(ChatFormatting.YELLOW), false);
@@ -230,8 +257,12 @@ public final class Misiones {
 			if (e == null) {
 				continue;
 			}
-			this.casetesCerca(j, e);
+			Fase f = Fase.de(j.level());
+			if (f != null && f.numero() == e.fase && !e.eliminado && e.escapado == 0) {
+				this.casetesCerca(j, e);
+			}
 			this.sincronizar(j);
+			e.grabando = false;
 		}
 		if (this.sucio && this.ticks % 1200 == 0) {
 			this.guardar();
@@ -291,7 +322,19 @@ public final class Misiones {
 		}
 		int distancia = -1;
 		float rumbo = 0;
-		if (e.actual < e.misiones.size() && e.misiones.get(e.actual) == TipoMision.CASETES) {
+		boolean salida = false;
+		Fase f = Fase.de(j.level());
+		int alcance = f == null ? ALCANCE_SENAL : f.alcanceSenal();
+		if (f != null && e.actual >= e.misiones.size() && !e.eliminado && e.escapado == 0
+			&& j.level().getChunkSource().getGenerator() instanceof GeneradorNivel0 gen) {
+			// misiones hechas: el radar lleva al ascensor de salida mas cercano (sin limite de alcance)
+			Plano.Ascensor a = gen.plano(j.level().getChunkSource().randomState()).ascensorCercano(j.getBlockX(), j.getBlockZ());
+			double dx = a.centroX() + 0.5 - j.getX();
+			double dz = a.centroZ() + 0.5 - j.getZ();
+			distancia = (int) Math.round(Math.sqrt(dx * dx + dz * dz));
+			rumbo = (float) Math.toDegrees(Math.atan2(-dx, dz));
+			salida = true;
+		} else if (e.actual < e.misiones.size() && e.misiones.get(e.actual) == TipoMision.CASETES) {
 			double mejor = Double.MAX_VALUE;
 			for (int[] c : e.pendientes) {
 				if (c[2] == 1) {
@@ -305,7 +348,7 @@ public final class Misiones {
 					rumbo = (float) Math.toDegrees(Math.atan2(-dx, dz));
 				}
 			}
-			if (mejor <= ALCANCE_SENAL) {
+			if (mejor <= alcance) {
 				distancia = (int) Math.round(mejor);
 			} else if (mejor < Double.MAX_VALUE) {
 				distancia = -2; // buscando, pero sin senal
@@ -313,7 +356,79 @@ public final class Misiones {
 			}
 		}
 		List<String> nombres = e.misiones.stream().map(Enum::name).toList();
-		ServerPlayNetworking.send(j, new SyncMisiones(nombres, e.actual, e.casetes, necesarios(e), distancia, rumbo));
+		float grabado = 0;
+		if (e.actual < e.misiones.size()) {
+			float seg = segundosGrabar(e.misiones.get(e.actual));
+			grabado = seg > 0 ? Math.min(1.0F, e.grabado / seg) : 0;
+		}
+		ServerPlayNetworking.send(j, new SyncMisiones(nombres, e.actual, e.casetes, necesarios(e), distancia, rumbo,
+			salida, grabado, e.grabando, f == null ? 0 : f.numero()));
+	}
+
+	/**
+	 * Grabacion de la mision en curso: suma `segundos` si lo que graba es lo
+	 * que pide (`tipo`) y la completa al llegar a lo necesario. La llama
+	 * Grabacion cada pocos ticks.
+	 */
+	public void grabar(ServerPlayer j, TipoMision tipo, float segundos) {
+		Estado e = this.estado(j);
+		if (e == null || e.actual >= e.misiones.size() || e.misiones.get(e.actual) != tipo) {
+			return;
+		}
+		e.grabado += segundos;
+		e.grabando = true;
+		this.sucio = true;
+		if (e.grabado >= segundosGrabar(tipo)) {
+			this.completar(j, tipo);
+		}
+	}
+
+	/** La mision de grabar en curso, o null. */
+	public TipoMision grabacionEnCurso(ServerPlayer j) {
+		Estado e = this.estado(j);
+		if (e == null || e.actual >= e.misiones.size()) {
+			return null;
+		}
+		TipoMision m = e.misiones.get(e.actual);
+		return segundosGrabar(m) > 0 ? m : null;
+	}
+
+	public void dejarDeGrabar(ServerPlayer j) {
+		Estado e = this.estado(j);
+		if (e != null) {
+			e.grabando = false;
+		}
+	}
+
+	/** Ha escapado por el ultimo ascensor con ese puesto. */
+	public void escapado(ServerPlayer j, int puesto) {
+		this.quitarCasetes(j.getUUID());
+		Estado e = this.estado(j);
+		if (e == null) {
+			e = new Estado();
+			this.estados.put(j.getUUID(), e);
+		}
+		e.escapado = puesto;
+		e.pendientes.clear();
+		this.sucio = true;
+		this.sincronizar(j);
+	}
+
+	/** Ha muerto: fuera de la expedicion. */
+	public void eliminar(ServerPlayer j) {
+		this.quitarCasetes(j.getUUID());
+		Estado e = this.estado(j);
+		if (e != null) {
+			e.eliminado = true;
+			this.sucio = true;
+			this.sincronizar(j);
+		}
+	}
+
+	/** true si esta jugando una fase (ni eliminado ni escapado). */
+	public boolean enExpedicion(ServerPlayer j) {
+		Estado e = this.estado(j);
+		return e != null && !e.eliminado && e.escapado == 0;
 	}
 
 	public void olvidar(ServerPlayer j) {
