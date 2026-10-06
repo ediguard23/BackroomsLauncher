@@ -1,6 +1,23 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-05 18:00 (hora de Honduras). Mod `backrooms_evento` 0.9.2, launcher 1.0.0.
+Última actualización: 2026-10-05 20:30 (hora de Honduras). Mod `backrooms_evento` 0.9.2, launcher 1.0.0.
+
+## Prueba abierta y cartel (2026-10-05, noche)
+
+- **El pack PUBLICADO ahora es uno de prueba** (`pack/.evento-prueba.json`, pack 2026.10.05-02a371a9):
+  apunta al servidor de pruebas del PC del organizador (por un túnel de playit.gg), sin
+  `eventStart` y sin `acceso`, con el mod 0.9.2. Lo pidió el organizador para que un amigo
+  pruebe con el launcher 1.0.0. **Antes de vender hay que volver a publicar el pack de verdad**
+  (`pack/evento.json`, con `acceso` y la IP real) cuando la tienda esté desplegada.
+- En ese servidor de pruebas `config/backrooms-acceso.json` está con `activo: false` (entra
+  cualquier nick). El chat de voz por el túnel está pendiente: playit exige que el
+  organizador verifique su correo para abrir el túnel UDP.
+- **Cartel animado para Yamipa** (`npx electron tools/cartel/main.js`): GIF de 7x4 bloques
+  (896x512, 60 fotogramas a 0,1 s) en la paleta exacta de los mapas, con el pasillo del
+  Nivel 0 andando en bucle, un apagón y la sonrisa en la puerta del logo; además, la imagen
+  fija a todo color. Salen a `video/cartel/` (no va al repo). Comprobado con ImageIO de Java
+  (lo que usa Yamipa): 60 pasos, retardo de 2 ticks y todos los píxeles en la paleta. Sin
+  probar todavía en un servidor con Yamipa.
 
 ## 0.9.2 (2026-10-05, tarde)
 

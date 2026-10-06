@@ -53,6 +53,7 @@ tools/
   sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros)
   sonidos/voces/                 las únicas grabaciones: voces generadas con Higgsfield
   video/                         tráiler 4K (npm run trailer)
+  cartel/                        cartel animado para Yamipa (GIF 7x4 en colores de mapa)
   publicar-pack.js               publica el pack (GitHub Release "pack")
   reiniciar-prueba.sh            reinicia el entorno de pruebas
   acceso/tienda-prueba.js        tienda falsa para probar las entradas en local
