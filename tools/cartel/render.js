@@ -300,7 +300,7 @@ function textos (f, g) {
   const yD = 421;
   const cols = [
     ['SÁBADO', '31 OCT', '9:00 PM (GMT-6)'],
-    ['CUPO LIMITADO', '200 PLAZAS', 'SOLO UNOS POCOS ESCAPAN'],
+    ['CUPO INICIAL', '100 PLAZAS', 'SOLO UNOS POCOS ESCAPAN'],
     ['ENTRADA', '2 USD', 'TIENDA.PEAKMC.LAT']
   ];
   for (let i = 0; i < 3; i++) {
