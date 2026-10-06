@@ -1,7 +1,39 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-05 20:40 (hora de Honduras). Mod `backrooms_evento` 0.9.3, launcher 1.0.0
-(con un arreglo sin publicar).
+Última actualización: 2026-10-05 21:50 (hora de Honduras). Mod `backrooms_evento` 0.9.4, launcher 1.0.0
+(con arreglos sin publicar).
+
+## Tienda: apartado Eventos y lista del evento (2026-10-05, noche; xgdier_)
+
+Lo pidió el organizador: la entrada se vende HOY pero el launcher aún no se publica, y hay
+que saber quién compra. Todo en peakmc-store (commit `d689b62`, **sin desplegar**) y en
+el mod. Ver `VENTA.md` (reescrito) para el modelo completo.
+
+- **Tienda**: página `/eventos` (enlace en el menú y aviso en la portada) con la entrada,
+  plazas, fecha y preguntas. La entrada NO sale en el catálogo ni en destacados (lo pidió
+  así). Una entrada por nick, solo Java, plazas limitadas (100). **El código solo se canjea
+  con el nick que compró.** El enlace del launcher solo lo ve quien tiene entrada.
+- **La lista del evento** = nicks con entrada válida en la base de la tienda (se guarda
+  desde la primera venta). Panel → Eventos: verla, CSV, añadir nicks (regalos/staff),
+  anular, reiniciar canje, ajustes (plazas, fecha, enlace del launcher, venta abierta).
+- **Mod 0.9.4**: `acceso/Whitelist.java`. El servidor descarga la lista cada minuto con
+  el token (`token` y `tienda` en `config/backrooms-acceso.json`); al entrar, pase válido
+  y nick en la lista; a quien sale de la lista se le echa (máximo 5 de golpe, por si la
+  tienda falla). Comando `/brwhitelist agregar|quitar|ver|lista|recargar` (OP 3).
+- **Probado**: en local con una base PGlite, todo el recorrido de la tienda (ocultar del
+  catálogo, una por nick, Bedrock fuera, plazas/agotadas, código de otro nick → 403, pase
+  con el bueno, API con token, reembolso → fuera de la lista) y los tests de la tienda.
+  `/brwhitelist` probado por RCON en el servidor de pruebas contra la tienda local
+  (agregar da el código, quitar lo anula, la lista se descarga al arrancar). Luego dejé el
+  servidor de pruebas como estaba (config y jar 0.9.2). **Sin probar en el juego**: que el
+  login rechace a quien no está en la lista y la expulsión (hace falta un cliente con pase).
+- **Falta (organizador)**: desplegar la tienda, poner `BACKROOMS_FIRMA` y
+  `BACKROOMS_SERVIDOR_TOKEN` en Render (los dos en el `.env` local de peakmc-store), crear
+  el paquete en Tebex (2 $, sin comandos) y vincularlo en el panel. Ver VENTA.md.
+- El texto de la ventana ENTRADA del launcher ya dice que el código solo vale con el nick de
+  la compra (llega con la próxima versión). `pack/evento.json` (local, no está en git):
+  `acceso.comprar` apunta ya a /eventos.
+
 
 ## Cursor invisible y logo que se arrastraba (2026-10-05, noche; Bruno)
 

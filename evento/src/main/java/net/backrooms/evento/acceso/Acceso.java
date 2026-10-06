@@ -49,13 +49,17 @@ import org.jspecify.annotations.Nullable;
  *  evento        tiene que coincidir con el del pase (BACKROOMS_EVENTO de la tienda)
  *  staff         nicks que entran sin pase. OJO: el servidor esta en offline-mode y
  *                cualquiera puede ponerse ese nick; dejarlo vacio y dar entradas al
- *                staff con tools/backrooms.js de la tienda.
+ *                staff con /brwhitelist agregar.
+ *  tienda        API de la tienda para la lista del evento (ya viene puesta)
+ *  token         BACKROOMS_SERVIDOR_TOKEN de la tienda: con el, ademas del pase, el
+ *                nick tiene que estar en la lista del evento (ver Whitelist) y
+ *                funciona /brwhitelist. Vacio = solo el pase.
  */
 public final class Acceso {
 	public static final Identifier CANAL = BackroomsEvento.id("pase");
 	/** La de la tienda de PeakMC (tienda.peakmc.lat). Solo firma quien tiene la privada. */
 	private static final String CLAVE_TIENDA = "MCowBQYDK2VwAyEAlpnR/GA1CYRcPb8PE1wPgksTl5cmBu3D8JePxd6MYKk=";
-	private static final String COMPRAR = "Compra tu entrada en tienda.peakmc.lat y entra con el Backrooms Launcher.";
+	private static final String COMPRAR = "Compra tu entrada en tienda.peakmc.lat/eventos y entra con el Backrooms Launcher.";
 
 	private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 	private static final SecureRandom AZAR = new SecureRandom();
@@ -67,6 +71,8 @@ public final class Acceso {
 		public String clavePublica = CLAVE_TIENDA;
 		public String evento = "backrooms-0";
 		public List<String> staff = new ArrayList<>();
+		public String tienda = "https://tienda.peakmc.lat/api/backrooms";
+		public String token = "";
 	}
 
 	private static Config config = new Config();
@@ -75,8 +81,13 @@ public final class Acceso {
 	private Acceso() {
 	}
 
+	static Config config() {
+		return config;
+	}
+
 	public static void registrar() {
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents.SERVER_STARTING.register(Acceso::cargar);
+		Whitelist.registrar();
 		ServerLoginConnectionEvents.QUERY_START.register((handler, server, sender, sincronizador) -> {
 			if (!config.activo) {
 				return;
@@ -104,6 +115,10 @@ public final class Acceso {
 			}
 			String nick = ((ServerLoginAccessor) handler).backrooms$nick();
 			String fallo = entendido ? comprobar(nick, buf, reto) : "Entra con el Backrooms Launcher.";
+			if (fallo == null && config.staff.stream().noneMatch(st -> st.equalsIgnoreCase(nick))) {
+				// el pase vale: ademas, el nick tiene que seguir en la lista del evento
+				fallo = Whitelist.comprobar(nick);
+			}
 			if (fallo != null) {
 				BackroomsEvento.LOG.info("Acceso denegado a {}: {}", nick, fallo);
 				handler.disconnect(Component.literal("BACKROOMS\n\n").withStyle(ChatFormatting.GOLD)

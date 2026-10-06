@@ -2,5 +2,7 @@
   "activo": true,
   "clavePublica": "MCowBQYDK2VwAyEAlpnR/GA1CYRcPb8PE1wPgksTl5cmBu3D8JePxd6MYKk=",
   "evento": "backrooms-0",
-  "staff": []
+  "staff": [],
+  "tienda": "https://tienda.peakmc.lat/api/backrooms",
+  "token": "PEGA_AQUI_BACKROOMS_SERVIDOR_TOKEN"
 }

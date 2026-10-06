@@ -84,7 +84,9 @@ servidor-ejemplo/                configuración del servidor del evento
   log si se ve, está oculto o capturado. `node tools/rcon.js "<comando>"` manda comandos al servidor.
 - Comandos de staff: `/start`, `/backrooms ...` (buscar, cinematica, apagon, alarma, luz,
   ambiente, fase, vestibulo, muerte, escapados, invocar bacteria|smiler, acechadores,
-  cordura, comida reponer, misiones...). Ver `Comandos.java`.
+  cordura, comida reponer, misiones...). Ver `Comandos.java`. La lista del evento (quién puede
+  entrar): `/brwhitelist agregar|quitar|ver|lista|recargar` (`acceso/Whitelist.java`; la lista vive
+  en la tienda, ver `VENTA.md`).
 
 ## Reglas (del organizador; no se negocian)
 
