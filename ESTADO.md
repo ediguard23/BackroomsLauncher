@@ -21,6 +21,15 @@
 - Voces (Higgsfield, 3,5 créditos): megafonía del vestíbulo y de la alarma, y dos susurros
   para las alucinaciones (tools/sonidos/voces.js, originales en tools/sonidos/voces/).
 
+- **Simple Voice Chat 2.6.24** en el pack: va en `externos` de la ficha (URL de Modrinth y
+  sha1; el launcher lo baja de ahí, no se resube) y en el servidor. Probado: el servidor lo
+  arranca en el puerto UDP 24454 y el cliente se conecta. Voz a 28 bloques y sin grupos.
+  Crédito en el menú del launcher. Plantillas del servidor en `servidor-ejemplo/`.
+- El fallo raro del tp vestíbulo → Nivel 0 no se repitió en 4 viajes seguidos.
+- Vestíbulo regenerado: ya se ven el logo del evento y el de PeakMC en la pantalla, las
+  candilejas y la sala más iluminada.
+- **VENTA.md**: cómo se vende (la entrada, no el launcher) y por qué no se puede entrar sin pagar.
+
 ## En qué se quedó la sesión anterior
 
 Se hizo la 0.9.0 (compila, arranca sin errores en cliente y servidor), pero **falta probarla
@@ -104,8 +113,8 @@ Leer esto antes de tocar nada. Lo que se va haciendo se anota aquí y se sube.
    `pack/evento.json` ya lleva `acceso.api` y sin la tienda nadie podría canjear ni entrar.
 3. IP real del servidor en `pack/evento.json` (sigue `play.tuservidor.net`).
 4. Pisadas, balanceo y miedo: hechos en la 0.9.0, falta probarlos en el juego (ver arriba).
-5. Simple Voice Chat: comprobar licencia y versión 1.21.11 y si el host abre el puerto UDP
-   (sin empezar). AmbientSounds 2 probablemente no encaja; tampoco se ha mirado.
+5. Simple Voice Chat: HECHO. Falta que el host del servidor abra el puerto UDP 24454.
+   AmbientSounds 2 no encaja (pone sonidos de bosque/agua por bioma): descartado.
 6. Fallo raro una vez: `tp` del vestíbulo al Nivel 0 dio «unexpected error» y dejó al
    cliente en «Cargando el terreno». No se ha repetido; si vuelve, el log de depuración
    (ver arriba) da la traza.

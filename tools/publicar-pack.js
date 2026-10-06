@@ -15,6 +15,9 @@
  *   pack/una-vez/**       se copian solo si no existen (options.txt...): el jugador conserva sus ajustes
  *   pack/<lo demas>/**    config/, resourcepacks/, shaderpacks/... se imponen tal cual
  *
+ * Mods de otros (p. ej. Simple Voice Chat) no se resuben: van en "externos" de la ficha
+ * con la URL oficial (Modrinth), su sha1 y su tamaño, y el launcher los baja de ahí.
+ *
  * Cada archivo se sube con su SHA1 como nombre: si no cambia, no se vuelve a subir.
  */
 
@@ -74,6 +77,14 @@ function leerPack () {
     }
     archivos.push({ origen: full, nombre: rel, path: destino, sha1: hash, size: buf.length, once });
   }
+  for (const e of ficha.externos || []) {
+    if (!/^https:\/\//.test(e.url || '') || !/^[0-9a-f]{40}$/.test(e.sha1 || '') || !e.size || !e.path) {
+      console.error('externo mal escrito (hace falta path, url https, sha1 y size):', e);
+      process.exit(1);
+    }
+    const destino = /^mods\/[^/]+\.jar$/i.test(e.path) ? `mods/${e.sha1.slice(0, 16)}.jar` : e.path;
+    archivos.push({ externo: true, url: e.url, nombre: e.path.split('/').pop(), path: destino, sha1: e.sha1, size: e.size, once: false });
+  }
   const repetidos = archivos.map((a) => a.path.toLowerCase()).filter((p, i, l) => l.indexOf(p) !== i);
   if (repetidos.length) { console.error('Rutas repetidas en el pack:', repetidos); process.exit(1); }
   return { ficha, archivos };
@@ -100,7 +111,7 @@ function crearManifest (ficha, archivos, urlDe) {
     ram: ficha.ram || null,
     strict: ficha.strict,
     files: archivos.map((a) => {
-      const f = { path: a.path, sha1: a.sha1, size: a.size, url: urlDe(a) };
+      const f = { path: a.path, sha1: a.sha1, size: a.size, url: a.externo ? a.url : urlDe(a) };
       if (a.once) f.once = true;
       return f;
     })
@@ -124,7 +135,7 @@ function publicarLocal () {
   fs.rmSync(SALIDA, { recursive: true, force: true });
   fs.mkdirSync(SALIDA, { recursive: true });
   const base = `http://127.0.0.1:${PUERTO}/`;
-  for (const a of archivos) fs.copyFileSync(a.origen, path.join(SALIDA, a.sha1));
+  for (const a of archivos) if (!a.externo) fs.copyFileSync(a.origen, path.join(SALIDA, a.sha1));
   const m = crearManifest(ficha, archivos, (a) => base + a.sha1);
   fs.writeFileSync(path.join(SALIDA, 'manifest.json'), JSON.stringify(m, null, 2));
   resumen(archivos);
@@ -189,7 +200,7 @@ async function publicarGithub () {
   }
   const yaSubidos = new Set(assets.map((a) => a.name));
 
-  const unicos = [...new Map(archivos.map((a) => [a.sha1, a])).values()];
+  const unicos = [...new Map(archivos.filter((a) => !a.externo).map((a) => [a.sha1, a])).values()];
   const nuevos = unicos.filter((a) => !yaSubidos.has(a.sha1));
   console.log(`${unicos.length} archivos en el pack, ${nuevos.length} por subir.`);
   for (const a of nuevos) {

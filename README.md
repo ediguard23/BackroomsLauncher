@@ -184,3 +184,12 @@ Ejecutar de todas formas»).
 
 El pack del evento va aparte (`npm run publicar-pack`): cambiar mods, noticias o
 servidor no necesita una versión nueva del launcher.
+
+## Mods de terceros
+
+El pack lleva **Simple Voice Chat** (de henkelmax, https://modrepo.de) para el chat
+de voz por proximidad. Su FAQ permite usarlo en modpacks dando crédito (va en el menú
+del launcher). No se resube: está en `externos` de `pack/evento.json` con la URL de
+Modrinth y su sha1, y el launcher lo baja de ahí. El servidor del evento necesita el
+mismo jar en `mods/` y el **puerto UDP 24454** abierto en el host (si el host no da
+puertos UDP, el chat de voz no funciona y el resto del evento sí).
