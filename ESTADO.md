@@ -1,6 +1,6 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-06 16:10 (hora de Honduras). Mod `backrooms_evento` 0.9.6, launcher 1.0.0
+Última actualización: 2026-10-06 17:10 (hora de Honduras). Mod `backrooms_evento` 0.9.7, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
 
 ## Beta #1 (2026-10-06, tarde; xgdier_)
@@ -48,9 +48,28 @@ Unas 10 personas en el hosting **66.51.99.93:25704**. Todo hecho y probado salvo
 - **Megafonía del vestíbulo**: ya no dice «empieza en breve» con la expedición en marcha.
   Compila; sin oírlo en el juego.
 
-**Pendiente (pedido por el organizador)**: cinemáticas distintas para bajar a la fase 2 y a la
-3 (ahora el paso de fase es solo un fundido con el nombre). Y retocar la del /start para que
-lo que se ve por las puertas al cerrarse sea el vestíbulo de verdad.
+- **Cinemáticas de bajada a las fases 2 y 3** (las pidió el organizador; mod 0.9.7): guiones 2 y 3
+  de , en el ascensor de salida tal como es en el mundo (acero 5x5, panel al fondo).
+  Fase 2: frena, te acercas al panel y lo arreglas a golpes (chispas), vuelve a fallar y cae, el
+  freno lo para y se abre a medias al sector B. Fase 3: algo cruza el pasillo al cerrarse, apagón
+  y visión nocturna, garras por la junta, golpes en el techo, y al abrirse una sonrisa que se te
+  echa encima. Bandas: cinematica_fase2.ogg 33.3 s, 494 KB (3.9 s)
+cinematica_fase3.ogg 30.9 s, 449 KB (2.3 s). El servidor te lleva en el negro
+  (Fases#bajada: 28,2 / 25,8 s) y mientras tanto ni Bacteria ni Smilers ni daño (Fases#viajando).
+  A la fase 4 y a la salida sigue el fundido de antes. **Probado**: las dos cinemáticas con
+  capturas y un viaje real a la fase 2 con una Bacteria al lado (no agarra; llega a los 29 s).
+  Para verlas: ; para bajar: .
+- La del /start enseña por las puertas el vestíbulo de verdad (texturas del mod en las filas 4-5
+  del atlas, AtlasCinematica admite "espacio:ruta").
+- **Traje morado y negro (arreglado)**: al cambiar de mundo Minecraft para todos los sonidos e
+  interrumpe el hilo de sonido; si estaba leyendo un sonido en streaming del jar, Java cierra el
+  jar entero (ClosedByInterruptException) y desde ahí falla todo lo que se carga tarde (texturas
+  del traje, sonidos). Ya ningún sonido del mod va con "stream" (sounds.json y los scripts).
+  OJO: no volver a poner "stream": true.
+- Minecraft corta la banda de la cinemática al viajar: lo de después va en  y
+  CinematicaCliente#tick lo pone al cambiar de mundo. CinematicaSonidoMixin deja pasar las bandas.
+- Pack de la beta re-publicado con la 0.9.7 y  (el
+  0.9.6 está obsoleto). El launcher de la beta no cambia (baja el pack solo).
 
 ## 0.9.5: escapar de la Bacteria, el agarre y la caída del servidor (2026-10-06; xgdier_)
 
