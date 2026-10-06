@@ -418,7 +418,10 @@ public class Bacteria extends Monster {
 		this.descanso = this.tickCount + DESCANSO;
 	}
 
-	/** Se le escapa la presa (se desconecto, cambio de mundo...): sin comerla. */
+	/**
+	 * Se le escapa la presa (se desconecto, la teletransportaron...): sin comerla. Un
+	 * rato sin cazar, para que no la vuelva a agarrar en bucle (cada agarre asusta mucho).
+	 */
 	private void soltar() {
 		if (this.presa != null && this.level() instanceof ServerLevel nivel) {
 			ServerPlayer j = nivel.getServer().getPlayerList().getPlayer(this.presa);
@@ -427,6 +430,7 @@ public class Bacteria extends Monster {
 			}
 		}
 		this.terminar();
+		this.descanso = this.tickCount + 60;
 	}
 
 	private void terminar() {

@@ -119,10 +119,19 @@ public final class AmbienteCliente {
 		return Mth.clamp(1.0F - (t - 0.98F) / 0.25F, 0.0F, 1.0F) * 0.4F;
 	}
 
-	/** 0..1: cuanto rojo de alarma hay (entra y sale en medio segundo). */
+	/**
+	 * 0..1: cuanto rojo de alarma hay (entra y sale en medio segundo). Mientras suena
+	 * late con la sirena: sube con cada "whoop" (uno por segundo, como alarma.ogg) y
+	 * cae al final, como una luz giratoria.
+	 */
 	public static float rojo() {
 		float t = (ahora() - cambioAlarma) / 500.0F;
-		return alarma ? Mth.clamp(t, 0.0F, 1.0F) : Mth.clamp(1.0F - t, 0.0F, 1.0F);
+		if (!alarma) {
+			return Mth.clamp(1.0F - t, 0.0F, 1.0F);
+		}
+		float c = ((ahora() - cambioAlarma) % 1000L) / 1000.0F;
+		float latido = (float) Math.pow(c, 0.7) * (c < 0.85F ? 1.0F : 1.0F - (c - 0.85F) / 0.15F);
+		return Mth.clamp(t, 0.0F, 1.0F) * (0.55F + 0.45F * latido);
 	}
 
 	/** Volumen del zumbido de los tubos (0 en el apagon). */
@@ -188,7 +197,11 @@ public final class AmbienteCliente {
 
 		@Override
 		public void tick() {
-			if (!alarma || Minecraft.getInstance().level == null) {
+			if (alarma && Minecraft.getInstance().level != null) {
+				// otra alarma antes de que se apagara la anterior: vuelve a todo volumen
+				this.fuera = 0;
+				this.volume = 0.7F;
+			} else {
 				this.fuera++;
 				this.volume = Math.max(0.0F, 0.7F - this.fuera * 0.05F);
 				if (this.volume <= 0.0F) {
