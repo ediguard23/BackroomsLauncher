@@ -38,7 +38,7 @@ import net.minecraft.world.level.storage.LevelResource;
  * de grabar al azar (TipoMision.deGrabar). Al completarlas, el radar apunta
  * al ascensor de salida mas cercano (Fases).
  * Sus casetes son posiciones fijas repartidas en anillos alrededor de donde
- * empezo (de ~60 a ~600 bloques), siempre en suelo libre: con 200 jugadores
+ * empezo (de ~60 a ~320 bloques con 5), siempre en suelo libre: con 200 jugadores
  * repartidos por un mapa de 10k x 10k todos tienen los suyos y nadie puede
  * quitarle los suyos a otro. Es dificil a proposito (el organizador quiere
  * que acaben pocos): la senal solo aparece a menos de ALCANCE_SENAL bloques.

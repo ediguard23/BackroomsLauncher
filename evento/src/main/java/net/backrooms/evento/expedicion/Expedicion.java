@@ -2,17 +2,20 @@ package net.backrooms.evento.expedicion;
 
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import net.backrooms.evento.BackroomsEvento;
+import net.backrooms.evento.ambiente.Ambiente;
 import net.backrooms.evento.fase.Fase;
 import net.backrooms.evento.fase.Fases;
 import net.backrooms.evento.mision.Misiones;
 import net.backrooms.evento.objetos.Equipo;
 import net.backrooms.evento.red.IniciarCinematica;
+import net.backrooms.evento.vestibulo.Vestibulo;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
@@ -25,9 +28,12 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
 /**
- * El /start: manda a todos al Nivel 0 poco a poco.
+ * El /start: abre los ascensores del vestibulo y quien entra en uno baja al
+ * Nivel 0 (subir); /start todos o /start <jugadores> los mandan sin ascensor.
+ * Con el /start la luz del Nivel 0 empieza de cero: los apagones y las
+ * alarmas se sortean desde que llega el primero (Ambiente#reiniciar).
  *
- * Cada medio segundo salen LOTE jugadores: reciben la cinematica del
+ * Los que bajan esperan en una cola. Cada medio segundo salen LOTE jugadores: reciben la cinematica del
  * ascensor y, RETRASO_VIAJE ticks despues (con su pantalla en negro tras el
  * golpe), se les teletransporta a su zona y se les dan las misiones alli.
  * Las zonas se reparten por toda la fase 1 (10k x 10k) con una separacion
@@ -52,6 +58,8 @@ public final class Expedicion {
 	private final ArrayDeque<UUID> cola = new ArrayDeque<>();
 	private final Map<UUID, Long> viajes = new HashMap<>();
 	private final Map<UUID, BlockPos> destinos = new HashMap<>();
+	/** Los que ya bajaron desde que se abrieron los ascensores: no vuelven a bajar si vuelven al vestibulo. */
+	private final Set<UUID> embarcados = new HashSet<>();
 	private final Random azar = new Random();
 	private long ticks;
 
@@ -64,19 +72,70 @@ public final class Expedicion {
 		ServerPlayConnectionEvents.JOIN.register((h, e, s) -> INSTANCIA.alVolver(h.player));
 	}
 
-	/** Pone en la cola a estos jugadores. Devuelve cuantos. */
+	/** El /start: luz del Nivel 0 de cero y ascensores abiertos. */
+	public void abrir() {
+		this.embarcados.clear();
+		ServerLevel v = Vestibulo.get().nivel();
+		Fases.get().previstos(v == null ? 0 : (int) v.players().stream().filter(j -> !j.isCreative() && !j.isSpectator()).count());
+		Ambiente.get().reiniciar(this.servidor.overworld());
+		Vestibulo.get().ascensores(true);
+	}
+
+	/** Cierra los ascensores: el siguiente /start es otra ronda (pueden volver a bajar todos). */
+	public void cerrar() {
+		Vestibulo.get().ascensores(false);
+		this.embarcados.clear();
+	}
+
+	/**
+	 * Alguien entra en la cabina de un ascensor abierto: al hueco de espera y a la cola de
+	 * la cinematica. Quien ya esta jugando una fase o ya bajo en esta ronda se queda.
+	 */
+	public boolean subir(ServerPlayer j) {
+		if (this.embarcados.contains(j.getUUID()) || !this.poner(j)) {
+			return false;
+		}
+		Vestibulo.get().alHueco(j);
+		return true;
+	}
+
+	/** Pone en la cola a estos jugadores (sin ascensor). Devuelve cuantos. */
 	public int empezar(List<ServerPlayer> jugadores) {
+		// si ya hay gente jugando (se manda a uno que llego tarde) la luz y el reparto siguen como iban
+		if (this.cola.isEmpty() && this.viajes.isEmpty()
+			&& this.servidor.overworld().players().stream().noneMatch(Misiones.get()::enExpedicion)) {
+			Ambiente.get().reiniciar(this.servidor.overworld());
+			Fases.get().previstos(jugadores.size());
+		}
 		int n = 0;
 		for (ServerPlayer j : jugadores) {
-			UUID id = j.getUUID();
-			if (this.cola.contains(id) || this.viajes.containsKey(id)) {
-				continue;
+			if (this.poner(j)) {
+				n++;
 			}
-			this.destinos.put(id, this.zonaNueva());
-			this.cola.add(id);
-			n++;
 		}
 		return n;
+	}
+
+	private boolean poner(ServerPlayer j) {
+		UUID id = j.getUUID();
+		if (this.pendiente(j) || Misiones.get().enExpedicion(j)) {
+			return false;
+		}
+		this.embarcados.add(id);
+		this.destinos.put(id, this.zonaNueva());
+		this.cola.add(id);
+		return true;
+	}
+
+	/** true si hay alguien bajando o jugando una fase. */
+	public boolean enMarcha() {
+		return !this.cola.isEmpty() || !this.viajes.isEmpty()
+			|| (this.servidor != null && this.servidor.getPlayerList().getPlayers().stream().anyMatch(Misiones.get()::enExpedicion));
+	}
+
+	/** true si esta en la cola o esperando el viaje. */
+	public boolean pendiente(ServerPlayer j) {
+		return this.cola.contains(j.getUUID()) || this.viajes.containsKey(j.getUUID());
 	}
 
 	/** Solo la cinematica, sin viaje (para verla). */

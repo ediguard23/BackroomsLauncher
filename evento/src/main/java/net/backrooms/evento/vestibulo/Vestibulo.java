@@ -2,9 +2,12 @@ package net.backrooms.evento.vestibulo;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import net.backrooms.evento.BackroomsEvento;
+import net.backrooms.evento.Sonidos;
+import net.backrooms.evento.expedicion.Expedicion;
 import net.backrooms.evento.fase.Fase;
 import net.backrooms.evento.fase.Fases;
 import net.backrooms.evento.mision.Misiones;
@@ -18,12 +21,18 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket;
+import net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.storage.LevelResource;
 import org.jspecify.annotations.Nullable;
 
@@ -40,6 +49,11 @@ import org.jspecify.annotations.Nullable;
  * Al morir en una fase: si MUERTE_ELIMINA (por defecto), fuera de la
  * expedicion y al vestibulo; si no, reaparece en otro punto de la misma fase
  * con sus misiones.
+ *
+ * Los ascensores del fondo estan cerrados hasta el /start. Al abrirse, quien
+ * entra en una cabina baja al Nivel 0 (Expedicion#subir): pasa al hueco de
+ * espera y le llega la cinematica en cuanto le toca. Se cierran solos al
+ * arrancar el servidor y con /backrooms ascensores cerrar.
  */
 public final class Vestibulo {
 	public static final ResourceKey<Level> DIMENSION = ResourceKey.create(Registries.DIMENSION, BackroomsEvento.id("vestibulo"));
@@ -57,6 +71,7 @@ public final class Vestibulo {
 	private long proximoAviso = 20 * 60;
 	private boolean decorarPendiente;
 	private long decorarLimite;
+	private boolean ascensoresAbiertos;
 
 	private Vestibulo() {
 	}
@@ -65,11 +80,13 @@ public final class Vestibulo {
 		ServerLifecycleEvents.SERVER_STARTED.register(s -> {
 			INSTANCIA.servidor = s;
 			INSTANCIA.decorarSiFalta();
+			INSTANCIA.ascensores(false);
 		});
 		ServerPlayConnectionEvents.JOIN.register((h, e, s) -> INSTANCIA.alEntrar(h.player));
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(s -> {
 			INSTANCIA.megafonia();
 			INSTANCIA.tickDecorar();
+			INSTANCIA.tickAscensores();
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entidad, fuente) -> {
 			if (entidad instanceof ServerPlayer j) {
@@ -95,16 +112,24 @@ public final class Vestibulo {
 		this.muerteElimina = si;
 	}
 
-	/** De vez en cuando (cada 3-5 min) un aviso por megafonia a quien este en el vestibulo. */
+	/**
+	 * De vez en cuando (cada 3-5 min) un aviso por megafonia a quien este en el vestibulo.
+	 * Los avisos son de antes de empezar ("la expedicion empezara en breve"): con los
+	 * ascensores abiertos o la expedicion en marcha no suenan, y nunca a quien ya subio
+	 * (espera en el hueco, que tambien es el vestibulo).
+	 */
 	private void megafonia() {
 		if (this.servidor == null || ++this.ticks < this.proximoAviso) {
 			return;
 		}
 		this.proximoAviso = this.ticks + 20L * (180 + new java.util.Random().nextInt(120));
 		ServerLevel v = this.nivel();
-		if (v != null) {
-			for (ServerPlayer j : v.players()) {
-				net.backrooms.evento.Sonidos.aJugador(j, net.backrooms.evento.Sonidos.MEGAFONIA_VESTIBULO, 0.8F);
+		if (v == null || this.ascensoresAbiertos || Expedicion.get().enMarcha()) {
+			return;
+		}
+		for (ServerPlayer j : v.players()) {
+			if (j.getY() >= PlanoVestibulo.SUELO && !Expedicion.get().pendiente(j)) {
+				Sonidos.aJugador(j, Sonidos.MEGAFONIA_VESTIBULO, 0.8F);
 			}
 		}
 	}
@@ -127,11 +152,100 @@ public final class Vestibulo {
 		j.getFoodData().setFoodLevel(20);
 	}
 
+	/* ----------------------------------------------------- ascensores */
+
+	public boolean ascensoresAbiertos() {
+		return this.ascensoresAbiertos;
+	}
+
+	/**
+	 * Abre o cierra las puertas de los cinco ascensores. Al abrir suena la campanilla en
+	 * cada puerta y todo el que esta en el vestibulo ve el aviso en pantalla.
+	 */
+	public void ascensores(boolean abrir) {
+		ServerLevel v = this.nivel();
+		if (v == null) {
+			return;
+		}
+		this.ascensoresAbiertos = abrir;
+		BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
+		int suelo = PlanoVestibulo.SUELO;
+		for (int cx : PlanoVestibulo.ASCENSORES) {
+			for (int hoja = 0; hoja < 2; hoja++) {
+				int x = cx - 1 + hoja;
+				// fuera, las de acero del rellano; dentro, las de hierro de la cabina
+				for (int y = suelo + 1; y <= suelo + 3; y++) {
+					v.setBlock(p.set(x, y, PlanoVestibulo.PUERTA_Z), abrir ? Blocks.AIR.defaultBlockState() : PlanoVestibulo.puerta(hoja), 3);
+				}
+				v.setBlock(p.set(x, suelo + 1, PlanoVestibulo.PUERTA_Z + 1), PlanoVestibulo.puertaCabina(hoja, false, abrir), 2);
+				v.setBlock(p.set(x, suelo + 2, PlanoVestibulo.PUERTA_Z + 1), PlanoVestibulo.puertaCabina(hoja, true, abrir), 2);
+			}
+			if (abrir) {
+				v.playSound(null, cx, suelo + 2, PlanoVestibulo.PUERTA_Z, Sonidos.ASCENSOR_PANEL, SoundSource.BLOCKS, 2.0F, 1.0F);
+				v.playSound(null, cx, suelo + 2, PlanoVestibulo.PUERTA_Z + 1, SoundEvents.IRON_DOOR_OPEN, SoundSource.BLOCKS, 1.0F, 0.9F);
+			}
+		}
+		if (abrir) {
+			for (ServerPlayer j : v.players()) {
+				titulo(j, "ASCENSORES ABIERTOS", "Entra en uno para bajar al Nivel 0");
+			}
+		}
+	}
+
+	/** Quien entra en una cabina abierta baja al Nivel 0 (el staff en creativo o espectador no). */
+	private void tickAscensores() {
+		if (!this.ascensoresAbiertos || this.ticks % 5 != 0) {
+			return;
+		}
+		ServerLevel v = this.nivel();
+		if (v == null) {
+			return;
+		}
+		for (ServerPlayer j : List.copyOf(v.players())) {
+			if (!j.isCreative() && !j.isSpectator() && PlanoVestibulo.cabina(j.getX(), j.getY(), j.getZ()) >= 0) {
+				Expedicion.get().subir(j);
+			}
+		}
+	}
+
+	/** Al hueco de espera de los ascensores (PlanoVestibulo.HUECO_*), cada uno en un sitio. */
+	public void alHueco(ServerPlayer j) {
+		ServerLevel v = this.nivel();
+		if (v == null) {
+			return;
+		}
+		double x = PlanoVestibulo.HUECO_X0 + 1 + j.getRandom().nextDouble() * (PlanoVestibulo.HUECO_X1 - PlanoVestibulo.HUECO_X0 - 1);
+		double z = PlanoVestibulo.HUECO_Z - 0.5 + j.getRandom().nextDouble() * 2.0;
+		j.teleportTo(v, x, PlanoVestibulo.HUECO_Y, z, Set.of(), 180.0F, 0.0F, true);
+		j.resetFallDistance();
+	}
+
+	/** El panel de un ascensor del vestibulo: fuera de servicio hasta el /start. */
+	public void pulsarPanel(ServerPlayer j, BlockPos panel) {
+		if (this.ascensoresAbiertos) {
+			j.level().playSound(null, panel, Sonidos.ASCENSOR_PANEL, SoundSource.BLOCKS, 1.0F, 1.0F);
+			j.displayClientMessage(Component.literal("Entra en la cabina para bajar al Nivel 0").withStyle(ChatFormatting.YELLOW), true);
+		} else {
+			j.level().playSound(null, panel, Sonidos.ASCENSOR_DENEGADO, SoundSource.BLOCKS, 0.9F, 1.0F);
+			j.displayClientMessage(Component.literal("FUERA DE SERVICIO · Se abren cuando empiece la expedición").withStyle(ChatFormatting.RED), true);
+		}
+	}
+
+	private static void titulo(ServerPlayer j, String titulo, String subtitulo) {
+		j.connection.send(new ClientboundSetTitlesAnimationPacket(10, 80, 20));
+		j.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(subtitulo).withStyle(ChatFormatting.GRAY)));
+		j.connection.send(new ClientboundSetTitleTextPacket(Component.literal(titulo).withStyle(ChatFormatting.YELLOW)));
+	}
+
 	private void alEntrar(ServerPlayer j) {
 		if (j.isCreative() || j.isSpectator()) {
 			return;
 		}
 		if (j.level().dimension().equals(DIMENSION)) {
+			// en el hueco de los ascensores sin viaje pendiente (se reinicio el servidor): arriba
+			if (j.getY() < PlanoVestibulo.SUELO && !Expedicion.get().pendiente(j)) {
+				this.llevar(j);
+			}
 			return;
 		}
 		Fase f = Fase.de(j.level());
@@ -263,7 +377,9 @@ public final class Vestibulo {
 		texto(v, 0.5, y + 10.6, 32.94, 180, "CENTRO DE EXPEDICIONES", "#E8D9A0", 4.5F, true);
 		texto(v, 0.5, y + 8.6, 32.94, 180, "ASCENSORES · NIVEL 0", "#C8BC90", 2.4F, false);
 		for (int cx : PlanoVestibulo.ASCENSORES) {
-			texto(v, cx, y + 5.2, 32.94, 180, "▼ N0", "#FF5040", 1.4F, false);
+			texto(v, cx, y + 5.2, 32.94, 180, "NIVEL 0", "#FF5040", 1.4F, false);
+			// el indicador de planta de dentro, como en la cinematica: rojo sobre negro
+			texto(v, cx, y + 3.3, PlanoVestibulo.PUERTA_Z + 2.06, 0, "0", "#FF3A1C", 1.5F, true);
 		}
 		texto(v, 0.5, y + 10.15, -22.94, 0, "AUDITORIO", "#E8D9A0", 2.6F, true);
 		texto(v, 0.5, y + 4.4, 18.5, 0, "INFORMACIÓN", "#E8D9A0", 1.6F, true);

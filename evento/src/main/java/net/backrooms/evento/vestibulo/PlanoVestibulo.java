@@ -8,12 +8,18 @@ import net.backrooms.evento.bloques.EnSuelo;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ButtonBlock;
+import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.LanternBlock;
+import net.minecraft.world.level.block.RedstoneLampBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBannerBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.block.state.properties.DoorHingeSide;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
 /**
@@ -40,7 +46,8 @@ public final class PlanoVestibulo {
 	public static final int X0 = -37;
 	public static final int X1 = 37;
 	public static final int Z0 = -69;
-	public static final int Z1 = 33;
+	/** Hasta el fondo de las cabinas de los ascensores (la pared sur del vestibulo esta en 33). */
+	public static final int Z1 = 38;
 	public static final int Y0 = 62;
 	public static final int Y1 = 79;
 
@@ -49,8 +56,27 @@ public final class PlanoVestibulo {
 	public static final double SPAWN_Y = SUELO + 1;
 	public static final double SPAWN_Z = 6.5;
 
-	/** Centros de las puertas de los ascensores (en la pared sur). */
+	/**
+	 * Centros de las puertas de los ascensores (en la pared sur, z = PUERTA_Z). Las puertas
+	 * ocupan x = c-1 y c: fuera las de acero del rellano (PUERTA_Z) y dentro las de hierro
+	 * de la cabina (PUERTA_Z + 1). La cabina, x = c-2..c+1 y z = CABINA_Z0..CABINA_Z1, es
+	 * la misma que sale en la cinematica (cinematica.fsh): bloque de hierro con zocalo de
+	 * roble oscuro, suelo de piedra lisa, lampara de redstone, el indicador de planta
+	 * encima de las puertas y la botonera de piedra negra pulida a la derecha.
+	 */
 	public static final int[] ASCENSORES = {-24, -12, 0, 12, 24};
+	public static final int PUERTA_Z = 33;
+	public static final int CABINA_Z0 = 35;
+	public static final int CABINA_Z1 = 37;
+	/**
+	 * El hueco de los ascensores, escondido bajo el vestibulo: quien sube a una cabina
+	 * espera aqui (por dentro es otra cabina) a que le toque la cinematica y el viaje,
+	 * para no tapar la puerta a los que vienen detras.
+	 */
+	public static final int HUECO_X0 = -30;
+	public static final int HUECO_X1 = 30;
+	public static final int HUECO_Y = 48;
+	public static final int HUECO_Z = 36;
 	/** Pedestales de la vitrina del equipo (x; z = VITRINA_Z). */
 	public static final int[] VITRINA_X = {-22, -19, -16, -13};
 	public static final int VITRINA_Z = -18;
@@ -101,6 +127,41 @@ public final class PlanoVestibulo {
 
 	private static BlockState pared(Block b, Direction d) {
 		return b.defaultBlockState().setValue(EnPared.FACING, d);
+	}
+
+	/** Una hoja cerrada de la puerta de acero de un rellano: 0 la izquierda (x = c-1), 1 la derecha (x = c). */
+	public static BlockState puerta(int hoja) {
+		return mira(hoja == 0 ? Bloques.PUERTA_ASCENSOR_IZQ : Bloques.PUERTA_ASCENSOR_DER, Direction.NORTH);
+	}
+
+	/**
+	 * Media hoja de la puerta de hierro de una cabina (dos de alto, como en la cinematica).
+	 * Miran a la cabina; al abrirse cada una gira hacia su lado.
+	 */
+	public static BlockState puertaCabina(int hoja, boolean arriba, boolean abierta) {
+		return Blocks.IRON_DOOR.defaultBlockState()
+			.setValue(DoorBlock.FACING, Direction.NORTH)
+			.setValue(DoorBlock.HINGE, hoja == 0 ? DoorHingeSide.LEFT : DoorHingeSide.RIGHT)
+			.setValue(DoorBlock.HALF, arriba ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER)
+			.setValue(DoorBlock.OPEN, abierta);
+	}
+
+	/** Lampara de redstone encendida (lleva un bloque de redstone encima para que no se apague). */
+	private static BlockState lampara() {
+		return Blocks.REDSTONE_LAMP.defaultBlockState().setValue(RedstoneLampBlock.LIT, true);
+	}
+
+	/** El ascensor (indice de ASCENSORES) en cuya cabina esta ese punto, o -1. */
+	public static int cabina(double x, double y, double z) {
+		if (y < SUELO + 1 || y >= SUELO + 5 || z < CABINA_Z0 || z >= CABINA_Z1 + 1) {
+			return -1;
+		}
+		for (int i = 0; i < ASCENSORES.length; i++) {
+			if (x >= ASCENSORES[i] - 2 && x < ASCENSORES[i] + 2) {
+				return i;
+			}
+		}
+		return -1;
 	}
 
 	static {
@@ -221,12 +282,27 @@ public final class PlanoVestibulo {
 		// ------------------------------------------------------- ascensores
 		caja(-36, SUELO, 29, 36, SUELO, 32, (x, y, z) -> z == 29 && ((x & 1) == 0) ? b(Blocks.YELLOW_CONCRETE)
 			: z == 29 ? b(Blocks.BLACK_CONCRETE) : b(Blocks.POLISHED_DEEPSLATE));
+		BlockState acero = b(Bloques.ACERO);
 		for (int cx : ASCENSORES) {
-			caja(cx - 2, SUELO + 1, 33, cx + 1, SUELO + 5, 33, b(Bloques.ACERO));
-			caja(cx - 1, SUELO + 1, 33, cx - 1, SUELO + 3, 33, mira(Bloques.PUERTA_ASCENSOR_IZQ, Direction.NORTH));
-			caja(cx, SUELO + 1, 33, cx, SUELO + 3, 33, mira(Bloques.PUERTA_ASCENSOR_DER, Direction.NORTH));
-			punto(cx + 2, SUELO + 2, 32, pared(Bloques.PANEL_ASCENSOR, Direction.NORTH));
+			caja(cx - 2, SUELO + 1, PUERTA_Z, cx + 1, SUELO + 5, PUERTA_Z, acero);
+			caja(cx - 1, SUELO + 1, PUERTA_Z, cx, SUELO + 3, PUERTA_Z, (x, y, z) -> puerta(x - cx + 1));
+			punto(cx + 2, SUELO + 2, PUERTA_Z - 1, pared(Bloques.PANEL_ASCENSOR, Direction.NORTH));
+			cabina(cx, SUELO, CABINA_Z0, CABINA_Z1, cx - 2, cx + 1);
+			// la pared de las puertas por dentro: hierro, las dos hojas y el indicador negro encima
+			caja(cx - 2, SUELO + 1, PUERTA_Z + 1, cx + 1, SUELO + 4, PUERTA_Z + 1, b(Blocks.IRON_BLOCK));
+			for (int hoja = 0; hoja < 2; hoja++) {
+				punto(cx - 1 + hoja, SUELO + 1, PUERTA_Z + 1, puertaCabina(hoja, false, false));
+				punto(cx - 1 + hoja, SUELO + 2, PUERTA_Z + 1, puertaCabina(hoja, true, false));
+			}
+			caja(cx - 1, SUELO + 3, PUERTA_Z + 1, cx, SUELO + 3, PUERTA_Z + 1, b(Blocks.BLACK_CONCRETE));
+			// la botonera, en la pared derecha junto a la puerta
+			for (int by = SUELO + 2; by <= SUELO + 3; by++) {
+				punto(cx + 1, by, CABINA_Z0, Blocks.POLISHED_BLACKSTONE_BUTTON.defaultBlockState()
+					.setValue(ButtonBlock.FACE, AttachFace.WALL).setValue(ButtonBlock.FACING, Direction.WEST));
+			}
 		}
+		// el hueco de espera, bajo el vestibulo (ver HUECO_*): por dentro, otra cabina larga
+		cabina(0, HUECO_Y - 1, HUECO_Z - 1, HUECO_Z + 1, HUECO_X0, HUECO_X1);
 
 		// ------------------------------------------------- auditorio: sala
 		caja(-26, SUELO, -68, 26, SUELO, -25, (x, y, z) -> {
@@ -310,6 +386,27 @@ public final class PlanoVestibulo {
 		// plantas en los rincones del auditorio
 		for (int[] p : new int[][] {{-24, -27}, {24, -27}, {-24, -52}, {24, -52}}) {
 			maceta(p[0], p[1]);
+		}
+	}
+
+	/**
+	 * Una cabina como la de la cinematica, de x0..x1 y z0..z1 por dentro, con el suelo en
+	 * y = suelo: bloque de hierro, zocalo de roble oscuro, suelo de piedra lisa, tres de
+	 * alto y lamparas de redstone en el techo (con su bloque de redstone encima).
+	 */
+	private static void cabina(int cx, int suelo, int z0, int z1, int x0, int x1) {
+		caja(x0 - 1, suelo, z0 - 1, x1 + 1, suelo + 5, z1 + 1, b(Blocks.IRON_BLOCK));
+		caja(x0 - 1, suelo + 1, z0, x1 + 1, suelo + 1, z1 + 1, b(Blocks.DARK_OAK_PLANKS));
+		caja(x0, suelo, z0, x1, suelo, z1, b(Blocks.SMOOTH_STONE));
+		caja(x0, suelo + 1, z0, x1, suelo + 3, z1, b(Blocks.AIR));
+		int zm = (z0 + z1) / 2;
+		for (int x = x0; x <= x1; x++) {
+			// en las cabinas, las dos del centro; en el hueco largo, una de cada tres
+			boolean luz = x1 - x0 < 6 ? Math.abs(2 * x - (x0 + x1)) <= 1 : Math.floorMod(x - cx, 3) == 0;
+			if (luz) {
+				punto(x, suelo + 4, zm, lampara());
+				punto(x, suelo + 5, zm, b(Blocks.REDSTONE_BLOCK));
+			}
 		}
 	}
 

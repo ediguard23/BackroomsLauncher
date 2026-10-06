@@ -59,6 +59,8 @@ public final class Fases {
 	private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 	private final Map<UUID, Long> viajes = new HashMap<>();
 	private final Map<ResourceKey<Level>, List<BlockPos>> ocupadas = new HashMap<>();
+	/** Jugadores de la expedicion (los que habia en el vestibulo al /start); 0 = los que esten conectados. */
+	private int previstos;
 	private final Random azar = new Random();
 	private List<String> escapados = new ArrayList<>();
 	private MinecraftServer servidor;
@@ -202,13 +204,31 @@ public final class Fases {
 	/* ------------------------------------------------ puntos de llegada */
 
 	/** Punto al azar de la fase, en suelo libre y separado de los ya repartidos en ella. */
+	/** Cuantos van a jugar esta expedicion (lo pone el /start); de eso sale el tamano del reparto. */
+	public void previstos(int n) {
+		this.previstos = Math.max(0, n);
+	}
+
+	/**
+	 * Medio lado del cuadrado de llegada: el radio de la Fase es para 200 jugadores y con
+	 * menos se encoge con la raiz (la misma gente por bloque cuadrado): con 10, la fase 1
+	 * va de 4800 a ~1070 y os cruzais de vez en cuando. Nunca menos de dos separaciones.
+	 */
+	public int radio(ServerLevel nivel, Fase f) {
+		int n = this.previstos > 0 ? this.previstos
+			: (int) nivel.getServer().getPlayerList().getPlayers().stream().filter(j -> !j.isCreative() && !j.isSpectator()).count();
+		double escala = Math.sqrt(Math.min(1.0, Math.max(1, n) / 200.0));
+		return Math.max(f.separacion() * 2, (int) Math.round(f.radio() * escala));
+	}
+
 	public BlockPos zonaNueva(ServerLevel nivel, Fase f) {
 		List<BlockPos> usadas = this.ocupadas.computeIfAbsent(nivel.dimension(), k -> new ArrayList<>());
+		int radio = this.radio(nivel, f);
 		int x = 0;
 		int z = 0;
 		for (int intento = 0; intento < 80; intento++) {
-			x = this.azar.nextInt(f.radio() * 2 + 1) - f.radio();
-			z = this.azar.nextInt(f.radio() * 2 + 1) - f.radio();
+			x = this.azar.nextInt(radio * 2 + 1) - radio;
+			z = this.azar.nextInt(radio * 2 + 1) - radio;
 			boolean lejos = true;
 			for (BlockPos o : usadas) {
 				long dx = o.getX() - x;

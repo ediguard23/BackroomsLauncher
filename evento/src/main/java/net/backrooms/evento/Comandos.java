@@ -61,8 +61,10 @@ public final class Comandos {
 	private static void registrar(CommandDispatcher<CommandSourceStack> d) {
 		d.register(Commands.literal("start")
 			.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-			.executes(c -> empezar(c, c.getSource().getServer().getPlayerList().getPlayers().stream()
-				.filter(j -> !j.isCreative() && !j.isSpectator()).toList()))
+			.executes(Comandos::abrirAscensores)
+			.then(Commands.literal("todos")
+				.executes(c -> empezar(c, c.getSource().getServer().getPlayerList().getPlayers().stream()
+					.filter(j -> !j.isCreative() && !j.isSpectator()).toList())))
 			.then(Commands.argument("jugadores", EntityArgument.players())
 				.executes(c -> empezar(c, List.copyOf(EntityArgument.getPlayers(c, "jugadores"))))));
 		d.register(Commands.literal("backrooms")
@@ -73,6 +75,13 @@ public final class Comandos {
 					.executes(c -> buscar(c, c.getSource().getPlayerOrException()))
 					.then(Commands.argument("jugador", EntityArgument.player())
 						.executes(c -> buscar(c, EntityArgument.getPlayer(c, "jugador"))))))
+			.then(Commands.literal("ascensores")
+				.then(Commands.literal("abrir").executes(Comandos::abrirAscensores))
+				.then(Commands.literal("cerrar").executes(c -> {
+					Expedicion.get().cerrar();
+					c.getSource().sendSuccess(() -> Component.literal("Ascensores cerrados. El proximo /start es otra ronda."), true);
+					return 1;
+				})))
 			.then(Commands.literal("cinematica")
 				.executes(c -> cinematica(c, c.getSource().getPlayerOrException()))
 				.then(Commands.argument("jugador", EntityArgument.player())
@@ -225,6 +234,15 @@ public final class Comandos {
 	private static int muerte(CommandContext<CommandSourceStack> c, boolean elimina) {
 		Vestibulo.get().muerteElimina(elimina);
 		c.getSource().sendSuccess(() -> Component.literal(elimina ? "Morir saca de la expedicion." : "Al morir se reaparece en la misma fase."), true);
+		return 1;
+	}
+
+	private static int abrirAscensores(CommandContext<CommandSourceStack> c) {
+		Expedicion.get().abrir();
+		long n = net.backrooms.evento.vestibulo.Vestibulo.get().nivel() == null ? 0
+			: net.backrooms.evento.vestibulo.Vestibulo.get().nivel().players().stream().filter(j -> !j.isCreative() && !j.isSpectator()).count();
+		c.getSource().sendSuccess(() -> Component.literal("Ascensores abiertos: " + n + " jugadores en el vestibulo. Bajan al entrar en una cabina"
+			+ " (/start todos manda a los que queden; /backrooms ascensores cerrar los cierra)."), true);
 		return 1;
 	}
 

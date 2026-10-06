@@ -30,6 +30,8 @@ public final class AgarreCliente {
 	public static void empezar(Agarrado p) {
 		bacteria = p.bacteria();
 		ticks = 0;
+		// al "montarte" en ella Minecraft pone «Pulsa Mayús para bajarte»: ni se puede ni pega
+		net.minecraft.client.Minecraft.getInstance().gui.setOverlayMessage(net.minecraft.network.chat.Component.empty(), false);
 	}
 
 	public static boolean activo() {
@@ -48,6 +50,10 @@ public final class AgarreCliente {
 			return;
 		}
 		ticks++;
+		if (ticks < 10) {
+			// el «Pulsa Mayús para bajarte» puede llegar despues que el agarre (ver empezar)
+			mc.gui.setOverlayMessage(net.minecraft.network.chat.Component.empty(), false);
+		}
 		// nada de pegar, usar, soltar ni abrir el inventario
 		while (mc.options.keyAttack.consumeClick()) {
 			// nada

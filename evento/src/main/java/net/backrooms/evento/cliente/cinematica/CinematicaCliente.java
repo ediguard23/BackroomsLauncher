@@ -42,6 +42,8 @@ public final class CinematicaCliente {
 			terminar();
 		}
 		inicio = System.nanoTime();
+		// un aviso de la megafonia del vestibulo que estuviera sonando no sigue dentro del ascensor
+		mc.getSoundManager().stop(net.backrooms.evento.Sonidos.MEGAFONIA_VESTIBULO.location(), null);
 		guiAntes = mc.options.hideGui;
 		mc.options.hideGui = true;
 		banda = new SimpleSoundInstance(SONIDO, SoundSource.MASTER, 1.0F, 1.0F, RandomSource.create(), false, 0,

@@ -101,13 +101,22 @@ public final class Ambiente {
 				continue;
 			}
 			Estado e = this.estado(nivel.dimension());
+			if (nivel.players().isEmpty()) {
+				// sin nadie no corre el reloj: el primero que llegue empieza con luz y con los
+				// sucesos sorteados desde ese momento (si no, el apagon que "tocaba" mientras
+				// la fase estaba vacia saltaba nada mas llegar del /start)
+				e.apagon = false;
+				e.alarma = false;
+				e.proximoApagon = -1;
+				continue;
+			}
 			if (e.apagon || e.alarma) {
 				if (this.ticks >= e.fin) {
 					this.terminar(nivel);
 				}
 				continue;
 			}
-			if (!this.automatico || nivel.players().isEmpty()) {
+			if (!this.automatico) {
 				continue;
 			}
 			if (e.proximoApagon < 0) {
@@ -162,6 +171,23 @@ public final class Ambiente {
 			net.backrooms.evento.Sonidos.aJugador(j, net.backrooms.evento.Sonidos.MEGAFONIA_ALERTA, 0.9F);
 		}
 		BackroomsEvento.LOG.info("Alarma en {} ({} s)", nivel.dimension().identifier(), segundos);
+	}
+
+	/**
+	 * El /start: luz normal ya y los sucesos se sortean de nuevo (desde que haya alguien en
+	 * la fase), para que nadie llegue a un apagon que venia de antes.
+	 */
+	public void reiniciar(ServerLevel nivel) {
+		Estado e = this.estado(nivel.dimension());
+		boolean habia = e.apagon || e.alarma;
+		e.apagon = false;
+		e.alarma = false;
+		e.proximoApagon = -1;
+		e.proximaAlarma = -1;
+		if (habia) {
+			this.enviarATodos(nivel);
+		}
+		BackroomsEvento.LOG.info("Luz de {} de cero: apagones y alarmas sorteados desde ahora", nivel.dimension().identifier());
 	}
 
 	/** Vuelve la luz normal y programa los siguientes. */

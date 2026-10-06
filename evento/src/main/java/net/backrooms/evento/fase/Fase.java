@@ -18,7 +18,8 @@ import org.jspecify.annotations.Nullable;
  * repartidos, hay mas misiones de grabar, los apagones y las alarmas son mas
  * frecuentes, hay mas Bacterias y mas rapidas y la cordura baja antes.
  *
- * @param radio          medio lado del cuadrado donde se reparte a la gente al llegar
+ * @param radio          medio lado del cuadrado donde se reparte a la gente al llegar, con 200
+ *                       jugadores (con menos se encoge: Fases#radio)
  * @param separacion     distancia minima entre los puntos de llegada
  * @param casetes        casetes a recoger
  * @param alcanceSenal   bloques a los que el detector capta un casete
@@ -40,19 +41,19 @@ public record Fase(int numero, String nombre, String dificultad, ResourceKey<Lev
 
 	public static final Fase[] TODAS = {
 		new Fase(1, "NIVEL 0", "MEDIA", Level.OVERWORLD,
-			4800, 280, 10, 70, 1.0, 2,
+			4800, 280, 5, 70, 1.0, 2,
 			new int[] {6, 10}, new int[] {45, 75}, new int[] {7, 12}, new int[] {35, 55},
 			1.0, 1.0, 1.0, 0.45),
 		new Fase(2, "NIVEL 0 · SECTOR B", "MEDIA-ALTA", clave("fase_2"),
-			2600, 200, 10, 58, 1.15, 2,
+			2600, 200, 5, 58, 1.15, 2,
 			new int[] {5, 8}, new int[] {55, 85}, new int[] {6, 10}, new int[] {40, 60},
 			1.5, 1.1, 1.25, 0.6),
 		new Fase(3, "NIVEL 0 · SECTOR C", "ALTA", clave("fase_3"),
-			1400, 140, 10, 46, 1.3, 3,
+			1400, 140, 4, 46, 1.3, 3,
 			new int[] {4, 7}, new int[] {60, 95}, new int[] {5, 9}, new int[] {45, 65},
 			2.2, 1.2, 1.5, 0.75),
 		new Fase(4, "NIVEL 0 · ZONA ROJA", "EXTREMA", clave("fase_4"),
-			700, 90, 10, 36, 1.45, 3,
+			700, 90, 4, 36, 1.45, 3,
 			new int[] {3, 5}, new int[] {70, 110}, new int[] {4, 7}, new int[] {50, 70},
 			3.0, 1.3, 1.8, 0.9)
 	};
