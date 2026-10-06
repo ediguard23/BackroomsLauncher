@@ -3,6 +3,14 @@
 Última actualización: 2026-10-05 21:50 (hora de Honduras). Mod `backrooms_evento` 0.9.4, launcher 1.0.0
 (con arreglos sin publicar).
 
+## El código de la entrada también por correo (2026-10-06; xgdier_)
+
+- Tienda desplegada: al confirmarse el pago se manda el código al correo de Tebex (Resend,
+  dominio peakmc.lat verificado, `RESEND_API_KEY` y `MAIL_FROM` en Render). Una sola vez aunque
+  lleguen webhook y vuelta del comprador. Panel → Eventos: reenviar por correo y correo de prueba.
+- Probado en local con un Resend falso (webhook → código → correo; sin duplicados; reenviar).
+  **Falta**: un correo real (botón «Enviar correo de prueba» del panel) y la primera compra real.
+
 ## Instalador con la marca del evento (2026-10-06; xgdier_)
 
 - El instalador (NSIS) ya lleva el icono de la puerta (`assets/icon.ico`), la barra lateral y la

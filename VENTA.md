@@ -29,7 +29,8 @@ No hay que ejecutar comandos en Tebex: la lista son esos nicks.
    (de Java) y compra la entrada. Una por nick; para regalar una, se compra entrando con
    el nick del amigo. Bedrock no puede comprarla.
 2. Paga con Tebex. Al confirmarse el pago, la tienda le enseña su código
-   **BR-XXXX-XXXX-XXXX** (copiar o descargar en un .txt). Ese nick ya está en la lista.
+   **BR-XXXX-XXXX-XXXX** (copiar o descargar en un .txt) y **le llega por correo** al correo con
+   el que pagó en Tebex (Resend, desde entradas@peakmc.lat). Ese nick ya está en la lista.
 3. El enlace del launcher solo lo ve quien tiene entrada: en esa ventana y en /eventos con
    su sesión iniciada (cuando el staff ponga el enlace en el panel → Eventos → Ajustes).
 4. Abre el launcher, pone su nick (o inicia sesión premium) y pulsa JUGAR. Como ese nick
