@@ -28,7 +28,7 @@ const VERSION = require('./package.json').version;
 
 // La misma identidad que los accesos directos del instalador (appId de electron-builder.yml):
 // asi Windows agrupa la ventana con ellos y la barra de tareas enseña el icono del launcher.
-if (process.platform === 'win32') app.setAppUserModelId('com.backrooms.launcher');
+if (process.platform === 'win32') app.setAppUserModelId(evento.appId || 'com.backrooms.launcher');
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -419,7 +419,9 @@ async function jugar () {
 /* ------------------------------------------------------------ actualizacion */
 
 function iniciarActualizador () {
-  if (!app.isPackaged) return;
+  // un launcher especial (la beta: src/event.json con "actualizar": false) no se actualiza:
+  // si no, se convertiria en el launcher normal al encontrar su release
+  if (!app.isPackaged || evento.actualizar === false) return;
   let autoUpdater;
   try { ({ autoUpdater } = require('electron-updater')); } catch { return; }
   autoUpdater.autoDownload = true;

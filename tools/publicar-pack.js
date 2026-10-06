@@ -7,6 +7,7 @@
  *   node tools/publicar-pack.js --limpiar  ademas borra de la release los archivos que ya no se usan
  *   node tools/publicar-pack.js --local    genera dist-pack/ y lo sirve en http://127.0.0.1:8765/ para probar
  *   ... --ficha=pack/.evento-local.json    usa otra ficha (los archivos que empiezan por punto no viajan en el pack)
+ *   ... --tag=pack-beta                    otra release (la del launcher de la beta: tools/construir-beta.js)
  *
  * Estructura de la carpeta pack/ (no se sube al repositorio):
  *
@@ -29,9 +30,9 @@ const crypto = require('crypto');
 const RAIZ = path.join(__dirname, '..');
 const PACK = path.join(RAIZ, 'pack');
 const SALIDA = path.join(RAIZ, 'dist-pack');
-const TAG = 'pack';
-
 const args = process.argv.slice(2);
+// --tag=<tag>: otra release para el pack (por defecto "pack", la del launcher normal)
+const TAG = (args.find((a) => a.startsWith('--tag=')) || '').slice('--tag='.length) || 'pack';
 const LOCAL = args.includes('--local');
 const LIMPIAR = args.includes('--limpiar');
 const PUERTO = Number((args.find((a) => a.startsWith('--puerto=')) || '').split('=')[1]) || 8765;
@@ -188,7 +189,7 @@ async function publicarGithub () {
     // launcher la tomaria por una version del programa.
     release = await gh(token, `/repos/${owner}/${repo}/releases`, {
       method: 'POST',
-      body: JSON.stringify({ tag_name: TAG, name: 'Pack del evento', body: 'Archivos del pack. Los gestiona tools/publicar-pack.js: no tocar a mano.', prerelease: true, make_latest: 'false' })
+      body: JSON.stringify({ tag_name: TAG, name: TAG === 'pack' ? 'Pack del evento' : `Pack del evento (${TAG})`, body: 'Archivos del pack. Los gestiona tools/publicar-pack.js: no tocar a mano.', prerelease: true, make_latest: 'false' })
     });
   }
   release.repoPath = `${owner}/${repo}`;

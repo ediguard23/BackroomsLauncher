@@ -6,12 +6,14 @@
 #   JVM_EXTRA="-D..." bash tools/reiniciar-prueba.sh   (opciones extra para el Java del servidor)
 #
 # Rutas por defecto las del PC del organizador; se cambian con SERVIDOR, JAVA_SERVIDOR
-# y GUION_JUGAR.
+# y GUION_JUGAR; la ficha del pack local, con FICHA_PACK (p. ej. pack/.evento-local-real.json,
+# que canjea contra la tienda de verdad).
 set -u
 RAIZ="$(cd "$(dirname "$0")/.." && pwd)"
 SERVIDOR="${SERVIDOR:-D:/backrooms-prueba}"
 JAVA="${JAVA_SERVIDOR:-C:/Program Files/Microsoft/jdk-21.0.12.8-hotspot/bin/java.exe}"
 GUION="${GUION_JUGAR:-$RAIZ/tools/pruebas/pulsar-jugar.js}"
+FICHA_PACK="${FICHA_PACK:-pack/.evento-local.json}"
 
 cd "$RAIZ"
 JAR=$(ls -t evento/build/libs/backrooms-evento-*.jar | head -1)
@@ -33,7 +35,7 @@ sed -i "s/^pauseOnLostFocus:.*/pauseOnLostFocus:${PAUSA_FOCO:-false}/" "$APPDATA
 
 # servidor y pack en segundo plano
 ( cd "$SERVIDOR" && nohup "$JAVA" -Xms2G -Xmx4G ${JVM_EXTRA:-} -jar fabric-server.jar nogui > servidor.log 2>&1 & )
-nohup node tools/publicar-pack.js --local --ficha=pack/.evento-local.json > /tmp/pack-local.log 2>&1 &
+nohup node tools/publicar-pack.js --local --ficha="$FICHA_PACK" > /tmp/pack-local.log 2>&1 &
 sleep 3
 until grep -q -E "RCON running|Exception|ERROR" "$SERVIDOR/servidor.log" 2>/dev/null; do sleep 2; done
 grep -E "ERROR|Exception" "$SERVIDOR/servidor.log" | head -5
