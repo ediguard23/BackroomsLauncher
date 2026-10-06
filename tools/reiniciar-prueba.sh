@@ -5,12 +5,13 @@
 #   bash tools/reiniciar-prueba.sh [--mundo-nuevo]
 #   JVM_EXTRA="-D..." bash tools/reiniciar-prueba.sh   (opciones extra para el Java del servidor)
 #
-# Solo para desarrollo en el PC del organizador (rutas fijas).
+# Rutas por defecto las del PC del organizador; se cambian con SERVIDOR, JAVA_SERVIDOR
+# y GUION_JUGAR.
 set -u
 RAIZ="$(cd "$(dirname "$0")/.." && pwd)"
-SERVIDOR="D:/backrooms-prueba"
-JAVA="C:/Program Files/Microsoft/jdk-21.0.12.8-hotspot/bin/java.exe"
-GUION="${GUION_JUGAR:-$TEMP/claude/pulsar-jugar-ya.js}"
+SERVIDOR="${SERVIDOR:-D:/backrooms-prueba}"
+JAVA="${JAVA_SERVIDOR:-C:/Program Files/Microsoft/jdk-21.0.12.8-hotspot/bin/java.exe}"
+GUION="${GUION_JUGAR:-$RAIZ/tools/pruebas/pulsar-jugar.js}"
 
 cd "$RAIZ"
 JAR=$(ls -t evento/build/libs/backrooms-evento-*.jar | head -1)
