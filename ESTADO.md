@@ -6,7 +6,7 @@
 ## Tienda: apartado Eventos y lista del evento (2026-10-05, noche; xgdier_)
 
 Lo pidió el organizador: la entrada se vende HOY pero el launcher aún no se publica, y hay
-que saber quién compra. Todo en peakmc-store (commit `d689b62`, **sin desplegar**) y en
+que saber quién compra. Todo en peakmc-store (**desplegado** en tienda.peakmc.lat el 2026-10-05) y en
 el mod. Ver `VENTA.md` (reescrito) para el modelo completo.
 
 - **Tienda**: página `/eventos` (enlace en el menú y aviso en la portada) con la entrada,
@@ -27,7 +27,9 @@ el mod. Ver `VENTA.md` (reescrito) para el modelo completo.
   (agregar da el código, quitar lo anula, la lista se descarga al arrancar). Luego dejé el
   servidor de pruebas como estaba (config y jar 0.9.2). **Sin probar en el juego**: que el
   login rechace a quien no está en la lista y la expulsión (hace falta un cliente con pase).
-- **Falta (organizador)**: desplegar la tienda, poner `BACKROOMS_FIRMA` y
+- **Tráiler** en /eventos: versión web 1080p30 (23,6 MB, `public/assets/eventos/backrooms-trailer.mp4`,
+  sacada del 4K con el ffmpeg de Medal) con portada del segundo 58; solo se descarga al darle a play.
+- **Falta (organizador)**: poner `BACKROOMS_FIRMA` y
   `BACKROOMS_SERVIDOR_TOKEN` en Render (los dos en el `.env` local de peakmc-store), crear
   el paquete en Tebex (2 $, sin comandos) y vincularlo en el panel. Ver VENTA.md.
 - El texto de la ventana ENTRADA del launcher ya dice que el código solo vale con el nick de
