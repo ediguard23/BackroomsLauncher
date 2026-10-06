@@ -589,9 +589,9 @@ if (require.main === module) (async () => {
     camara: s('camara', { attenuation_distance: 10 }),
     apagon: s('apagon'),
     luz_vuelve: s('luz_vuelve'),
-    alarma: s('alarma', { stream: true }),
+    alarma: s('alarma'),
     ascensor: s('ascensor'),
-    'vestibulo.ambiente': s('vestibulo', { stream: true }),
+    'vestibulo.ambiente': s('vestibulo'),
     pitido: s('pitido'),
     latido: s('latido')
   });

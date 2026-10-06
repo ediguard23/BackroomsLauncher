@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class CinematicaSonidoMixin {
 	@Inject(method = "calculateVolume(Lnet/minecraft/client/resources/sounds/SoundInstance;)F", at = @At("RETURN"), cancellable = true)
 	private void backrooms$silenciarMundo(SoundInstance sonido, CallbackInfoReturnable<Float> cir) {
-		if (CinematicaCliente.activa() && !CinematicaCliente.SONIDO.equals(sonido.getIdentifier())) {
+		if (CinematicaCliente.activa() && !CinematicaCliente.esBanda(sonido.getIdentifier())) {
 			cir.setReturnValue(cir.getReturnValueF() * CinematicaCliente.volumenMundo());
 		}
 	}

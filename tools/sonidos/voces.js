@@ -167,8 +167,8 @@ async function guardarEst (nombre, est) {
 
   const f = path.join(SALIDA, '..', 'sounds.json');
   const j = JSON.parse(fs.readFileSync(f, 'utf8'));
-  j['megafonia.vestibulo'] = { sounds: [{ name: 'backrooms_evento:megafonia_auditorio', stream: true }, { name: 'backrooms_evento:megafonia_linterna', stream: true }] };
-  j['megafonia.alerta'] = { sounds: [{ name: 'backrooms_evento:megafonia_alerta', stream: true }] };
+  j['megafonia.vestibulo'] = { sounds: [{ name: 'backrooms_evento:megafonia_auditorio' }, { name: 'backrooms_evento:megafonia_linterna' }] };
+  j['megafonia.alerta'] = { sounds: [{ name: 'backrooms_evento:megafonia_alerta' }] };
   j.susurros = {
     sounds: [
       { name: 'backrooms_evento:susurros', weight: 1 },

@@ -75,6 +75,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			Balanceo.tick(mc);
 			AgarreCliente.tick(mc);
 			Miedo.tick(mc);
+			net.backrooms.evento.cliente.cinematica.CinematicaCliente.tick(mc);
 		});
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("supervivencia"), SupervivenciaCliente::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("camara"), CamaraHud::render);

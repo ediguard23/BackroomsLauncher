@@ -236,6 +236,20 @@ function fundidos ([l, r], entradaS = 0.004, salidaS = 0.03) {
   return [l, r];
 }
 
+/**
+ * Lo que suena desde `desde` segundos hasta el final, con un fundido de entrada corto.
+ * Para las cinematicas: Minecraft corta todos los sonidos al cambiar de mundo, asi que lo
+ * de despues del viaje va en otro archivo que el cliente pone al llegar.
+ */
+function desde ([l, r], segundos) {
+  const i0 = Math.min(l.length, Math.round(segundos * SR));
+  const a = l.slice(i0);
+  const b = r.slice(i0);
+  const fe = Math.floor(0.012 * SR);
+  for (let i = 0; i < fe && i < a.length; i++) { const g = i / fe; a[i] *= g; b[i] *= g; }
+  return [a, b];
+}
+
 /** Codifica a OGG Vorbis estereo y lo guarda. */
 async function guardarOgg (file, [l, r], calidad = 5) {
   const { createOggEncoder } = require('wasm-media-encoders');
@@ -251,4 +265,4 @@ async function guardarOgg (file, [l, r], calidad = 5) {
   return fs.statSync(file).size;
 }
 
-module.exports = { guardarOgg, SR, azar, sierra, Biquad, rosa, marron, Freeverb, Cinta, estereo, cerrarBucle, masterizar, fundidos };
+module.exports = { guardarOgg, SR, azar, sierra, Biquad, rosa, marron, Freeverb, Cinta, estereo, cerrarBucle, masterizar, fundidos, desde };

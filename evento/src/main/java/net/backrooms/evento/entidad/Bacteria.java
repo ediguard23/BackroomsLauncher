@@ -9,6 +9,7 @@ import net.backrooms.evento.Sonidos;
 import net.backrooms.evento.ambiente.Ambiente;
 import net.backrooms.evento.escondite.Escondites;
 import net.backrooms.evento.fase.Fase;
+import net.backrooms.evento.fase.Fases;
 import net.backrooms.evento.mundo.GeneradorNivel0;
 import net.backrooms.evento.red.Agarrado;
 import net.backrooms.evento.supervivencia.Supervivencia;
@@ -219,7 +220,7 @@ public class Bacteria extends Monster {
 
 	/** Te ve si estas a tiro y sin paredes en medio; te oye si corres cerca. */
 	private boolean detecta(LivingEntity p) {
-		if (!(p instanceof ServerPlayer j) || j.isCreative() || j.isSpectator() || !j.isAlive() || j.isPassenger()) {
+		if (!(p instanceof ServerPlayer j) || j.isCreative() || j.isSpectator() || !j.isAlive() || j.isPassenger() || Fases.get().viajando(j)) {
 			return false;
 		}
 		if (this.agarre >= 0 || this.retirada != null || this.tickCount < this.descanso || Escondites.escondido(j)) {
@@ -280,7 +281,7 @@ public class Bacteria extends Monster {
 			this.level().playSound(null, this.getX(), this.getEyeY(), this.getZ(), Sonidos.BACTERIA_CAZA, SoundSource.HOSTILE, 2.0F, 0.9F + this.random.nextFloat() * 0.15F);
 		}
 		if (t != null) {
-			if (!t.isAlive() || (t instanceof ServerPlayer j && (j.isCreative() || j.isSpectator())) || t.level() != nivel) {
+			if (!t.isAlive() || (t instanceof ServerPlayer j && (j.isCreative() || j.isSpectator() || Fases.get().viajando(j))) || t.level() != nivel) {
 				this.setTarget(null);
 			} else if (t instanceof ServerPlayer j && Escondites.escondido(j)) {
 				this.retirarse(nivel, j);
@@ -331,7 +332,7 @@ public class Bacteria extends Monster {
 
 	/** Te tiene al alcance de los brazos, y no hay pared en medio. */
 	boolean alAlcance(ServerPlayer j) {
-		if (j.isCreative() || j.isSpectator() || !j.isAlive() || j.isPassenger() || Escondites.escondido(j)) {
+		if (j.isCreative() || j.isSpectator() || !j.isAlive() || j.isPassenger() || Escondites.escondido(j) || Fases.get().viajando(j)) {
 			return false;
 		}
 		double dx = j.getX() - this.getX();

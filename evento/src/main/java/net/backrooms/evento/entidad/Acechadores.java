@@ -106,7 +106,7 @@ public final class Acechadores {
 	private List<ServerPlayer> jugando(ServerLevel nivel) {
 		List<ServerPlayer> l = new ArrayList<>();
 		for (ServerPlayer j : nivel.players()) {
-			if (!j.isSpectator() && !j.isCreative() && Misiones.get().enExpedicion(j)) {
+			if (!j.isSpectator() && !j.isCreative() && Misiones.get().enExpedicion(j) && !net.backrooms.evento.fase.Fases.get().viajando(j)) {
 				l.add(j);
 			}
 		}

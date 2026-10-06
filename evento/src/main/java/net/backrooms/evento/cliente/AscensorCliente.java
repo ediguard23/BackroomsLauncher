@@ -27,6 +27,13 @@ public final class AscensorCliente {
 	}
 
 	public static void empezar(ViajeAscensor v) {
+		// a las fases 2 y 3 se baja con su cinematica (CinematicaCliente, guiones 2 y 3);
+		// a la 4 y a la salida, con este fundido
+		if (v.fase() == 2 || v.fase() == 3) {
+			olvidar();
+			net.backrooms.evento.cliente.cinematica.CinematicaCliente.empezar(v.fase());
+			return;
+		}
 		viaje = v;
 		inicio = Util.getMillis();
 		Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(Sonidos.ASCENSOR, 1.0F, 1.0F));

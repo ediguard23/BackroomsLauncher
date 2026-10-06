@@ -75,6 +75,13 @@ public final class Comandos {
 					.executes(c -> buscar(c, c.getSource().getPlayerOrException()))
 					.then(Commands.argument("jugador", EntityArgument.player())
 						.executes(c -> buscar(c, EntityArgument.getPlayer(c, "jugador"))))))
+			// pulsa por el el panel del ascensor de salida (lo mismo que el panel: mira sus misiones)
+			.then(Commands.literal("bajar").then(Commands.argument("jugador", EntityArgument.player()).executes(c -> {
+				ServerPlayer j = EntityArgument.getPlayer(c, "jugador");
+				net.backrooms.evento.fase.Fases.get().pulsar(j, j.blockPosition());
+				c.getSource().sendSuccess(() -> Component.literal("Panel pulsado por " + j.getGameProfile().name()), true);
+				return 1;
+			})))
 			.then(Commands.literal("ascensores")
 				.then(Commands.literal("abrir").executes(Comandos::abrirAscensores))
 				.then(Commands.literal("cerrar").executes(c -> {
@@ -84,6 +91,11 @@ public final class Comandos {
 				})))
 			.then(Commands.literal("cinematica")
 				.executes(c -> cinematica(c, c.getSource().getPlayerOrException()))
+				// la bajada a la fase 2, 3 o 4 tal como la ve quien la hace (sin viajar)
+				.then(Commands.literal("fase").then(Commands.argument("n", IntegerArgumentType.integer(2, 4))
+					.executes(c -> cinematicaFase(c, c.getSource().getPlayerOrException(), IntegerArgumentType.getInteger(c, "n")))
+					.then(Commands.argument("jugador", EntityArgument.player())
+						.executes(c -> cinematicaFase(c, EntityArgument.getPlayer(c, "jugador"), IntegerArgumentType.getInteger(c, "n"))))))
 				.then(Commands.argument("jugador", EntityArgument.player())
 					.executes(c -> cinematica(c, EntityArgument.getPlayer(c, "jugador")))))
 			.then(Commands.literal("apagon")
@@ -255,6 +267,13 @@ public final class Comandos {
 		int segundos = (int) Math.ceil(n / 3.0 * 0.5) + 55;
 		c.getSource().sendSuccess(() -> Component.literal("Empieza la expedicion: " + n + " jugadores, todos dentro en unos " + segundos + " s."), true);
 		return n;
+	}
+
+	private static int cinematicaFase(CommandContext<CommandSourceStack> c, ServerPlayer j, int n) {
+		Fase f = Fase.numero(n);
+		net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(j, new net.backrooms.evento.red.ViajeAscensor(f.numero(), f.nombre(), f.dificultad()));
+		c.getSource().sendSuccess(() -> Component.literal("Bajada a la fase " + n + " para " + j.getGameProfile().name() + " (solo la animacion)"), false);
+		return 1;
 	}
 
 	private static int cinematica(CommandContext<CommandSourceStack> c, ServerPlayer j) {

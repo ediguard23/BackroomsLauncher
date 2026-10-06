@@ -20,7 +20,9 @@
  *  50.5  golpe grave y acorde para el titulo NIVEL 0
  *
  * Todo es sintesis propia (sin muestras de nadie). Sale a
- * evento/src/main/resources/assets/backrooms_evento/sounds/cinematica.ogg
+ * evento/src/main/resources/assets/backrooms_evento/sounds/cinematica.ogg y, aparte, lo de
+ * despues del viaje (41 s) a cinematica_despues.ogg: Minecraft corta todos los sonidos al
+ * cambiar de mundo y el cliente lo pone al llegar (CinematicaCliente).
  *
  *   node tools/sonidos/cinematica.js
  */
@@ -749,7 +751,7 @@ function renderizar () {
   return audio;
 }
 
-module.exports = { renderizar, poner, paneo, suave, db, midi, ruidoEstereo, campana, golpeMetal, bum, crujido, alarma, braaam, shepard, latido, respiracion, fuego, chirrido, viento, DUR };
+module.exports = { renderizar, poner, paneo, suave, db, midi, ruidoEstereo, campana, golpeMetal, bum, crujido, alarma, braaam, shepard, latido, respiracion, fuego, chirrido, viento, musicaAscensor, altavoz, DUR };
 
 if (require.main === module) (async () => {
   const t0 = Date.now();
@@ -765,4 +767,13 @@ if (require.main === module) (async () => {
   }
   const bytes = await D.guardarOgg(SALIDA, audio, 5);
   console.log(`cinematica.ogg ${(N / SR).toFixed(1)} s, ${(bytes / 1024).toFixed(0)} KB (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
+  // lo de despues del viaje al Nivel 0 (Expedicion.RETRASO_VIAJE = 41 s)
+  const b2 = await D.guardarOgg(SALIDA.replace('cinematica.ogg', 'cinematica_despues.ogg'), D.desde(audio, 41.0), 5);
+  console.log(`cinematica_despues.ogg ${(b2 / 1024).toFixed(0)} KB`);
+  const fs = require('fs');
+  const f = path.join(path.dirname(SALIDA), '..', 'sounds.json');
+  const j = JSON.parse(fs.readFileSync(f, 'utf8'));
+  j.cinematica = { sounds: [{ name: 'backrooms_evento:cinematica' }] };
+  j['cinematica.despues'] = { sounds: [{ name: 'backrooms_evento:cinematica_despues' }] };
+  fs.writeFileSync(f, JSON.stringify(j, null, 2) + '\n');
 })();

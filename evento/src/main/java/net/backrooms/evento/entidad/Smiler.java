@@ -98,7 +98,8 @@ public class Smiler extends PathfinderMob {
 			return;
 		}
 		ServerPlayer obj = this.objetivo();
-		if (obj == null || obj.distanceTo(this) > 56 || obj.isSpectator()) {
+		if (obj == null || obj.distanceTo(this) > 56 || obj.isSpectator()
+			|| net.backrooms.evento.fase.Fases.get().viajando(obj)) {
 			this.discard();
 			return;
 		}

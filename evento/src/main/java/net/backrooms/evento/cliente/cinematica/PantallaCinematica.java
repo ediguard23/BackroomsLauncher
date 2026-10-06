@@ -104,7 +104,7 @@ public class PantallaCinematica extends Screen {
 
 	@Override
 	public void tick() {
-		if (CinematicaCliente.segundos() >= CinematicaCliente.FIN) {
+		if (CinematicaCliente.segundos() >= CinematicaCliente.fin()) {
 			CinematicaCliente.terminar();
 		}
 	}
@@ -121,10 +121,19 @@ public class PantallaCinematica extends Screen {
 		}
 		int w = this.width;
 		int h = this.height;
-		if (t < CinematicaCliente.FIN_CINTA) {
-			g.guiRenderState.submitGuiElement(new Capa(CINTA, new Matrix3x2f(g.pose()), w, h, t, 0.0F,
+		int guion = CinematicaCliente.guion();
+		if (t < CinematicaCliente.finCinta()) {
+			g.guiRenderState.submitGuiElement(new Capa(CINTA, new Matrix3x2f(g.pose()), w, h, t, guion,
 				TextureSetup.singleTexture(AtlasCinematica.vista(), AtlasCinematica.muestreo())));
 			this.hudCamara(g, t);
+		} else if (guion != 0) {
+			// bajada de fase: negro con el nombre de la fase y, al final, se vuelve a ver el mundo
+			float alfa = Mth.clamp((CinematicaCliente.fin() - t) / 1.0F, 0.0F, 1.0F);
+			g.fill(0, 0, w, h, Math.round(alfa * 255) << 24);
+			if (t < CinematicaCliente.finCinta() + 1.2F && (int) (t * 4) % 2 == 0) {
+				Texto.hud(g, "SIN SEÑAL", w / 2.0F - Texto.anchoHud("SIN SEÑAL", h / 16.0F, 0.1F) / 2.0F, h / 2.0F - h / 32.0F, h / 16.0F, 0.1F, 0x55E8E0C8);
+			}
+			this.tituloFase(g, t, guion);
 		} else if (t < CinematicaCliente.DESPERTAR) {
 			g.fill(0, 0, w, h, 0xFF000000);
 			// lo ultimo que saca la camara rota
@@ -143,29 +152,39 @@ public class PantallaCinematica extends Screen {
 
 	/** Lo que pinta la videocamara encima de la imagen. */
 	private void hudCamara(GuiGraphics g, float t) {
-		if (t < 1.3F || t > 39.1F) {
+		int guion = CinematicaCliente.guion();
+		if (t < 1.3F || t > CinematicaCliente.finCinta() - 0.3F) {
 			return;
 		}
 		int w = this.width;
 		int h = this.height;
 		float tam = h / 16.0F;
 		float m = h / 20.0F;
-		// al caer, el HUD tiembla con la imagen
-		float dx = t > 26.5F ? (float) Math.sin(t * 53.0) * h / 160.0F : 0.0F;
-		float dy = t > 26.5F ? (float) Math.cos(t * 41.0) * h / 200.0F : 0.0F;
+		// al caer (y en los golpes fuertes), el HUD tiembla con la imagen
+		boolean tiembla = guion == 2 ? t > 20.4F && t < 22.3F : guion == 3 ? t > 24.6F || (t > 18.6F && t < 19.2F) : t > 26.5F;
+		float dx = tiembla ? (float) Math.sin(t * 53.0) * h / 160.0F : 0.0F;
+		float dy = tiembla ? (float) Math.cos(t * 41.0) * h / 200.0F : 0.0F;
 		int blanco = 0xFFF2EEE4;
 		if ((int) (t * 1.8F) % 2 == 0) {
 			g.fill(Math.round(m + dx), Math.round(m + dy + tam * 0.25F), Math.round(m + dx + tam * 0.55F), Math.round(m + dy + tam * 0.8F), 0xFFE5281E);
 		}
 		Texto.hud(g, "REC", m + dx + tam * 0.8F, m + dy, tam, 0.08F, blanco);
-		int s = 47 * 60 + 13 + (int) t;
+		// la misma cinta de la expedicion: cada bajada va mas adelante en el contador
+		int s = (guion == 2 ? 52 * 60 + 40 : guion == 3 ? 58 * 60 + 5 : 47 * 60 + 13) + (int) t;
 		String contador = String.format(Locale.ROOT, "0:%02d:%02d", s / 60, s % 60);
 		Texto.hud(g, contador, w - m + dx - Texto.anchoHud(contador, tam, 0.08F), m + dy, tam, 0.08F, blanco);
 		// bateria: al caer se queda en la ultima raya, parpadeando
 		float bx = w - m + dx - tam * 1.6F;
 		float by = m + dy + tam * 1.3F;
 		g.renderOutline(Math.round(bx), Math.round(by), Math.round(tam * 1.3F), Math.round(tam * 0.6F), blanco);
-		int rayas = t < 20.0F ? 3 : t < 26.5F ? 2 : ((int) (t * 3) % 2 == 0 ? 1 : 0);
+		int rayas;
+		if (guion == 2) {
+			rayas = t < 20.4F ? 3 : t < 21.6F ? 2 : ((int) (t * 3) % 2 == 0 ? 2 : 1);
+		} else if (guion == 3) {
+			rayas = t < 9.2F ? 2 : t < 18.6F ? 1 : ((int) (t * 3) % 2 == 0 ? 1 : 0);
+		} else {
+			rayas = t < 20.0F ? 3 : t < 26.5F ? 2 : ((int) (t * 3) % 2 == 0 ? 1 : 0);
+		}
 		for (int i = 0; i < rayas; i++) {
 			float x0 = bx + tam * (0.12F + i * 0.39F);
 			g.fill(Math.round(x0), Math.round(by + tam * 0.12F), Math.round(x0 + tam * 0.3F), Math.round(by + tam * 0.48F), blanco);
@@ -173,6 +192,28 @@ public class PantallaCinematica extends Screen {
 		Texto.hud(g, "PM 8:59", m + dx, h - m + dy - tam * 2.1F, tam, 0.08F, blanco);
 		Texto.hud(g, this.fecha, m + dx, h - m + dy - tam, tam, 0.08F, blanco);
 		Texto.hud(g, "SP", w - m + dx - Texto.anchoHud("SP", tam, 0.08F), h - m + dy - tam, tam, 0.08F, blanco);
+		if (guion == 3 && t >= 9.8F && t < 19.6F) {
+			Texto.hud(g, "NIGHT SHOT", m + dx, m + dy + tam * 1.3F, tam * 0.8F, 0.08F, 0xFFB8FFB0);
+		}
+	}
+
+	/** "FASE n" y el nombre del sector en el negro de una bajada de fase. */
+	private void tituloFase(GuiGraphics g, float t, int guion) {
+		float fc = CinematicaCliente.finCinta();
+		float fin = CinematicaCliente.fin();
+		float a = Mth.clamp((t - fc - 0.9F) / 1.0F, 0.0F, 1.0F) * Mth.clamp((fin - 0.3F - t) / 0.9F, 0.0F, 1.0F);
+		if (a <= 0.01F) {
+			return;
+		}
+		net.backrooms.evento.fase.Fase fase = net.backrooms.evento.fase.Fase.numero(guion);
+		int alfa = Math.round(a * 235) << 24;
+		float tam = this.height / 8.0F;
+		String titulo = "FASE " + guion;
+		float y = this.height * 0.36F;
+		Texto.hud(g, titulo, this.width / 2.0F - Texto.anchoHud(titulo, tam, 0.16F) / 2.0F, y, tam, 0.16F, alfa | 0xE8D9A0);
+		String sub = fase.nombre() + " · DIFICULTAD " + fase.dificultad();
+		float ts = tam * 0.32F;
+		Texto.hud(g, sub, this.width / 2.0F - Texto.anchoHud(sub, ts, 0.25F) / 2.0F, y + tam * 1.1F, ts, 0.25F, alfa | 0xC8BC90);
 	}
 
 	/** "NIVEL 0" mientras se te aclara la vista. */

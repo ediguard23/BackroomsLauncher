@@ -52,6 +52,18 @@ public final class Fases {
 	/** Ticks de bajada: lo que dura el fundido del ascensor hasta llegar. */
 	public static final int BAJADA = 20 * 6;
 
+	/**
+	 * Ticks de la bajada a esa fase. A la 2 y a la 3 se baja con su cinematica
+	 * (CinematicaCliente, guiones 2 y 3): el viaje es cuando la cinta ya esta en negro.
+	 */
+	public static int bajada(int faseDestino) {
+		return switch (faseDestino) {
+			case 2 -> 564;
+			case 3 -> 516;
+			default -> BAJADA;
+		};
+	}
+
 	public static Fases get() {
 		return INSTANCIA;
 	}
@@ -131,8 +143,17 @@ public final class Fases {
 		Fase sig = f.siguiente();
 		ServerPlayNetworking.send(j, sig == null ? new ViajeAscensor(0, "LA SALIDA", "") : new ViajeAscensor(sig.numero(), sig.nombre(), sig.dificultad()));
 		j.level().playSound(null, panel, net.backrooms.evento.Sonidos.ASCENSOR_PANEL, SoundSource.BLOCKS, 1.0F, 1.0F);
-		j.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, BAJADA + 20, 6, false, false, false));
-		this.viajes.put(j.getUUID(), this.ticks + BAJADA);
+		int bajada = bajada(sig == null ? 0 : sig.numero());
+		// mientras ve la cinematica sigue de pie en el ascensor: ni se mueve ni le hacen dano
+		// (y la Bacteria y los Smilers no van a por el: viajando)
+		j.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, bajada + 20, 6, false, false, false));
+		j.addEffect(new MobEffectInstance(MobEffects.RESISTANCE, bajada + 40, 4, false, false, false));
+		this.viajes.put(j.getUUID(), this.ticks + bajada);
+	}
+
+	/** true mientras baja en un ascensor de salida. */
+	public boolean viajando(ServerPlayer j) {
+		return this.viajes.containsKey(j.getUUID());
 	}
 
 	/** Lo manda ya a la fase n (staff). */
@@ -177,6 +198,7 @@ public final class Fases {
 		j.teleportTo(nivel, p.getX() + 0.5, p.getY(), p.getZ() + 0.5, Set.of(), this.azar.nextFloat() * 360.0F - 180.0F, 0.0F, true);
 		j.resetFallDistance();
 		j.removeEffect(MobEffects.SLOWNESS);
+		j.removeEffect(MobEffects.RESISTANCE);
 		Equipo.vestir(j);
 		Misiones.get().asignar(j, p, f);
 		net.backrooms.evento.supervivencia.Comida.get().repartirAguas(nivel, p);
@@ -192,6 +214,7 @@ public final class Fases {
 		int puesto = this.escapados.indexOf(nombre) + 1;
 		Misiones.get().escapado(j, puesto);
 		j.removeEffect(MobEffects.SLOWNESS);
+		j.removeEffect(MobEffects.RESISTANCE);
 		Vestibulo.get().llevar(j);
 		this.servidor.getPlayerList().broadcastSystemMessage(
 			Component.literal(nombre + " ha escapado de los Backrooms (puesto #" + puesto + ")").withStyle(ChatFormatting.GOLD), false);
@@ -203,7 +226,6 @@ public final class Fases {
 
 	/* ------------------------------------------------ puntos de llegada */
 
-	/** Punto al azar de la fase, en suelo libre y separado de los ya repartidos en ella. */
 	/** Cuantos van a jugar esta expedicion (lo pone el /start); de eso sale el tamano del reparto. */
 	public void previstos(int n) {
 		this.previstos = Math.max(0, n);
@@ -221,6 +243,7 @@ public final class Fases {
 		return Math.max(f.separacion() * 2, (int) Math.round(f.radio() * escala));
 	}
 
+	/** Punto al azar de la fase, en suelo libre y separado de los ya repartidos en ella. */
 	public BlockPos zonaNueva(ServerLevel nivel, Fase f) {
 		List<BlockPos> usadas = this.ocupadas.computeIfAbsent(nivel.dimension(), k -> new ArrayList<>());
 		int radio = this.radio(nivel, f);

@@ -2,16 +2,14 @@
   "nivel0.zumbido": {
     "sounds": [
       {
-        "name": "backrooms_evento:nivel0_zumbido",
-        "stream": true
+        "name": "backrooms_evento:nivel0_zumbido"
       }
     ]
   },
   "cinematica": {
     "sounds": [
       {
-        "name": "backrooms_evento:cinematica",
-        "stream": true
+        "name": "backrooms_evento:cinematica"
       }
     ]
   },
@@ -104,8 +102,7 @@
   "alarma": {
     "sounds": [
       {
-        "name": "backrooms_evento:alarma",
-        "stream": true
+        "name": "backrooms_evento:alarma"
       }
     ]
   },
@@ -119,8 +116,7 @@
   "vestibulo.ambiente": {
     "sounds": [
       {
-        "name": "backrooms_evento:vestibulo",
-        "stream": true
+        "name": "backrooms_evento:vestibulo"
       }
     ]
   },
@@ -141,20 +137,17 @@
   "megafonia.vestibulo": {
     "sounds": [
       {
-        "name": "backrooms_evento:megafonia_auditorio",
-        "stream": true
+        "name": "backrooms_evento:megafonia_auditorio"
       },
       {
-        "name": "backrooms_evento:megafonia_linterna",
-        "stream": true
+        "name": "backrooms_evento:megafonia_linterna"
       }
     ]
   },
   "megafonia.alerta": {
     "sounds": [
       {
-        "name": "backrooms_evento:megafonia_alerta",
-        "stream": true
+        "name": "backrooms_evento:megafonia_alerta"
       }
     ]
   },
@@ -374,6 +367,41 @@
       {
         "name": "backrooms_evento:hueco",
         "attenuation_distance": 12
+      }
+    ]
+  },
+  "cinematica.fase2": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica_fase2"
+      }
+    ]
+  },
+  "cinematica.fase3": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica_fase3"
+      }
+    ]
+  },
+  "cinematica.fase2.despues": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica_fase2_despues"
+      }
+    ]
+  },
+  "cinematica.fase3.despues": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica_fase3_despues"
+      }
+    ]
+  },
+  "cinematica.despues": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica_despues"
       }
     ]
   }
