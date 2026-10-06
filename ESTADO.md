@@ -1,6 +1,40 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-05 20:30 (hora de Honduras). Mod `backrooms_evento` 0.9.2, launcher 1.0.0.
+Última actualización: 2026-10-05 20:40 (hora de Honduras). Mod `backrooms_evento` 0.9.3, launcher 1.0.0
+(con un arreglo sin publicar).
+
+## Cursor invisible y logo que se arrastraba (2026-10-05, noche; Bruno)
+
+Bruno (FastPaper1) probó el servidor de pruebas y lo arregló desde su PC con Claude.
+
+- **Mod 0.9.3: el cursor ya no se queda invisible.** `PantallaCinematica.init()` oculta el
+  cursor con GLFW y nadie lo devolvía: Minecraft solo lo enseña al soltar un ratón capturado
+  y, con la cinemática abierta, no lo está. Si la cinemática se cortaba (una desconexión, la
+  pantalla de carga al viajar al Nivel 0), el cursor seguía invisible en SEÑAL PERDIDA y en
+  todos los menús (los botones se podían pulsar, pero sin ver el cursor). Ahora `removed()`
+  lo devuelve; `setScreen` llama a `removed()` antes de capturar el ratón, así que al volver
+  a la partida se captura como siempre. Efecto a vigilar: en la pantalla de carga del viaje
+  al Nivel 0 (a los ~41 s, un momento) el cursor ahora se ve, como en cualquier pantalla de
+  carga de Minecraft; antes quedaba oculto por el mismo fallo. Si molesta, se puede no
+  devolverlo mientras la cinemática siga activa y la conexión abierta.
+  Compila; **sin probar en el juego**. Para probarlo
+  (orden de prueba nueva `cursor`): con BACKROOMS_PRUEBAS, `cinematica`, a mitad
+  `node tools/rcon.js "kick <nick>"` y luego `cursor` → el log debe decir «Prueba: cursor
+  visible» (con la 0.9.2 dice «oculto»). Y un `/start` entero con la ventana activa: al
+  acabar, `cursor` → «capturado».
+- **Launcher: ya no se arrastra el logo** (se podía coger la puerta del logo y llevarla por
+  la ventana con el cursor de «prohibido»; también el logo del pie y el texto del nick).
+  `dragstart` cancelado en toda la ventana (`src/ui/app.js`). Probado con una prueba
+  automática (CDP, ventana oculta): ninguno de los tres inicia ya un arrastre, y el clic en
+  MENU y la barra de volumen siguen funcionando. Llega a los jugadores con la próxima versión
+  del launcher.
+- **Lo que le pasó a Bruno en la prueba** (log de su cliente): no murió. La cinemática le
+  empezó a las 19:57:01 (hora de Honduras) y a las 19:57:43, a los ~42 s (cuando el servidor
+  lleva al Nivel 0), se le cortó la conexión con «Desconectado». Ese texto es el motivo
+  genérico de Minecraft: la conexión se cerró sin que el servidor mandara motivo (no fue un
+  kick ni un ban). Sus intentos de volver (19:58 y 20:01) no llegaron a entrar. Parece el
+  fallo raro del punto 6 de Pendiente: mirar `logs/` y `crash-reports/` del servidor de
+  pruebas a esa hora.
 
 ## Prueba abierta y cartel (2026-10-05, noche)
 
@@ -88,8 +122,9 @@ Leer esto antes de tocar nada. Lo que se va haciendo se anota aquí y se sube.
   traza de los comandos que fallan («An unexpected error occurred»).
 - Órdenes al cliente sin tocar la ventana (solo con BACKROOMS_PRUEBAS): escribir en
   `%TEMP%/backrooms-ordenes.txt` una de `inventario | pausa | cerrar | cinematica |
-  linterna | camara | tab [n] | andar [s] | correr [s] | captura <nombre>`. `tab 200` llena el TAB con 200
+  linterna | camara | tab [n] | andar [s] | correr [s] | captura <nombre> | cursor`. `tab 200` llena el TAB con 200
   jugadores ficticios. Las capturas salen en `%APPDATA%/.backrooms-event/screenshots`.
+  `cursor` escribe en el log («Prueba: cursor visible | oculto | capturado») cómo está el cursor.
 - Compilar el mod: `cd evento && JAVA_HOME="$LOCALAPPDATA/Programs/jdk-25" ./gradlew build`
   (si falla por OneDrive, borrar `evento/build/resources` y repetir).
 - **El usuario a veces juega en ese mismo cliente**: avisar antes de teletransportarle o matarle.
@@ -132,13 +167,18 @@ Leer esto antes de tocar nada. Lo que se va haciendo se anota aquí y se sube.
 4. Pisadas, balanceo y miedo: hechos en la 0.9.0, falta probarlos en el juego (ver arriba).
 5. Simple Voice Chat: HECHO. Falta que el host del servidor abra el puerto UDP 24454.
    AmbientSounds 2 no encaja (pone sonidos de bosque/agua por bioma): descartado.
-6. Fallo raro una vez: `tp` del vestíbulo al Nivel 0 dio «unexpected error» y dejó al
-   cliente en «Cargando el terreno». No se ha repetido; si vuelve, el log de depuración
-   (ver arriba) da la traza.
+6. Fallo raro: `tp` del vestíbulo al Nivel 0 dio «unexpected error» y dejó al
+   cliente en «Cargando el terreno». Si vuelve, el log de depuración (ver arriba) da la
+   traza. Posiblemente se repitió con Bruno el 2026-10-05 a las 19:57:43: desconexión sin
+   motivo justo al viajar al Nivel 0 (ver arriba).
 7. Probar la pantalla de muerte en su variante «eliminado» con captura (la lógica está;
    la animación y el ban ya se vieron funcionar).
 8. Que el usuario escuche el rugido nuevo de la Bacteria y diga si le convence
    (`/backrooms invocar bacteria` en supervivencia).
+9. Mod 0.9.3: probar en el juego el arreglo del cursor (ver arriba) y poner ese jar en el
+   servidor de pruebas y en el pack (el mismo jar en los dos).
+10. Launcher: el arreglo del arrastre necesita una versión nueva (subir `version` en
+    `package.json` y `npm run release`; pedir permiso antes).
 
 ## Avisos
 

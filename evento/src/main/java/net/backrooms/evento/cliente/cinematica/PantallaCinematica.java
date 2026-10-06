@@ -77,6 +77,21 @@ public class PantallaCinematica extends Screen {
 		GLFW.glfwSetInputMode(this.minecraft.getWindow().handle(), GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_HIDDEN);
 	}
 
+	/**
+	 * Devuelve el cursor que oculta init(). Minecraft solo lo vuelve a ensenar al soltar el
+	 * raton capturado, y con esta pantalla abierta no lo esta: si algo la cierra antes de
+	 * tiempo (una desconexion, la pantalla de carga al cambiar de mundo) el cursor seguia
+	 * invisible en SenalPerdida y en todos los menus. setScreen llama a removed() antes de
+	 * capturar el raton, asi que al volver a la partida se captura como siempre.
+	 */
+	@Override
+	public void removed() {
+		long ventana = this.minecraft.getWindow().handle();
+		if (GLFW.glfwGetInputMode(ventana, GLFW.GLFW_CURSOR) == GLFW.GLFW_CURSOR_HIDDEN) {
+			GLFW.glfwSetInputMode(ventana, GLFW.GLFW_CURSOR, GLFW.GLFW_CURSOR_NORMAL);
+		}
+	}
+
 	@Override
 	public boolean isPauseScreen() {
 		return false;

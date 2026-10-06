@@ -78,9 +78,10 @@ servidor-ejemplo/                configuración del servidor del evento
   `node tools/acceso/tienda-prueba.js <carpeta-del-servidor>`.
 - Probar sin tocar la ventana del juego (solo con `BACKROOMS_PRUEBAS=1`): escribir en
   `%TEMP%/backrooms-ordenes.txt` una orden: `inventario | pausa | cerrar | cinematica |
-  linterna | camara | tab [n] | andar [s] | correr [s] | captura <nombre>`. `captura` guarda
+  linterna | camara | tab [n] | andar [s] | correr [s] | captura <nombre> | cursor`. `captura` guarda
   la imagen en `%APPDATA%/.backrooms-event/screenshots` (vale aunque la ventana esté a
-  pantalla completa). `node tools/rcon.js "<comando>"` manda comandos al servidor.
+  pantalla completa). El cursor del sistema no sale en las capturas: `cursor` escribe en el
+  log si se ve, está oculto o capturado. `node tools/rcon.js "<comando>"` manda comandos al servidor.
 - Comandos de staff: `/start`, `/backrooms ...` (buscar, cinematica, apagon, alarma, luz,
   ambiente, fase, vestibulo, muerte, escapados, invocar bacteria|smiler, acechadores,
   cordura, comida reponer, misiones...). Ver `Comandos.java`.

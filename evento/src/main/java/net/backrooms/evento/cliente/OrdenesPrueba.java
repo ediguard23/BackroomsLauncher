@@ -3,17 +3,19 @@ package net.backrooms.evento.cliente;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import net.backrooms.evento.BackroomsEvento;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.PauseScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
+import org.lwjgl.glfw.GLFW;
 
 /**
  * Solo para pruebas automaticas (variable BACKROOMS_PRUEBAS, que ningun
  * jugador tiene): el cliente lee ordenes de <tmp>/backrooms-ordenes.txt para
  * abrir pantallas sin tocar la ventana ni robar el foco.
  *
- *   inventario | pausa | cerrar | cinematica | linterna | camara | tab [n] | andar [s] | correr [s] | captura <nombre>
+ *   inventario | pausa | cerrar | cinematica | linterna | camara | tab [n] | andar [s] | correr [s] | captura <nombre> | cursor
  *
  * "andar <s>" y "correr <s>" dejan pulsado hacia delante (y correr) s segundos: para oir las
  * pisadas y ver el balanceo.
@@ -22,6 +24,9 @@ import net.minecraft.client.gui.screens.inventory.InventoryScreen;
  *
  * "captura" guarda lo que se ve (como F2) en screenshots/<nombre>.png: sirve
  * aunque la ventana este a pantalla completa.
+ *
+ * "cursor" apunta en el log si el cursor del sistema se ve, esta oculto o capturado (en
+ * las capturas no sale).
  */
 final class OrdenesPrueba {
 	private static int ticks;
@@ -65,8 +70,13 @@ final class OrdenesPrueba {
 			net.minecraft.client.Screenshot.grab(mc.gameDirectory, nombre, mc.getMainRenderTarget(), 1, c -> { });
 			return;
 		}
+		if (orden.equals("cursor")) {
+			int modo = GLFW.glfwGetInputMode(mc.getWindow().handle(), GLFW.GLFW_CURSOR);
+			BackroomsEvento.LOG.info("Prueba: cursor {}", modo == GLFW.GLFW_CURSOR_NORMAL ? "visible" : modo == GLFW.GLFW_CURSOR_HIDDEN ? "oculto" : "capturado");
+			return;
+		}
 		if (mc.player == null) {
-			return; // fuera de un mundo solo vale la captura
+			return; // fuera de un mundo solo valen la captura y el cursor
 		}
 		if (orden.startsWith("tab")) {
 			// "tab" o "tab <n>": el TAB pulsado 4 s, con n jugadores ficticios
