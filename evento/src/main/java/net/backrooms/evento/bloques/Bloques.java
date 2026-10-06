@@ -94,9 +94,9 @@ public final class Bloques {
 		propiedades(MapColor.COLOR_RED, SoundType.WOOL, 1.0F).noOcclusion()));
 	public static final Block SOFA = conObjeto(Blocks.register(clave("sofa"), net.backrooms.evento.vestibulo.Butaca::new,
 		propiedades(MapColor.COLOR_GRAY, SoundType.WOOL, 1.0F).noOcclusion()));
-	/** Boquete en el zocalo por donde se pasa arrastrandose (ver escondite/Hueco). */
+	/** Pared hueca por dentro, con el boquete por donde se entra agachado (ver escondite/Hueco). */
 	public static final Block HUECO = conObjeto(Blocks.register(clave("hueco"), net.backrooms.evento.escondite.Hueco::new,
-		propiedades(MapColor.COLOR_YELLOW, SoundType.WOOL, 1.5F).noOcclusion()));
+		propiedades(MapColor.COLOR_YELLOW, SoundType.WOOL, 1.5F)));
 	public static final Block MAQUINA_ABAJO = orientado("maquina_abajo", MapColor.COLOR_RED, SoundType.METAL, 0);
 	public static final Block MAQUINA_ARRIBA = orientado("maquina_arriba", MapColor.COLOR_RED, SoundType.METAL, 8);
 	public static final Block TAQUILLA = orientado("taquilla", MapColor.COLOR_GRAY, SoundType.METAL, 0);

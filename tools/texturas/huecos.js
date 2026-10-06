@@ -1,17 +1,19 @@
 'use strict';
 /**
- * Los huecos de las paredes del Nivel 0 (bloque backrooms_evento:hueco): un
- * boquete roto en el zocalo por donde cabe alguien arrastrandose. Como en Escape
- * the Backrooms: el pladur reventado con el borde dentado, el yeso a la vista,
- * el hueco de dentro con los montantes y el aislante, cascotes en el suelo y una
- * tira de papel pintado despegada que se mece (textura animada). Por dentro no
- * hay luz: se ve negro.
+ * Las paredes huecas del Nivel 0 (bloque backrooms_evento:hueco), como en Escape the
+ * Backrooms: algunos tramos de pared son DOBLES (dos bloques de grosor) y estan
+ * huecos por dentro de punta a punta, entre los dos tabiques de pladur. En uno o en
+ * los dos lados el pladur esta reventado (dos columnas de ancho y 1,6 de alto): se
+ * entra AGACHADO y dentro ya se puede estar de pie, a oscuras, escondido. Por dentro:
+ * el reves del pladur, escombros en el suelo, el travesano de arriba y el aislante
+ * colgando.
  *
  *   node tools/texturas/huecos.js
  *
- * Saca tres variantes (el estado del bloque elige una al azar por posicion). El
- * hueco de paso es siempre el mismo (x 1..15, y 0..13 en pixeles), que es lo que
- * usa la colision del bloque (escondite/Hueco.java): aqui solo cambia el dibujo.
+ * Cada bloque de la pared hueca dice que tiene en cada cara (nada, tabique entero o
+ * tabique roto) y a que altura esta; el estado se arma con "multipart" a partir de
+ * modelos hechos para la cara norte (el estado los gira). La colision va en
+ * escondite/Hueco.java.
  */
 
 const fs = require('fs');
@@ -29,40 +31,55 @@ const json = (rel, obj) => {
 };
 const t = (n) => `${NS}:block/${n}`;
 
-console.log('Huecos de las paredes');
+console.log('Paredes huecas');
 
 /* ============================================================ texturas */
 
-// yeso del pladur roto: blanco sucio, granulado, con la capa de papel amarilla a un lado
+// borde roto del pladur: yeso blanco sucio, granulado, con la capa de papel a un lado
 guardar(TEX, 'hueco_yeso', new Lienzo(16).pintar((x, y) => {
   let c = escala([224, 219, 204], 0.9 + fbm(x, y, 501, 16) * 0.14 + hash(x, y, 502) * 0.05);
-  if (hash(x, y, 503) > 0.9) c = escala(c, 0.8);              // motas
-  if (y === 0) c = mezcla(c, [204, 180, 96], 0.7);             // el papel pegado al borde
-  if (fbm(x, y, 504, 16) > 0.62) c = mezcla(c, [150, 128, 84], 0.35); // manchas de humedad
+  if (hash(x, y, 503) > 0.9) c = escala(c, 0.8);
+  if (y === 0) c = mezcla(c, [204, 180, 96], 0.7);
+  if (fbm(x, y, 504, 16) > 0.62) c = mezcla(c, [150, 128, 84], 0.35);
   return c;
 }));
 
-// por dentro: casi negro, un montante de madera y aislante deshilachado
-guardar(TEX, 'hueco_interior', new Lienzo(16).pintar((x, y) => {
-  let c = escala([34, 29, 22], 0.8 + hash(x, y, 511) * 0.35);
-  const lana = fbm(x, y, 512, 16);
-  if (lana > 0.55) c = mezcla(c, [96, 74, 52], (lana - 0.55) * 1.6);   // aislante
-  if (x >= 6 && x <= 8) c = escala([70, 54, 32], 0.85 + ruido(x, y * 0.3, 4, 513, 16) * 0.3); // montante
-  if (x === 9) c = escala(c, 0.6);
+// el reves del pladur, por dentro de la pared: carton gris, tornillos, humedad y sombra
+guardar(TEX, 'hueco_dentro', new Lienzo(16).pintar((x, y) => {
+  let c = escala([118, 112, 98], 0.82 + fbm(x, y, 511, 16) * 0.2 + hash(x, y, 512) * 0.05);
+  if ((x === 3 || x === 12) && y % 5 === 2) c = [48, 46, 44];          // tornillos
+  const moho = fbm(x, y, 513, 16);
+  if (moho > 0.6) c = mezcla(c, [58, 54, 34], Math.min(0.8, (moho - 0.6) * 3));
+  return escala(c, 0.62 + (y / 15) * 0.12);                             // mas oscuro abajo
+}));
+
+// montante y travesano de madera, en sombra
+guardar(TEX, 'hueco_montante', new Lienzo(16).pintar((x, y) => {
+  const veta = 0.85 + ruido(x * 0.4, y * 2.5, 6, 521, 16) * 0.22 + hash(x, y, 522) * 0.05;
+  let c = escala([116, 88, 54], veta * 0.72);
+  if (hash(Math.floor(x / 4), y, 523) > 0.94) c = escala(c, 0.7);       // nudos
   return c;
+}));
+
+// aislante de lana: rosado sucio, deshilachado
+guardar(TEX, 'hueco_aislante', new Lienzo(16).pintar((x, y) => {
+  const f = fbm(x, y, 531, 16);
+  let c = escala([178, 140, 118], 0.55 + f * 0.45 + hash(x, y, 532) * 0.1);
+  if (hash(x, y, 533) > 0.88) c = escala(c, 1.15);
+  return escala(c, 0.8);
 }));
 
 // cascotes: polvo de yeso y trocitos sobre la moqueta
 guardar(TEX, 'hueco_escombros', new Lienzo(16).pintar((x, y) => {
-  let c = escala([150, 132, 74], 0.75 + hash(x, y, 521) * 0.2);          // moqueta sucia
-  const polvo = fbm(x, y, 522, 16);
+  let c = escala([150, 132, 74], 0.75 + hash(x, y, 541) * 0.2);
+  const polvo = fbm(x, y, 542, 16);
   if (polvo > 0.45) c = mezcla(c, [210, 204, 188], Math.min(0.85, (polvo - 0.45) * 2.5));
-  if (hash(x, y, 523) > 0.86) c = escala([228, 224, 210], 0.85 + hash(x, y, 524) * 0.15); // trocitos
-  if (hash(x, y, 525) > 0.95) c = [70, 58, 40];
+  if (hash(x, y, 543) > 0.86) c = escala([228, 224, 210], 0.85 + hash(x, y, 544) * 0.15);
+  if (hash(x, y, 545) > 0.95) c = [70, 58, 40];
   return c;
 }));
 
-// tira de papel pintado despegada que se mece: 12 fotogramas de 16x16
+// jiron de papel pintado que cuelga del borde y se mece: 12 fotogramas, forma rasgada
 const PAPEL = [214, 194, 104];
 function motivo (x, y) {
   const mx = ((x % 8) + 8) % 8;
@@ -73,28 +90,25 @@ function motivo (x, y) {
 {
   const N = 12;
   const l = new Lienzo(16, 16 * N);
-  // borde de abajo rasgado (fijo) y ancho de la tira
-  const largo = [13, 14, 15, 15, 14, 12, 13, 11];
+  // ancho de la tira en cada fila: ancha arriba (pegada) y en punta rasgada abajo
+  const ancho = [9, 9, 8, 8, 8, 7, 7, 6, 6, 5, 4, 4, 3, 2, 1, 0];
+  const desv = [0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4, 4];
   for (let f = 0; f < N; f++) {
     const vaiven = Math.sin((f / N) * Math.PI * 2);
     for (let y = 0; y < 16; y++) {
-      const k = (y / 15) ** 2;
-      const dx = Math.round(vaiven * k * 2.2);
-      for (let x = 0; x < 8; x++) {
-        if (y > largo[x]) continue;
-        const xx = x + dx;
-        if (xx < 0 || xx > 7) continue;
-        // se enrolla por la derecha: ahi se ve el reves blanco del papel
-        const reves = x >= 6 && y > 4;
-        let c = reves ? escala([206, 200, 184], 0.88 + hash(x, y, 531) * 0.1) : PAPEL.slice();
+      const dx = Math.round(vaiven * ((y / 15) ** 2) * 2.0);
+      for (let k = 0; k < ancho[y]; k++) {
+        const x = 2 + desv[y] + k + dx;
+        if (x < 0 || x > 15) continue;
+        if (k === ancho[y] - 1 && hash(k, y, 551) > 0.5) continue; // filo deshilachado
+        const reves = k >= ancho[y] - 2 && y > 3;                   // se enrolla: el reves blanco
+        let c = reves ? escala([206, 200, 184], 0.85 + hash(x, y, 552) * 0.1) : PAPEL.slice();
         if (!reves) {
-          if (x === 0) c = escala(c, 1.04);
           if (motivo(x, y)) c = escala(c, 0.9);
-          c = escala(c, 0.93 + hash(x, y, 532) * 0.08);
-          c = mezcla(c, [128, 104, 52], Math.max(0, (y - 9) / 14));      // mas sucio abajo
+          c = escala(c, 0.92 + hash(x, y, 553) * 0.08);
+          c = mezcla(c, [118, 96, 48], Math.max(0, (y - 6) / 14));
         }
-        if (y === largo[x]) c = escala(c, 0.8);                           // filo rasgado
-        l.punto(xx, f * 16 + y, c, 1);
+        l.punto(x, f * 16 + y, c, 1);
       }
     }
   }
@@ -102,38 +116,37 @@ function motivo (x, y) {
   fs.writeFileSync(path.join(TEX, 'hueco_papel.png.mcmeta'), JSON.stringify({ animation: { frametime: 3, interpolate: true } }, null, 2) + '\n');
 }
 
-/* ============================================================== modelo */
+/* ======================================================= el boquete */
 
-/** Azar repetible para cada variante. */
 function azar (semilla) {
   let s = semilla >>> 0;
   return () => { s = (Math.imul(s ^ (s >>> 15), 2246822507) + 0x9e3779b9) >>> 0; return (s >>> 8) / 16777216; };
 }
 
 /**
- * Lo que queda abierto en una cara del pladur: el paso entero (x 1..15, y < 13)
- * menos dientes que cuelgan del borde de arriba y algun mordisco en los lados.
+ * Lo que queda roto (abierto) en el tabique, en una rejilla de 32x32 pixeles que
+ * abarca las cuatro partes del boquete (x 0..31: izquierda y derecha; y 0..31: abajo
+ * y arriba). El paso de la colision es x 2..30, y < 25,6; el dibujo llega mas arriba.
  */
-function abertura (semilla) {
+function rotura (semilla) {
   const rnd = azar(semilla);
-  const arriba = new Array(16).fill(0);
-  for (let x = 1; x < 15;) {
+  const arriba = new Array(32).fill(0);
+  for (let x = 2; x < 30;) {
     const ancho = 1 + Math.floor(rnd() * 3);
-    const r = rnd();
-    const alto = r < 0.45 ? 13 : r < 0.7 ? 12 : r < 0.88 ? 11 : 10;
-    for (let k = 0; k < ancho && x < 15; k++, x++) arriba[x] = alto;
+    const centro = 1 - Math.abs(x - 15.5) / 14;
+    const alto = 25 + Math.round(centro * 4 + rnd() * 2.4);
+    for (let k = 0; k < ancho && x < 30; k++, x++) arriba[x] = Math.min(31, alto);
   }
   const abierto = [];
-  for (let y = 0; y < 16; y++) {
+  for (let y = 0; y < 32; y++) {
     abierto.push([]);
-    const izq = rnd() < 0.22 && y > 1 && y < 11 ? 2 : 1;
-    const der = rnd() < 0.22 && y > 1 && y < 11 ? 14 : 15;
-    for (let x = 0; x < 16; x++) abierto[y].push(x >= izq && x < der && y < arriba[x]);
+    const izq = y > 2 && y < 24 && rnd() < 0.3 ? 3 : 2;
+    const der = y > 2 && y < 24 && rnd() < 0.3 ? 29 : 30;
+    for (let x = 0; x < 32; x++) abierto[y].push(x >= izq && x < der && y < arriba[x]);
   }
   return abierto;
 }
 
-/** Junta los pixeles macizos en rectangulos (por filas y luego hacia arriba). */
 function rectangulos (macizo) {
   const usado = macizo.map((f) => f.map(() => false));
   const out = [];
@@ -143,8 +156,8 @@ function rectangulos (macizo) {
       let x1 = x;
       while (x1 + 1 < 16 && macizo[y][x1 + 1] && !usado[y][x1 + 1]) x1++;
       let y1 = y;
-      const filaLibre = (yy) => { for (let k = x; k <= x1; k++) if (!macizo[yy][k] || usado[yy][k]) return false; return true; };
-      while (y1 + 1 < 16 && filaLibre(y1 + 1)) y1++;
+      const fila = (yy) => { for (let k = x; k <= x1; k++) if (!macizo[yy][k] || usado[yy][k]) return false; return true; };
+      while (y1 + 1 < 16 && fila(y1 + 1)) y1++;
       for (let yy = y; yy <= y1; yy++) for (let k = x; k <= x1; k++) usado[yy][k] = true;
       out.push([x, y, x1 + 1, y1 + 1]);
     }
@@ -152,101 +165,159 @@ function rectangulos (macizo) {
   return out;
 }
 
-/**
- * Una cara del pladur (z0..z1) con su boquete. `fuera` es la cara que da al
- * pasillo (north o south): papel/zocalo; la de dentro, negra.
- */
-function panel (abierto, z0, z1, fuera) {
-  const macizo = abierto.map((f) => f.map((v) => !v));
-  const dentro = fuera === 'north' ? 'south' : 'north';
-  return rectangulos(macizo).map(([x0, y0, x1, y1]) => {
-    const caras = {};
-    caras[fuera] = { texture: '#zocalo' };
-    caras[dentro] = { texture: '#interior' };
-    // los lados que tocan el borde del bloque se tapan con la pared de al lado
-    caras.west = x0 === 0 ? { texture: '#zocalo', cullface: 'west' } : { texture: '#yeso' };
-    caras.east = x1 === 16 ? { texture: '#zocalo', cullface: 'east' } : { texture: '#yeso' };
-    caras.up = y1 === 16 ? { texture: '#zocalo', cullface: 'up' } : { texture: '#yeso' };
-    caras.down = y0 === 0 ? { texture: '#zocalo', cullface: 'down' } : { texture: '#yeso' };
-    return { from: [x0, y0, z0], to: [x1, y1, z1], faces: caras };
-  });
+function caja (desde, hasta, tex, caras) {
+  const f = {};
+  for (const c of caras) f[c] = { texture: tex };
+  return { from: desde, to: hasta, faces: f };
 }
 
-function cascote (x, z, ancho, fondo, alto) {
+const TEXTURAS = {
+  zocalo: t('zocalo'), papel_pared: t('papel_pintado'), yeso: t('hueco_yeso'), dentro: t('hueco_dentro'),
+  montante: t('hueco_montante'), aislante: t('hueco_aislante'), escombros: t('hueco_escombros'),
+  papel: t('hueco_papel'), particle: t('papel_pintado')
+};
+
+/** Tabique entero en la cara norte (z 0..2): papel o zocalo fuera, el reves dentro. */
+function tabique (frente) {
   return {
-    from: [x, 0, z], to: [x + ancho, alto, z + fondo],
-    faces: { up: { texture: '#yeso' }, north: { texture: '#yeso' }, south: { texture: '#yeso' }, east: { texture: '#yeso' }, west: { texture: '#yeso' } }
+    textures: TEXTURAS,
+    elements: [{
+      from: [0, 0, 0], to: [16, 16, 2],
+      faces: {
+        north: { texture: frente }, south: { texture: '#dentro' },
+        east: { texture: frente, cullface: 'east' }, west: { texture: frente, cullface: 'west' },
+        up: { texture: frente, cullface: 'up' }, down: { texture: frente, cullface: 'down' }
+      }
+    }]
   };
 }
 
-function modelo (v) {
-  const rnd = azar(900 + v);
-  const els = [];
-  // las dos caras del pladur, cada una rota a su manera
-  els.push(...panel(abertura(100 + v * 2), 0, 2, 'north'));
-  els.push(...panel(abertura(101 + v * 2), 14, 16, 'south'));
-  // el hueco de dentro: montantes a los lados y el travesano de arriba, a oscuras
-  els.push({ from: [0, 0, 2], to: [1, 16, 14], faces: { east: { texture: '#interior' } } });
-  els.push({ from: [15, 0, 2], to: [16, 16, 14], faces: { west: { texture: '#interior' } } });
-  els.push({ from: [1, 13, 2], to: [15, 16, 14], faces: { down: { texture: '#interior' } } });
-  // polvo y cascotes en el suelo de dentro y a los dos lados
-  els.push({ from: [1, 0, 1], to: [15, 0.3, 15], faces: { up: { texture: '#escombros' } } });
-  for (const lado of [-1, 1]) {
+/** Un cuarto del boquete en el tabique de la cara norte, con su montante detras. */
+function roto (parte) {
+  const izq = parte.endsWith('izq');
+  const arriba = parte.startsWith('arriba');
+  const ox = izq ? 0 : 16;
+  const oy = arriba ? 16 : 0;
+  const frente = arriba ? '#papel_pared' : '#zocalo';
+  const abierto = rotura(701);
+  const macizo = [];
+  for (let y = 0; y < 16; y++) {
+    macizo.push([]);
+    for (let x = 0; x < 16; x++) macizo[y].push(!abierto[oy + y][ox + x]);
+  }
+  const rnd = azar((izq ? 11 : 23) + (arriba ? 101 : 0));
+  const els = rectangulos(macizo).map(([x0, y0, x1, y1]) => ({
+    from: [x0, y0, 0], to: [x1, y1, 2],
+    faces: {
+      north: { texture: frente }, south: { texture: '#dentro' },
+      west: x0 === 0 && izq ? { texture: frente, cullface: 'west' } : { texture: '#yeso' },
+      east: x1 === 16 && !izq ? { texture: frente, cullface: 'east' } : { texture: '#yeso' },
+      up: y1 === 16 && arriba ? { texture: frente, cullface: 'up' } : { texture: '#yeso' },
+      down: y0 === 0 && !arriba ? { texture: frente, cullface: 'down' } : { texture: '#yeso' }
+    }
+  }));
+  // el montante de madera del borde del boquete, justo detras del tabique
+  const mx = izq ? [0, 2] : [14, 16];
+  els.push(caja([mx[0], 0, 2], [mx[1], 16, 4], '#montante', [izq ? 'east' : 'west', 'north', 'south']));
+  if (arriba) {
+    // el dintel por dentro y un jiron de papel colgando por fuera
+    els.push(caja([0, 9, 2], [16, 10, 4], '#montante', ['down', 'south']));
+    if (rnd() < 0.85) {
+      const xa = izq ? 5 + Math.floor(rnd() * 6) : 1 + Math.floor(rnd() * 6);
+      const ya = 4 + Math.floor(rnd() * 4);
+      els.push({
+        from: [xa, ya, -0.2], to: [xa + 6, ya + 8, -0.2], shade: false,
+        faces: { north: { texture: '#papel', uv: [0, 0, 16, 16] }, south: { texture: '#papel', uv: [16, 0, 0, 16] } }
+      });
+    }
+  } else {
+    // cascotes delante, en el pasillo
     const n = 2 + Math.floor(rnd() * 3);
     for (let k = 0; k < n; k++) {
       const ancho = 1 + Math.floor(rnd() * 2);
       const fondo = 1 + Math.floor(rnd() * 2);
       const x = 1 + Math.floor(rnd() * (14 - ancho));
-      const dist = 0.5 + Math.floor(rnd() * 3);
-      const z = lado < 0 ? -dist - fondo : 16 + dist;
-      els.push(cascote(x, z, ancho, fondo, 0.5 + Math.floor(rnd() * 2) * 0.5));
+      const z = -1 - Math.floor(rnd() * 3) - fondo;
+      els.push(caja([x, 0, z], [x + ancho, 0.5 + Math.floor(rnd() * 2) * 0.5, z + fondo], '#yeso', ['up', 'north', 'south', 'east', 'west']));
     }
   }
-  // la tira de papel despegada, por delante de la pared y colgando sobre el boquete
-  const xa = 2 + Math.floor(rnd() * 7);
-  els.push({
-    from: [xa, 8, -0.3], to: [xa + 6, 20, -0.3], shade: false,
-    faces: { north: { texture: '#papel', uv: [0, 0, 8, 16] }, south: { texture: '#papel', uv: [8, 0, 0, 16] } }
-  });
-  const xb = 2 + Math.floor(rnd() * 7);
-  els.push({
-    from: [xb, 9, 16.3], to: [xb + 6, 21, 16.3], shade: false,
-    faces: { south: { texture: '#papel', uv: [0, 0, 8, 16] }, north: { texture: '#papel', uv: [8, 0, 0, 16] } }
-  });
-  return {
-    textures: {
-      zocalo: t('zocalo'), yeso: t('hueco_yeso'), interior: t('hueco_interior'),
-      escombros: t('hueco_escombros'), papel: t('hueco_papel'), particle: t('zocalo')
-    },
-    elements: els
-  };
+  return { textures: TEXTURAS, elements: els };
 }
 
-const VARIANTES = 3;
-for (let v = 1; v <= VARIANTES; v++) {
-  const m = modelo(v);
-  json(`models/block/hueco_${v}.json`, m);
-  console.log(`  models/block/hueco_${v}.json  ${m.elements.length} piezas`);
+/** El suelo por dentro: polvo de yeso y trozos de pladur. */
+function sueloDentro () {
+  const rnd = azar(901);
+  const els = [{ from: [0, 0, 0], to: [16, 0.25, 16], faces: { up: { texture: '#escombros' } } }];
+  for (let k = 0; k < 4; k++) {
+    const x = Math.floor(rnd() * 13);
+    const z = 2 + Math.floor(rnd() * 11);
+    els.push(caja([x, 0, z], [x + 1 + Math.floor(rnd() * 3), 0.5 + Math.floor(rnd() * 2) * 0.5, z + 1 + Math.floor(rnd() * 2)], '#yeso', ['up', 'north', 'south', 'east', 'west']));
+  }
+  return { textures: TEXTURAS, elements: els };
 }
-// axis = hacia donde se pasa: z (pared a lo largo de x) o x
-const lista = (giro) => Array.from({ length: VARIANTES }, (_, k) => (giro ? { model: t(`hueco_${k + 1}`), y: giro } : { model: t(`hueco_${k + 1}`) }));
-json('blockstates/hueco.json', { variants: { 'axis=z': lista(0), 'axis=x': lista(90) } });
-json('items/hueco.json', { model: { type: 'minecraft:model', model: t('hueco_1') } });
+
+/** Arriba por dentro: el travesano y el aislante que cuelga. */
+function techoDentro () {
+  const rnd = azar(911);
+  const els = [caja([0, 13, 0], [16, 16, 16], '#montante', ['down'])];
+  const n = 2 + Math.floor(rnd() * 2);
+  for (let k = 0; k < n; k++) {
+    const x = Math.floor(rnd() * 11);
+    const ancho = 3 + Math.floor(rnd() * 3);
+    const alto = 2 + Math.floor(rnd() * 4);
+    const z = 2 + Math.floor(rnd() * 8);
+    els.push(caja([x, 13 - alto, z], [Math.min(16, x + ancho), 13, Math.min(14, z + 3 + Math.floor(rnd() * 3))], '#aislante', ['down', 'north', 'south', 'east', 'west']));
+  }
+  // un cable que cruza
+  els.push(caja([0, 11.5, 7], [16, 12, 7.5], '#dentro', ['down', 'north', 'south']));
+  return { textures: TEXTURAS, elements: els };
+}
+
+// fuera los modelos de las versiones anteriores
+for (const n of fs.readdirSync(path.join(ASSETS, 'models', 'block'))) {
+  if (/^hueco_(\d|abajo|arriba)/.test(n)) fs.unlinkSync(path.join(ASSETS, 'models', 'block', n));
+}
+
+const PARTES = ['abajo_izq', 'abajo_der', 'arriba_izq', 'arriba_der'];
+const MODELOS = {
+  hueco_tabique_zocalo: tabique('#zocalo'),
+  hueco_tabique_papel: tabique('#papel_pared'),
+  hueco_suelo: sueloDentro(),
+  hueco_techo: techoDentro()
+};
+for (const p of PARTES) MODELOS[`hueco_roto_${p}`] = roto(p);
+for (const [n, m] of Object.entries(MODELOS)) {
+  json(`models/block/${n}.json`, m);
+  console.log(`  models/block/${n}.json  ${m.elements.length} piezas`);
+}
+
+// el estado: cada cara (norte, este, sur, oeste) con su tabique entero o roto, girado
+const CARAS = { norte: 0, este: 90, sur: 180, oeste: 270 };
+const partes = [];
+const girado = (modelo, y) => (y ? { model: t(modelo), y } : { model: t(modelo) });
+for (const [cara, y] of Object.entries(CARAS)) {
+  partes.push({ when: { [cara]: 'entero', altura: 'suelo' }, apply: girado('hueco_tabique_zocalo', y) });
+  partes.push({ when: { [cara]: 'entero', altura: 'medio|techo' }, apply: girado('hueco_tabique_papel', y) });
+  for (const p of PARTES) partes.push({ when: { [cara]: 'roto', parte: p }, apply: girado(`hueco_roto_${p}`, y) });
+}
+partes.push({ when: { altura: 'suelo' }, apply: { model: t('hueco_suelo') } });
+partes.push({ when: { altura: 'techo' }, apply: { model: t('hueco_techo') } });
+json('blockstates/hueco.json', { multipart: partes });
+json('items/hueco.json', { model: { type: 'minecraft:model', model: t('hueco_roto_abajo_izq') } });
 
 /* ============================================================ nombres */
 
 const NOMBRES = {
-  'block.backrooms_evento.hueco': ['Hueco en la pared', 'Hole in the wall'],
-  'key.backrooms_evento.arrastrarse': ['Arrastrarse', 'Crawl'],
-  'death.attack.backrooms_evento.devorado': ['%1$s fue devorado', '%1$s was devoured'],
-  'death.attack.backrooms_evento.devorado.player': ['%1$s fue devorado por %2$s', '%1$s was devoured by %2$s'],
-  'hud.backrooms_evento.hueco': ['MAYÚS · METERSE EN EL HUECO', 'SHIFT · CRAWL INTO THE HOLE'],
-  'hud.backrooms_evento.escondido': ['ESCONDIDO', 'HIDDEN']
+  'block.backrooms_evento.hueco': ['Pared hueca', 'Hollow wall'],
+  // con la Bacteria como causa Minecraft usa la clave corta y le pasa su nombre como %2$s
+  'death.attack.backrooms_evento.devorado': ['%1$s fue devorado por %2$s', '%1$s was devoured by %2$s'],
+  'death.attack.backrooms_evento.devorado.player': ['%1$s fue devorado por %2$s', '%1$s was devoured by %2$s']
 };
 for (const [archivo, k] of [['es_es.json', 0], ['en_us.json', 1]]) {
   const f = path.join(ASSETS, 'lang', archivo);
   const lang = JSON.parse(fs.readFileSync(f, 'utf8'));
   for (const [clave, v] of Object.entries(NOMBRES)) lang[clave] = v[k];
+  for (const viejo of ['key.backrooms_evento.arrastrarse', 'hud.backrooms_evento.hueco', 'hud.backrooms_evento.escondido']) delete lang[viejo];
   fs.writeFileSync(f, JSON.stringify(lang, null, 2) + '\n');
 }
-console.log('  lang: hueco, arrastrarse, devorado');
+console.log('  lang: hueco, devorado');

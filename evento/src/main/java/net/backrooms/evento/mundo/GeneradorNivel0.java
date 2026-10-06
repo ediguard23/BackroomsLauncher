@@ -10,6 +10,7 @@ import net.backrooms.evento.bloques.Dibujo;
 import net.backrooms.evento.bloques.EnPared;
 import net.backrooms.evento.bloques.EnSuelo;
 import net.backrooms.evento.bloques.Silla;
+import net.backrooms.evento.escondite.Hueco;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
@@ -183,14 +184,36 @@ public class GeneradorNivel0 extends ChunkGenerator {
 			return;
 		}
 		boolean bacilo = p.paredBacilo(wx, wz);
-		int hueco = p.hueco(wx, wz);
-		BlockState abajo = hueco != Plano.HUECO_NO
-			? Bloques.HUECO.defaultBlockState().setValue(net.backrooms.evento.escondite.Hueco.EJE, hueco == Plano.HUECO_Z ? Direction.Axis.Z : Direction.Axis.X)
-			: (bacilo ? Bloques.RAIZ_BACILO : Bloques.ZOCALO).defaultBlockState();
-		poner(chunk, pos.set(x, SUELO + 1, z), abajo, a, b);
+		Plano.CeldaHueca hueca = p.celdaHueca(wx, wz);
+		if (hueca != null) {
+			this.paredHueca(chunk, pos, x, z, hueca, a, b);
+			return;
+		}
+		poner(chunk, pos.set(x, SUELO + 1, z), (bacilo ? Bloques.RAIZ_BACILO : Bloques.ZOCALO).defaultBlockState(), a, b);
 		for (int y = SUELO + 2; y < TECHO_Y; y++) {
 			Block bloque = bacilo ? Bloques.BACILO : p.sucio(wx, y - SUELO, wz) ? Bloques.PAPEL_PINTADO_SUCIO : Bloques.PAPEL_PINTADO;
 			poner(chunk, pos.set(x, y, z), bloque.defaultBlockState(), a, b);
+		}
+	}
+
+	/**
+	 * Columna de pared hueca (ver Plano#celdaHueca y escondite/Hueco): de suelo a techo,
+	 * con sus tabiques; el boquete ocupa el zocalo y el bloque de encima, y por encima
+	 * del boquete el tabique sigue entero.
+	 */
+	private void paredHueca(ChunkAccess chunk, BlockPos.MutableBlockPos pos, int x, int z, Plano.CeldaHueca c, Heightmap a, Heightmap b) {
+		for (int y = SUELO + 1; y < TECHO_Y; y++) {
+			int k = y - SUELO - 1;
+			BlockState e = Bloques.HUECO.defaultBlockState()
+				.setValue(Hueco.ALTURA, k == 0 ? Hueco.Altura.SUELO : y == TECHO_Y - 1 ? Hueco.Altura.TECHO : Hueco.Altura.MEDIO)
+				.setValue(Hueco.PARTE, Hueco.Parte.de(k == 1, c.izq()));
+			for (int d = 0; d < 4; d++) {
+				int cara = c.caras()[d];
+				Hueco.Cara v = cara == Plano.CARA_NADA ? Hueco.Cara.NADA
+					: cara == Plano.CARA_ROTA && k <= 1 ? Hueco.Cara.ROTO : Hueco.Cara.ENTERO;
+				e = e.setValue(Hueco.CARAS[d], v);
+			}
+			poner(chunk, pos.set(x, y, z), e, a, b);
 		}
 	}
 

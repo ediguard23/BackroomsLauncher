@@ -1,29 +1,254 @@
 {
-  "variants": {
-    "axis=z": [
-      {
-        "model": "backrooms_evento:block/hueco_1"
+  "multipart": [
+    {
+      "when": {
+        "norte": "entero",
+        "altura": "suelo"
       },
-      {
-        "model": "backrooms_evento:block/hueco_2"
-      },
-      {
-        "model": "backrooms_evento:block/hueco_3"
+      "apply": {
+        "model": "backrooms_evento:block/hueco_tabique_zocalo"
       }
-    ],
-    "axis=x": [
-      {
-        "model": "backrooms_evento:block/hueco_1",
-        "y": 90
+    },
+    {
+      "when": {
+        "norte": "entero",
+        "altura": "medio|techo"
       },
-      {
-        "model": "backrooms_evento:block/hueco_2",
-        "y": 90
+      "apply": {
+        "model": "backrooms_evento:block/hueco_tabique_papel"
+      }
+    },
+    {
+      "when": {
+        "norte": "roto",
+        "parte": "abajo_izq"
       },
-      {
-        "model": "backrooms_evento:block/hueco_3",
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_abajo_izq"
+      }
+    },
+    {
+      "when": {
+        "norte": "roto",
+        "parte": "abajo_der"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_abajo_der"
+      }
+    },
+    {
+      "when": {
+        "norte": "roto",
+        "parte": "arriba_izq"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_arriba_izq"
+      }
+    },
+    {
+      "when": {
+        "norte": "roto",
+        "parte": "arriba_der"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_arriba_der"
+      }
+    },
+    {
+      "when": {
+        "este": "entero",
+        "altura": "suelo"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_tabique_zocalo",
         "y": 90
       }
-    ]
-  }
+    },
+    {
+      "when": {
+        "este": "entero",
+        "altura": "medio|techo"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_tabique_papel",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "este": "roto",
+        "parte": "abajo_izq"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_abajo_izq",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "este": "roto",
+        "parte": "abajo_der"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_abajo_der",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "este": "roto",
+        "parte": "arriba_izq"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_arriba_izq",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "este": "roto",
+        "parte": "arriba_der"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_arriba_der",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "sur": "entero",
+        "altura": "suelo"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_tabique_zocalo",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "sur": "entero",
+        "altura": "medio|techo"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_tabique_papel",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "sur": "roto",
+        "parte": "abajo_izq"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_abajo_izq",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "sur": "roto",
+        "parte": "abajo_der"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_abajo_der",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "sur": "roto",
+        "parte": "arriba_izq"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_arriba_izq",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "sur": "roto",
+        "parte": "arriba_der"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_arriba_der",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "oeste": "entero",
+        "altura": "suelo"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_tabique_zocalo",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "oeste": "entero",
+        "altura": "medio|techo"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_tabique_papel",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "oeste": "roto",
+        "parte": "abajo_izq"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_abajo_izq",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "oeste": "roto",
+        "parte": "abajo_der"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_abajo_der",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "oeste": "roto",
+        "parte": "arriba_izq"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_arriba_izq",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "oeste": "roto",
+        "parte": "arriba_der"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_roto_arriba_der",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "altura": "suelo"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_suelo"
+      }
+    },
+    {
+      "when": {
+        "altura": "techo"
+      },
+      "apply": {
+        "model": "backrooms_evento:block/hueco_techo"
+      }
+    }
+  ]
 }

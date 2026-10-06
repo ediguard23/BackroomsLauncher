@@ -91,10 +91,6 @@ public final class HerramientasServidor {
 
 	/** Enciende o apaga (si lleva el objeto). */
 	public void accion(ServerPlayer j, int accion, boolean valor) {
-		if (accion == AccionJugador.ARRASTRARSE) {
-			net.backrooms.evento.escondite.Arrastre.pedir(j, valor);
-			return;
-		}
 		if (accion != AccionJugador.LINTERNA && accion != AccionJugador.CAMARA) {
 			return;
 		}

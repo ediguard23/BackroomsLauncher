@@ -7,7 +7,6 @@ import java.util.UUID;
 import net.backrooms.evento.BackroomsEvento;
 import net.backrooms.evento.Sonidos;
 import net.backrooms.evento.ambiente.Ambiente;
-import net.backrooms.evento.escondite.Arrastre;
 import net.backrooms.evento.escondite.Escondites;
 import net.backrooms.evento.fase.Fase;
 import net.backrooms.evento.mundo.GeneradorNivel0;
@@ -60,9 +59,9 @@ import org.jetbrains.annotations.Nullable;
  *
  * No es adivina: persigue a donde te vio por ultima vez. Si doblas una esquina y
  * no te vuelve a ver, llega alli, mira alrededor y a los pocos segundos te deja
- * (y un rato no te "oye" correr). Agachado o arrastrandote te ve a la mitad de
- * distancia. Si te metes en un hueco de la pared (escondite/Hueco) renuncia del
- * todo: grune y se va lejos, y en 30 s no vuelve a por ti.
+ * (y un rato no te "oye" correr). Agachado te ve a la mitad de distancia. Si
+ * te metes en un hueco de la pared (escondite/Hueco) renuncia del todo: grune y
+ * se va lejos, y en 30 s no vuelve a por ti.
  *
  * No pega: si te alcanza te AGARRA. Te levanta del suelo con los brazos, te
  * acerca a la boca, muerde tres veces y te devora (unos 3 s; nadie puede
@@ -213,7 +212,7 @@ public class Bacteria extends Monster {
 		return Ambiente.get().alarma(this.level());
 	}
 
-	/** Agachado o arrastrandose: se ve menos. */
+	/** Agachado: se ve menos. */
 	private static boolean sigilo(Player j) {
 		return j.getPose() == Pose.CROUCHING || j.getPose() == Pose.SWIMMING;
 	}
@@ -351,7 +350,6 @@ public class Bacteria extends Monster {
 		this.goalSelector.disableControlFlag(Goal.Flag.JUMP);
 		this.giroAgarre = (float) (Mth.atan2(j.getZ() - this.getZ(), j.getX() - this.getX()) * Mth.RAD_TO_DEG) - 90.0F;
 		this.mirar();
-		Arrastre.pedir(j, false);
 		if (j.isPassenger()) {
 			j.stopRiding();
 		}

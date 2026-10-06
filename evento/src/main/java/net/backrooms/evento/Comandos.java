@@ -49,7 +49,7 @@ import net.minecraft.server.level.ServerPlayer;
  */
 public final class Comandos {
 	private static final List<String> COSAS = List.of(
-		"enchufe", "dibujo", "cinta", "salida", "nota", "silla", "senal", "vena", "ventilador", "ventilador_grande", "pared_fina", "bacilo", "oscuridad");
+		"enchufe", "dibujo", "cinta", "salida", "nota", "silla", "senal", "vena", "ventilador", "ventilador_grande", "pared_fina", "bacilo", "oscuridad", "hueco");
 
 	private Comandos() {
 	}
@@ -316,6 +316,19 @@ public final class Comandos {
 			}
 			case "oscuridad" -> {
 				return !p.pared(x, z) && p.oscuridad(x, z) == 2 ? new int[] {1, 1} : null;
+			}
+			case "hueco" -> {
+				// el boquete de una pared hueca, mirado desde fuera
+				Plano.CeldaHueca h = p.celdaHueca(x, z);
+				if (h == null || !h.izq()) {
+					return null;
+				}
+				for (int d = 0; d < 4; d++) {
+					if (h.caras()[d] == Plano.CARA_ROTA) {
+						return new int[] {d, 1};
+					}
+				}
+				return null;
 			}
 			default -> {
 			}

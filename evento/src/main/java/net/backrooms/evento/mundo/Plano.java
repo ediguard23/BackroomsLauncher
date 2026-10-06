@@ -320,6 +320,12 @@ public final class Plano {
 		if (lx == 0 && lz == 0) {
 			return pilar(gx, gz);
 		}
+		if (lz == 1 && lx >= 1 && lx <= 5 && this.tramoHueco(gx, gz, true)) {
+			return true;
+		}
+		if (lx == 1 && lz >= 1 && lz <= 5 && this.tramoHueco(gx, gz, false)) {
+			return true;
+		}
 		if (lz == 0) {
 			int t = tramo(gx, gz, true);
 			return t == -1 || (t >= 1 && (lx < t || lx > t + 1));
@@ -400,7 +406,7 @@ public final class Plano {
 
 	/** Pared maciza (no fina) en (x, z): donde se puede pegar algo (y que no tape un hueco). */
 	private boolean paredMaciza(int x, int z) {
-		return this.pared(x, z) && this.paredFina(x, z) == 0 && this.hueco(x, z) == HUECO_NO;
+		return this.pared(x, z) && this.paredFina(x, z) == 0 && this.celdaHueca(x, z) == null;
 	}
 
 	/**
@@ -499,41 +505,99 @@ public final class Plano {
 		return alongX ? 1 : 2;
 	}
 
-	/* ---------------------------------------------------------- huecos */
+	/* ----------------------------------------------------- paredes huecas */
 
-	public static final int HUECO_NO = 0;
-	/** En una pared a lo largo de x: se pasa en z. */
-	public static final int HUECO_Z = 1;
-	/** En una pared a lo largo de z: se pasa en x. */
-	public static final int HUECO_X = 2;
+	public static final int CARA_NADA = 0;
+	public static final int CARA_ENTERA = 1;
+	public static final int CARA_ROTA = 2;
 
 	/**
-	 * Boquete en el zocalo de la columna de pared (x, z), por donde se pasa
-	 * arrastrandose y donde uno se esconde de la Bacteria (escondite/Hueco). Como
-	 * mucho uno por tramo y en unos 3 de cada 10 tramos; nunca en pilares, tabiques
-	 * finos, paredes de bacilo ni cerca de ascensores, y siempre con suelo libre a
-	 * los dos lados.
+	 * Un bloque de pared hueca: que hay en cada cara (CARA_*, en el orden N, E, S, O)
+	 * y, si una cara es el boquete, si este es su cuarto izquierdo visto desde fuera.
 	 */
-	public int hueco(int x, int z) {
+	public record CeldaHueca(int[] caras, boolean izq) {
+	}
+
+	/**
+	 * Tramo de pared DOBLE y hueco por dentro (escondite/Hueco), como en Escape the
+	 * Backrooms: en vez de una fila de pared ocupa dos (la suya y la siguiente hacia el
+	 * sur o el este) en las columnas 1..5 del tramo, y por dentro es aire de punta a
+	 * punta. Solo en tramos enteros (sin puerta) de salas, laberinto o pasillos, lejos
+	 * de los ascensores, en uno de cada 6 o 7. Del mismo nodo no salen dos (se
+	 * cruzarian en la esquina).
+	 */
+	public boolean tramoHueco(int gx, int gz, boolean alongX) {
+		if (this.tramo(gx, gz, alongX) != -1 || this.cercaAscensor(gx, gz, 2)) {
+			return false;
+		}
+		if (azar(gx, gz, alongX ? 93 : 94) >= 0.16) {
+			return false;
+		}
+		// ni tabique fino ni bacilo
+		int x = gx * G + (alongX ? 3 : 0);
+		int z = gz * G + (alongX ? 0 : 3);
+		if (this.paredFina(x, z) != 0 || this.paredBacilo(x, z)) {
+			return false;
+		}
+		return alongX || !this.tramoHueco(gx, gz, true);
+	}
+
+	/**
+	 * El boquete de un lado (0 norte u oeste, 1 sur o este) de un tramo hueco: la
+	 * columna donde empieza (ocupa esa y la siguiente, 1..5), o -1 si ese lado esta
+	 * entero. Al menos uno de los dos lados tiene boquete si hay suelo libre delante.
+	 */
+	private int boquete(int gx, int gz, boolean alongX, int lado) {
+		long c = alongX ? 95 : 96;
+		int principal = azar(gx, gz, c + 10) < 0.5 ? 0 : 1;
+		if (lado != principal && azar(gx, gz, c + 20 + lado) >= 0.45) {
+			return -1;
+		}
+		int p = 1 + (int) (azar(gx, gz, c + 30 + lado) * 4);
+		// delante del boquete tiene que haber suelo
+		for (int k = 0; k < 2; k++) {
+			int a = (alongX ? gx : gz) * G + p + k;
+			int fila = (alongX ? gz : gx) * G + (lado == 0 ? -1 : 2);
+			if (alongX ? this.pared(a, fila) : this.pared(fila, a)) {
+				return -1;
+			}
+		}
+		return p;
+	}
+
+	/** Que tiene el bloque de pared hueca de la columna (x, z), o null si no es pared hueca. */
+	public CeldaHueca celdaHueca(int x, int z) {
 		int gx = Math.floorDiv(x, G);
 		int gz = Math.floorDiv(z, G);
 		int lx = x - gx * G;
 		int lz = z - gz * G;
-		if ((lx == 0) == (lz == 0)) {
-			return HUECO_NO; // pilar o columna libre
+		if (lx >= 1 && lx <= 5 && (lz == 0 || lz == 1) && this.tramoHueco(gx, gz, true)) {
+			// tramo a lo largo de x: fila 0 da al norte, fila 1 al sur
+			int[] caras = {lz == 0 ? CARA_ENTERA : CARA_NADA, lx == 5 ? CARA_ENTERA : CARA_NADA,
+				lz == 1 ? CARA_ENTERA : CARA_NADA, lx == 1 ? CARA_ENTERA : CARA_NADA};
+			int p = this.boquete(gx, gz, true, lz);
+			boolean izq = false;
+			if (p > 0 && (lx == p || lx == p + 1)) {
+				caras[lz == 0 ? 0 : 2] = CARA_ROTA;
+				// visto desde el norte la izquierda es la x menor; desde el sur, la mayor
+				izq = (lx == p) == (lz == 0);
+			}
+			return new CeldaHueca(caras, izq);
 		}
-		boolean alongX = lz == 0;
-		int donde = alongX ? lx : lz;
-		if (donde != 1 + (int) (azar(gx, gz, alongX ? 85 : 86) * (G - 1)) || azar(gx, gz, alongX ? 87 : 88) >= 0.3) {
-			return HUECO_NO;
+		if (lz >= 1 && lz <= 5 && (lx == 0 || lx == 1) && this.tramoHueco(gx, gz, false)) {
+			// tramo a lo largo de z: columna 0 da al oeste, columna 1 al este
+			int[] caras = {lz == 1 ? CARA_ENTERA : CARA_NADA, lx == 1 ? CARA_ENTERA : CARA_NADA,
+				lz == 5 ? CARA_ENTERA : CARA_NADA, lx == 0 ? CARA_ENTERA : CARA_NADA};
+			int p = this.boquete(gx, gz, false, lx);
+			boolean izq = false;
+			if (p > 0 && (lz == p || lz == p + 1)) {
+				caras[lx == 0 ? 3 : 1] = CARA_ROTA;
+				// visto desde el este la izquierda es la z menor; desde el oeste, la mayor
+				izq = (lz == p) == (lx == 1);
+			}
+			return new CeldaHueca(caras, izq);
 		}
-		if (!this.pared(x, z) || this.paredFina(x, z) != 0 || this.paredBacilo(x, z) || this.cercaAscensor(gx, gz, 1)) {
-			return HUECO_NO;
-		}
-		if (alongX ? this.pared(x, z - 1) || this.pared(x, z + 1) : this.pared(x - 1, z) || this.pared(x + 1, z)) {
-			return HUECO_NO;
-		}
-		return alongX ? HUECO_Z : HUECO_X;
+		return null;
 	}
 
 	/** Pared cubierta de Hay Bacillus (solo a oscuras). */

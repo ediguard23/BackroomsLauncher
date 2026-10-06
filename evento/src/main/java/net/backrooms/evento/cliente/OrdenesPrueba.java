@@ -16,6 +16,7 @@ import org.lwjgl.glfw.GLFW;
  * abrir pantallas sin tocar la ventana ni robar el foco.
  *
  *   inventario | pausa | cerrar | cinematica | linterna | camara | tab [n] | andar [s] | correr [s] | captura <nombre> | cursor
+ *   agacharse [s] | vista <0|1|2> | girar <grados> | atras [s] | reaparecer
  *
  * "andar <s>" y "correr <s>" dejan pulsado hacia delante (y correr) s segundos: para oir las
  * pisadas y ver el balanceo.
@@ -27,6 +28,10 @@ import org.lwjgl.glfw.GLFW;
  *
  * "cursor" apunta en el log si el cursor del sistema se ve, esta oculto o capturado (en
  * las capturas no sale).
+ *
+ * Para los huecos y la Bacteria: "agacharse <s>" deja pulsado Mayus s segundos (para meterse
+ * en un hueco), "vista" cambia la camara (0 primera persona, 1 detras, 2 delante), "girar"
+ * gira la vista y "atras" anda hacia atras.
  */
 final class OrdenesPrueba {
 	private static int ticks;
@@ -34,6 +39,9 @@ final class OrdenesPrueba {
 	private static int tab;
 	/** Ticks que queda pulsado hacia delante (ordenes "andar" y "correr"). */
 	private static int andar;
+	/** Ticks que queda pulsado Mayus (orden "agacharse") y hacia atras (orden "atras"). */
+	private static int agacharse;
+	private static int atras;
 
 	private OrdenesPrueba() {
 	}
@@ -50,6 +58,12 @@ final class OrdenesPrueba {
 			if (andar > 0 && --andar == 0) {
 				mc.options.keyUp.setDown(false);
 				mc.options.keySprint.setDown(false);
+			}
+			if (agacharse > 0 && --agacharse == 0) {
+				mc.options.keyShift.setDown(false);
+			}
+			if (atras > 0 && --atras == 0) {
+				mc.options.keyDown.setDown(false);
 			}
 			if (++ticks % 10 != 0 || !Files.exists(archivo)) {
 				return;
@@ -94,7 +108,31 @@ final class OrdenesPrueba {
 			andar = 20 * (s.isEmpty() ? 3 : Integer.parseInt(s));
 			return;
 		}
+		if (orden.startsWith("agacharse")) {
+			String s = orden.substring(9).trim();
+			mc.options.keyShift.setDown(true);
+			agacharse = 20 * (s.isEmpty() ? 3 : Integer.parseInt(s));
+			return;
+		}
+		if (orden.startsWith("atras")) {
+			String s = orden.substring(5).trim();
+			mc.options.keyDown.setDown(true);
+			atras = 20 * (s.isEmpty() ? 2 : Integer.parseInt(s));
+			return;
+		}
+		if (orden.startsWith("vista")) {
+			mc.options.setCameraType(net.minecraft.client.CameraType.values()[Integer.parseInt(orden.substring(5).trim())]);
+			return;
+		}
+		if (orden.startsWith("girar")) {
+			mc.player.setYRot(mc.player.getYRot() + Float.parseFloat(orden.substring(5).trim()));
+			return;
+		}
 		switch (orden) {
+			case "reaparecer" -> {
+				mc.player.respawn();
+				mc.setScreen(null);
+			}
 			case "inventario" -> mc.setScreen(new InventoryScreen(mc.player));
 			case "pausa" -> mc.setScreen(new PauseScreen(true));
 			case "cerrar" -> mc.setScreen(null);

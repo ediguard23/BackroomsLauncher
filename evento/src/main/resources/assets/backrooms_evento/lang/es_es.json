@@ -57,10 +57,7 @@
   "key.category.backrooms_evento.backrooms": "Backrooms",
   "death.attack.backrooms_evento.cordura": "%1$s perdió la cordura",
   "death.attack.backrooms_evento.cordura.player": "%1$s perdió la cordura huyendo de %2$s",
-  "block.backrooms_evento.hueco": "Hueco en la pared",
-  "key.backrooms_evento.arrastrarse": "Arrastrarse",
-  "death.attack.backrooms_evento.devorado": "%1$s fue devorado",
-  "death.attack.backrooms_evento.devorado.player": "%1$s fue devorado por %2$s",
-  "hud.backrooms_evento.hueco": "MAYÚS · METERSE EN EL HUECO",
-  "hud.backrooms_evento.escondido": "ESCONDIDO"
+  "block.backrooms_evento.hueco": "Pared hueca",
+  "death.attack.backrooms_evento.devorado": "%1$s fue devorado por %2$s",
+  "death.attack.backrooms_evento.devorado.player": "%1$s fue devorado por %2$s"
 }

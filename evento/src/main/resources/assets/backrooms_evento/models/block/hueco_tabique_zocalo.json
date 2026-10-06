@@ -1,0 +1,51 @@
+{
+  "textures": {
+    "zocalo": "backrooms_evento:block/zocalo",
+    "papel_pared": "backrooms_evento:block/papel_pintado",
+    "yeso": "backrooms_evento:block/hueco_yeso",
+    "dentro": "backrooms_evento:block/hueco_dentro",
+    "montante": "backrooms_evento:block/hueco_montante",
+    "aislante": "backrooms_evento:block/hueco_aislante",
+    "escombros": "backrooms_evento:block/hueco_escombros",
+    "papel": "backrooms_evento:block/hueco_papel",
+    "particle": "backrooms_evento:block/papel_pintado"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        2
+      ],
+      "faces": {
+        "north": {
+          "texture": "#zocalo"
+        },
+        "south": {
+          "texture": "#dentro"
+        },
+        "east": {
+          "texture": "#zocalo",
+          "cullface": "east"
+        },
+        "west": {
+          "texture": "#zocalo",
+          "cullface": "west"
+        },
+        "up": {
+          "texture": "#zocalo",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#zocalo",
+          "cullface": "down"
+        }
+      }
+    }
+  ]
+}

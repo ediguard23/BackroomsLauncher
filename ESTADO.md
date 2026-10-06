@@ -17,16 +17,17 @@ pidió no encender el servidor del PC).
   causa raíz clara, `mixin/DistanceManagerMixin` lo busca donde sí está, lo quita de ahí y lo
   apunta en el log («no estaba apuntado en el chunk...»): si sale, mirar qué hacía ese jugador.
   Además `Expedicion.viajar` levanta de la butaca antes de cambiar de mundo.
-- **Arrastrarse** (`escondite/Arrastre`, `mixin/PlayerMixin`, `cliente/ArrastreCliente`): tecla Z
-  (configurable) o solo, al agacharse (Mayús) delante de un hueco. Es la postura de nadar de
-  Minecraft fuera del agua (0,6 de alto); el estado va en cliente y servidor y se avisa a todos
-  (`red/EstadoArrastre`). Agachado o arrastrándote la Bacteria te ve a la mitad de distancia.
-- **Huecos en las paredes** (`escondite/Hueco`, `Plano#hueco`, `tools/texturas/huecos.js`): boquete
-  en el zócalo de ~3 de cada 10 tramos de pared (nunca en pilares, tabiques finos, bacilo ni
-  junto a ascensores). Paso de 14x13 px: solo cabe alguien arrastrándose. Tres variantes con
-  el pladur roto, yeso, el hueco por dentro a oscuras, cascotes, una tira de papel despegada
-  que se mece (textura animada) y polvo que cae. Dentro: «ESCONDIDO» en el HUD
-  (`escondite/Escondites`). Solo salen en terreno NUEVO.
+- **Paredes huecas** (lo pidió así el organizador, como en Escape the Backrooms; probado en el
+  juego el 2026-10-06): algunos tramos de pared (~1 de cada 6-7, `Plano#tramoHueco`) son DOBLES
+  (dos bloques de grosor) y huecos por dentro de punta a punta (5x2 bloques, toda la altura). En
+  uno o en los dos lados el pladur está reventado (`Plano#celdaHueca`): boquete de 2 de ancho y
+  1,6 de alto, se entra AGACHADO (Mayús; Minecraft te deja agachado mientras no quepas de pie) y
+  dentro se está de pie, a oscuras (los tabiques tapan la luz: `useShapeForLightOcclusion`),
+  con el revés del pladur, escombros, travesaño y aislante. Dentro: «ESCONDIDO» en el HUD
+  (`escondite/Escondites`, `cliente/HuecoCliente`). Bloque `escondite/Hueco` (cada cara nada,
+  tabique entero o roto; estado multipart de `tools/texturas/huecos.js`). Solo en terreno NUEVO.
+  Se probó antes «arrastrarse» (tumbado) y huecos de un bloque: el organizador los descartó.
+  Agachado la Bacteria te ve a la mitad de distancia.
 - **La Bacteria nueva** (`entidad/Bacteria`): ya no es adivina. Persigue a donde te vio por
   última vez; si no te ve en 5 s o no te encuentra allí, te deja y un rato no te «oye» correr.
   Si te metes en un hueco renuncia (gruñido), se va a 40-55 bloques en dirección contraria y

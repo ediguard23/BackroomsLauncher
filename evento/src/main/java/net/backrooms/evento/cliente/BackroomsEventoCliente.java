@@ -65,7 +65,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Eliminado.TYPE, (s, ctx) -> Eliminaciones.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Agarrado.TYPE, (s, ctx) -> AgarreCliente.empezar(s));
 		HerramientasCliente.registrar();
-		ArrastreCliente.registrar();
+		HuecoCliente.registrar();
 		AccesoCliente.registrar();
 
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {
@@ -78,7 +78,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		});
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("supervivencia"), SupervivenciaCliente::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("camara"), CamaraHud::render);
-		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("arrastre"), ArrastreCliente::render);
+		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("hueco"), HuecoCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("agarre"), AgarreCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("ascensor"), AscensorCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("eliminaciones"), Eliminaciones::render);
@@ -105,7 +105,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			SupervivenciaCliente.olvidar();
 			Miedo.olvidar();
 			AgarreCliente.olvidar();
-			ArrastreCliente.olvidar();
+			HuecoCliente.olvidar();
 		});
 		PantallaCinematica.cargar();
 		EfectosMundo.cargar();
