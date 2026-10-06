@@ -1,0 +1,29 @@
+{
+  "variants": {
+    "axis=z": [
+      {
+        "model": "backrooms_evento:block/hueco_1"
+      },
+      {
+        "model": "backrooms_evento:block/hueco_2"
+      },
+      {
+        "model": "backrooms_evento:block/hueco_3"
+      }
+    ],
+    "axis=x": [
+      {
+        "model": "backrooms_evento:block/hueco_1",
+        "y": 90
+      },
+      {
+        "model": "backrooms_evento:block/hueco_2",
+        "y": 90
+      },
+      {
+        "model": "backrooms_evento:block/hueco_3",
+        "y": 90
+      }
+    ]
+  }
+}

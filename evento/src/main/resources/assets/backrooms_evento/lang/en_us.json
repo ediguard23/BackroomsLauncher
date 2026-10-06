@@ -56,5 +56,11 @@
   "key.backrooms_evento.camara": "Camcorder",
   "key.category.backrooms_evento.backrooms": "Backrooms",
   "death.attack.backrooms_evento.cordura": "%1$s lost their mind",
-  "death.attack.backrooms_evento.cordura.player": "%1$s lost their mind while fleeing %2$s"
+  "death.attack.backrooms_evento.cordura.player": "%1$s lost their mind while fleeing %2$s",
+  "block.backrooms_evento.hueco": "Hole in the wall",
+  "key.backrooms_evento.arrastrarse": "Crawl",
+  "death.attack.backrooms_evento.devorado": "%1$s was devoured",
+  "death.attack.backrooms_evento.devorado.player": "%1$s was devoured by %2$s",
+  "hud.backrooms_evento.hueco": "SHIFT · CRAWL INTO THE HOLE",
+  "hud.backrooms_evento.escondido": "HIDDEN"
 }

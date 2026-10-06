@@ -6,4 +6,6 @@ import net.minecraft.client.renderer.entity.state.LivingEntityRenderState;
 public class EstadoBacteria extends LivingEntityRenderState {
 	/** 0..1: cuanto esta en modo caza (suavizado en el cliente). */
 	public float caza;
+	/** Ticks desde que agarro a alguien (con fraccion), o -1. */
+	public float agarre = -1.0F;
 }

@@ -4,7 +4,9 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "PlayerSpawnFinderMixin",
-    "ServerLoginAccessor"
+    "ServerLoginAccessor",
+    "DistanceManagerMixin",
+    "PlayerMixin"
   ],
   "client": [
     "cliente.CinematicaBlurMixin",
@@ -15,7 +17,8 @@
     "cliente.LocalPlayerAlientoMixin",
     "cliente.BrazoTrajeMixin",
     "cliente.TablaJugadoresMixin",
-    "cliente.BalanceoMixin"
+    "cliente.BalanceoMixin",
+    "cliente.AgarradoPoseMixin"
   ],
   "injectors": {
     "defaultRequire": 1

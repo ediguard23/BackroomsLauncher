@@ -31,5 +31,6 @@ public class BacteriaRenderer extends MobRenderer<Bacteria, EstadoBacteria, Mode
 	public void extractRenderState(Bacteria b, EstadoBacteria estado, float parcial) {
 		super.extractRenderState(b, estado, parcial);
 		estado.caza = b.caza(parcial);
+		estado.agarre = b.agarre(parcial);
 	}
 }

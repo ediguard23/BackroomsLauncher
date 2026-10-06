@@ -168,7 +168,7 @@ public class GeneradorNivel0 extends ChunkGenerator {
 		poner(chunk, pos.set(x, TECHO_Y + 1, z), Bloques.TECHO.defaultBlockState(), a, b);
 	}
 
-	/** Columna de pared: maciza (zocalo + papel), tabique fino o cubierta de Hay Bacillus. */
+	/** Columna de pared: maciza (zocalo + papel, a veces con un hueco en el zocalo), tabique fino o cubierta de Hay Bacillus. */
 	private void pared(ChunkAccess chunk, BlockPos.MutableBlockPos pos, Plano p, int x, int z, int wx, int wz, Heightmap a, Heightmap b) {
 		if (p.paredFina(wx, wz) != 0) {
 			boolean sucia = p.sucio(wx, 2, wz);
@@ -183,7 +183,11 @@ public class GeneradorNivel0 extends ChunkGenerator {
 			return;
 		}
 		boolean bacilo = p.paredBacilo(wx, wz);
-		poner(chunk, pos.set(x, SUELO + 1, z), (bacilo ? Bloques.RAIZ_BACILO : Bloques.ZOCALO).defaultBlockState(), a, b);
+		int hueco = p.hueco(wx, wz);
+		BlockState abajo = hueco != Plano.HUECO_NO
+			? Bloques.HUECO.defaultBlockState().setValue(net.backrooms.evento.escondite.Hueco.EJE, hueco == Plano.HUECO_Z ? Direction.Axis.Z : Direction.Axis.X)
+			: (bacilo ? Bloques.RAIZ_BACILO : Bloques.ZOCALO).defaultBlockState();
+		poner(chunk, pos.set(x, SUELO + 1, z), abajo, a, b);
 		for (int y = SUELO + 2; y < TECHO_Y; y++) {
 			Block bloque = bacilo ? Bloques.BACILO : p.sucio(wx, y - SUELO, wz) ? Bloques.PAPEL_PINTADO_SUCIO : Bloques.PAPEL_PINTADO;
 			poner(chunk, pos.set(x, y, z), bloque.defaultBlockState(), a, b);

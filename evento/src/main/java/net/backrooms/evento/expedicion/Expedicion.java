@@ -136,6 +136,10 @@ public final class Expedicion {
 		if (destino == null) {
 			destino = this.zonaNueva();
 		}
+		// sentado en la butaca del vestibulo: levantarle antes de cambiar de mundo
+		if (j.isPassenger()) {
+			j.stopRiding();
+		}
 		// despierta tumbado mirando a los tubos del techo
 		j.teleportTo(nivel, destino.getX() + 0.5, destino.getY(), destino.getZ() + 0.5, Set.of(), this.azar.nextFloat() * 360.0F - 180.0F, -70.0F, true);
 		j.resetFallDistance();

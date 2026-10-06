@@ -44,7 +44,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		BlockRenderLayerMap.putBlocks(ChunkSectionLayer.CUTOUT,
 			Bloques.DIBUJO, Bloques.VENTILADOR, Bloques.VENTILADOR_GRANDE, Bloques.CAPA_BACILO,
 			Bloques.SENAL_ALTO, Bloques.SENAL_PELIGRO, Bloques.SENAL_SIGA, Bloques.SENAL_ALTO_REVES, Bloques.SENAL_SIGA_REVES,
-			Bloques.PANEL_ASCENSOR);
+			Bloques.PANEL_ASCENSOR, Bloques.HUECO);
 		EntityRenderers.register(Entidades.CASETE, CaseteRenderer::new);
 		EntityRenderers.register(Entidades.ASIENTO, NoopRenderer::new);
 		EntityRenderers.register(Entidades.COMIDA, ComidaRenderer::new);
@@ -63,7 +63,9 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(EstadoJugador.TYPE, (s, ctx) -> SupervivenciaCliente.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(Susto.TYPE, (s, ctx) -> SupervivenciaCliente.susto(s));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Eliminado.TYPE, (s, ctx) -> Eliminaciones.recibir(s));
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Agarrado.TYPE, (s, ctx) -> AgarreCliente.empezar(s));
 		HerramientasCliente.registrar();
+		ArrastreCliente.registrar();
 		AccesoCliente.registrar();
 
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {
@@ -71,10 +73,13 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			Cordura.tick();
 			SupervivenciaCliente.tick(mc);
 			Balanceo.tick(mc);
+			AgarreCliente.tick(mc);
 			Miedo.tick(mc);
 		});
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("supervivencia"), SupervivenciaCliente::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("camara"), CamaraHud::render);
+		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("arrastre"), ArrastreCliente::render);
+		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("agarre"), AgarreCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("ascensor"), AscensorCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("eliminaciones"), Eliminaciones::render);
 		// con la camara levantada no se ve la barra ni la mira del juego: solo el visor
@@ -99,6 +104,8 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			Flash.olvidar();
 			SupervivenciaCliente.olvidar();
 			Miedo.olvidar();
+			AgarreCliente.olvidar();
+			ArrastreCliente.olvidar();
 		});
 		PantallaCinematica.cargar();
 		EfectosMundo.cargar();

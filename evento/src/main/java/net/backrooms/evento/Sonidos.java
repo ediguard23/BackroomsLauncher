@@ -39,6 +39,17 @@ public final class Sonidos {
 	public static final SoundEvent NOTA_LEER = registrar("nota.leer");
 	public static final SoundEvent BUTACA = registrar("butaca");
 	public static final SoundEvent BACTERIA_GOLPE = registrar("bacteria.golpe");
+	// el agarre: te agarra, te levanta, muerde tres veces y te devora (tools/sonidos/bacteria.js)
+	public static final SoundEvent BACTERIA_AGARRE = registrar("bacteria.agarre");
+	public static final SoundEvent BACTERIA_LEVANTA = registrar("bacteria.levanta");
+	public static final SoundEvent BACTERIA_MORDISCO = registrar("bacteria.mordisco");
+	public static final SoundEvent BACTERIA_DEVORA = registrar("bacteria.devora");
+	/** Te ha perdido o te has escondido: grunido de rabia y se va. */
+	public static final SoundEvent BACTERIA_RENUNCIA = registrar("bacteria.renuncia");
+	/** El grito ahogado de quien acaba de agarrar. */
+	public static final SoundEvent VICTIMA_GRITO = registrar("victima.grito");
+	/** Meterse o salir de un hueco de la pared: pladur que cruje y cascotes. */
+	public static final SoundEvent HUECO = registrar("hueco");
 	public static final SoundEvent ASCENSOR_DENEGADO = registrar("ascensor.denegado");
 	public static final SoundEvent ASCENSOR_PANEL = registrar("ascensor.panel");
 	public static final SoundEvent MISION_COMPLETA = registrar("mision.completa");

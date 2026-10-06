@@ -1,7 +1,54 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-05 21:50 (hora de Honduras). Mod `backrooms_evento` 0.9.4, launcher 1.0.0
+Última actualización: 2026-10-06 12:15 (hora de Honduras). Mod `backrooms_evento` 0.9.5, launcher 1.0.0
 (con arreglos sin publicar).
+
+## 0.9.5: escapar de la Bacteria, el agarre y la caída del servidor (2026-10-06; xgdier_)
+
+Lo pidió el organizador: era casi imposible escapar de la Bacteria (te seguía siempre) y
+mataba a golpes. **Compila; nada de esto se ha probado en el juego todavía** (el organizador
+pidió no encender el servidor del PC).
+
+- **La caída del servidor (el «fallo raro» del punto 6)**: no era el tp. El servidor se cayó
+  3 veces el 2026-10-05 (17:20, 19:29 y 19:57, `crash-reports/` de D:ackrooms-prueba) con
+  `NullPointerException` en `DistanceManager.removePlayer`: al sacar a un jugador de una
+  dimensión (al viajar al Nivel 0 o al DESCONECTARSE) Minecraft lo busca en un chunk donde no
+  está apuntado. A Bruno le salió «Desconectado» porque se cayó el servidor entero. Sin la
+  causa raíz clara, `mixin/DistanceManagerMixin` lo busca donde sí está, lo quita de ahí y lo
+  apunta en el log («no estaba apuntado en el chunk...»): si sale, mirar qué hacía ese jugador.
+  Además `Expedicion.viajar` levanta de la butaca antes de cambiar de mundo.
+- **Arrastrarse** (`escondite/Arrastre`, `mixin/PlayerMixin`, `cliente/ArrastreCliente`): tecla Z
+  (configurable) o solo, al agacharse (Mayús) delante de un hueco. Es la postura de nadar de
+  Minecraft fuera del agua (0,6 de alto); el estado va en cliente y servidor y se avisa a todos
+  (`red/EstadoArrastre`). Agachado o arrastrándote la Bacteria te ve a la mitad de distancia.
+- **Huecos en las paredes** (`escondite/Hueco`, `Plano#hueco`, `tools/texturas/huecos.js`): boquete
+  en el zócalo de ~3 de cada 10 tramos de pared (nunca en pilares, tabiques finos, bacilo ni
+  junto a ascensores). Paso de 14x13 px: solo cabe alguien arrastrándose. Tres variantes con
+  el pladur roto, yeso, el hueco por dentro a oscuras, cascotes, una tira de papel despegada
+  que se mece (textura animada) y polvo que cae. Dentro: «ESCONDIDO» en el HUD
+  (`escondite/Escondites`). Solo salen en terreno NUEVO.
+- **La Bacteria nueva** (`entidad/Bacteria`): ya no es adivina. Persigue a donde te vio por
+  última vez; si no te ve en 5 s o no te encuentra allí, te deja y un rato no te «oye» correr.
+  Si te metes en un hueco renuncia (gruñido), se va a 40-55 bloques en dirección contraria y
+  en 30 s no vuelve a por ti. FOLLOW_RANGE 64.
+- **El agarre** en vez de golpes: a 2,1 bloques te agarra, te levanta con los brazos (vas
+  «montado» en ella, `positionRider`; Mayús no suelta: `PlayerMixin`), muerde 3 veces y te devora
+  (~2,8 s; daño `backrooms_evento:devorado`, «X fue devorado por La Bacteria»). Si te
+  desconectas mientras te come, mueres igual. La víctima ve su cara (vista clavada, temblor,
+  rojo en cada mordisco, negro al final; `cliente/AgarreCliente`) y los demás la ven colgando
+  (`mixin/cliente/AgarradoPoseMixin`). Las poses de `ModeloBacteria` salen de calcular con
+  las medidas de `MallaBacteria` dónde caen manos y boca a 1,55 bloques (lo que llegan sus
+  brazos): **hay que verlo en el juego** y retocar si las garras no cierran sobre el jugador.
+- **Sonidos** (`tools/sonidos/bacteria.js`, más duros): grito (inspiración al revés + 3 capas +
+  distorsión), caza, acecho, y nuevos: renuncia, agarre, levanta, 3 mordiscos, devora, 2 gritos
+  de la víctima y el del hueco. Los del pack de EliteCreatures (NullForums) NO se usan: el
+  organizador lo pidió y se le explicó que el mod se reparte público con venta de entradas.
+- **Cuántas Bacterias**: `Fase.bacterias` por cada 10 jugadores (1 / 1,5 / 2,2 / 3), tope 40
+  por dimensión: con 200 en la fase 1, unas 20.
+- **Paquete para el hosting**: `Descargas/Backrooms-servidor-0.9.5.zip` (fabric-server.jar,
+  mods probados, config, server.properties con view 6 / simulation 4, LEEME-HOSTING.txt). Sin
+  eula ni token. El pack local (`pack/mods`) ya lleva el jar 0.9.5; publicarlo cuando haya IP.
+
 
 ## El código de la entrada también por correo (2026-10-06; xgdier_)
 
@@ -218,12 +265,12 @@ Leer esto antes de tocar nada. Lo que se va haciendo se anota aquí y se sube.
 
 ## Pendiente
 
-1. **Tienda (peakmc-store): desplegar las entradas.** Está en commit local (`493e574`),
-   NO desplegada. Falta aplicar `server/migrations/005_backrooms.sql` en Supabase y
-   desplegar (`npm run exportar` → Render). **Pedir permiso al usuario**: es producción.
-2. **No publicar el pack** (`npm run publicar-pack`) hasta que la tienda esté desplegada:
-   `pack/evento.json` ya lleva `acceso.api` y sin la tienda nadie podría canjear ni entrar.
-3. IP real del servidor en `pack/evento.json` (sigue `play.tuservidor.net`).
+1. **Probar la 0.9.5 en el juego**: arrastrarse, huecos (que se vean bien y se pueda entrar
+   sin atascarse), la Bacteria que te pierde y se retira, y el agarre entero (poses, cámara,
+   sonidos, muerte y eliminación). Necesita encender un servidor: pedir permiso.
+2. **El pack publicado es el de prueba** (apunta a playit, que ya no está). Con la IP del
+   hosting: `pack/evento.json` (con `acceso`) o una ficha de prueba, y publicar (pedir permiso).
+3. Tienda: desplegada (ver arriba); falta el paquete de Tebex y pegar el token en el servidor.
 4. Pisadas, balanceo y miedo: hechos en la 0.9.0, falta probarlos en el juego (ver arriba).
 5. Simple Voice Chat: HECHO. Falta que el host del servidor abra el puerto UDP 24454.
    AmbientSounds 2 no encaja (pone sonidos de bosque/agua por bioma): descartado.

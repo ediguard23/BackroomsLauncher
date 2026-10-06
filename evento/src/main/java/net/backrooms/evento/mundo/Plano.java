@@ -398,9 +398,9 @@ public final class Plano {
 
 	public static final Deco NADA = new Deco(D_NADA, 0, 0);
 
-	/** Pared maciza (no fina) en (x, z): donde se puede pegar algo. */
+	/** Pared maciza (no fina) en (x, z): donde se puede pegar algo (y que no tape un hueco). */
 	private boolean paredMaciza(int x, int z) {
-		return this.pared(x, z) && this.paredFina(x, z) == 0;
+		return this.pared(x, z) && this.paredFina(x, z) == 0 && this.hueco(x, z) == HUECO_NO;
 	}
 
 	/**
@@ -497,6 +497,43 @@ public final class Plano {
 			return 0;
 		}
 		return alongX ? 1 : 2;
+	}
+
+	/* ---------------------------------------------------------- huecos */
+
+	public static final int HUECO_NO = 0;
+	/** En una pared a lo largo de x: se pasa en z. */
+	public static final int HUECO_Z = 1;
+	/** En una pared a lo largo de z: se pasa en x. */
+	public static final int HUECO_X = 2;
+
+	/**
+	 * Boquete en el zocalo de la columna de pared (x, z), por donde se pasa
+	 * arrastrandose y donde uno se esconde de la Bacteria (escondite/Hueco). Como
+	 * mucho uno por tramo y en unos 3 de cada 10 tramos; nunca en pilares, tabiques
+	 * finos, paredes de bacilo ni cerca de ascensores, y siempre con suelo libre a
+	 * los dos lados.
+	 */
+	public int hueco(int x, int z) {
+		int gx = Math.floorDiv(x, G);
+		int gz = Math.floorDiv(z, G);
+		int lx = x - gx * G;
+		int lz = z - gz * G;
+		if ((lx == 0) == (lz == 0)) {
+			return HUECO_NO; // pilar o columna libre
+		}
+		boolean alongX = lz == 0;
+		int donde = alongX ? lx : lz;
+		if (donde != 1 + (int) (azar(gx, gz, alongX ? 85 : 86) * (G - 1)) || azar(gx, gz, alongX ? 87 : 88) >= 0.3) {
+			return HUECO_NO;
+		}
+		if (!this.pared(x, z) || this.paredFina(x, z) != 0 || this.paredBacilo(x, z) || this.cercaAscensor(gx, gz, 1)) {
+			return HUECO_NO;
+		}
+		if (alongX ? this.pared(x, z - 1) || this.pared(x, z + 1) : this.pared(x - 1, z) || this.pared(x + 1, z)) {
+			return HUECO_NO;
+		}
+		return alongX ? HUECO_Z : HUECO_X;
 	}
 
 	/** Pared cubierta de Hay Bacillus (solo a oscuras). */

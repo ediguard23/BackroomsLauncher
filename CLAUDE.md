@@ -39,7 +39,8 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
       expedicion/                el /start (cinemática y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas
-      entidad/                   Bacteria, Smiler y quién aparece dónde (Acechadores)
+      entidad/                   Bacteria (caza, retirada, agarre), Smiler y quién aparece dónde (Acechadores)
+      escondite/                 arrastrarse (Arrastre) y los huecos de las paredes (Hueco, Escondites)
       supervivencia/             cordura, estamina, comida, agua de almendras
       objetos/                   traje, linterna, cámara, comida
       acceso/                    comprobación del pase de entrada en el login
@@ -50,7 +51,9 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
 tools/
   texturas/*.js                  dibujan las texturas y modelos (npm run texturas)
   texturas/entidades.js          modelos de Bacteria y Smiler -> genera Malla*.java (no editarlos a mano)
-  sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros)
+  texturas/huecos.js             los huecos rotos de las paredes (modelos, texturas, papel animado)
+  sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros);
+                                 la Bacteria y el agarre en sonidos/bacteria.js
   sonidos/voces/                 las únicas grabaciones: voces generadas con Higgsfield
   video/                         tráiler 4K (npm run trailer)
   cartel/                        cartel animado para Yamipa (GIF 7x4 en colores de mapa)

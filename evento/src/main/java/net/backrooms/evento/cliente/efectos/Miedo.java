@@ -71,6 +71,11 @@ public final class Miedo {
 		return Math.min(1.0F, uno + dos);
 	}
 
+	/** Al menos este miedo ahora mismo (la Bacteria te tiene agarrado: a tope). */
+	public static void forzar(float v) {
+		miedo = Math.max(miedo, v);
+	}
+
 	public static void olvidar() {
 		miedo = 0.0F;
 		miedoAntes = 0.0F;
