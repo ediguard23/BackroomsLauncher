@@ -288,8 +288,8 @@ function textos (f, g) {
   }
   texto(b, 'REC', W - 20, 18, 28, 0.08, BLANCO, 'right');
   const seg = 13 + Math.floor(f * PASO_S);
-  texto(b, `PM 9:00:${String(seg).padStart(2, '0')}`, W - 20, 48, 19, 0.08, BLANCO, 'right');
-  texto(b, 'OCT. 31 2026', W - 20, 68, 19, 0.08, BLANCO, 'right');
+  texto(b, `0:47:${String(seg).padStart(2, '0')}`, W - 20, 48, 19, 0.08, BLANCO, 'right');
+  texto(b, 'FECHA: ??', W - 20, 68, 19, 0.08, BLANCO, 'right');
 
   // bajo el logo
   texto(b, 'NIVEL 0  ·  NO OS SEPARÉIS', W / 2, 322, 19, 0.12, CREMA, 'center', 'SpecialElite');
@@ -299,9 +299,9 @@ function textos (f, g) {
   const yG = 371;
   const yD = 421;
   const cols = [
-    ['SÁBADO', '31 OCT', '9:00 PM (GMT-6)'],
+    ['FECHA', 'PRÓXIMAMENTE', 'SE ANUNCIA EN EL DISCORD'],
     ['CUPO INICIAL', '100 PLAZAS', 'SOLO UNOS POCOS ESCAPAN'],
-    ['ENTRADA', '2 USD', 'TIENDA.PEAKMC.LAT']
+    ['LAUNCHER', '2 USD', 'TIENDA.PEAKMC.LAT']
   ];
   for (let i = 0; i < 3; i++) {
     const cx = 150 + i * 298;
@@ -314,7 +314,7 @@ function textos (f, g) {
 
   // pie
   linea(b, 40, 461, W - 40, 461, CREMA_OSC);
-  texto(b, 'EVENTO EN VIVO  ·  LAUNCHER GRATIS  ·  DISCORD: DC.PEAKMC.LAT', W / 2, 472, 19, 0.14, CREMA);
+  texto(b, 'EVENTO EN VIVO  ·  SOLO CON EL LAUNCHER  ·  DISCORD: DC.PEAKMC.LAT', W / 2, 472, 19, 0.14, CREMA);
 
   // separacion de color al irse la luz
   if (g.glitch > 0) {
