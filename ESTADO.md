@@ -3,6 +3,20 @@
 Última actualización: 2026-10-05 21:50 (hora de Honduras). Mod `backrooms_evento` 0.9.4, launcher 1.0.0
 (con arreglos sin publicar).
 
+## Instalador con la marca del evento (2026-10-06; xgdier_)
+
+- El instalador (NSIS) ya lleva el icono de la puerta (`assets/icon.ico`), la barra lateral y la
+  cabecera del evento (`assets/instalador/`, se rehacen con `tools/instalador/generar.ps1`) y va en
+  español. Pantalla de bienvenida propia y, al final, dos casillas: «Abrir Backrooms Launcher» y
+  «Crear un acceso directo en el escritorio» (`assets/instalador/instalador.nsh`). El del menú
+  Inicio se crea siempre: así sale al buscar «Backrooms». Al desinstalar se borra el del
+  escritorio (no al actualizar).
+- `main.js`: `app.setAppUserModelId('com.backrooms.launcher')` para que la ventana se agrupe con
+  esos accesos directos y la barra de tareas enseñe su icono.
+- Compilado en local (`npm run build`, sin publicar) y visto: la bienvenida sale con la barra y
+  los acentos bien. La pantalla final y la desinstalación **sin ver todavía** (el organizador lo
+  está instalando). Llega a los jugadores con la próxima versión del launcher (sigue la 1.0.0).
+
 ## Tienda: apartado Eventos y lista del evento (2026-10-05, noche; xgdier_)
 
 Lo pidió el organizador: la entrada se vende HOY pero el launcher aún no se publica, y hay

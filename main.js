@@ -26,6 +26,10 @@ const acceso = require('./src/core/acceso');
 
 const VERSION = require('./package.json').version;
 
+// La misma identidad que los accesos directos del instalador (appId de electron-builder.yml):
+// asi Windows agrupa la ventana con ellos y la barra de tareas enseña el icono del launcher.
+if (process.platform === 'win32') app.setAppUserModelId('com.backrooms.launcher');
+
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 }

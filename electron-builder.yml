@@ -17,6 +17,7 @@ files:
   - '!assets/**/*.psd'
   - '!assets/fuentes-ia/**'
   - '!assets/PROMPTS.md'
+  - '!assets/instalador/**'
   - '!**/*.map'
 
 asar: true
@@ -25,7 +26,7 @@ win:
   target:
     - target: nsis
       arch: [x64]
-  icon: assets/icon.png
+  icon: assets/icon.ico
 
 nsis:
   # Sin espacios: latest.yml referencia el archivo con guiones y, si el .exe
@@ -34,10 +35,24 @@ nsis:
   oneClick: false
   allowToChangeInstallationDirectory: true
   perMachine: false
-  createDesktopShortcut: true
+  # El del escritorio lo pregunta la ultima pantalla (casilla); el del menu Inicio va
+  # siempre, que es lo que hace que salga al buscar "Backrooms" en Windows.
+  createDesktopShortcut: false
   createStartMenuShortcut: true
   shortcutName: Backrooms Launcher
+  uninstallDisplayName: Backrooms Launcher
   differentialPackage: true
+  # Aspecto: icono de la puerta, barra lateral y cabecera del evento (tools/instalador/generar.ps1)
+  # y las pantallas propias de assets/instalador/instalador.nsh. En español.
+  installerIcon: assets/icon.ico
+  uninstallerIcon: assets/icon.ico
+  installerHeaderIcon: assets/icon.ico
+  installerSidebar: assets/instalador/lateral.bmp
+  uninstallerSidebar: assets/instalador/lateral.bmp
+  installerHeader: assets/instalador/cabecera.bmp
+  include: assets/instalador/instalador.nsh
+  installerLanguages: [es_ES]
+  language: '3082'
 
 # El launcher se actualiza solo desde las releases de este repositorio. El
 # pack del evento vive en la release con tag "pack", que se crea con
