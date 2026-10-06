@@ -593,6 +593,9 @@
     b.addEventListener('mouseenter', () => { if (!b.disabled && sonido) sonido.hover(); });
   });
 
+  // Es la ventana de un juego, no una web: no se arrastra nada (ni los logos ni el texto)
+  document.addEventListener('dragstart', (e) => e.preventDefault());
+
   async function iniciar () {
     const s = await L.estado();
     estado.config = s.config;
