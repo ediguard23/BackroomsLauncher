@@ -1,7 +1,56 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-06 12:15 (hora de Honduras). Mod `backrooms_evento` 0.9.5, launcher 1.0.0
-(con arreglos sin publicar).
+Última actualización: 2026-10-06 16:10 (hora de Honduras). Mod `backrooms_evento` 0.9.6, launcher 1.0.0
+(con arreglos sin publicar) y un launcher aparte para la beta.
+
+## Beta #1 (2026-10-06, tarde; xgdier_)
+
+Unas 10 personas en el hosting **66.51.99.93:25704**. Todo hecho y probado salvo lo marcado.
+
+- **Launcher de la beta** (NO se publica): `node tools/construir-beta.js --nombre="BETA #1"` →
+  `dist-beta/Backrooms-Beta-Setup-1.0.0.exe`. Es el de siempre con otra ficha: carpeta
+  `.backrooms-beta`, baja el pack de la release **`pack-beta`**, no se autoactualiza
+  (`"actualizar": false` en src/event.json) y se instala como «Backrooms Beta». Probado: abre
+  con «BETA #1», la noticia de la beta y la puerta abierta.
+- **Pack de la beta**: `pack/.evento-beta.json` (servidor del hosting, sin eventStart, con acceso)
+  publicado con `GH_TOKEN=… node tools/publicar-pack.js --tag=pack-beta --ficha=pack/.evento-beta.json`
+  (el token sale de `git credential fill`). El pack público (`pack`) NO se ha tocado: sigue
+  apuntando a playit. Si cambia el mod durante la beta: compilar, copiar el jar a `pack/mods`,
+  volver a publicar `pack-beta` y cambiar el jar del servidor (el mismo).
+- **Mods de optimización** (externos de Modrinth, no se resuben): Sodium 0.8.15-beta.1, Lithium,
+  FerriteCore, ImmediatelyFast, EntityCulling, Dynamic FPS, BadOptimizations y Krypton. Con
+  Sodium se ven bien apagón, linterna, alarma, tubos teñidos y Bacteria. Dynamic FPS va con
+  `pack/una-vez/config/dynamic_fps.json`: solo baja FPS con la ventana minimizada y nunca el
+  volumen (por defecto ponía 1 FPS y 25 % de volumen al cambiar de ventana). OJO al probar:
+  con la ventana minimizada no dibuja y las `captura` salen congeladas (en el cliente de
+  pruebas está a 15 FPS minimizado). Descartados: MoreCulling (pide Cloth Config), ModernFix
+  (no hay para 1.21.11), C2ME/VMP/ScalableLux (alfa). AmbientSounds: NO (pájaros en el Nivel 0).
+- **Servidor**: `Downloads/Backrooms-servidor-beta1-0.9.6.zip` con Lithium, FerriteCore y Krypton,
+  `server-port=25704`, voz por el mismo puerto (`port=-1`, UDP), acceso ACTIVO con el token
+  y la clave de la tienda real. LEEME-HOSTING.txt reescrito. Sin eula.
+- **Códigos de beta** (tienda desplegada, migración 008): origen `beta`, sin nick, un uso, no
+  ocupan plaza ni salen en Discord. 20 + 1 del organizador en `Downloads/codigos-beta-1.txt`
+  (el suyo ya canjeado con xgdier_). Panel → Eventos: generar y «Anular todos los de beta»
+  (hacerlo al acabar). También `POST /api/backrooms/beta` con el token del servidor.
+- **Probado de punta a punta con la tienda real**: canje → pase firmado → servidor con acceso
+  activo baja la lista (10 nicks) → entra. Ojo: el servidor de pruebas tenía en
+  `clavePublica` la de la tienda falsa (por eso «pase no auténtico»); la real es la del mod.
+  Después lo dejé como estaba (`activo: false`).
+- **Ascensores del vestíbulo** (lo pidió el organizador): ver commit 7fa3204. Probado: /start →
+  entrar en la cabina → hueco → cinemática → Nivel 0 a los 45 s; volver a entrar estando en
+  el hueco te sube al vestíbulo.
+- **Luz desde el /start**: probado (al llegar, apagón a los 6-8 min). El organizador se quejó de
+  que al dar /start "ya era de noche": era un apagón atrasado de cuando la fase estaba vacía.
+- **Tamaño del mapa según la gente** y **5 casetes**: probado (con 1 jugador cae a ±560, 5 casetes).
+- **Agarre**: sin el aviso de Minecraft de bajarse (probado). Que los DEMÁS vean el agarre: el
+  código lo manda a todos (pasajero, pose sincronizada, sonidos, partículas), pero **sin
+  probar con dos clientes** (no había RAM con Lunar abierto). Mirarlo en la beta.
+- **Megafonía del vestíbulo**: ya no dice «empieza en breve» con la expedición en marcha.
+  Compila; sin oírlo en el juego.
+
+**Pendiente (pedido por el organizador)**: cinemáticas distintas para bajar a la fase 2 y a la
+3 (ahora el paso de fase es solo un fundido con el nombre). Y retocar la del /start para que
+lo que se ve por las puertas al cerrarse sea el vestíbulo de verdad.
 
 ## 0.9.5: escapar de la Bacteria, el agarre y la caída del servidor (2026-10-06; xgdier_)
 
