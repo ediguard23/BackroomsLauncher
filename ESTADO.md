@@ -29,9 +29,13 @@ el mod. Ver `VENTA.md` (reescrito) para el modelo completo.
   login rechace a quien no está en la lista y la expulsión (hace falta un cliente con pase).
 - **Tráiler** en /eventos: versión web 1080p30 (23,6 MB, `public/assets/eventos/backrooms-trailer.mp4`,
   sacada del 4K con el ffmpeg de Medal) con portada del segundo 58; solo se descarga al darle a play.
-- **Falta (organizador)**: poner `BACKROOMS_FIRMA` y
-  `BACKROOMS_SERVIDOR_TOKEN` en Render (los dos en el `.env` local de peakmc-store), crear
-  el paquete en Tebex (2 $, sin comandos) y vincularlo en el panel. Ver VENTA.md.
+- **Render (hecho 2026-10-06 04:10 UTC, con el conector de Render)**: `BACKROOMS_FIRMA` y
+  `BACKROOMS_SERVIDOR_TOKEN` puestas en el servicio `peakmc` (srv-da6gilu7bikc738hel00) y
+  redesplegado. Comprobado en directo: `/api/backrooms/clave` da la misma clave pública que lleva el
+  mod, y la whitelist responde 200 con el token y 401 sin él.
+- **Falta (organizador)**: el paquete de la entrada en Tebex (2 $, sin comandos) y vincularlo en el
+  panel (Productos → «Entrada · Backrooms»); y pegar el token (está en el `.env` de peakmc-store) en
+  `token` de `config/backrooms-acceso.json` del servidor del evento. Ver VENTA.md.
 - El texto de la ventana ENTRADA del launcher ya dice que el código solo vale con el nick de
   la compra (llega con la próxima versión). `pack/evento.json` (local, no está en git):
   `acceso.comprar` apunta ya a /eventos.
