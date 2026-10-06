@@ -49,16 +49,15 @@ Unas 10 personas en el hosting **66.51.99.93:25704**. Todo hecho y probado salvo
   Compila; sin oírlo en el juego.
 
 - **Cinemáticas de bajada a las fases 2 y 3** (las pidió el organizador; mod 0.9.7): guiones 2 y 3
-  de , en el ascensor de salida tal como es en el mundo (acero 5x5, panel al fondo).
+  de `cinematica.fsh`, en el ascensor de salida tal como es en el mundo (acero 5x5, panel al fondo).
   Fase 2: frena, te acercas al panel y lo arreglas a golpes (chispas), vuelve a fallar y cae, el
   freno lo para y se abre a medias al sector B. Fase 3: algo cruza el pasillo al cerrarse, apagón
   y visión nocturna, garras por la junta, golpes en el techo, y al abrirse una sonrisa que se te
-  echa encima. Bandas: cinematica_fase2.ogg 33.3 s, 494 KB (3.9 s)
-cinematica_fase3.ogg 30.9 s, 449 KB (2.3 s). El servidor te lleva en el negro
+  echa encima. Bandas: `tools/sonidos/cinematica-fases.js`. El servidor te lleva en el negro
   (Fases#bajada: 28,2 / 25,8 s) y mientras tanto ni Bacteria ni Smilers ni daño (Fases#viajando).
   A la fase 4 y a la salida sigue el fundido de antes. **Probado**: las dos cinemáticas con
   capturas y un viaje real a la fase 2 con una Bacteria al lado (no agarra; llega a los 29 s).
-  Para verlas: ; para bajar: .
+  Para verlas: `/backrooms cinematica fase <2|3> [nick]`; para bajar: `/backrooms bajar <nick>`.
 - La del /start enseña por las puertas el vestíbulo de verdad (texturas del mod en las filas 4-5
   del atlas, AtlasCinematica admite "espacio:ruta").
 - **Traje morado y negro (arreglado)**: al cambiar de mundo Minecraft para todos los sonidos e
@@ -66,9 +65,9 @@ cinematica_fase3.ogg 30.9 s, 449 KB (2.3 s). El servidor te lleva en el negro
   jar entero (ClosedByInterruptException) y desde ahí falla todo lo que se carga tarde (texturas
   del traje, sonidos). Ya ningún sonido del mod va con "stream" (sounds.json y los scripts).
   OJO: no volver a poner "stream": true.
-- Minecraft corta la banda de la cinemática al viajar: lo de después va en  y
+- Minecraft corta la banda de la cinemática al viajar: lo de después va en `*_despues.ogg` y
   CinematicaCliente#tick lo pone al cambiar de mundo. CinematicaSonidoMixin deja pasar las bandas.
-- Pack de la beta re-publicado con la 0.9.7 y  (el
+- Pack de la beta re-publicado con la 0.9.7 y `Downloads/Backrooms-servidor-beta1-0.9.7.zip` (el
   0.9.6 está obsoleto). El launcher de la beta no cambia (baja el pack solo).
 
 ## 0.9.5: escapar de la Bacteria, el agarre y la caída del servidor (2026-10-06; xgdier_)
