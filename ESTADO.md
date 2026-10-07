@@ -1,7 +1,31 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-07 14:30 (hora de Honduras). Mod `backrooms_evento` 0.9.11, launcher 1.0.0
+Última actualización: 2026-10-07 14:40 (hora de Honduras). Mod `backrooms_evento` 0.9.12, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.9.12: cordura al empezar, panel, /start repetido y arranque en ventana (2026-10-07; Bruno)
+
+- **Morir por cordura nada más llegar (arreglado y probado)**: la cordura se guarda con el
+  jugador y nada la reponía al empezar otra expedición; quien acabó la anterior a 0 sin morir
+  (misiones olvidadas, servidor reiniciado...) moría por «locura» al llegar al Nivel 0. Ahora
+  `Expedicion.viajar` la pone a 100. Probado: con la cordura a 0 (`/backrooms cordura 0`), llega
+  vivo y con 99,7 %.
+- **Panel de los ascensores del vestíbulo**: una pulsación cada 3 s por jugador (se podía
+  spamear el sonido). Compila; sin probar pulsándolo.
+- **`/start` con los ascensores ya abiertos**: ya no vuelve a sonar la apertura ni a salir el
+  aviso. Las puertas ya estaban cerradas hasta el `/start` (se cierran al arrancar el servidor;
+  comprobado bloque a bloque: cerradas → `/start` → abiertas).
+- **Launcher + mod: el juego arranca en ventana** (centrado, como Minecraft normal) y, si el
+  jugador eligió PANTALLA COMPLETA, el mod la pone al acabar la carga (`BackroomsMenu`); antes
+  el launcher pasaba `--fullscreen` y Windows cambiaba de modo de golpe al arrancar. El launcher
+  manda `pantallaCompleta` en `config/backrooms-event.json` y pone `fullscreen:false` en
+  `options.txt` antes de abrir (si no, una F11 de la vez anterior volvía a abrirlo a pantalla
+  completa). Probado: ventana 1038x614 centrada y, 8 s después, 1536x864. **Ojo al publicar**:
+  primero el pack con el mod 0.9.12 y después el launcher nuevo (un launcher nuevo con el mod
+  viejo dejaría el juego en ventana; el launcher 1.0.0 con el mod nuevo va como antes).
+- El «lost their mind» en inglés del cliente de Bruno era porque su juego estaba en `en_us`. Ojo:
+  el mod solo trae `es_es`; quien ponga español de Argentina, México... ve los textos del mod
+  en inglés.
 
 ## 0.9.11: Bacteria más dura (2026-10-07; Bruno)
 

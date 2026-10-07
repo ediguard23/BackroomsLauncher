@@ -15,6 +15,7 @@ import net.backrooms.evento.fase.Fases;
 import net.backrooms.evento.mision.Misiones;
 import net.backrooms.evento.objetos.Equipo;
 import net.backrooms.evento.red.IniciarCinematica;
+import net.backrooms.evento.supervivencia.Supervivencia;
 import net.backrooms.evento.vestibulo.Vestibulo;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -203,6 +204,9 @@ public final class Expedicion {
 		j.teleportTo(nivel, destino.getX() + 0.5, destino.getY(), destino.getZ() + 0.5, Set.of(), this.azar.nextFloat() * 360.0F - 180.0F, -70.0F, true);
 		j.resetFallDistance();
 		Equipo.vestir(j);
+		// cada expedicion empieza con la cabeza fresca: la cordura se guarda con el jugador y,
+		// si acabo la anterior a 0 sin morir de verdad, moria nada mas llegar
+		Supervivencia.get().cordura(j, 100.0F);
 		j.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 20 * 25, 1, false, false, false));
 		Misiones.get().asignar(j, destino, Fase.TODAS[0]);
 		net.backrooms.evento.supervivencia.Comida.get().repartirAguas(nivel, destino);

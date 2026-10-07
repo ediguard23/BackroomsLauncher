@@ -296,6 +296,21 @@ function esStaff (m, nombre) {
   return Array.isArray(m.staff) && m.staff.some((n) => String(n).toLowerCase() === nombre.toLowerCase());
 }
 
+/**
+ * Minecraft siempre arranca en ventana (centrada, como el de siempre): abrirlo ya a
+ * pantalla completa hacia que Windows cambiara de modo de golpe mientras cargaba. Si el
+ * jugador la quiere, la pone el mod del evento al acabar la carga (pantallaCompleta en
+ * config/backrooms-event.json); aqui se quita la que guardo Minecraft la vez anterior.
+ */
+function arrancarEnVentana (gameDir) {
+  const opciones = path.join(gameDir, 'options.txt');
+  try {
+    const texto = fs.readFileSync(opciones, 'utf8');
+    const fuera = texto.replace(/^fullscreen:true(?=\r?$)/m, 'fullscreen:false');
+    if (fuera !== texto) fs.writeFileSync(opciones, fuera);
+  } catch { /* primera vez: aun no hay options.txt */ }
+}
+
 async function jugar () {
   const cfg = config.get();
   const dir = root();
@@ -356,8 +371,11 @@ async function jugar () {
     server: pub.server,
     links: pub.links,
     eventStart: pub.eventStart,
-    news: pub.news
+    news: pub.news,
+    // el juego se abre en ventana y el mod lo pone a pantalla completa al acabar de cargar
+    pantallaCompleta: Boolean(cfg.pantallaCompleta)
   }, null, 2));
+  arrancarEnVentana(gameDir);
 
   // 7. Arrancar
   enviar('progreso', { etapa: 'arranque', texto: 'Abriendo Minecraft' });
@@ -373,7 +391,6 @@ async function jugar () {
     // Lo que sale en F3 y en los informes de error en vez de "fabric-loader-...".
     nombreVersion: manifest.name || evento.nombre
   });
-  if (cfg.pantallaCompleta) args.push('--fullscreen');
   // Solo en desarrollo: BACKROOMS_QUICKPLAY=host:puerto entra directo a ese servidor (pruebas sin manos).
   if (!app.isPackaged && process.env.BACKROOMS_QUICKPLAY) args.push('--quickPlayMultiplayer', process.env.BACKROOMS_QUICKPLAY);
   const hijo = lanzar(javaPath, args, { gameDir, logFile: path.join(dir, 'logs', 'launcher-salida.log') });

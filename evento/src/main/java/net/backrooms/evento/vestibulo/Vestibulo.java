@@ -2,9 +2,12 @@ package net.backrooms.evento.vestibulo;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import net.backrooms.evento.BackroomsEvento;
 import net.backrooms.evento.Sonidos;
 import net.backrooms.evento.expedicion.Expedicion;
@@ -72,6 +75,9 @@ public final class Vestibulo {
 	private boolean decorarPendiente;
 	private long decorarLimite;
 	private boolean ascensoresAbiertos;
+	/** 3 s entre pulsaciones del panel de los ascensores, por jugador. */
+	private static final int PANEL_ESPERA = 60;
+	private final Map<UUID, Long> panelPulsado = new HashMap<>();
 
 	private Vestibulo() {
 	}
@@ -170,6 +176,9 @@ public final class Vestibulo {
 		if (v == null) {
 			return;
 		}
+		if (abrir && this.ascensoresAbiertos) {
+			return; // otro /start con todo abierto: ni sonido ni aviso de que se abren
+		}
 		this.ascensoresAbiertos = abrir;
 		BlockPos.MutableBlockPos p = new BlockPos.MutableBlockPos();
 		int suelo = PlanoVestibulo.SUELO;
@@ -223,8 +232,16 @@ public final class Vestibulo {
 		j.resetFallDistance();
 	}
 
-	/** El panel de un ascensor del vestibulo: fuera de servicio hasta el /start. */
+	/**
+	 * El panel de un ascensor del vestibulo: fuera de servicio hasta el /start. Cada jugador
+	 * puede pulsarlo una vez cada PANEL_ESPERA ticks: si no, se podia spamear el sonido.
+	 */
 	public void pulsarPanel(ServerPlayer j, BlockPos panel) {
+		Long antes = this.panelPulsado.get(j.getUUID());
+		if (antes != null && this.ticks - antes < PANEL_ESPERA) {
+			return;
+		}
+		this.panelPulsado.put(j.getUUID(), this.ticks);
 		if (this.ascensoresAbiertos) {
 			j.level().playSound(null, panel, Sonidos.ASCENSOR_PANEL, SoundSource.BLOCKS, 1.0F, 1.0F);
 			j.displayClientMessage(Component.literal("Entra en la cabina para bajar al Nivel 0").withStyle(ChatFormatting.YELLOW), true);

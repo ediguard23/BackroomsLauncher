@@ -32,6 +32,8 @@ public final class Evento {
 	/** Milisegundos de la apertura; 0 si no hay cuenta atras. */
 	public long apertura = 0;
 	public final List<Noticia> noticias = new ArrayList<>();
+	/** El jugador quiere el juego a pantalla completa (se pone al acabar de cargar: BackroomsMenu). */
+	public boolean pantallaCompleta = false;
 
 	public static Evento cargar() {
 		Evento e = new Evento();
@@ -40,6 +42,7 @@ public final class Evento {
 			JsonObject o = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
 			e.nombre = texto(o, "nombre", e.nombre);
 			e.nivel = texto(o, "nivel", e.nivel);
+			e.pantallaCompleta = o.has("pantallaCompleta") && o.get("pantallaCompleta").getAsBoolean();
 			if (o.has("server")) {
 				JsonObject s = o.getAsJsonObject("server");
 				e.host = texto(s, "host", "");
