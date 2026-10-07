@@ -1,8 +1,6 @@
 package net.backrooms.evento.cliente.cinematica;
 
 import net.backrooms.evento.BackroomsEvento;
-import net.backrooms.evento.vestibulo.PlanoVestibulo;
-import net.backrooms.evento.vestibulo.Vestibulo;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -11,8 +9,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.phys.Vec3;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Las cinematicas del ascensor en el cliente: cuenta el tiempo, abre la
@@ -42,8 +38,6 @@ public final class CinematicaCliente {
 	public static final float DESPERTAR = 45.0F;
 	public static final float FIN = 55.0F;
 	public static final Identifier SONIDO = BackroomsEvento.id("cinematica");
-	/** Las puertas acaban de cerrarse a los 3,4 s (T_CIERRA1 en cinematica.fsh). */
-	private static final float VISTA_HASTA = 3.6F;
 
 	private static long inicio = -1;
 	private static int guion;
@@ -52,8 +46,6 @@ public final class CinematicaCliente {
 	/** Lo que suena despues del viaje: Minecraft corta todos los sonidos al cambiar de mundo. */
 	private static SoundInstance despues;
 	private static Object nivel;
-	/** Desde donde se ve el vestibulo de verdad por las puertas (ver vistaVestibulo), o null. */
-	private static @Nullable Vec3 vista;
 
 	private CinematicaCliente() {
 	}
@@ -96,39 +88,7 @@ public final class CinematicaCliente {
 		banda = sonar(mc, bandaId());
 		despues = null;
 		nivel = mc.level;
-		vista = guion == 0 ? cabinaMasCerca(mc) : null;
 		mc.setScreen(new PantallaCinematica());
-	}
-
-	/**
-	 * En el /start, mientras las puertas estan abiertas, por ellas se ve el vestibulo de
-	 * verdad (con su gente) y no el que dibuja el shader: la camara del juego se pone en la
-	 * cabina de ascensor mas cercana, donde esta la del shader (en medio de las puertas,
-	 * 2,4 bloques detras, mirando al norte con FOV 70), y la cinta deja ver el mundo por la
-	 * abertura. El jugador no se mueve: sigue en el hueco de espera, bajo el vestibulo. Si
-	 * no esta en el vestibulo (la cinematica de prueba en otro sitio), se dibuja como antes.
-	 */
-	private static @Nullable Vec3 cabinaMasCerca(Minecraft mc) {
-		if (mc.player == null || mc.level == null || mc.level.dimension() != Vestibulo.DIMENSION) {
-			return null;
-		}
-		Vec3 p = mc.player.position();
-		if (p.x < PlanoVestibulo.X0 || p.x > PlanoVestibulo.X1 || p.z < PlanoVestibulo.Z0 || p.z > PlanoVestibulo.Z1
-			|| p.y < PlanoVestibulo.HUECO_Y - 4 || p.y > PlanoVestibulo.TECHO) {
-			return null;
-		}
-		int c = PlanoVestibulo.ASCENSORES[0];
-		for (int x : PlanoVestibulo.ASCENSORES) {
-			if (Math.abs(x - p.x) < Math.abs(c - p.x)) {
-				c = x;
-			}
-		}
-		return new Vec3(c, PlanoVestibulo.SUELO + 1 + 1.62, PlanoVestibulo.CABINA_Z0 + 2.4);
-	}
-
-	/** Donde va la camara del juego mientras se ve el vestibulo de verdad, o null si no toca. */
-	public static @Nullable Vec3 vistaVestibulo() {
-		return vista != null && activa() && segundos() < VISTA_HASTA ? vista : null;
 	}
 
 	public static boolean activa() {

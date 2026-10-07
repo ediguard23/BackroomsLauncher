@@ -1,27 +1,22 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-07 11:40 (hora de Honduras). Mod `backrooms_evento` 0.9.9, launcher 1.0.0
+Última actualización: 2026-10-07 14:00 (hora de Honduras). Mod `backrooms_evento` 0.9.10, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
 
-## 0.9.9: vestíbulo de verdad en la cinemática, F3, traje y cámara (2026-10-07; Bruno)
+## 0.9.9 / 0.9.10: F3, traje y cámara (2026-10-07; Bruno)
 
 Bruno (FastPaper1) lo pidió y lo hizo desde su PC con Claude. Tiene un servidor de pruebas
 propio en `C:\Users\bruno\backrooms-prueba` (puerto 25566, RCON 25576, el mismo montaje).
 
-- **Cinemática del /start: por las puertas se ve el vestíbulo de verdad** (antes una caja vacía
-  que dibujaba el shader: sin taquillas, mostrador ni gente). Mientras las puertas están
-  abiertas (hasta 3,6 s), la cámara del juego se pone en la cabina de ascensor más cercana,
-  donde está la del shader (en medio de las puertas, 2,4 bloques detrás, mirando al norte, FOV
-  70: `CamaraVestibuloMixin` y `GameRendererEfectosMixin#getFov`), y la cinta sale
-  transparente justo en la abertura (`verVestibulo` en `cinematica.fsh`; el modo llega en el
-  verde del color de los vértices, `PantallaCinematica.VIVO`, para no tocar la V del guion). El
-  jugador NO se mueve: sigue en el hueco de espera; servidor y paquetes sin cambios. Si no está
-  en el vestíbulo (la cinemática de prueba en otro mundo), se dibuja la caja de antes.
-  **Probado** en el servidor de Bruno con capturas: con los ascensores abiertos se ven por las
-  puertas abiertas de la cabina real el mostrador de INFORMACIÓN, las plantas, el ajedrezado y la
-  raya amarilla, y encaja con el dibujo (con los ascensores cerrados se ven justo las puertas de
-  hierro). Después de cerrarse, la cinta sigue como siempre. Sin probar con más jugadores
-  esperando en el vestíbulo (deberían verse).
+- **Probado y descartado: el vestíbulo de verdad por las puertas de la cinemática** (0.9.9,
+  commit 4db478f; quitado en la 0.9.10). Durante los primeros 3,6 s la cámara del juego se ponía
+  en una cabina y la cinta salía transparente en la abertura. Funcionaba, pero a Bruno le quedó
+  mal: la cinta tiembla y el mundo de detrás no, así que se nota que el ascensor es una imagen
+  encima; y se ven abiertas las puertas de hierro reales mientras se cierran las del dibujo. Se
+  queda la caja dibujada de antes. Si se retoma: quitar el temblor mientras se ve el mundo y
+  que las puertas del dibujo sean las reales (o cerrar las del mundo a la vez).
+- Para repetir la bajada en pruebas: `/backrooms misiones olvidar <nick>` (si no, quien ya hizo
+  una expedición no baja: `Expedicion.poner` → `enExpedicion`) y no estar en creativo.
 - **F3 reducido** (`menu/mixin/DebugScreenEntryListMixin`): solo versión, FPS, entidades y
   coordenadas, digan lo que digan F3+F6 o `debug-profile.json`; tampoco los atajos de F3 (cajas
   de las entidades, bordes de chunk...). Compila; sin mirar en el juego.

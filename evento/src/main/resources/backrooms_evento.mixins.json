@@ -21,8 +21,7 @@
     "cliente.TablaJugadoresMixin",
     "cliente.BalanceoMixin",
     "cliente.AgarradoPoseMixin",
-    "cliente.RuedaCamaraMixin",
-    "cliente.CamaraVestibuloMixin"
+    "cliente.RuedaCamaraMixin"
   ],
   "injectors": {
     "defaultRequire": 1
