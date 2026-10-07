@@ -5,6 +5,7 @@
   "client": [
     "DeathScreenAccessor",
     "DebugEntryVersionMixin",
+    "DebugScreenEntryListMixin",
     "DisconnectedScreenAccessor",
     "IconSetMixin",
     "LoadingOverlayMixin",

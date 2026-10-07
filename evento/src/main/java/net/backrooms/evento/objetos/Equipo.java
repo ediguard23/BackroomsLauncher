@@ -9,6 +9,7 @@ import net.minecraft.util.Unit;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -16,10 +17,12 @@ import net.minecraft.world.item.enchantment.Enchantments;
 /**
  * Todo explorador lleva el traje antirradiacion, la linterna y la camara: se
  * le ponen al entrar y al reaparecer. Va con maldicion de ligamiento (no se puede quitar), es
- * irrompible y sin el brillo de encantado. El staff en creativo puede
- * quitarselo; en aventura nadie.
+ * irrompible y sin el brillo de encantado ni la linea del encantamiento en la descripcion.
+ * El staff en creativo puede quitarselo; en aventura nadie.
  */
 public final class Equipo {
+	private static final TooltipDisplay SIN_ENCANTAMIENTO = TooltipDisplay.DEFAULT.withHidden(DataComponents.ENCHANTMENTS, true);
+
 	private Equipo() {
 	}
 
@@ -58,7 +61,10 @@ public final class Equipo {
 	}
 
 	private static void poner(ServerPlayer jugador, EquipmentSlot hueco, Item pieza) {
-		if (jugador.getItemBySlot(hueco).is(pieza)) {
+		ItemStack puesta = jugador.getItemBySlot(hueco);
+		if (puesta.is(pieza)) {
+			// los trajes de antes tambien pierden la linea del encantamiento
+			puesta.set(DataComponents.TOOLTIP_DISPLAY, SIN_ENCANTAMIENTO);
 			return;
 		}
 		ItemStack s = new ItemStack(pieza);
@@ -67,6 +73,7 @@ public final class Equipo {
 		s.enchant(ligamiento, 1);
 		s.set(DataComponents.UNBREAKABLE, Unit.INSTANCE);
 		s.set(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, false);
+		s.set(DataComponents.TOOLTIP_DISPLAY, SIN_ENCANTAMIENTO);
 		jugador.setItemSlot(hueco, s);
 	}
 }

@@ -1,7 +1,37 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-06 17:10 (hora de Honduras). Mod `backrooms_evento` 0.9.7, launcher 1.0.0
+Última actualización: 2026-10-07 11:40 (hora de Honduras). Mod `backrooms_evento` 0.9.9, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.9.9: vestíbulo de verdad en la cinemática, F3, traje y cámara (2026-10-07; Bruno)
+
+Bruno (FastPaper1) lo pidió y lo hizo desde su PC con Claude. Tiene un servidor de pruebas
+propio en `C:\Users\bruno\backrooms-prueba` (puerto 25566, RCON 25576, el mismo montaje).
+
+- **Cinemática del /start: por las puertas se ve el vestíbulo de verdad** (antes una caja vacía
+  que dibujaba el shader: sin taquillas, mostrador ni gente). Mientras las puertas están
+  abiertas (hasta 3,6 s), la cámara del juego se pone en la cabina de ascensor más cercana,
+  donde está la del shader (en medio de las puertas, 2,4 bloques detrás, mirando al norte, FOV
+  70: `CamaraVestibuloMixin` y `GameRendererEfectosMixin#getFov`), y la cinta sale
+  transparente justo en la abertura (`verVestibulo` en `cinematica.fsh`; el modo llega en el
+  verde del color de los vértices, `PantallaCinematica.VIVO`, para no tocar la V del guion). El
+  jugador NO se mueve: sigue en el hueco de espera; servidor y paquetes sin cambios. Si no está
+  en el vestíbulo (la cinemática de prueba en otro mundo), se dibuja la caja de antes.
+  **Probado** en el servidor de Bruno con capturas: con los ascensores abiertos se ven por las
+  puertas abiertas de la cabina real el mostrador de INFORMACIÓN, las plantas, el ajedrezado y la
+  raya amarilla, y encaja con el dibujo (con los ascensores cerrados se ven justo las puertas de
+  hierro). Después de cerrarse, la cinta sigue como siempre. Sin probar con más jugadores
+  esperando en el vestíbulo (deberían verse).
+- **F3 reducido** (`menu/mixin/DebugScreenEntryListMixin`): solo versión, FPS, entidades y
+  coordenadas, digan lo que digan F3+F6 o `debug-profile.json`; tampoco los atajos de F3 (cajas
+  de las entidades, bordes de chunk...). Compila; sin mirar en el juego.
+- **Traje sin la línea de «Maldición de ligamiento»** en la descripción (`TOOLTIP_DISPLAY` oculta
+  `ENCHANTMENTS`; el encantamiento sigue y el brillo ya estaba apagado). Los trajes ya puestos
+  se arreglan al entrar o reaparecer. Compila; sin mirar en el juego.
+- **Cámara levantada**: tampoco se ven vida, armadura, comida, aire, montura, barra de
+  experiencia, nivel ni el nombre del objeto (antes solo se ocultaban la mira y la barra), y no
+  se cambia de casilla ni con 1-9 (`HerramientasCliente`) ni con la rueda (`RuedaCamaraMixin`).
+  Compila; sin mirar en el juego (las capturas no salen con la ventana minimizada).
 
 ## Lo que salió en la beta #1 (2026-10-06, noche; mod 0.9.8)
 

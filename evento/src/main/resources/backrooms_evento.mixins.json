@@ -20,7 +20,9 @@
     "cliente.BrazoTrajeMixin",
     "cliente.TablaJugadoresMixin",
     "cliente.BalanceoMixin",
-    "cliente.AgarradoPoseMixin"
+    "cliente.AgarradoPoseMixin",
+    "cliente.RuedaCamaraMixin",
+    "cliente.CamaraVestibuloMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -1,5 +1,6 @@
 package net.backrooms.evento.cliente;
 
+import java.util.List;
 import net.backrooms.evento.BackroomsEvento;
 import net.backrooms.evento.bloques.Bloques;
 import net.backrooms.evento.cliente.cinematica.CinematicaCliente;
@@ -31,6 +32,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.NoopRenderer;
+import net.minecraft.resources.Identifier;
 
 /**
  * Parte de cliente del mod del evento: capas de los bloques con huecos
@@ -83,17 +85,17 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("agarre"), AgarreCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("ascensor"), AscensorCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("eliminaciones"), Eliminaciones::render);
-		// con la camara levantada no se ve la barra ni la mira del juego: solo el visor
-		HudElementRegistry.replaceElement(VanillaHudElements.CROSSHAIR, viejo -> (g, t) -> {
-			if (HerramientasCliente.subida(1.0F) < 0.5F) {
-				viejo.render(g, t);
-			}
-		});
-		HudElementRegistry.replaceElement(VanillaHudElements.HOTBAR, viejo -> (g, t) -> {
-			if (HerramientasCliente.subida(1.0F) < 0.5F) {
-				viejo.render(g, t);
-			}
-		});
+		// con la camara levantada no se ve nada del juego (mira, barra, vida, armadura, comida,
+		// aire, experiencia): solo el visor
+		for (Identifier elemento : List.of(VanillaHudElements.CROSSHAIR, VanillaHudElements.HOTBAR, VanillaHudElements.HEALTH_BAR,
+			VanillaHudElements.ARMOR_BAR, VanillaHudElements.FOOD_BAR, VanillaHudElements.AIR_BAR, VanillaHudElements.MOUNT_HEALTH,
+			VanillaHudElements.INFO_BAR, VanillaHudElements.EXPERIENCE_LEVEL, VanillaHudElements.HELD_ITEM_TOOLTIP)) {
+			HudElementRegistry.replaceElement(elemento, viejo -> (g, t) -> {
+				if (HerramientasCliente.subida(1.0F) < 0.5F) {
+					viejo.render(g, t);
+				}
+			});
+		}
 
 		ClientPlayConnectionEvents.DISCONNECT.register((h, c) -> {
 			MisionesCliente.olvidar();

@@ -53,6 +53,14 @@ public final class HerramientasCliente {
 					// nada
 				}
 			}
+			// con la camara levantada no se cambia de casilla (la rueda, en RuedaCamaraMixin)
+			if (mc.player != null && camara) {
+				for (KeyMapping tecla : mc.options.keyHotbarSlots) {
+					while (tecla.consumeClick()) {
+						// nada
+					}
+				}
+			}
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(HerramientasCliente::tick);
 	}
