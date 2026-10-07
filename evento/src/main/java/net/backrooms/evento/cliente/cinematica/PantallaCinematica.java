@@ -40,6 +40,8 @@ public class PantallaCinematica extends Screen {
 			.withFragmentShader(BackroomsEvento.id("core/cinematica"))
 			.withSampler("Sampler0")
 			.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
+			// transparente solo donde se ve el vestibulo de verdad (CinematicaCliente#vistaVestibulo)
+			.withBlend(BlendFunction.TRANSLUCENT)
 			.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
 			.withDepthWrite(false)
 			.build());
@@ -53,6 +55,9 @@ public class PantallaCinematica extends Screen {
 			.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
 			.withDepthWrite(false)
 			.build());
+
+	/** Color de los vertices de la cinta cuando por las puertas se ve el vestibulo de verdad (el shader mira el verde). */
+	private static final int VIVO = 0xFFFF00FF;
 
 	/** Abertura de los ojos al despertar: {segundo desde DESPERTAR, abertura}. */
 	private static final float[][] OJOS = {
@@ -124,6 +129,7 @@ public class PantallaCinematica extends Screen {
 		int guion = CinematicaCliente.guion();
 		if (t < CinematicaCliente.finCinta()) {
 			g.guiRenderState.submitGuiElement(new Capa(CINTA, new Matrix3x2f(g.pose()), w, h, t, guion,
+				CinematicaCliente.vistaVestibulo() != null ? VIVO : 0xFFFFFFFF,
 				TextureSetup.singleTexture(AtlasCinematica.vista(), AtlasCinematica.muestreo())));
 			this.hudCamara(g, t);
 		} else if (guion != 0) {
@@ -145,7 +151,7 @@ public class PantallaCinematica extends Screen {
 				g.blurBeforeThisStratum();
 			}
 			float u = t - CinematicaCliente.DESPERTAR;
-			g.guiRenderState.submitGuiElement(new Capa(PARPADOS, new Matrix3x2f(g.pose()), w, h, abertura(u), t, TextureSetup.noTexture()));
+			g.guiRenderState.submitGuiElement(new Capa(PARPADOS, new Matrix3x2f(g.pose()), w, h, abertura(u), t, 0xFFFFFFFF, TextureSetup.noTexture()));
 			this.titulo(g, t);
 		}
 	}
@@ -245,14 +251,14 @@ public class PantallaCinematica extends Screen {
 	}
 
 	/** Un rectangulo a pantalla completa para un shader; U y V llevan sus datos. */
-	private record Capa(RenderPipeline pipeline, Matrix3x2f pose, int w, int h, float u, float v, TextureSetup textureSetup)
+	private record Capa(RenderPipeline pipeline, Matrix3x2f pose, int w, int h, float u, float v, int color, TextureSetup textureSetup)
 		implements GuiElementRenderState {
 		@Override
 		public void buildVertices(VertexConsumer c) {
-			c.addVertexWith2DPose(this.pose, 0, 0).setUv(this.u, this.v).setColor(0xFFFFFFFF);
-			c.addVertexWith2DPose(this.pose, 0, this.h).setUv(this.u, this.v).setColor(0xFFFFFFFF);
-			c.addVertexWith2DPose(this.pose, this.w, this.h).setUv(this.u, this.v).setColor(0xFFFFFFFF);
-			c.addVertexWith2DPose(this.pose, this.w, 0).setUv(this.u, this.v).setColor(0xFFFFFFFF);
+			c.addVertexWith2DPose(this.pose, 0, 0).setUv(this.u, this.v).setColor(this.color);
+			c.addVertexWith2DPose(this.pose, 0, this.h).setUv(this.u, this.v).setColor(this.color);
+			c.addVertexWith2DPose(this.pose, this.w, this.h).setUv(this.u, this.v).setColor(this.color);
+			c.addVertexWith2DPose(this.pose, this.w, 0).setUv(this.u, this.v).setColor(this.color);
 		}
 
 		@Override

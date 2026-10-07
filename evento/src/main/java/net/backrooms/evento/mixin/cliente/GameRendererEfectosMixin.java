@@ -45,6 +45,9 @@ public abstract class GameRendererEfectosMixin {
 
 	@ModifyReturnValue(method = "getFov", at = @At("RETURN"))
 	private float backrooms$zoomCamara(float fov) {
+		if (net.backrooms.evento.cliente.cinematica.CinematicaCliente.vistaVestibulo() != null) {
+			return 70.0F; // el vestibulo por las puertas de la cinta: el mismo FOV que el shader
+		}
 		return fov * (1.0F - 0.18F * HerramientasCliente.subida(1.0F));
 	}
 }

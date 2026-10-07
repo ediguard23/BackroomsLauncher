@@ -29,6 +29,12 @@ out vec4 fragColor;
 
 #define T datos.x
 #define G int(datos.y + 0.5)
+// el /start desde el vestibulo: por las puertas abiertas se ve el mundo de verdad
+// (CinematicaCliente#vistaVestibulo pone alli la camara del juego); llega en el verde del color
+#define VIVO (color.g < 0.5)
+
+// cuanto de este pixel es el vestibulo de verdad (sale transparente)
+float mundo = 0.0;
 
 /* ------------------------------------------------------------ guion */
 
@@ -437,6 +443,15 @@ vec3 vestibulo(vec3 ro, vec3 rd) {
   return mix(c * 0.9 * sombreado(n), vec3(0.45, 0.42, 0.33), clamp((th - 6.0) / 40.0, 0.0, 0.6));
 }
 
+// lo que se ve por las puertas abiertas de la cabina: el vestibulo de verdad si se puede
+vec3 verVestibulo(vec3 ro, vec3 rd) {
+  if (VIVO) {
+    mundo = 1.0;
+    return vec3(0.0);
+  }
+  return vestibulo(ro, rd);
+}
+
 // algo alto y encorvado que cruza el fondo del pasillo (guion 3, al cerrarse las puertas)
 float silueta(vec3 ro, vec3 rd, float t, float lejos) {
   float u = (t - 1.4) / 1.5;
@@ -551,13 +566,13 @@ vec3 paredPuertas(vec3 p, vec3 n, vec3 ro, vec3 rd, float t) {
   if (abs(x) >= 1.0) return iluminar(cara(HIERRO, vec2(x + 0.5, y)).rgb, p, n, t);
   if (t > T_PUERTAS) return vistaHueco(ro, rd, t); // ya no hay puertas
   float g = 1.0 - smoothstep(T_CIERRA0, T_CIERRA1, t); // hueco abierto por cada lado
-  if (abs(x) < g) return vestibulo(ro, rd);
+  if (abs(x) < g) return verVestibulo(ro, rd);
   // las hojas de hierro deslizan hacia el centro
   float u = x < 0.0 ? x + 1.0 + g : 1.0 - (x - g);
   float temblor = t > T_ROTURA ? (h1(floor(t * 30.0)) - 0.5) * 0.03 : 0.0;
   vec4 d = y < 1.0 ? cara(PUERTA_ABAJO, vec2(u + temblor, y)) : cara(PUERTA_ARRIBA, vec2(u + temblor, y - 1.0));
   if (d.a < 0.5) {
-    return t < T_CIERRA1 ? vestibulo(ro, rd) : vistaHueco(ro, rd, t);
+    return t < T_CIERRA1 ? verVestibulo(ro, rd) : vistaHueco(ro, rd, t);
   }
   vec3 c = iluminar(d.rgb, p, n, t);
   // grietas de romper bloques hasta que revientan
@@ -1031,5 +1046,6 @@ void main() {
   vec2 v = uv01 - 0.5;
   col *= 1.0 - dot(v, v) * 0.7;
   col *= smoothstep(0.9, 1.4, t);
-  fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+  // el vestibulo de verdad se ve detras, con un poco del grano y la vineta de la cinta encima
+  fragColor = vec4(clamp(col, 0.0, 1.0), 1.0 - mundo * 0.88 * smoothstep(0.9, 1.4, t));
 }
