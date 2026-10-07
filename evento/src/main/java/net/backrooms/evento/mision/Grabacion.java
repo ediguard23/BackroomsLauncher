@@ -43,19 +43,20 @@ public final class Grabacion {
 			if (!HerramientasServidor.get().camara(j) || Fase.de(j.level()) == null) {
 				continue;
 			}
-			TipoMision m = Misiones.get().grabacionEnCurso(j);
-			if (m == null) {
-				continue;
-			}
-			boolean bien = switch (m) {
-				case LUCES_ROJAS -> Ambiente.get().alarma(j.level());
-				case ENTIDAD -> encuadra(j, Bacteria.class, 28);
-				case ENTIDAD_ALARMA -> Ambiente.get().alarma(j.level()) && encuadra(j, Bacteria.class, 28);
-				case SMILER -> encuadra(j, Smiler.class, 22);
-				default -> false;
-			};
-			if (bien) {
-				Misiones.get().grabar(j, m, CADA);
+			// cualquier mision de grabar que le quede cuenta, no solo la "en curso" (en la beta #1
+			// la primera era siempre la de los casetes y grabar antes no servia de nada)
+			for (TipoMision m : Misiones.get().grabacionesPendientes(j)) {
+				boolean bien = switch (m) {
+					case LUCES_ROJAS -> Ambiente.get().alarma(j.level());
+					case ENTIDAD -> encuadra(j, Bacteria.class, 28);
+					case ENTIDAD_ALARMA -> Ambiente.get().alarma(j.level()) && encuadra(j, Bacteria.class, 28);
+					case SMILER -> encuadra(j, Smiler.class, 22);
+					default -> false;
+				};
+				if (bien) {
+					Misiones.get().grabar(j, m, CADA);
+					break;
+				}
 			}
 		}
 	}

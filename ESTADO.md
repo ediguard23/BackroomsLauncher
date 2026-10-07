@@ -3,6 +3,26 @@
 Última actualización: 2026-10-06 17:10 (hora de Honduras). Mod `backrooms_evento` 0.9.7, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
 
+## Lo que salió en la beta #1 (2026-10-06, noche; mod 0.9.8)
+
+Jugaron ~9 personas en el hosting. Arreglado y probado en el servidor de pruebas:
+- **Grabar no contaba**: las misiones iban en orden y la primera era siempre la de los casetes,
+  así que grabar a la Bacteria o a un Smiler antes no servía. Ahora cuentan en cualquier orden
+  (al completar una se pone delante: [0, actual) son las hechas, el cliente no cambia). Probado:
+  "Graba la Bacteria en alarma" hecha con los casetes pendientes.
+- **Casetes casi imposibles**: se reparten el doble de los necesarios (vale cualquiera), en anillos
+  de ~35 a ~330 bloques; radar +30 % (90/75/60/48). Estado.necesarios (las partidas viejas, todos).
+- **Agua de almendras escasa**: 5 por jugador (antes 2), a 25-175 bloques.
+- **Cortes de conexión**: dos veces se cayó todo el mundo a la vez con "Timed out". El servidor no
+  se colgó (sin "Can't keep up" y apuntando las desconexiones al momento) y también se cortó el chat
+  de voz (UDP, aparte): fue la red del hosting. AguanteConexionMixin (ReadTimeout 30 → 90 s) y
+  KeepAliveMixin (15 → 45 s) hacen que un corte así sea un tirón: probado congelando el cliente 25 s
+  (antes a los 15 s te echaba). Recomendado: el chat de voz en otro puerto (algunos antiDDoS cortan
+  el UDP del puerto del juego) y preguntar al hosting.
+- La barra de localizador (gamerule locator_bar) se apaga sola al arrancar.
+- Pack de la beta con la 0.9.8 y `Downloads/Backrooms-servidor-beta1-0.9.8.zip` (con pregenerar en
+  el LEEME y `pause-when-empty-seconds=-1`).
+
 ## Beta #1 (2026-10-06, tarde; xgdier_)
 
 Unas 10 personas en el hosting **66.51.99.93:25704**. Todo hecho y probado salvo lo marcado.

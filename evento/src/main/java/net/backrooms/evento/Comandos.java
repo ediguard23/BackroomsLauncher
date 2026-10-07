@@ -293,7 +293,7 @@ public final class Comandos {
 			TipoMision m = e.misiones.get(i);
 			sb.append(i < e.actual ? "[hecha] " : i == e.actual ? "[en curso] " : "[ ] ").append(m.titulo).append(i < e.misiones.size() - 1 ? " | " : "");
 		}
-		sb.append(" | fase ").append(e.fase).append(" | casetes ").append(e.casetes).append('/').append(e.pendientes.size())
+		sb.append(" | fase ").append(e.fase).append(" | casetes ").append(e.casetes).append('/').append(e.necesarios > 0 ? e.necesarios : e.pendientes.size())
 			.append(e.eliminado ? " | ELIMINADO" : "").append(e.escapado > 0 ? " | ESCAPADO #" + e.escapado : "");
 		for (int[] pos : e.pendientes) {
 			sb.append(pos[2] == 1 ? " [x]" : " (" + pos[0] + "," + pos[1] + ")");

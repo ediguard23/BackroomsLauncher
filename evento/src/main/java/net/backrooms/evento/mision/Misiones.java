@@ -50,7 +50,7 @@ import net.minecraft.world.level.storage.LevelResource;
 public final class Misiones {
 	public static final int CASETES = 10;
 	/** La senal del casete solo llega de cerca: mas alla no hay pista. */
-	public static final int ALCANCE_SENAL = 70;
+	public static final int ALCANCE_SENAL = 90;
 	private static final int RADIO_VISTA = 48;
 	private static final int RADIO_QUITAR = 96;
 
@@ -62,9 +62,17 @@ public final class Misiones {
 
 	/** Estado guardado de un jugador. */
 	public static final class Estado {
+		/**
+		 * Se hacen en cualquier orden: al completar una se pasa delante de las pendientes,
+		 * asi [0, actual) son las hechas y la de `actual` es la que sale "en curso".
+		 */
 		public List<TipoMision> misiones = new ArrayList<>();
 		public int actual;
 		public int casetes;
+		/** Casetes que hay que coger (se reparten mas, vale cualquiera); 0 = todos los repartidos. */
+		public int necesarios;
+		/** La mision de grabar que se esta grabando (lo grabado es de esa). */
+		public TipoMision grabandoTipo;
 		public List<int[]> pendientes = new ArrayList<>(); // {x, z, recogido 0/1}
 		/** Fase en la que esta (1..4). */
 		public int fase = 1;
@@ -169,11 +177,14 @@ public final class Misiones {
 		if (nivel.getChunkSource().getGenerator() instanceof GeneradorNivel0 gen) {
 			Plano p = gen.plano(nivel.getChunkSource().randomState());
 			double base = this.azar.nextDouble() * Math.PI * 2;
-			int n = f.casetes();
+			// se reparten el doble de los que hay que coger (vale cualquiera): en la beta #1
+			// encontrar todos los suyos era casi imposible
+			e.necesarios = f.casetes();
+			int n = f.casetes() * 2;
 			for (int i = 0; i < n; i++) {
 				// anillos cada vez mas lejos y repartidos alrededor: siempre hay uno cerca
 				double ang = base + i * (Math.PI * 2 / n) + (this.azar.nextDouble() - 0.5) * 0.9;
-				double dist = (60 + i * 55 + this.azar.nextDouble() * 40) * f.repartoCasetes();
+				double dist = (35 + i * 30 + this.azar.nextDouble() * 25) * f.repartoCasetes();
 				int x = origen.getX() + (int) Math.round(Math.cos(ang) * dist);
 				int z = origen.getZ() + (int) Math.round(Math.sin(ang) * dist);
 				int[] libre = sueloLibre(p, x, z);
@@ -215,25 +226,60 @@ public final class Misiones {
 		this.sucio = true;
 		jugador.level().playSound(null, jugador.blockPosition(), net.backrooms.evento.Sonidos.CASETE_COGER, SoundSource.PLAYERS, 0.9F, 0.95F + jugador.getRandom().nextFloat() * 0.1F);
 		jugador.displayClientMessage(Component.literal("CASETE " + e.casetes + "/" + necesarios(e)).withStyle(ChatFormatting.YELLOW), true);
-		if (e.actual < e.misiones.size() && e.misiones.get(e.actual) == TipoMision.CASETES && e.casetes >= necesarios(e)) {
+		if (e.casetes >= necesarios(e)) {
 			this.completar(jugador, TipoMision.CASETES);
 		}
 		this.sincronizar(jugador);
 	}
 
-	/** Casetes que le tocan (los de su reparto: una partida vieja puede tener otro numero). */
+	/** Casetes que le tocan (una partida vieja, sin `necesarios`, pide todos los repartidos). */
 	private static int necesarios(Estado e) {
+		if (e.necesarios > 0) {
+			return e.necesarios;
+		}
 		return e.pendientes.isEmpty() ? CASETES : e.pendientes.size();
 	}
 
-	/** Marca hecha la mision en curso si es de ese tipo. Devuelve true si avanzo. */
+	/** Donde esta esa mision entre las pendientes, o -1 si ya esta hecha o no la tiene. */
+	private static int pendiente(Estado e, TipoMision tipo) {
+		for (int i = e.actual; i < e.misiones.size(); i++) {
+			if (e.misiones.get(i) == tipo) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	/** Las misiones de grabar que le quedan (en cualquier orden). */
+	public List<TipoMision> grabacionesPendientes(ServerPlayer j) {
+		Estado e = this.estado(j);
+		List<TipoMision> l = new ArrayList<>();
+		if (e != null) {
+			for (int i = e.actual; i < e.misiones.size(); i++) {
+				if (segundosGrabar(e.misiones.get(i)) > 0) {
+					l.add(e.misiones.get(i));
+				}
+			}
+		}
+		return l;
+	}
+
+	/**
+	 * Marca hecha esa mision si la tiene pendiente, sea cual sea (no hace falta ir en orden):
+	 * se pasa delante de las pendientes. Devuelve true si avanzo.
+	 */
 	public boolean completar(ServerPlayer jugador, TipoMision tipo) {
 		Estado e = this.estado(jugador);
-		if (e == null || e.actual >= e.misiones.size() || e.misiones.get(e.actual) != tipo) {
+		int k = e == null ? -1 : pendiente(e, tipo);
+		if (k < 0) {
 			return false;
 		}
+		java.util.Collections.swap(e.misiones, k, e.actual);
 		e.actual++;
-		e.grabado = 0;
+		if (e.grabandoTipo == tipo) {
+			e.grabado = 0;
+			e.grabandoTipo = null;
+		}
 		this.sucio = true;
 		net.backrooms.evento.Sonidos.aJugador(jugador, net.backrooms.evento.Sonidos.MISION_COMPLETA, 0.9F);
 		if (e.actual >= e.misiones.size()) {
@@ -334,7 +380,7 @@ public final class Misiones {
 			distancia = (int) Math.round(Math.sqrt(dx * dx + dz * dz));
 			rumbo = (float) Math.toDegrees(Math.atan2(-dx, dz));
 			salida = true;
-		} else if (e.actual < e.misiones.size() && e.misiones.get(e.actual) == TipoMision.CASETES) {
+		} else if (pendiente(e, TipoMision.CASETES) >= 0) {
 			double mejor = Double.MAX_VALUE;
 			for (int[] c : e.pendientes) {
 				if (c[2] == 1) {
@@ -357,9 +403,11 @@ public final class Misiones {
 		}
 		List<String> nombres = e.misiones.stream().map(Enum::name).toList();
 		float grabado = 0;
-		if (e.actual < e.misiones.size()) {
-			float seg = segundosGrabar(e.misiones.get(e.actual));
-			grabado = seg > 0 ? Math.min(1.0F, e.grabado / seg) : 0;
+		TipoMision grabada = e.grabandoTipo != null && pendiente(e, e.grabandoTipo) >= 0 ? e.grabandoTipo
+			: e.actual < e.misiones.size() ? e.misiones.get(e.actual) : null;
+		if (grabada != null) {
+			float seg = segundosGrabar(grabada);
+			grabado = seg > 0 && grabada == e.grabandoTipo ? Math.min(1.0F, e.grabado / seg) : 0;
 		}
 		ServerPlayNetworking.send(j, new SyncMisiones(nombres, e.actual, e.casetes, necesarios(e), distancia, rumbo,
 			salida, grabado, e.grabando, f == null ? 0 : f.numero()));
@@ -372,8 +420,12 @@ public final class Misiones {
 	 */
 	public void grabar(ServerPlayer j, TipoMision tipo, float segundos) {
 		Estado e = this.estado(j);
-		if (e == null || e.actual >= e.misiones.size() || e.misiones.get(e.actual) != tipo) {
+		if (e == null || pendiente(e, tipo) < 0) {
 			return;
+		}
+		if (e.grabandoTipo != tipo) {
+			e.grabandoTipo = tipo;
+			e.grabado = 0;
 		}
 		e.grabado += segundos;
 		e.grabando = true;

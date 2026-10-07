@@ -6,7 +6,9 @@
     "PlayerSpawnFinderMixin",
     "ServerLoginAccessor",
     "DistanceManagerMixin",
-    "PlayerMixin"
+    "PlayerMixin",
+    "AguanteConexionMixin",
+    "KeepAliveMixin"
   ],
   "client": [
     "cliente.CinematicaBlurMixin",

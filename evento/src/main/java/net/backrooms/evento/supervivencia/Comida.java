@@ -41,7 +41,7 @@ public final class Comida {
 	private static final Comida INSTANCIA = new Comida();
 	private static final int RADIO = 40;
 	private static final int QUITAR = 72;
-	public static final int AGUAS_POR_JUGADOR = 2;
+	public static final int AGUAS_POR_JUGADOR = 5;
 
 	public static Comida get() {
 		return INSTANCIA;
@@ -163,7 +163,7 @@ public final class Comida {
 		int puestas = 0;
 		for (int intento = 0; intento < 80 && puestas < AGUAS_POR_JUGADOR; intento++) {
 			double ang = this.azar.nextDouble() * Math.PI * 2;
-			double d = 40 + this.azar.nextDouble() * 180;
+			double d = 25 + this.azar.nextDouble() * 150;
 			int x = llegada.getX() + (int) Math.round(Math.cos(ang) * d);
 			int z = llegada.getZ() + (int) Math.round(Math.sin(ang) * d);
 			if (f != null && (Math.abs(x) > f.radio() || Math.abs(z) > f.radio())) {

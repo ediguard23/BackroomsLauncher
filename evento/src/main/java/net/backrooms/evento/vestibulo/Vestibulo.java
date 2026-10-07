@@ -81,6 +81,9 @@ public final class Vestibulo {
 			INSTANCIA.servidor = s;
 			INSTANCIA.decorarSiFalta();
 			INSTANCIA.ascensores(false);
+			// la barra de localizacion de 1.21 dice hacia donde esta cada jugador: en el evento cada
+			// uno empieza solo (en la beta #1 se quito a mano)
+			INSTANCIA.comando(s.overworld(), "gamerule locator_bar false");
 		});
 		ServerPlayConnectionEvents.JOIN.register((h, e, s) -> INSTANCIA.alEntrar(h.player));
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(s -> {
