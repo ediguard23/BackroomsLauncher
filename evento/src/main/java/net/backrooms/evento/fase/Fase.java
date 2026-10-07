@@ -30,32 +30,33 @@ import org.jspecify.annotations.Nullable;
  * @param alarmaCada     minutos entre alarmas {min, max}
  * @param alarmaDura     segundos que dura una alarma {min, max}
  * @param bacterias      Bacterias por cada 10 jugadores en la fase (minimo 1)
- * @param velocidad      multiplica la velocidad de la Bacteria
+ * @param caza           bloques por segundo de la Bacteria cazando (un jugador anda a 4,3 y corre a 5,6)
+ * @param cazaAlarma     lo mismo con la alarma encendida
  * @param cordura        multiplica lo que baja la cordura
  * @param smiler         probabilidad de que a cada jugador le salga un Smiler en un apagon
  */
 public record Fase(int numero, String nombre, String dificultad, ResourceKey<Level> dimension,
 	int radio, int separacion, int casetes, int alcanceSenal, double repartoCasetes, int grabar,
 	int[] apagonCada, int[] apagonDura, int[] alarmaCada, int[] alarmaDura,
-	double bacterias, double velocidad, double cordura, double smiler) {
+	double bacterias, double caza, double cazaAlarma, double cordura, double smiler) {
 
 	public static final Fase[] TODAS = {
 		new Fase(1, "NIVEL 0", "MEDIA", Level.OVERWORLD,
 			4800, 280, 5, 90, 1.0, 2,
 			new int[] {6, 10}, new int[] {45, 75}, new int[] {7, 12}, new int[] {35, 55},
-			1.0, 1.0, 1.0, 0.45),
+			1.0, 5.5, 6.2, 1.0, 0.45),
 		new Fase(2, "NIVEL 0 · SECTOR B", "MEDIA-ALTA", clave("fase_2"),
 			2600, 200, 5, 75, 1.15, 2,
 			new int[] {5, 8}, new int[] {55, 85}, new int[] {6, 10}, new int[] {40, 60},
-			1.5, 1.1, 1.25, 0.6),
+			1.5, 6.0, 6.8, 1.25, 0.6),
 		new Fase(3, "NIVEL 0 · SECTOR C", "ALTA", clave("fase_3"),
 			1400, 140, 4, 60, 1.3, 3,
 			new int[] {4, 7}, new int[] {60, 95}, new int[] {5, 9}, new int[] {45, 65},
-			2.2, 1.2, 1.5, 0.75),
+			2.2, 6.5, 7.5, 1.5, 0.75),
 		new Fase(4, "NIVEL 0 · ZONA ROJA", "EXTREMA", clave("fase_4"),
 			700, 90, 4, 48, 1.45, 3,
 			new int[] {3, 5}, new int[] {70, 110}, new int[] {4, 7}, new int[] {50, 70},
-			3.0, 1.3, 1.8, 0.9)
+			3.0, 7.0, 8.0, 1.8, 0.9)
 	};
 
 	private static ResourceKey<Level> clave(String id) {

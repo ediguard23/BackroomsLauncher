@@ -1,7 +1,28 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-07 14:00 (hora de Honduras). Mod `backrooms_evento` 0.9.10, launcher 1.0.0
+Última actualización: 2026-10-07 14:30 (hora de Honduras). Mod `backrooms_evento` 0.9.11, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.9.11: Bacteria más dura (2026-10-07; Bruno)
+
+Lo pidió Bruno. La velocidad ya no es un multiplicador: cada fase lleva sus bloques/s
+(`Fase.caza` y `Fase.cazaAlarma`, en vez de `velocidad` y el ×1,15 de la alarma):
+
+| Fase | Cazando | Con alarma |
+|---|---|---|
+| 1 | 5,5 (antes 5,3) | 6,2 (6,1) |
+| 2 | 6,0 (5,8) | 6,8 (6,7) |
+| 3 | 6,5 (6,4) | 7,5 (7,3) |
+| 4 | 7,0 (6,9) | 8,0 (7,9) |
+
+- Vista 25 bloques, 35 con alarma (antes 22 / 34); agachado, la mitad.
+- Oído (correr) 15 bloques, 20 con alarma (antes 12 / 20).
+- Memoria: si te pierde va a donde te vio; si en 3 s yendo hacia allí no te vuelve a ver, te
+  deja; al llegar busca 3,5 s y te deja; luego 3 s sin oírte correr (antes 5 s en total
+  contando la búsqueda, 2,5 s buscando y 5 s sorda). Ahora los 3 s solo cuentan mientras va;
+  antes se cortaba la búsqueda con el total.
+Compila; sin medir en el juego (la conversión a b/s es la de `Bacteria.atributo()`, la que
+dio 5,3 medido).
 
 ## 0.9.9 / 0.9.10: F3, traje y cámara (2026-10-07; Bruno)
 
@@ -368,7 +389,7 @@ Leer esto antes de tocar nada. Lo que se va haciendo se anota aquí y se sube.
 - Bacteria (0.8.1): persigue a 5,3 bloques/s en la fase 1 (medido en el juego; antes ~3,6,
   más lenta que andar). Un jugador corre a 5,6, así que solo se escapa corriendo y rompiendo
   la línea de vista. Ojo: el atributo de velocidad de un mob va al cuadrado (≈43,2·v² b/s);
-  `Bacteria.atributo()` lo convierte, y Fase.velocidad y la alarma multiplican b/s.
+  `Bacteria.atributo()` lo convierte, y Fase.caza / Fase.cazaAlarma dan los b/s de cada fase (desde la 0.9.11).
   Voz nueva: rugido grave (60-120 Hz) con gruñido, golpe en el pecho, ecos de pasillo y sala
   grande (antes era una voz a ~700 Hz, «de niña»). Mientras caza jadea cada ~2 s
   (`bacteria.caza`) y pisa fuerte. Sonidos: `node tools/sonidos/expedicion.js bacteria`

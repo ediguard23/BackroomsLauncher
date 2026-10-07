@@ -69,27 +69,32 @@ import org.jetbrains.annotations.Nullable;
  * soltarte). Mientras come, los demas pueden huir.
  *
  * Con la alarma encendida esta mas furiosa: ve y oye mas lejos y corre mas
- * que tu. En cada fase es mas rapida (Fase.velocidad). No se le puede hacer dano.
+ * que tu. En cada fase es mas rapida (Fase.caza y Fase.cazaAlarma). No se le puede hacer dano.
  */
 public class Bacteria extends Monster {
 	/**
-	 * Bloques por segundo cazando en la fase 1. Un jugador anda a 4,3 y corre
-	 * a 5,6: si corres en linea recta te le escapas por muy poco, y en cuanto
-	 * se te acaba la estamina te alcanza.
+	 * Bloques por segundo cazando fuera de las fases (y la base del atributo). En cada fase
+	 * van Fase.caza y Fase.cazaAlarma: en la 1, 5,5 y 6,2. Un jugador anda a 4,3 y corre
+	 * a 5,6: si corres en linea recta te le escapas por muy poco, y en cuanto se te acaba
+	 * la estamina te alcanza.
 	 */
-	private static final double CAZA_BPS = 5.3;
+	private static final double CAZA_BPS = 5.5;
 	/** Paseando por los pasillos sin presa. */
 	private static final double PASEO_BPS = 1.6;
 	/** Yendose lejos de un escondite. */
 	private static final double RETIRADA_BPS = 3.4;
-	/** Con la alarma corre esto mas. */
-	private static final double FURIA = 1.15;
-	/** Ticks sin verte (yendo a donde te vio) para dejarte. */
-	private static final int OLVIDA = 100;
+	/** Bloques a los que te ve sin paredes en medio (con la alarma); agachado, la mitad. */
+	private static final double VISTA = 25;
+	private static final double VISTA_ALARMA = 35;
+	/** Bloques a los que te oye correr (con la alarma). */
+	private static final double OIDO = 15;
+	private static final double OIDO_ALARMA = 20;
+	/** Ticks yendo a donde te vio sin volver a verte para dejarte. */
+	private static final int OLVIDA = 60;
 	/** Ticks mirando alrededor donde te perdio antes de dejarte. */
-	private static final int BUSCA = 50;
+	private static final int BUSCA = 70;
 	/** Tras perderte, este rato no te oye correr (solo te encuentra si te ve). */
-	private static final int SORDA = 100;
+	private static final int SORDA = 60;
 	/** Tras esconderte en un hueco, este rato no vuelve a por ti. */
 	private static final int IGNORA_ESCONDIDO = 20 * 30;
 	/** Despues de comer, este rato sin cazar. */
@@ -232,7 +237,7 @@ public class Bacteria extends Monster {
 		}
 		double d = this.distanceTo(j);
 		boolean furiosa = this.furiosa();
-		double vista = (furiosa ? 34 : 22) * (sigilo(j) ? 0.5 : 1.0);
+		double vista = (furiosa ? VISTA_ALARMA : VISTA) * (sigilo(j) ? 0.5 : 1.0);
 		if (d <= vista && this.hasLineOfSight(j)) {
 			return true;
 		}
@@ -240,7 +245,7 @@ public class Bacteria extends Monster {
 		if (sorda != null && sorda > this.tickCount) {
 			return false;
 		}
-		return j.isSprinting() && d <= (furiosa ? 20 : 12);
+		return j.isSprinting() && d <= (furiosa ? OIDO_ALARMA : OIDO);
 	}
 
 	@Override
@@ -268,7 +273,7 @@ public class Bacteria extends Monster {
 		}
 		// mas rapida en las fases altas y con la alarma
 		Fase f = Fase.de(nivel);
-		double v = atributo(CAZA_BPS * (f == null ? 1.0 : f.velocidad()) * (this.furiosa() ? FURIA : 1.0));
+		double v = atributo(f == null ? CAZA_BPS : this.furiosa() ? f.cazaAlarma() : f.caza());
 		AttributeInstance a = this.getAttribute(Attributes.MOVEMENT_SPEED);
 		if (a != null && Math.abs(a.getBaseValue() - v) > 1e-4) {
 			a.setBaseValue(v);
@@ -627,8 +632,9 @@ public class Bacteria extends Monster {
 				}
 				return;
 			}
-			this.sinVer++;
 			if (this.b.position().distanceToSqr(this.ultima) > 2.0) {
+				// yendo a donde te vio: OLVIDA ticks sin volver a verte y te deja
+				this.sinVer++;
 				if (--this.recalcular <= 0) {
 					this.recalcular = 10;
 					this.b.getNavigation().moveTo(this.ultima.x, this.ultima.y, this.ultima.z, 1.0);
