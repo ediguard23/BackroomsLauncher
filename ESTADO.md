@@ -1,7 +1,35 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-07 14:40 (hora de Honduras). Mod `backrooms_evento` 0.9.12, launcher 1.0.0
+Última actualización: 2026-10-08 (hora de Honduras). Mod `backrooms_evento` 0.9.12, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## Nuevo lore: PROYECTO UMBRAL (2026-10-08; Bruno)
+
+La historia oficial del evento a partir de ahora está en **[`LORE.md`](LORE.md)** (texto
+completo, tal como lo entregó Bruno). En resumen:
+
+- Unos científicos abren por accidente una grieta a **The Threshold**: las Backrooms, un
+  espacio entre la realidad y lo que hay fuera de ella. Están **vivas**, el tiempo no corre
+  igual dentro y quien se queda demasiado se **transforma en entidad** (algunas entidades
+  fueron personas y recuerdan quiénes eran).
+- El **Proyecto Umbral** (gobierno + empresas) usa «sujetos» que firman un contrato con una
+  cláusula oculta. **El jugador es uno de ellos**: firma, se desmaya y despierta con otros
+  participantes ante una pantalla: «PROYECTO UMBRAL · FASE DE OBSERVACIÓN INICIADA · SUJETOS
+  CONFIRMADOS · OBJETIVO: ALCANZAR LA SALIDA». Las puertas se abren al Nivel 0.
+- Cada nivel es una prueba de la organización (miedo, cooperación, confianza, memoria...), pero
+  los niveles empiezan a cambiar solos: las Backrooms aprenden de los jugadores. Por el camino
+  hay **documentos** de sujetos anteriores («SUJETO 018 — TRANSFORMACIÓN COMPLETA») cuyos
+  nombres coinciden con entidades vistas.
+- Final: un único superviviente pulsa el botón de la habitación blanca, despierta en un
+  hospital, encuentra papel tapiz amarillo bajo la almohada y una pantalla de la organización:
+  «SUJETO FINAL: EXITOSO · LOS DEMÁS SUJETOS PERMANECEN DENTRO». Cierre: «PROYECTO UMBRAL —
+  FASE 2» y «LAS BACKROOMS NUNCA FUERON UN SUEÑO».
+
+Aún no se ha adaptado nada del juego a esta historia. Choca o habría que repasar: el
+vestíbulo hoy es el «Centro de Expediciones» (en el lore, la sala donde despiertan los sujetos
+con la pantalla del Proyecto Umbral), la megafonía y las notas del Nivel 0, el texto de
+eliminación («SEÑAL PERDIDA»), las pantallas de escapado y la cinemática del ascensor. Las
+entidades actuales (Bacteria, Smiler) encajan como sujetos transformados.
 
 ## 0.9.12: cordura al empezar, panel, /start repetido y arranque en ventana (2026-10-07; Bruno)
 

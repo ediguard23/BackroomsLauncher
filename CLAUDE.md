@@ -23,6 +23,8 @@ al organizador.
 2. `VENTA.md`: el modelo de venta (se vende la entrada, no el launcher) y la protección.
 3. `README.md`: launcher, pack, publicación.
 4. `servidor-ejemplo/LEEME.md`: qué lleva el servidor del evento.
+5. `LORE.md`: la historia del evento (Proyecto Umbral). Textos, notas, megafonía y
+   cinemáticas nuevas deben encajar con ella.
 
 ## Mapa del repo
 
