@@ -17,6 +17,7 @@ import net.backrooms.evento.BackroomsEvento;
 import net.backrooms.evento.mision.Misiones;
 import net.backrooms.evento.mundo.GeneradorNivel0;
 import net.backrooms.evento.objetos.Equipo;
+import net.backrooms.evento.piscinas.Piscinas;
 import net.backrooms.evento.red.ViajeAscensor;
 import net.backrooms.evento.vestibulo.Vestibulo;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -42,8 +43,9 @@ import net.minecraft.world.level.storage.LevelResource;
  * Quien ha completado sus misiones pulsa el panel de un ascensor: la puerta
  * se cierra (en su pantalla), baja unos segundos y aparece en un punto al
  * azar de la fase siguiente, con misiones nuevas mas dificiles. En la ultima
- * fase el ascensor saca de los Backrooms: ha escapado, se apunta su puesto
- * y vuelve al vestibulo.
+ * fase del Nivel 0 el ascensor baja a las Piscinas (piscinas/Piscinas), con su
+ * cinematica. Escapar (se apunta su puesto y vuelve al vestibulo) queda para
+ * cuando las Piscinas tengan salida; si su dimension no esta, se escapa como antes.
  *
  * Los puestos se guardan en <mundo>/backrooms/escapados.json.
  */
@@ -57,7 +59,7 @@ public final class Fases {
 	 * (CinematicaCliente, guion 2): el viaje es cuando la cinta ya esta en negro.
 	 */
 	public static int bajada(int destino) {
-		return destino == net.backrooms.evento.red.ViajeAscensor.PISCINAS ? 564 : BAJADA;
+		return destino == ViajeAscensor.PISCINAS ? 564 : BAJADA;
 	}
 
 	public static Fases get() {
@@ -137,9 +139,10 @@ public final class Fases {
 			return;
 		}
 		Fase sig = f.siguiente();
-		ServerPlayNetworking.send(j, sig == null ? new ViajeAscensor(0, "LA SALIDA", "") : new ViajeAscensor(sig.numero(), sig.nombre(), sig.dificultad()));
+		ServerPlayNetworking.send(j, sig == null ? new ViajeAscensor(ViajeAscensor.PISCINAS, Piscinas.NOMBRE, Piscinas.SUBTITULO)
+			: new ViajeAscensor(sig.numero(), sig.nombre(), sig.dificultad()));
 		j.level().playSound(null, panel, net.backrooms.evento.Sonidos.ASCENSOR_PANEL, SoundSource.BLOCKS, 1.0F, 1.0F);
-		int bajada = bajada(sig == null ? 0 : sig.numero());
+		int bajada = bajada(sig == null ? ViajeAscensor.PISCINAS : sig.numero());
 		// mientras ve la cinematica sigue de pie en el ascensor: ni se mueve ni le hacen dano
 		// (y la Bacteria y los Smilers no van a por el: viajando)
 		j.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, bajada + 20, 6, false, false, false));
@@ -174,7 +177,9 @@ public final class Fases {
 				Fase f = Fase.de(j.level());
 				Fase sig = f == null ? null : f.siguiente();
 				if (f != null && sig == null) {
-					this.escapar(j);
+					if (!Piscinas.llegar(j)) {
+						this.escapar(j);
+					}
 				} else if (sig != null) {
 					this.llegar(j, sig);
 				}
@@ -201,7 +206,8 @@ public final class Fases {
 		BackroomsEvento.LOG.info("{} llega a la fase {} en {} {}", j.getGameProfile().name(), f.numero(), p.getX(), p.getZ());
 	}
 
-	private void escapar(ServerPlayer j) {
+	/** Sale de los Backrooms: se apunta su puesto y vuelve al vestibulo. */
+	public void escapar(ServerPlayer j) {
 		String nombre = j.getGameProfile().name();
 		if (!this.escapados.contains(nombre)) {
 			this.escapados.add(nombre);

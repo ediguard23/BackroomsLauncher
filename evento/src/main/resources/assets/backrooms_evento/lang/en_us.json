@@ -59,5 +59,18 @@
   "death.attack.backrooms_evento.cordura.player": "%1$s lost their mind while fleeing %2$s",
   "block.backrooms_evento.hueco": "Hollow wall",
   "death.attack.backrooms_evento.devorado": "%1$s was devoured by %2$s",
-  "death.attack.backrooms_evento.devorado.player": "%1$s was devoured by %2$s"
+  "death.attack.backrooms_evento.devorado.player": "%1$s was devoured by %2$s",
+  "block.backrooms_evento.azulejo": "Tile",
+  "block.backrooms_evento.azulejo_sucio": "Dirty tile",
+  "block.backrooms_evento.azulejo_roto": "Broken tile",
+  "block.backrooms_evento.azulejo_azul": "Blue tile",
+  "block.backrooms_evento.fondo_piscina": "Pool floor",
+  "block.backrooms_evento.franja_piscina": "Lane stripe",
+  "block.backrooms_evento.borde_piscina": "Pool edge",
+  "block.backrooms_evento.rejilla": "Drain grate",
+  "block.backrooms_evento.luz_techo": "Light panel",
+  "block.backrooms_evento.claraboya": "Skylight",
+  "block.backrooms_evento.foco_piscina": "Pool light",
+  "block.backrooms_evento.losa_azulejo": "Tile slab",
+  "block.backrooms_evento.escalon_azulejo": "Tile stairs"
 }

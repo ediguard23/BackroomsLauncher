@@ -59,5 +59,18 @@
   "death.attack.backrooms_evento.cordura.player": "%1$s perdió la cordura huyendo de %2$s",
   "block.backrooms_evento.hueco": "Pared hueca",
   "death.attack.backrooms_evento.devorado": "%1$s fue devorado por %2$s",
-  "death.attack.backrooms_evento.devorado.player": "%1$s fue devorado por %2$s"
+  "death.attack.backrooms_evento.devorado.player": "%1$s fue devorado por %2$s",
+  "block.backrooms_evento.azulejo": "Azulejo",
+  "block.backrooms_evento.azulejo_sucio": "Azulejo sucio",
+  "block.backrooms_evento.azulejo_roto": "Azulejo roto",
+  "block.backrooms_evento.azulejo_azul": "Azulejo azul",
+  "block.backrooms_evento.fondo_piscina": "Fondo de piscina",
+  "block.backrooms_evento.franja_piscina": "Franja de calle",
+  "block.backrooms_evento.borde_piscina": "Borde de piscina",
+  "block.backrooms_evento.rejilla": "Rejilla",
+  "block.backrooms_evento.luz_techo": "Panel de luz",
+  "block.backrooms_evento.claraboya": "Claraboya",
+  "block.backrooms_evento.foco_piscina": "Foco de piscina",
+  "block.backrooms_evento.losa_azulejo": "Losa de azulejo",
+  "block.backrooms_evento.escalon_azulejo": "Escalón de azulejo"
 }

@@ -1,0 +1,152 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "base": "backrooms_evento:block/foco_piscina",
+    "lente": "backrooms_evento:block/foco_piscina_lente",
+    "particle": "backrooms_evento:block/foco_piscina"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "down": {
+          "texture": "#base",
+          "cullface": "down"
+        },
+        "up": {
+          "texture": "#base",
+          "cullface": "up"
+        },
+        "north": {
+          "texture": "#base",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#base",
+          "cullface": "south"
+        },
+        "east": {
+          "texture": "#base",
+          "cullface": "east"
+        },
+        "west": {
+          "texture": "#base",
+          "cullface": "west"
+        }
+      }
+    },
+    {
+      "from": [
+        4.9,
+        4.9,
+        -0.05
+      ],
+      "to": [
+        11.1,
+        11.1,
+        0
+      ],
+      "shade": false,
+      "light_emission": 15,
+      "faces": {
+        "north": {
+          "texture": "#lente",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "north"
+        }
+      }
+    },
+    {
+      "from": [
+        4.9,
+        4.9,
+        16
+      ],
+      "to": [
+        11.1,
+        11.1,
+        16.05
+      ],
+      "shade": false,
+      "light_emission": 15,
+      "faces": {
+        "south": {
+          "texture": "#lente",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "south"
+        }
+      }
+    },
+    {
+      "from": [
+        -0.05,
+        4.9,
+        4.9
+      ],
+      "to": [
+        0,
+        11.1,
+        11.1
+      ],
+      "shade": false,
+      "light_emission": 15,
+      "faces": {
+        "west": {
+          "texture": "#lente",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "west"
+        }
+      }
+    },
+    {
+      "from": [
+        16,
+        4.9,
+        4.9
+      ],
+      "to": [
+        16.05,
+        11.1,
+        11.1
+      ],
+      "shade": false,
+      "light_emission": 15,
+      "faces": {
+        "east": {
+          "texture": "#lente",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "cullface": "east"
+        }
+      }
+    }
+  ]
+}

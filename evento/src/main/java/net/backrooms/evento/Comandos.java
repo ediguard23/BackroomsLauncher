@@ -40,6 +40,9 @@ import net.minecraft.server.level.ServerPlayer;
  *  luz                       vuelve la luz normal
  *  ambiente [auto on|off]    como esta la luz y si los sucesos van solos
  *  fase <n> [jugador]        lo manda ya a la fase n con misiones nuevas (solo queda la 1)
+ *  piscinas [jugador]        lo manda ya a un sitio libre de las Piscinas (Nivel 37)
+ *  piscinas ir <sala>        a la sala de ese tipo mas cercana (pasillos, piscina, inundada,
+ *                            bovedas, tunel, caracol, terrazas)
  *  vestibulo [jugador]       lo lleva al vestibulo; "vestibulo rehacer" repone los rotulos
  *  muerte eliminar|reaparecer  morir saca de la expedicion (por defecto) o reaparece en la fase
  *  perdonar                   quita el ban a todos los que cayeron (al acabar el evento o tras una prueba)
@@ -160,6 +163,11 @@ public final class Comandos {
 					.executes(c -> fase(c, c.getSource().getPlayerOrException()))
 					.then(Commands.argument("jugador", EntityArgument.player())
 						.executes(c -> fase(c, EntityArgument.getPlayer(c, "jugador"))))))
+			.then(Commands.literal("piscinas")
+				.executes(c -> net.backrooms.evento.piscinas.Piscinas.llegar(c.getSource().getPlayerOrException()) ? 1 : 0)
+				.then(irPiscinas())
+				.then(Commands.argument("jugador", EntityArgument.player())
+					.executes(c -> net.backrooms.evento.piscinas.Piscinas.llegar(EntityArgument.getPlayer(c, "jugador")) ? 1 : 0)))
 			.then(Commands.literal("vestibulo")
 				.executes(c -> {
 					Vestibulo.get().llevar(c.getSource().getPlayerOrException());
@@ -270,9 +278,28 @@ public final class Comandos {
 		return n;
 	}
 
+	/** Las salas de las Piscinas por su nombre en el comando, en el orden de PlanoPiscinas. */
+	private static final String[] SALAS_PISCINAS = {"pasillos", "piscina", "inundada", "bovedas", "tunel", "caracol", "terrazas"};
+
+	/** piscinas ir <tipo>: a la sala de ese tipo mas cercana (pruebas y rodaje). */
+	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> irPiscinas() {
+		var ir = Commands.literal("ir");
+		for (int k = 0; k < SALAS_PISCINAS.length; k++) {
+			int tipo = k;
+			ir.then(Commands.literal(SALAS_PISCINAS[k]).executes(c -> {
+				boolean ok = net.backrooms.evento.piscinas.Piscinas.irA(c.getSource().getPlayerOrException(), tipo);
+				if (!ok) {
+					c.getSource().sendFailure(Component.literal("No hay ninguna sala asi cerca (o no hay Piscinas)."));
+				}
+				return ok ? 1 : 0;
+			}));
+		}
+		return ir;
+	}
+
 	private static int cinematicaPiscinas(CommandContext<CommandSourceStack> c, ServerPlayer j) {
 		net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(j, new net.backrooms.evento.red.ViajeAscensor(
-			net.backrooms.evento.red.ViajeAscensor.PISCINAS, "NIVEL 37", "LAS PISCINAS"));
+			net.backrooms.evento.red.ViajeAscensor.PISCINAS, net.backrooms.evento.piscinas.Piscinas.NOMBRE, net.backrooms.evento.piscinas.Piscinas.SUBTITULO));
 		c.getSource().sendSuccess(() -> Component.literal("Bajada a las Piscinas para " + j.getGameProfile().name() + " (solo la animacion)"), false);
 		return 1;
 	}

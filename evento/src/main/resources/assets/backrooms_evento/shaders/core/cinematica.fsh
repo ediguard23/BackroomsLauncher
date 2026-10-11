@@ -54,7 +54,7 @@ const float A_SIGUE = 15.0;    // sigue bajando
 const float A_PARPADEO2 = 19.4;
 const float A_CAE = 20.4;      // se escurre el cable: cae
 const float A_FRENA = 21.6;    // el freno de emergencia lo para
-const float A_ABRE = 24.0;     // las puertas se abren a medias (sector B)
+const float A_ABRE = 24.0;     // las puertas se abren a medias (las Piscinas)
 const float A_ANDA = 25.5;     // andas hacia la abertura
 const float A_FIN = 27.8;      // se acaba la cinta
 
@@ -382,16 +382,15 @@ vec3 vestibulo(vec3 ro, vec3 rd) {
   return mix(c * 0.9 * sombreado(n), vec3(0.45, 0.42, 0.33), clamp((th - 6.0) / 40.0, 0.0, 0.6));
 }
 
-// un pasillo del Nivel 0 visto por las puertas del ascensor de salida
-//   estilo 0: el Nivel 0 de la fase 1 (moqueta, papel, tubos, niebla amarilla)
-//   estilo 1: el sector B (moqueta mojada, papel sucio, tubos que fallan)
-vec3 pasillo(vec3 ro, vec3 rd, float t, int estilo) {
+// un pasillo del Nivel 0 (moqueta, papel, tubos, niebla amarilla) visto por las
+// puertas del ascensor de salida
+vec3 pasillo(vec3 ro, vec3 rd, float t) {
   vec3 bmin = vec3(-2.5, 0.0, -45.0), bmax = vec3(2.5, 4.0, -2.5);
   vec3 t1 = (bmin - ro) / rd, t2 = (bmax - ro) / rd;
   vec3 tf = max(t1, t2);
   float th = min(min(tf.x, tf.y), tf.z);
   vec3 p = ro + rd * th;
-  int pared = estilo == 0 ? PAPEL : PAPEL_SUCIO;
+  int pared = PAPEL;
   vec3 c;
   vec3 n;
   bool tubo = false;
@@ -401,7 +400,7 @@ vec3 pasillo(vec3 ro, vec3 rd, float t, int estilo) {
       tubo = abs(p.x) < 0.5 && mod(p.z, 4.0) < 1.0;
       c = tubo ? cara(TUBO, p.xz).rgb : cara(TECHO_N0, p.xz).rgb;
     } else {
-      c = cara(estilo == 0 ? MOQUETA : MOQUETA_MOJADA, p.xz).rgb;
+      c = cara(MOQUETA, p.xz).rgb;
     }
   } else if (th == tf.x) {
     n = vec3(-sign(rd.x), 0.0, 0.0);
@@ -410,24 +409,199 @@ vec3 pasillo(vec3 ro, vec3 rd, float t, int estilo) {
     n = vec3(0.0, 0.0, 1.0);
     c = cara(pared, p.xy).rgb;
   }
-  float luz;
-  vec3 niebla;
-  if (estilo == 0) {
-    luz = 0.95;
-    niebla = vec3(0.62, 0.56, 0.3);
-  } else {
-    luz = 0.3 * (0.25 + 0.75 * step(0.3, h1(floor(t * 9.0) + 2.0)));
-    niebla = vec3(0.07, 0.065, 0.04) * (0.4 + luz * 2.0);
-    c *= vec3(0.82, 0.8, 0.62);
-  }
+  float luz = 0.95;
+  vec3 niebla = vec3(0.62, 0.56, 0.3);
   vec3 col = tubo ? c * (0.4 + luz) * 1.2 : c * luz * sombreado(n);
   col = mix(col, niebla, 1.0 - exp(-th / 16.0));
   return col;
 }
 
-// lo que hay al otro lado de las puertas del ascensor de salida (guion 2)
+/* ------------------------------------------- las Piscinas (guion 2) */
+
+// Lo que se ve al abrirse las puertas abajo: una sala de azulejo blanco con una
+// piscina de calles, columnas cuadradas, paneles de luz en el techo y niebla
+// clara al fondo (como las salas "piscina" de GeneradorPiscinas). El agua refleja
+// la sala y deja ver el fondo con las causticas. Coordenadas de la cabina: la
+// entrada esta en z = -2.5 y la sala sigue hacia -z.
+
+const float PS_AGUA = -0.12;
+const float PS_FONDO = -2.1;
+const float PS_TECHO = 6.0;
+const float PS_ANCHO = 9.0;
+const float PS_FIN = -38.0;
+const vec2 PS_X = vec2(-6.5, 6.5);   // la piscina
+const vec2 PS_Z = vec2(-31.0, -5.5);
+
+vec2 h22(vec2 p) { return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453); }
+
+float celdasPs(vec2 p, float t) {
+  vec2 i = floor(p), f = fract(p);
+  float f1 = 8.0, f2 = 8.0;
+  for (int y = -1; y <= 1; y++) for (int x = -1; x <= 1; x++) {
+    vec2 g = vec2(float(x), float(y));
+    vec2 o = h22(i + g);
+    o = 0.5 + 0.42 * sin(t * (0.6 + o * 0.5) + 6.2831 * o);
+    float d = length(g + o - f);
+    if (d < f1) { f2 = f1; f1 = d; } else if (d < f2) { f2 = d; }
+  }
+  return 1.0 - smoothstep(0.0, 0.11, f2 - f1);
+}
+
+float causticaPs(vec2 p, float t) {
+  float a = celdasPs(p * 1.6, t);
+  float b = celdasPs(p * 2.3 + 7.3, t * 1.3);
+  return a * 0.65 + b * 0.5 + a * b;
+}
+
+// azulejo de 4 piezas por bloque, con la junta clara (como azulejo.png)
+vec3 azulejoPs(vec2 uv, vec3 base, vec3 junta) {
+  vec2 c = uv * 4.0;
+  vec2 f = abs(fract(c) - 0.5);
+  float j = smoothstep(0.43, 0.47, max(f.x, f.y));
+  vec3 b = base * (0.97 + 0.05 * h2(floor(c)));
+  return mix(b, junta, j);
+}
+
+bool enPiscinaPs(vec2 xz) {
+  return xz.x > PS_X.x && xz.x < PS_X.y && xz.y > PS_Z.x && xz.y < PS_Z.y;
+}
+
+// columnas de 1 de lado a x = +-4.5, cada 6 a partir de z = -7
+float columnaPs(vec3 ro, vec3 rd, out vec3 n) {
+  float mejor = 1e9;
+  n = vec3(0.0, 1.0, 0.0);
+  for (int k = 0; k < 5; k++) {
+    for (int s = -1; s <= 1; s += 2) {
+      vec3 c = vec3(4.5 * float(s), 2.0, -7.0 - 6.0 * float(k));
+      vec3 h = vec3(0.5, 4.2, 0.5);
+      vec3 m = 1.0 / rd;
+      vec3 a = (c - h - ro) * m, b = (c + h - ro) * m;
+      vec3 t1 = min(a, b), t2 = max(a, b);
+      float tn = max(max(t1.x, t1.y), t1.z), tf = min(min(t2.x, t2.y), t2.z);
+      if (tn < tf && tn > 0.001 && tn < mejor) {
+        mejor = tn;
+        n = tn == t1.x ? vec3(-sign(rd.x), 0.0, 0.0) : tn == t1.y ? vec3(0.0, -sign(rd.y), 0.0) : vec3(0.0, 0.0, -sign(rd.z));
+      }
+    }
+  }
+  return mejor;
+}
+
+// cuanta luz llega a p: la de los paneles del techo (cada 4 en x y z) y un fondo claro
+float luzPs(vec3 p, vec3 n) {
+  vec2 q = vec2(mod(p.x + 2.0, 4.0) - 2.0, mod(p.z + 1.0, 4.0) - 2.0);
+  float d = length(vec3(q.x, PS_TECHO - p.y, q.y));
+  float l = 0.62 + 0.55 * exp(-d * d * 0.03);
+  return l * sombreado(n);
+}
+
+// traza la sala; conAgua: el agua corta el rayo. que: 0 suelo, 1 dentro de la piscina,
+// 2 pared, 3 techo, 4 columna, 5 agua, 6 arco oscuro del fondo
+float trazaPs(vec3 ro, vec3 rd, bool conAgua, out vec3 n, out int que) {
+  float th = 1e9;
+  que = 2;
+  n = vec3(0.0, 0.0, 1.0);
+  if (rd.y > 1e-4) {
+    float tt = (PS_TECHO - ro.y) / rd.y;
+    if (tt < th) { th = tt; que = 3; n = vec3(0.0, -1.0, 0.0); }
+  }
+  if (rd.y < -1e-4) {
+    float ts = (0.0 - ro.y) / rd.y;
+    vec3 ps = ro + rd * ts;
+    if (ts > 0.0 && ts < th && !enPiscinaPs(ps.xz)) { th = ts; que = 0; n = vec3(0.0, 1.0, 0.0); }
+    float ta = (PS_AGUA - ro.y) / rd.y;
+    vec3 pa = ro + rd * ta;
+    if (conAgua && ta > 0.0 && ta < th && enPiscinaPs(pa.xz)) { th = ta; que = 5; n = vec3(0.0, 1.0, 0.0); }
+    float tf = (PS_FONDO - ro.y) / rd.y;
+    vec3 pf = ro + rd * tf;
+    if (tf > 0.0 && tf < th && enPiscinaPs(pf.xz)) { th = tf; que = 1; n = vec3(0.0, 1.0, 0.0); }
+  }
+  // paredes de dentro de la piscina (solo por debajo del borde, vistas desde dentro)
+  for (int k = 0; k < 2; k++) {
+    float xw = k == 0 ? PS_X.x : PS_X.y;
+    float tw = (xw - ro.x) / rd.x;
+    vec3 pw = ro + rd * tw;
+    if (tw > 1e-3 && tw < th && pw.y < 0.0 && pw.y > PS_FONDO && pw.z > PS_Z.x && pw.z < PS_Z.y && sign(rd.x) == (k == 0 ? -1.0 : 1.0)) {
+      th = tw; que = 1; n = vec3(-sign(rd.x), 0.0, 0.0);
+    }
+    float zw = k == 0 ? PS_Z.x : PS_Z.y;
+    float tz = (zw - ro.z) / rd.z;
+    vec3 pz = ro + rd * tz;
+    if (tz > 1e-3 && tz < th && pz.y < 0.0 && pz.y > PS_FONDO && pz.x > PS_X.x && pz.x < PS_X.y && sign(rd.z) == (k == 0 ? -1.0 : 1.0)) {
+      th = tz; que = 1; n = vec3(0.0, 0.0, -sign(rd.z));
+    }
+  }
+  float tx = ((rd.x > 0.0 ? PS_ANCHO : -PS_ANCHO) - ro.x) / rd.x;
+  if (tx > 0.0 && tx < th) { th = tx; que = 2; n = vec3(-sign(rd.x), 0.0, 0.0); }
+  if (rd.z < 0.0) {
+    float tz = (PS_FIN - ro.z) / rd.z;
+    if (tz > 0.0 && tz < th) {
+      th = tz; que = 2; n = vec3(0.0, 0.0, 1.0);
+      vec3 pf = ro + rd * tz;
+      // arcos oscuros en la pared del fondo
+      float ax = mod(pf.x + 3.0, 6.0) - 3.0;
+      if (abs(ax) < 1.1 && pf.y > 0.0 && pf.y < 2.2 + sqrt(max(0.0, 1.21 - ax * ax))) que = 6;
+    }
+  }
+  vec3 nc;
+  float tc = columnaPs(ro, rd, nc);
+  if (tc < th) { th = tc; que = 4; n = nc; }
+  return th;
+}
+
+vec3 colorPs(vec3 p, vec3 n, int que, float t) {
+  vec3 blanco = vec3(0.93, 0.97, 0.96), junta = vec3(0.70, 0.78, 0.79);
+  if (que == 6) return vec3(0.02, 0.05, 0.06);
+  if (que == 3) {
+    vec2 q = vec2(mod(p.x + 2.0, 4.0) - 2.0, mod(p.z + 1.0, 4.0) - 2.0);
+    if (abs(q.x) < 0.5 && abs(q.y) < 0.5) return vec3(1.25, 1.3, 1.32); // panel encendido
+    return azulejoPs(p.xz, blanco, junta) * luzPs(p, n) * 0.9;
+  }
+  vec2 uv = abs(n.y) > 0.5 ? p.xz : abs(n.x) > 0.5 ? p.zy : p.xy;
+  if (que == 1) {
+    vec3 c = azulejoPs(uv, vec3(0.80, 0.93, 0.93), vec3(0.55, 0.74, 0.76));
+    // franjas de las calles en el fondo
+    if (n.y > 0.5 && abs(mod(p.x + 1.5, 3.0) - 1.5) < 0.25 && p.z < PS_Z.y - 1.5 && p.z > PS_Z.x + 1.5) c = vec3(0.17, 0.27, 0.58);
+    c += vec3(0.55, 0.85, 0.9) * causticaPs(p.xz * 0.9 + p.y * 0.3, t) * 0.45;
+    return c * luzPs(p, n) * 0.9;
+  }
+  bool borde = que == 0 && abs(p.x - clamp(p.x, PS_X.x, PS_X.y)) < 0.8 && abs(p.z - clamp(p.z, PS_Z.x, PS_Z.y)) < 0.8;
+  vec3 c = azulejoPs(uv, blanco, borde ? vec3(0.2, 0.36, 0.73) : junta);
+  // la luz que el agua refleja en las paredes y columnas, cerca del suelo
+  if (que == 2 || que == 4) c += vec3(0.4, 0.7, 0.75) * causticaPs(vec2(p.z + p.x, p.y * 1.4), t) * exp(-max(p.y, 0.0) * 0.9) * 0.25;
+  return c * luzPs(p, n);
+}
+
+vec3 nieblaPs(vec3 c, float d) {
+  return mix(c, vec3(0.78, 0.89, 0.91), 1.0 - exp(-d / 24.0));
+}
+
+vec3 piscinas(vec3 ro, vec3 rd, float t) {
+  vec3 n;
+  int que;
+  float th = trazaPs(ro, rd, true, n, que);
+  vec3 p = ro + rd * th;
+  if (que != 5) return nieblaPs(colorPs(p, n, que, t), th);
+  // el agua: un poco de oleaje, lo que refleja y lo que deja ver
+  vec2 g = vec2(cos(p.x * 1.7 + p.z * 2.9 - t * 1.1), cos(-p.x * 3.1 + p.z * 1.3 - t * 1.4)) * 0.03
+    + vec2(cos(p.x * 4.3 - p.z * 3.7 - t * 1.9), cos(p.x * 6.1 + p.z * 5.3 - t * 2.6)) * 0.012;
+  vec3 nw = normalize(vec3(-g.x, 1.0, -g.y));
+  vec3 rr = reflect(rd, nw);
+  vec3 n2;
+  int q2;
+  float t2 = trazaPs(p + rr * 0.01, rr, false, n2, q2);
+  vec3 refl = nieblaPs(colorPs(p + rr * t2, n2, q2, t), th + t2);
+  vec3 rf = refract(rd, nw, 0.75);
+  float t3 = trazaPs(p + rf * 0.01, rf, false, n2, q2);
+  vec3 bajo = colorPs(p + rf * t3, n2, q2, t) * mix(vec3(1.0), vec3(0.32, 0.80, 0.80), clamp(t3 * 0.5, 0.0, 1.0));
+  float fres = 0.04 + 0.96 * pow(1.0 - max(dot(-rd, nw), 0.0), 5.0);
+  return nieblaPs(mix(bajo, refl, clamp(fres * 1.3 + 0.1, 0.0, 1.0)), th);
+}
+
+// lo que hay al otro lado de las puertas del ascensor de salida (guion 2): al salir,
+// el Nivel 0; al llegar abajo, las Piscinas
 vec3 exterior(vec3 ro, vec3 rd, float t) {
-  return pasillo(ro, rd, t, t < T_CIERRA1 + 0.2 ? 0 : 1);
+  return t < T_CIERRA1 + 0.2 ? pasillo(ro, rd, t) : piscinas(ro, rd, t);
 }
 
 /* --------------------------------------------------------- cabina */
@@ -516,9 +690,14 @@ vec3 luzF(vec3 p, vec3 n, float t) {
   c += fuente(q, vec3(2.0, 3.2, 0.0), 10.0 * e, rojo);
   c += fuente(q, vec3(0.0, 1.5, 2.3), 14.0 * chispazo(t), vec3(1.0, 0.85, 0.5));
   c += fuente(q, vec3(0.0, 0.8, -2.4), 13.0 * juntaChispas(t), vec3(1.0, 0.6, 0.25));
-  // por las puertas abiertas entra la luz del pasillo
-  float pas = t < T_CIERRA1 ? 1.0 - smoothstep(T_CIERRA0, T_CIERRA1, t) : (G == 2 ? abiertas(t) * 0.7 : 0.0);
-  c += fuente(q, vec3(0.0, 2.0, -3.2), 12.0 * pas, vec3(1.0, 0.92, 0.6));
+  // por las puertas abiertas entra la luz de fuera: la amarilla del Nivel 0 al salir y,
+  // abajo, la blanca de las Piscinas, que el agua hace temblar
+  if (t < T_CIERRA1) {
+    c += fuente(q, vec3(0.0, 2.0, -3.2), 12.0 * (1.0 - smoothstep(T_CIERRA0, T_CIERRA1, t)), vec3(1.0, 0.92, 0.6));
+  } else if (G == 2) {
+    float ola = 0.9 + 0.1 * sin(t * 2.3 + q.x * 3.0 + q.z * 2.0) * sin(t * 1.7 - q.x * 2.0);
+    c += fuente(q, vec3(0.0, 1.6, -3.4), 13.0 * abiertas(t) * 1.3 * ola, vec3(0.78, 0.95, 1.0));
+  }
   return c;
 }
 

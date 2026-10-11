@@ -38,6 +38,8 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
       mundo/                     Plano.java (trazado procedural) y GeneradorNivel0
       vestibulo/                 el "Centro de Expediciones" (PlanoVestibulo = cajas de bloques)
       fase/                      la fase del Nivel 0 (solo queda la 1) y los ascensores de salida
+      piscinas/                  las Piscinas (Nivel 37): PlanoPiscinas (trazado), su generador,
+                                 sus bloques y la llegada desde el ascensor de salida
       expedicion/                el /start (cinemática y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas
@@ -54,6 +56,7 @@ tools/
   texturas/*.js                  dibujan las texturas y modelos (npm run texturas)
   texturas/entidades.js          modelos de Bacteria y Smiler -> genera Malla*.java (no editarlos a mano)
   texturas/huecos.js             las paredes huecas: tabiques, boquetes rotos, interior (multipart)
+  texturas/piscinas.js           bloques de las Piscinas (azulejo, causticas animadas, luces...)
   sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros);
                                  la Bacteria y el agarre en sonidos/bacteria.js
   sonidos/voces/                 las únicas grabaciones: voces generadas con Higgsfield
@@ -88,8 +91,8 @@ servidor-ejemplo/                configuración del servidor del evento
   pantalla completa). El cursor del sistema no sale en las capturas: `cursor` escribe en el
   log si se ve, está oculto o capturado. `node tools/rcon.js "<comando>"` manda comandos al servidor.
 - Comandos de staff: `/start`, `/backrooms ...` (buscar, cinematica, apagon, alarma, luz,
-  ambiente, fase, vestibulo, muerte, escapados, invocar bacteria|smiler, acechadores,
-  cordura, comida reponer, misiones...). Ver `Comandos.java`. La lista del evento (quién puede
+  ambiente, fase, piscinas [ir <sala>], vestibulo, muerte, escapados, invocar bacteria|smiler,
+  acechadores, cordura, comida reponer, misiones...). Ver `Comandos.java`. La lista del evento (quién puede
   entrar): `/brwhitelist agregar|quitar|ver|lista|recargar` (`acceso/Whitelist.java`; la lista vive
   en la tienda, ver `VENTA.md`).
 
@@ -132,6 +135,11 @@ servidor-ejemplo/                configuración del servidor del evento
 - Los textos y objetos flotantes (display entities) con giro 0 miran al sur; las paredes
   ocupan su bloque entero, así que un rótulo va 0,05 por delante de la cara.
 - Minecraft solo sitúa en 3D los sonidos MONO; los estéreo suenan "dentro de la cabeza".
+- El mapa de luz es del mod (`assets/minecraft/shaders/core/lightmap.fsh`): igual que el de
+  Minecraft salvo en las Piscinas, donde `LightTextureMixin` marca el color de ambiente (azul + 2)
+  y la luz de los bloques sale blanca y fría. Si se toca, comprobar el Nivel 0 a la vista.
+- Un sonido que nombra un bioma (ambiente en bucle) tiene que estar registrado en `Sonidos`;
+  si solo está en sounds.json, el servidor no carga el mundo.
 - `tools/sonidos` y `tools/texturas` sobrescriben archivos generados: cambia el script, no
   el resultado.
 

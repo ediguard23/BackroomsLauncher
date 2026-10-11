@@ -27,7 +27,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Mod del evento Backrooms (cliente y servidor): el vestibulo, las fases del
  * Nivel 0 (cada una su dimension), sus bloques, entidades, apagones y
- * alarmas, las misiones, la linterna y la camara, y la supervivencia.
+ * alarmas, las misiones, la linterna y la camara, la supervivencia y, debajo
+ * del Nivel 0, las Piscinas (Nivel 37, su propia dimension: piscinas/).
  *
  * El servidor del evento usa el tipo de mundo backrooms_evento:nivel_0
  * (level-type en server.properties): el mundo principal ES el Nivel 0.
@@ -43,6 +44,7 @@ public class BackroomsEvento implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		Bloques.iniciar();
+		net.backrooms.evento.piscinas.BloquesPiscinas.iniciar();
 		Sonidos.iniciar();
 		Objetos.iniciar();
 		Equipo.registrar();
@@ -64,6 +66,7 @@ public class BackroomsEvento implements ModInitializer {
 		HerramientasServidor.registrar();
 		Fases.registrar();
 		Vestibulo.registrar();
+		net.backrooms.evento.piscinas.Piscinas.registrar();
 		net.backrooms.evento.supervivencia.Supervivencia.registrar();
 		net.backrooms.evento.supervivencia.Comida.registrar();
 		net.backrooms.evento.entidad.Acechadores.registrar();
@@ -74,5 +77,6 @@ public class BackroomsEvento implements ModInitializer {
 		Comandos.registrar();
 		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("nivel_0"), GeneradorNivel0.CODEC);
 		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("vestibulo"), GeneradorVestibulo.CODEC);
+		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("piscinas"), net.backrooms.evento.piscinas.GeneradorPiscinas.CODEC);
 	}
 }

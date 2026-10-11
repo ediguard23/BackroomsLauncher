@@ -13,8 +13,9 @@
  *  10.6 / 11.6 / 12.5 golpes al panel con chispazos; 13.2 vuelve la luz y el motor
  *  15.0 sigue bajando (la musica, mas torcida); 20.4 se escurre y cae: viento, freno que chirria
  *  21.6 el freno de emergencia lo para en seco; 24.0 las puertas se abren a la fuerza
- *  24.5 sector B: goteras, tubos que fallan; 25.5 pasos sobre moqueta mojada; 27.8 se corta
- *  28.9 golpe grave y acorde del titulo FASE 2
+ *  24.3 las Piscinas: la depuradora, el agua que lame los bordes y las gotas, todo con
+ *       mucho eco; algo chapotea lejos; 25.5 pasos sobre azulejo mojado; 27.8 se corta
+ *  28.9 golpe grave y el acorde del titulo NIVEL 37
  *
  * Todo es sintesis propia. Sale a evento/src/main/resources/assets/backrooms_evento/
  * sounds/cinematica_fase2.ogg, y lo de despues del viaje (Fases#bajada: 28.2 s) a
@@ -109,6 +110,41 @@ function tubos (vivo, semilla = 1) {
   };
 }
 
+/** Depuradora de la piscina: motor grave (98 Hz, Sol) con su zumbido, muy de fondo; `vivo(ta)` 0..1. */
+function depuradora (vivo, semilla) {
+  const rnd = D.azar(semilla);
+  const lp = new D.Biquad('lp', 500, 0.7);
+  let fase = 0;
+  return (t, ta) => {
+    fase += 98 / SR;
+    const s = Math.sin(TAU * fase) + 0.35 * Math.sin(TAU * fase * 2) + 0.15 * Math.sin(TAU * fase * 3.01);
+    return lp.paso(s * 0.35 + (rnd() * 2 - 1) * 0.08) * vivo(ta);
+  };
+}
+
+/** El agua que lame los bordes de la piscina: ruido filtrado que sube y baja despacio. */
+function oleaje (semilla) {
+  const rnd = D.azar(semilla);
+  const bp = new D.Biquad('bp', 500, 0.9);
+  const lp = new D.Biquad('lp', 1400, 0.7);
+  return (t) => {
+    const ola = 0.5 + 0.5 * Math.sin(t * 1.3) * Math.sin(t * 0.47 + 1.0);
+    return lp.paso(bp.paso(rnd() * 2 - 1)) * (0.3 + 0.7 * ola * ola) * 1.6 * Math.min(1, t / 0.8);
+  };
+}
+
+/** Chapoteo lejano: algo grande que entra en el agua (y su resaca). */
+function chapoteo (semilla) {
+  const rnd = D.azar(semilla);
+  const bp = new D.Biquad('bp', 700, 1.2);
+  const lp = new D.Biquad('lp', 2500, 0.7);
+  return (t) => {
+    const golpe = Math.exp(-t / 0.18) * Math.min(1, t / 0.01);
+    const resaca = t > 0.25 ? 0.4 * Math.exp(-(t - 0.25) / 0.3) : 0;
+    return lp.paso(bp.paso(rnd() * 2 - 1)) * (golpe + resaca) * 2.2;
+  };
+}
+
 /** Gota que cae en un charco: "plic" con el tono hacia arriba. */
 function gota (semilla) {
   const rnd = D.azar(semilla);
@@ -120,14 +156,14 @@ function gota (semilla) {
   };
 }
 
-/** Paso sobre moqueta mojada: golpe sordo y un chapoteo. */
-function pasoMojado (semilla) {
+/** Paso sobre azulejo mojado: el tac de la suela y un poco de agua. */
+function pasoAzulejo (semilla) {
   const rnd = D.azar(semilla);
-  const lp = new D.Biquad('lp', 260, 0.8);
-  const bp = new D.Biquad('bp', 900 + rnd() * 300, 1.6);
+  const bp = new D.Biquad('bp', 2400 + rnd() * 400, 2.5);
+  const bp2 = new D.Biquad('bp', 1100, 1.4);
   return (t) => {
     const x = rnd() * 2 - 1;
-    return lp.paso(x) * Math.exp(-t / 0.05) * 2.2 + bp.paso(x) * Math.exp(-Math.max(0, t - 0.03) / 0.09) * (t > 0.03 ? 1.2 : 0);
+    return bp.paso(x) * Math.exp(-t / 0.012) * 2.5 + bp2.paso(x) * Math.exp(-Math.max(0, t - 0.02) / 0.06) * (t > 0.02 ? 0.9 : 0);
   };
 }
 
@@ -355,24 +391,21 @@ function fase2 () {
   [[22.3, 1.4, 100, 70, 3], [23.3, 0.8, 190, 150, 4]].forEach(([t0, d, f0, f1, s]) => A.poner(t0, d, crujido(d, f0, f1, 2093 + s), { g: -7, sala: 0.6 }));
   for (let tb = FRENA + 0.8; tb < ABRE; tb += 2 / 3) A.poner(tb, 0.08, pitido(1000, 0.08), { g: -21 });
 
-  // LAS PUERTAS SE ABREN A MEDIAS: el sector B
+  // LAS PUERTAS SE ABREN A MEDIAS: las Piscinas. Calma y mucho eco: la depuradora,
+  // el agua que lame los bordes, las gotas... y algo que chapotea lejos
   puertasAbren(A, ABRE, 1.6, 2100, -7);
-  A.poner(ABRE + 0.3, FIN - ABRE, tubos((ta) => (0.4 + 0.6 * (Math.sin(ta * 9.0) > -0.2 ? 1 : 0)) * suave(ABRE, ABRE + 1.2, ta), 2101), { g: -14, sala: 0.5 });
+  A.poner(ABRE + 0.2, FIN - ABRE - 0.2, depuradora((ta) => suave(ABRE, ABRE + 1.4, ta), 2101), { g: -15, sala: 0.6, grande: 0.6 });
+  A.poner(ABRE + 0.4, FIN - ABRE - 0.4, oleaje(2104), { g: -17, sala: 0.7, grande: 0.7 });
   {
     const r = D.azar(2102);
-    for (let tg = ABRE + 0.6; tg < FIN; tg += 0.35 + r() * 0.6) A.poner(tg, 0.4, gota(Math.round(tg * 1000)), { g: -16 - r() * 6, pan: (r() - 0.5) * 1.4, sala: 0.8, grande: 0.3 });
+    for (let tg = ABRE + 0.6; tg < FIN; tg += 0.4 + r() * 0.7) A.poner(tg, 0.4, gota(Math.round(tg * 1000)), { g: -17 - r() * 6, pan: (r() - 0.5) * 1.4, sala: 1.0, grande: 0.9 });
   }
-  // un gemido lejano en el sector B
-  {
-    const r = D.azar(2103);
-    const bp1 = new D.Biquad('bp', 280, 8);
-    const lp = new D.Biquad('lp', 900, 0.7);
-    A.poner(ABRE + 1.6, 2.2, (t) => { const f = 250 - 50 * t; if ((Math.round(t * SR)) % 64 === 0) bp1.ajustar(f, 8); return lp.paso(bp1.paso(r() * 2 - 1) * 3) * Math.sin(Math.PI * t / 2.2); }, { g: -16, pan: -0.4, sala: 0.9, grande: 0.5 });
-  }
-  // pasos hacia la abertura (moqueta mojada)
-  for (let tp = ANDA + 0.2, k = 0; tp < FIN - 0.1; tp += 0.55, k++) A.poner(tp, 0.35, pasoMojado(2110 + k), { g: -11, pan: k % 2 ? 0.15 : -0.15, sala: 0.3 });
+  A.poner(ABRE + 1.9, 1.2, chapoteo(2105), { g: -19, pan: -0.5, sala: 1.0, grande: 1.0 });
+  // pasos hacia la abertura (azulejo mojado)
+  for (let tp = ANDA + 0.2, k = 0; tp < FIN - 0.1; tp += 0.55, k++) A.poner(tp, 0.35, pasoAzulejo(2110 + k), { g: -12, pan: k % 2 ? 0.15 : -0.15, sala: 0.6, grande: 0.5 });
   cintaCorta(A, FIN, 2120);
-  titulo(A, 28.9, [33, 40, 45, 48], 2130);
+  // el titulo: re mayor con la novena, abierto y raro (no es un susto, es otro sitio)
+  titulo(A, 28.9, [38, 45, 52, 54], 2130);
   return mezclar(A);
 }
 

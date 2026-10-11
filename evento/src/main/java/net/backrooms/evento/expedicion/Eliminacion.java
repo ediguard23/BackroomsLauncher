@@ -103,7 +103,7 @@ public final class Eliminacion {
 			.append(Component.literal("✖").withColor(0xFF4A3D))
 			.append(Component.literal("] ").withStyle(ChatFormatting.GRAY))
 			.append(mensaje.copy().withColor(0xE8E0D0));
-		if (victima != null && net.backrooms.evento.fase.Fase.de(victima.level()) != null && Misiones.get().enExpedicion(victima)) {
+		if (victima != null && net.backrooms.evento.piscinas.Piscinas.delEvento(victima.level()) && Misiones.get().enExpedicion(victima)) {
 			linea.append(Component.literal("  ·  ").withStyle(ChatFormatting.DARK_GRAY));
 			if (net.backrooms.evento.vestibulo.Vestibulo.get().muerteElimina()) {
 				int quedan = 0;

@@ -12,6 +12,8 @@ import net.minecraft.sounds.SoundEvent;
  */
 public final class Sonidos {
 	public static final SoundEvent ZUMBIDO = registrar("nivel0.zumbido");
+	/** Ambiente en bucle del bioma de las Piscinas: de momento el del menu (depuradora, agua, gotas, eco). */
+	public static final SoundEvent PISCINAS_AMBIENTE = registrar("piscinas.ambiente");
 	public static final SoundEvent LINTERNA = registrar("linterna");
 	public static final SoundEvent CAMARA = registrar("camara");
 	public static final SoundEvent APAGON = registrar("apagon");

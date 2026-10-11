@@ -15,6 +15,7 @@ import net.backrooms.evento.fase.Fase;
 import net.backrooms.evento.fase.Fases;
 import net.backrooms.evento.mision.Misiones;
 import net.backrooms.evento.objetos.Equipo;
+import net.backrooms.evento.piscinas.Piscinas;
 import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -268,15 +269,14 @@ public final class Vestibulo {
 			}
 			return;
 		}
-		Fase f = Fase.de(j.level());
-		if (f != null && Misiones.get().enExpedicion(j)) {
-			return; // sigue en su fase
+		if (Piscinas.delEvento(j.level()) && Misiones.get().enExpedicion(j)) {
+			return; // sigue en su fase (o en las Piscinas)
 		}
 		this.llevar(j);
 	}
 
 	private void alMorir(ServerPlayer j) {
-		if (Fase.de(j.level()) == null || !this.muerteElimina) {
+		if (!Piscinas.delEvento(j.level()) || !this.muerteElimina) {
 			return;
 		}
 		boolean estaba = Misiones.get().enExpedicion(j);
@@ -288,8 +288,7 @@ public final class Vestibulo {
 	}
 
 	private void alReaparecer(ServerPlayer j, Level donde) {
-		Fase f = Fase.de(donde);
-		if (f == null) {
+		if (!Piscinas.delEvento(donde)) {
 			if (!j.isCreative() && !j.isSpectator()) {
 				this.llevar(j);
 			}
@@ -298,6 +297,12 @@ public final class Vestibulo {
 		if (this.muerteElimina || !Misiones.get().enExpedicion(j)) {
 			this.llevar(j);
 			j.displayClientMessage(Component.literal("Has caído en los Backrooms. Quedas fuera de la expedición.").withStyle(ChatFormatting.RED), false);
+			return;
+		}
+		Fase f = Fase.de(donde);
+		if (f == null) {
+			// en las Piscinas: vuelve a otro sitio de las Piscinas
+			Piscinas.llegar(j);
 			return;
 		}
 		ServerLevel nivel = this.servidor.getLevel(f.dimension());

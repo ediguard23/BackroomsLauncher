@@ -6,6 +6,14 @@
       }
     ]
   },
+  "piscinas.ambiente": {
+    "sounds": [
+      {
+        "name": "backrooms:piscinas_ambiente",
+        "stream": true
+      }
+    ]
+  },
   "cinematica": {
     "sounds": [
       {

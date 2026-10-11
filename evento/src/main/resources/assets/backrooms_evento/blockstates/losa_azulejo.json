@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "backrooms_evento:block/losa_azulejo"
+    },
+    "type=top": {
+      "model": "backrooms_evento:block/losa_azulejo_arriba"
+    },
+    "type=double": {
+      "model": "backrooms_evento:block/azulejo"
+    }
+  }
+}

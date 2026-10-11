@@ -1,7 +1,56 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-11 (hora de Honduras). Mod `backrooms_evento` 0.10.0, launcher 1.0.0
+Última actualización: 2026-10-11 (hora de Honduras). Mod `backrooms_evento` 0.11.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.11.0, etapa 2: las Piscinas (Nivel 37) (2026-10-11; Bruno)
+
+Nivel nuevo debajo del Nivel 0, hecho a partir de las imágenes de referencia de Bruno (el reel
+de Instagram no se pudo ver: pide iniciar sesión). Paquete `evento/.../piscinas/`:
+
+- **Dimensión** `backrooms_evento:piscinas` (`data/.../dimension`, `dimension_type`, bioma):
+  64 de alto, suelo en y=40 (se pisa en 41), agua hasta y=40 (un pelo por debajo del borde),
+  niebla cian clara, agua turquesa, ambiente en bucle = el de las Piscinas del menú
+  (`piscinas.ambiente`, registrado en `Sonidos`; los sonidos propios del nivel son de la etapa 4).
+- **Trazado** (`PlanoPiscinas`, sin Minecraft; `GeneradorPiscinas` lo pone): celdas de 24x24
+  conectadas por puertas (siempre al menos una por celda), y 1 de cada 3 manzanas de 2x2 es una
+  sala grande sin paredes. Un tipo de sala por cada imagen: **pasillos** de azulejo (a veces con
+  canal), **piscina** de calles con columnas y paneles (ref. de la entidad), **sala inundada**
+  con columnas redondas y claraboyas (ref. del flotador), **bóvedas** de arista sobre una piscina
+  de borde curvo (ref. de los arcos azules), **túnel** redondo encharcado con anillos (ref. del
+  túnel), **caracol**: escalera alrededor de una columna con balcón arriba (ref. de la escalera)
+  y **terrazas** a dos alturas con arcos oscuros y un canal (ref. de la cinta VHS). Caracoles y
+  terrazas tienen planta alta (y=49) y se comunican por arriba si están juntos. Algunas salas,
+  a oscuras. Las curvas de bóvedas y túneles llevan escalones del revés como chaflán.
+- **Bloques** (`BloquesPiscinas`; texturas y modelos en `tools/texturas/piscinas.js`, ya en
+  `npm run texturas`): azulejo (limpio, sucio, roto, azul), fondo de piscina y franja de calle
+  con cáusticas animadas, borde con junta azul, rejilla, panel de luz, claraboya, foco de
+  piscina (lente que brilla), losa y escalón de azulejo. Luces invisibles (`minecraft:light`)
+  para que las salas grandes tengan luz «sin fuente».
+- **Luz fría**: en las Piscinas la luz de los bloques es blanca y las sombras azuladas (sin el
+  amarillo de Minecraft). Va en el mapa de luz del mod (`assets/minecraft/shaders/core/
+  lightmap.fsh`, que fuera de las Piscinas hace exactamente lo mismo que el de Minecraft) y
+  `LightTextureMixin` (marca en el color de ambiente). Comprobado que el Nivel 0 y el
+  vestíbulo se ven igual que antes.
+- **Bajada**: el ascensor de salida de la fase 1, con las misiones hechas, ya no hace escapar:
+  baja a las Piscinas con la cinemática del guion 2 (`Fases`; si el servidor no tiene la
+  dimensión, se escapa como antes). En la cinemática, al abrirse las puertas abajo se ve una
+  sala de las Piscinas (trazada en `cinematica.fsh`: piscina de calles, columnas, paneles,
+  reflejos y cáusticas) con su luz fría; la banda sonora acaba con la depuradora, el agua, gotas
+  con eco, un chapoteo lejano y pasos sobre azulejo (`tools/sonidos/cinematica-fases.js`).
+- Las Piscinas **no son una Fase**: sin apagones, Bacteria, Smilers ni cordura. Quien se
+  reconecta allí sigue allí; quien muere cuenta como en el Nivel 0 (eliminado y al vestíbulo;
+  `Piscinas.delEvento` en `Vestibulo` y `Eliminacion`). Aún no hay misiones ni salida: quien
+  baja se queda en las Piscinas (etapa 4).
+- Staff: `/backrooms piscinas [jugador]` (a un sitio libre) y `/backrooms piscinas ir <sala>`
+  (pasillos, piscina, inundada, bovedas, tunel, caracol, terrazas: la más cercana).
+
+**Probado** en el servidor local de Bruno: el servidor arranca sin errores; los 7 tipos de sala
+generan y se ven (capturas); `/start` → misiones completadas → `/backrooms bajar` → cinemática con
+la vista de las Piscinas y «NIVEL 37 · LAS PISCINAS» → llega a las Piscinas; reconectar le deja
+allí; morir allí → «ELIMINADO» y al vestíbulo; el Nivel 0 y el vestíbulo, sin cambios a la vista.
+**Sin probar**: con mucha gente a la vez (el reparto usa un radio de 900 y 72 de separación),
+y la planta alta de dos salas juntas (puertas de arriba) no se ha recorrido entera.
 
 ## 0.10.0, etapa 1: el Nivel 0 se queda con la fase 1 (2026-10-11; Bruno)
 
