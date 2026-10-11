@@ -62,6 +62,24 @@ partida los sonidos sueltos, el susurro con el nombre y los pasos. **Sin probar*
 de un panel en el juego (es como el tubo del Nivel 0) y varias Serpientes con muchos jugadores.
 **Ojo**: los jugadores pueden ahogarse en las piscinas hondas (3 de agua) si se quedan en el fondo.
 
+**Siguiente (pendiente, sin empezar): las 3 misiones de las Piscinas** que pidió Bruno.
+Hoy al llegar a las Piscinas se conservan las misiones del Nivel 0 (`Misiones.Estado`; `TipoMision`
+solo tiene las del Nivel 0) y no hay salida.
+1. **Cerrar 3 válvulas** a ~150-200 bloques entre sí, en zonas distintas: animación de giro,
+   sonido metálico al girar y de presión al cerrar; con las 3, ruido de maquinaria y se activa
+   una parte del mapa.
+2. **Grabar a la Serpiente** unos segundos sin perderla del encuadre (como `Grabacion#encuadra`);
+   si te acercas demasiado puede desaparecer rápido; al acabar, la cámara muestra
+   «EVIDENCIA OBTENIDA — SUJETO CONFIRMADO».
+3. **Salida de emergencia**: carteles nuevos que apuntan a ella, 3 tarjetas escondidas en
+   zonas cada vez más peligrosas y, con las 3, la puerta abre una **secuencia de escape** que
+   hay que completar (no lleva directamente a otro nivel; al acabarla, `Fases#escapar`).
+Piezas que hay: `Misiones` (estado, `completar`, `sincronizar` → `SyncMisiones` → `MisionesCliente`),
+`Grabacion`, el radar, `Fases#escapar`. En `Fases#pulsar`/`tick` está la bajada a las Piscinas.
+El entorno de pruebas quedó cerrado y el launcher otra vez en pantalla completa (para probar
+con la ventana minimizada hay que ponerlo en VENTANA: en pantalla completa Windows la minimiza y
+las capturas salen congeladas).
+
 ## 0.12.0, etapa 3: la entidad de las Piscinas (2026-10-11; Bruno)
 
 **La Serpiente** (`backrooms_evento:serpiente`; nombre provisional, se cambia en `lang` y en la
