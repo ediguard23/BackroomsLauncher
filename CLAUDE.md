@@ -1,7 +1,7 @@
 # Backrooms — contexto del proyecto (léelo entero antes de tocar nada)
 
 Evento de Minecraft de **PeakMC Studio** ambientado en las Backrooms (Nivel 0). Hasta
-~200 jugadores bajan al Nivel 0, cumplen misiones y van pasando fases cada vez más
+~200 jugadores bajan al Nivel 0, cumplen misiones y bajan a niveles cada vez más
 duras; solo escapan unos pocos. Este repo tiene las dos piezas del jugador:
 
 - **El launcher** (Electron, raíz del repo): nick o cuenta premium, JUGAR y dentro.
@@ -37,7 +37,7 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
     evento/
       mundo/                     Plano.java (trazado procedural) y GeneradorNivel0
       vestibulo/                 el "Centro de Expediciones" (PlanoVestibulo = cajas de bloques)
-      fase/                      las 4 fases y los ascensores de salida
+      fase/                      la fase del Nivel 0 (solo queda la 1) y los ascensores de salida
       expedicion/                el /start (cinemática y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas

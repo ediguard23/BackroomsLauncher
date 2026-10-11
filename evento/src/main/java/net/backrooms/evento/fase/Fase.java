@@ -1,22 +1,16 @@
 package net.backrooms.evento.fase;
 
-import net.backrooms.evento.BackroomsEvento;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Las fases de la expedicion, de la mas facil a la final. Cada una es una
- * dimension con su propio Nivel 0 (otro trazado) y va depurando jugadores:
- * todos empiezan en la 1 (dificultad media); quien completa sus misiones
- * sigue el radar hasta un ascensor de salida y baja a la siguiente, que es
- * mas pequena (se espera menos gente) y mas dura. Quien sale de la ultima,
- * escapa.
- *
- * Mas dura = la senal de los casetes llega menos lejos y estan mas
- * repartidos, hay mas misiones de grabar, los apagones y las alarmas son mas
- * frecuentes, hay mas Bacterias y mas rapidas y la cordura baja antes.
+ * Las fases del Nivel 0. Desde la 0.10.0 solo hay una (las 2, 3 y 4 se quitaron para
+ * hacer sitio a mas niveles): todos empiezan en ella y quien completa sus misiones
+ * sigue el radar hasta un ascensor de salida, que baja al nivel siguiente (las
+ * Piscinas, ver piscinas/Piscinas). El sistema sigue aceptando varias fases: cada una
+ * es una dimension con su propio Nivel 0 (otro trazado, GeneradorNivel0 con otra
+ * variante) y sus numeros de dificultad.
  *
  * @param radio          medio lado del cuadrado donde se reparte a la gente al llegar, con 200
  *                       jugadores (con menos se encoge: Fases#radio)
@@ -44,24 +38,8 @@ public record Fase(int numero, String nombre, String dificultad, ResourceKey<Lev
 		new Fase(1, "NIVEL 0", "MEDIA", Level.OVERWORLD,
 			4800, 280, 5, 90, 1.0, 2,
 			new int[] {6, 10}, new int[] {45, 75}, new int[] {7, 12}, new int[] {35, 55},
-			1.0, 5.5, 6.2, 1.0, 0.45),
-		new Fase(2, "NIVEL 0 · SECTOR B", "MEDIA-ALTA", clave("fase_2"),
-			2600, 200, 5, 75, 1.15, 2,
-			new int[] {5, 8}, new int[] {55, 85}, new int[] {6, 10}, new int[] {40, 60},
-			1.5, 6.0, 6.8, 1.25, 0.6),
-		new Fase(3, "NIVEL 0 · SECTOR C", "ALTA", clave("fase_3"),
-			1400, 140, 4, 60, 1.3, 3,
-			new int[] {4, 7}, new int[] {60, 95}, new int[] {5, 9}, new int[] {45, 65},
-			2.2, 6.5, 7.5, 1.5, 0.75),
-		new Fase(4, "NIVEL 0 · ZONA ROJA", "EXTREMA", clave("fase_4"),
-			700, 90, 4, 48, 1.45, 3,
-			new int[] {3, 5}, new int[] {70, 110}, new int[] {4, 7}, new int[] {50, 70},
-			3.0, 7.0, 8.0, 1.8, 0.9)
+			1.0, 5.5, 6.2, 1.0, 0.45)
 	};
-
-	private static ResourceKey<Level> clave(String id) {
-		return ResourceKey.create(Registries.DIMENSION, BackroomsEvento.id(id));
-	}
 
 	/** La fase que se juega en esa dimension, o null si no es del Nivel 0 (el vestibulo, por ejemplo). */
 	public static @Nullable Fase de(ResourceKey<Level> dimension) {

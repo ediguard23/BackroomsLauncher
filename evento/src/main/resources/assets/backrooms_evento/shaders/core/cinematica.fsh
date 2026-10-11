@@ -14,11 +14,8 @@
 // Todo es funcion del tiempo, que llega por la U de los vertices. La V dice el
 // guion (G):
 //   0  el /start: del vestibulo al Nivel 0 (cabina de hierro de 3x3)
-//   2  la bajada a la fase 2: el ascensor de salida (acero, 5x5) se atasca, lo
-//      arreglas a golpes, vuelve a fallar y cae; se abre a medias al sector B
-//   3  la bajada a la fase 3: algo cruza el pasillo, se va la luz (vision
-//      nocturna), garras por la junta, golpes en el techo y, al abrirse, una
-//      sonrisa en la oscuridad del sector C
+//   2  la bajada por el ascensor de salida (acero, 5x5): se atasca, lo arreglas
+//      a golpes, vuelve a fallar y cae; se abre a medias abajo
 #moj_import <minecraft:globals.glsl>
 
 uniform sampler2D Sampler0;
@@ -47,7 +44,7 @@ const float VEL = 3.0;         // bloques por segundo bajando
 const float PLANTA = 4.0;      // bloques entre plantas
 const float FOVK = 0.7002;     // tan(35): el FOV 70 de Minecraft
 
-// guion 2 (bajada a la fase 2)
+// guion 2 (bajada por el ascensor de salida)
 const float A_FRENO = 7.6;     // frena en seco
 const float A_GIRO = 8.4;      // te das la vuelta hacia el panel
 const float A_GOLPE1 = 10.6, A_GOLPE2 = 11.6, A_GOLPE3 = 12.5; // golpes al panel
@@ -60,19 +57,6 @@ const float A_FRENA = 21.6;    // el freno de emergencia lo para
 const float A_ABRE = 24.0;     // las puertas se abren a medias (sector B)
 const float A_ANDA = 25.5;     // andas hacia la abertura
 const float A_FIN = 27.8;      // se acaba la cinta
-
-// guion 3 (bajada a la fase 3)
-const float B_APAGON = 8.6;    // se va la luz del todo
-const float B_NOCHE = 9.8;     // la videocamara pasa a vision nocturna
-const float B_GARRAS = 11.5;   // algo mete las garras por la junta
-const float B_PORTAZO = 12.9;  // y las puertas se cierran de golpe
-const float B_MIRA = 13.6;     // miras al techo
-const float B_LURCH = 18.6;    // la cabina se escurre
-const float B_LUZ = 19.6;      // vuelve la luz (de emergencia)
-const float B_ABRE = 21.2;     // las puertas se abren solas
-const float B_CARA = 23.6;     // una sonrisa en la oscuridad
-const float B_SALTA = 24.6;    // se te echa encima
-const float B_FIN = 25.4;      // se acaba la cinta
 
 /* ---------------------------------------------------------- atlas */
 
@@ -122,15 +106,8 @@ float bajada2(float t) {
   return s + 4.9 * c * c;
 }
 
-// guion 3: baja despacio y, en la oscuridad, se escurre de golpe
-float bajada3(float t) {
-  float a = clamp(t - T_BAJA, 0.0, B_LURCH - T_BAJA);
-  float s = 2.2 * a - 2.2 * 0.8 * (1.0 - exp(-a / 0.8));
-  return s + 1.6 * smoothstep(B_LURCH, B_LURCH + 0.25, t);
-}
-
 float bajada(float t) {
-  return G == 2 ? bajada2(t) : G == 3 ? bajada3(t) : bajada0(t);
+  return G == 2 ? bajada2(t) : bajada0(t);
 }
 
 float bajada0(float t) {
@@ -167,13 +144,6 @@ float lampara(float t) {
     if (t < A_FRENA) return step(0.7, h1(floor(t * 20.0) + 4.0));
     return 0.0;
   }
-  if (G == 3) {
-    if (t < 7.9) return 1.0;
-    if (t < B_APAGON) return step(0.5, h1(floor(t * 10.0) + 7.0));
-    if (t < B_LUZ) return 0.0;
-    if (t < B_LUZ + 0.6) return step(0.5, h1(floor(t * 13.0) + 1.0)) * 0.6;
-    return 0.35 * step(0.15, h1(floor(t * 7.0) + 3.0)); // a medio gas, parpadeando
-  }
   if (t < T_PARPADEO) return 1.0;
   if (t < T_ATASCO) return step(0.45, h1(floor(t * 11.0)));
   if (t < T_ATASCO + 0.5) return 0.0;
@@ -186,7 +156,6 @@ float emergencia(float t) {
     return max(smoothstep(A_FRENO + 0.3, A_FRENO + 0.5, t) * (1.0 - smoothstep(A_ARREGLO + 0.4, A_ARREGLO + 0.6, t)),
       smoothstep(A_FRENA + 0.3, A_FRENA + 0.5, t));
   }
-  if (G == 3) return smoothstep(B_LUZ, B_LUZ + 0.3, t);
   return smoothstep(T_ATASCO + 0.4, T_ATASCO + 0.6, t);
 }
 
@@ -196,7 +165,7 @@ float fuego(float t) {
   return f * (0.8 + 0.2 * ruido(vec2(t * 15.0, 3.0)));
 }
 
-/* ------------------------------------------- guiones 2 y 3: sucesos */
+/* -------------------------------------------------- guion 2: sucesos */
 
 // destello de cada golpe al panel (guion 2)
 float chispazo(float t) {
@@ -216,34 +185,10 @@ float juntaChispas(float t) {
   return smoothstep(A_CAE, A_CAE + 0.3, t) * (1.0 - smoothstep(A_FRENA + 0.2, A_FRENA + 0.8, t)) * (0.6 + 0.4 * h1(floor(t * 30.0)));
 }
 
-// las garras abren las puertas una rendija (guion 3)
-float garras(float t) {
-  if (G != 3) return 0.0;
-  return smoothstep(B_GARRAS + 0.4, B_GARRAS + 1.0, t) * (1.0 - smoothstep(B_PORTAZO - 0.06, B_PORTAZO, t));
-}
-
 // cuanto se vuelven a abrir las puertas al llegar (medio ancho de la abertura)
 float abiertas(float t) {
   if (G == 2) return 0.55 * smoothstep(A_ABRE, A_ABRE + 1.6, t) + 0.02 * sin(t * 31.0) * step(A_ABRE, t);
-  if (G == 3) return 0.12 * garras(t) + 0.5 * smoothstep(B_ABRE, B_ABRE + 2.0, t);
   return 0.0;
-}
-
-// vision nocturna de la videocamara (guion 3)
-float noche(float t) {
-  if (G != 3) return 0.0;
-  return step(B_NOCHE, t) * (1.0 - step(B_LUZ, t));
-}
-
-// cuantos golpes en el techo van ya (guion 3) y el ultimo
-float golpesTecho(float t, out float ultimo) {
-  float n = 0.0;
-  ultimo = -10.0;
-  for (int k = 0; k < 6; k++) {
-    float t0 = k == 0 ? 14.6 : k == 1 ? 15.4 : k == 2 ? 16.0 : k == 3 ? 17.0 : k == 4 ? 17.5 : 18.1;
-    if (t > t0) { n += 1.0; ultimo = t0; }
-  }
-  return n;
 }
 
 float brilloNivel(float L) {
@@ -437,52 +382,9 @@ vec3 vestibulo(vec3 ro, vec3 rd) {
   return mix(c * 0.9 * sombreado(n), vec3(0.45, 0.42, 0.33), clamp((th - 6.0) / 40.0, 0.0, 0.6));
 }
 
-// algo alto y encorvado que cruza el fondo del pasillo (guion 3, al cerrarse las puertas)
-float silueta(vec3 ro, vec3 rd, float t, float lejos) {
-  float u = (t - 1.4) / 1.5;
-  if (u < 0.0 || u > 1.0 || rd.z >= 0.0) return 0.0;
-  float zf = -14.0;
-  float d = (zf - ro.z) / rd.z;
-  if (d > lejos) return 0.0;
-  vec3 q = ro + rd * d;
-  float xs = mix(-3.2, 3.2, u);
-  float x = q.x - xs;
-  float y = q.y;
-  float paso = sin(u * 18.0);
-  // cuerpo largo y estrecho, cabeza adelantada, brazos que llegan al suelo
-  float cuerpo = step(abs(x - 0.12 * (y - 1.5)), 0.22 - 0.05 * abs(y - 2.2)) * step(0.9, y) * step(y, 3.0);
-  float cabeza = step(length(vec2(x - 0.35, y - 3.05) * vec2(1.0, 1.25)), 0.26);
-  float brazo = step(abs(x + 0.28 - 0.06 * paso * (3.0 - y)), 0.06) * step(0.2, y) * step(y, 2.8);
-  float piernas = step(abs(abs(x) - 0.12 - 0.08 * paso * (0.9 - y)), 0.07) * step(y, 0.95);
-  return clamp(cuerpo + cabeza + brazo + piernas, 0.0, 1.0);
-}
-
-// una sonrisa y dos ojos que brillan en la oscuridad del sector C (guion 3)
-vec3 sonrisa(vec3 ro, vec3 rd, float t) {
-  if (t < B_CARA || rd.z >= 0.0) return vec3(0.0);
-  float salto = smoothstep(B_SALTA, B_SALTA + 0.35, t);
-  float zc = mix(-4.6, -1.5, salto * salto);
-  float d = (zc - ro.z) / rd.z;
-  vec3 q = ro + rd * d;
-  vec2 f = (q.xy - vec2(0.0, 1.65 - 0.15 * salto)) / (0.75 + 0.3 * salto);
-  float vis = smoothstep(B_CARA, B_CARA + 0.7, t) * (0.75 + 0.25 * step(0.2, h1(floor(t * 17.0))));
-  float ojos = 0.0;
-  for (int k = -1; k <= 1; k += 2) {
-    vec2 e = (f - vec2(0.2 * float(k), 0.16)) / vec2(0.085, 0.05);
-    ojos += step(dot(e, e), 1.0);
-  }
-  float curva = -0.3 + 0.9 * f.x * f.x;
-  float boca = step(abs(f.x), 0.36) * step(abs(f.y - curva + 0.04), 0.075 * (1.0 - abs(f.x) * 1.6));
-  float dientes = boca * step(fract(f.x * 13.0 + 0.5), 0.78);
-  float brillo = clamp(ojos + dientes, 0.0, 1.0);
-  float halo = exp(-dot(f, f) * 3.0) * 0.12;
-  return (vec3(0.95, 0.97, 0.9) * brillo * 1.4 + vec3(0.6, 0.62, 0.55) * halo) * vis;
-}
-
 // un pasillo del Nivel 0 visto por las puertas del ascensor de salida
 //   estilo 0: el Nivel 0 de la fase 1 (moqueta, papel, tubos, niebla amarilla)
 //   estilo 1: el sector B (moqueta mojada, papel sucio, tubos que fallan)
-//   estilo 2: el sector C (casi a oscuras, el bacilo come las paredes)
 vec3 pasillo(vec3 ro, vec3 rd, float t, int estilo) {
   vec3 bmin = vec3(-2.5, 0.0, -45.0), bmax = vec3(2.5, 4.0, -2.5);
   vec3 t1 = (bmin - ro) / rd, t2 = (bmax - ro) / rd;
@@ -497,14 +399,13 @@ vec3 pasillo(vec3 ro, vec3 rd, float t, int estilo) {
     n = vec3(0.0, -sign(rd.y), 0.0);
     if (rd.y > 0.0) {
       tubo = abs(p.x) < 0.5 && mod(p.z, 4.0) < 1.0;
-      c = tubo ? cara(estilo == 2 ? TUBO_OFF : TUBO, p.xz).rgb : cara(TECHO_N0, p.xz).rgb;
+      c = tubo ? cara(TUBO, p.xz).rgb : cara(TECHO_N0, p.xz).rgb;
     } else {
       c = cara(estilo == 0 ? MOQUETA : MOQUETA_MOJADA, p.xz).rgb;
     }
   } else if (th == tf.x) {
     n = vec3(-sign(rd.x), 0.0, 0.0);
     c = cara(pared, p.zy).rgb;
-    if (estilo == 2 && ruido(p.zy * 0.7) > 0.45) c = cara(BACILO, p.zy).rgb;
   } else {
     n = vec3(0.0, 0.0, 1.0);
     c = cara(pared, p.xy).rgb;
@@ -514,28 +415,19 @@ vec3 pasillo(vec3 ro, vec3 rd, float t, int estilo) {
   if (estilo == 0) {
     luz = 0.95;
     niebla = vec3(0.62, 0.56, 0.3);
-  } else if (estilo == 1) {
+  } else {
     luz = 0.3 * (0.25 + 0.75 * step(0.3, h1(floor(t * 9.0) + 2.0)));
     niebla = vec3(0.07, 0.065, 0.04) * (0.4 + luz * 2.0);
     c *= vec3(0.82, 0.8, 0.62);
-  } else {
-    // solo llega la luz roja de la cabina
-    luz = 0.0;
-    niebla = vec3(0.0);
   }
-  vec3 col = tubo && estilo != 2 ? c * (0.4 + luz) * 1.2 : c * luz * sombreado(n);
-  if (estilo == 2) col = c * vec3(1.0, 0.25, 0.18) * 0.55 * emergencia(t) * exp(-max(0.0, -p.z - 2.5) / 2.2) * sombreado(n);
+  vec3 col = tubo ? c * (0.4 + luz) * 1.2 : c * luz * sombreado(n);
   col = mix(col, niebla, 1.0 - exp(-th / 16.0));
-  if (G == 3 && estilo == 1) col = mix(col, vec3(0.008, 0.007, 0.006), silueta(ro, rd, t, th) * 0.96);
-  if (estilo == 2) col += sonrisa(ro, rd, t);
   return col;
 }
 
-// lo que hay al otro lado de las puertas del ascensor de salida (guiones 2 y 3)
+// lo que hay al otro lado de las puertas del ascensor de salida (guion 2)
 vec3 exterior(vec3 ro, vec3 rd, float t) {
-  if (t < T_CIERRA1 + 0.2) return pasillo(ro, rd, t, G == 2 ? 0 : 1);
-  if (G == 3 && t < B_ABRE) return vec3(0.004); // la rendija de las garras: el hueco, a oscuras
-  return pasillo(ro, rd, t, G == 2 ? 1 : 2);
+  return pasillo(ro, rd, t, t < T_CIERRA1 + 0.2 ? 0 : 1);
 }
 
 /* --------------------------------------------------------- cabina */
@@ -608,7 +500,7 @@ vec3 suelo(vec3 p, vec3 n, float t) {
   return iluminar(cara(PIEDRA_LISA, p.xz + 0.5).rgb, p, n, t);
 }
 
-/* ------------------------------ guiones 2 y 3: el ascensor de salida */
+/* ------------------------------------- guion 2: el ascensor de salida */
 
 // como en el mundo (GeneradorNivel0#ascensor): 5x5 de acero, suelo de ascensor,
 // 3x3 de luz en el techo, la entrada (2 de ancho) en z = -2.5 y el panel en la
@@ -627,8 +519,6 @@ vec3 luzF(vec3 p, vec3 n, float t) {
   // por las puertas abiertas entra la luz del pasillo
   float pas = t < T_CIERRA1 ? 1.0 - smoothstep(T_CIERRA0, T_CIERRA1, t) : (G == 2 ? abiertas(t) * 0.7 : 0.0);
   c += fuente(q, vec3(0.0, 2.0, -3.2), 12.0 * pas, vec3(1.0, 0.92, 0.6));
-  // el foco infrarrojo de la videocamara en vision nocturna
-  c += vec3(0.42) * noche(t);
   return c;
 }
 
@@ -648,18 +538,6 @@ vec3 paredPuertasF(vec3 p, vec3 n, vec3 ro, vec3 rd, float t) {
   vec3 c = iluminarF(d.rgb, p, n, t);
   // chispas por la junta al caer
   c += vec3(1.0, 0.6, 0.2) * juntaChispas(t) * smoothstep(0.1, 0.0, abs(x)) * 1.2;
-  // garras: dedos negros y larguisimos que asoman por la rendija y se agarran a las hojas
-  float ga = garras(t);
-  if (ga > 0.0) {
-    float borde = abs(x) - g;
-    for (int k = 0; k < 4; k++) {
-      float yd = 1.15 + float(k) * 0.32 + 0.03 * sin(t * 7.0 + float(k));
-      float largo = (0.2 + 0.08 * h1(float(k) * 3.7 + step(0.0, x))) * ga;
-      if (borde < largo && abs(y - yd - borde * 0.3) < 0.06 * (1.0 - borde / max(largo, 0.001)) + 0.012) {
-        return vec3(0.015, 0.012, 0.01) + vec3(0.05) * noche(t);
-      }
-    }
-  }
   return c;
 }
 
@@ -681,7 +559,6 @@ vec3 paredFondoF(vec3 p, vec3 n, float t) {
       float on = 1.0;
       if (G == 2 && t > A_FRENO && t < A_ARREGLO) on = step(0.5, fract(t * 2.5));
       if (G == 2 && t > A_FRENA) on = step(0.5, fract(t * 3.0));
-      if (G == 3 && t > B_APAGON - 0.3 && t < B_LUZ) on = 0.0;
       return mix(c, vec3(1.0, 0.18, 0.08) * 1.5, on);
     }
     // los botones naranjas se encienden a lo loco con cada golpe
@@ -698,16 +575,6 @@ vec3 techoF(vec3 p, vec3 n, float t) {
     c = l > 0.05 ? cara(LUZ_ASC, p.xz + 0.5).rgb * (0.35 + 0.85 * l) : iluminarF(cara(LUZ_ASC, p.xz + 0.5).rgb * 0.35, p, n, t);
   } else {
     c = iluminarF(cara(ACERO, p.xz + 0.5).rgb, p, n, t);
-  }
-  // golpes desde arriba: la chapa se abolla (guion 3)
-  if (G == 3 && abs(p.x) < 1.3 && abs(p.z) < 1.3) {
-    float ultimo;
-    float n2 = golpesTecho(t, ultimo);
-    if (n2 > 0.0) {
-      int etapa = int(clamp(n2 * 1.6, 0.0, 9.0));
-      vec4 gr = cara(GRIETA0 + etapa, p.xz * 0.8 + 0.5);
-      c *= mix(vec3(1.0), gr.rgb * 1.6, gr.a * 0.85);
-    }
   }
   return c;
 }
@@ -790,21 +657,16 @@ void particulas(inout vec3 col, Camara c, vec2 uv, float zEscena, float t) {
 }
 
 void particulasF(inout vec3 col, Camara c, vec2 uv, float zEscena, float t) {
-  float ultimo;
-  float n = golpesTecho(t, ultimo);
-  // polvo del techo: en cada frenazo (guion 2) y con cada golpe de arriba (guion 3)
+  // polvo del techo en cada frenazo
   for (int i = 0; i < 24; i++) {
     float fi = float(i);
-    float t0;
-    if (G == 2) t0 = i < 12 ? A_FRENO : A_FRENA;
-    else t0 = i < 18 ? (n > 0.0 ? ultimo : -10.0) : B_LURCH;
+    float t0 = i < 12 ? A_FRENO : A_FRENA;
     float u = t - t0 - h1(fi * 3.3) * 0.5;
     if (u < 0.0 || u > 2.4) continue;
     vec3 P = vec3((h1(fi + floor(t0)) - 0.5) * 3.6, 3.95 - u * 1.1, (h1(fi * 1.9 + floor(t0)) - 0.5) * 3.6);
-    vec3 tinte = vec3(0.75, 0.72, 0.65) * (0.25 + 0.7 * lampara(t) + emergencia(t) * 0.3 + noche(t) * 0.6);
+    vec3 tinte = vec3(0.75, 0.72, 0.65) * (0.25 + 0.7 * lampara(t) + emergencia(t) * 0.3);
     particula(col, c, uv, zEscena, P, 0.07, P_POLVO, tinte, 1.0);
   }
-  if (G != 2) return;
   // chispas del panel con cada golpe
   for (int k = 0; k < 3; k++) {
     float t0 = k == 0 ? A_GOLPE1 : k == 1 ? A_GOLPE2 : A_GOLPE3;
@@ -838,20 +700,17 @@ void particulasF(inout vec3 col, Camara c, vec2 uv, float zEscena, float t) {
 
 /* ---------------------------------------------------------- escena */
 
-// guiones 2 y 3: un jugador de pie en medio del ascensor de salida, con la videocamara
+// guion 2: un jugador de pie en medio del ascensor de salida, con la videocamara
 vec3 escenaF(vec2 uv, float t) {
-  float ultimo;
-  float n = golpesTecho(t, ultimo);
   float sac = 0.004;
-  if (G == 2 && t > A_CAE && t < A_FRENA + 0.6) sac = 0.03;
-  if (G == 3) sac += 0.012 * exp(-max(0.0, t - ultimo) * 5.0) + 0.02 * step(B_SALTA, t);
+  if (t > A_CAE && t < A_FRENA + 0.6) sac = 0.03;
   vec3 sh = (vec3(ruido(vec2(t * 13.0, 1.0)), ruido(vec2(t * 11.0, 5.0)), ruido(vec2(t * 9.0, 9.0))) - 0.5) * 2.0 * sac;
   vec3 ro = vec3(0.0, 1.62, 0.0) + sh;
   // empieza mirando al panel que acaba de pulsar y se gira hacia las puertas
   float yaw = 3.14159 * (1.0 - smoothstep(0.9, 2.1, t));
   float pitch = -0.08;
   float roll = sh.z * 2.0;
-  if (G == 2) {
+  {
     // frenazo: se gira al panel, lo arregla a golpes, vuelve a mirar a las puertas
     yaw += 3.14159 * smoothstep(A_GIRO, A_GIRO + 1.3, t) + 3.14159 * smoothstep(A_VUELTA, A_VUELTA + 1.3, t);
     pitch -= 0.1 * smoothstep(A_GIRO, A_GIRO + 1.3, t) * (1.0 - smoothstep(A_VUELTA, A_VUELTA + 1.3, t));
@@ -869,15 +728,6 @@ vec3 escenaF(vec2 uv, float t) {
     ro.z -= 1.9 * anda;
     ro.y += 0.035 * sin(t * 9.0) * step(A_ANDA, t);
     pitch -= 0.05 * anda;
-  } else {
-    // mira al techo mientras golpean y vuelve a las puertas cuando hay luz
-    float arriba = smoothstep(B_MIRA, B_MIRA + 0.8, t) * (1.0 - smoothstep(B_LUZ, B_LUZ + 1.2, t));
-    pitch += 0.75 * arriba;
-    yaw += 0.15 * arriba * sin(t * 0.7);
-    roll += golpe(t, ultimo, 0.08) + golpe(t, B_LURCH, 0.3) + golpe(t, B_PORTAZO, 0.12) + golpe(t, B_SALTA, 0.4);
-    ro.y -= 0.12 * abs(golpe(t, ultimo, 1.0)) + 0.3 * abs(golpe(t, B_LURCH, 1.0));
-    // se asoma a la abertura... y retrocede cuando se le echa encima
-    ro.z -= 0.6 * smoothstep(B_ABRE + 1.5, B_CARA + 0.8, t) - 0.9 * smoothstep(B_SALTA, B_SALTA + 0.2, t);
   }
   vec3 f = normalize(vec3(sin(yaw) * cos(pitch), sin(pitch), -cos(yaw) * cos(pitch)));
   vec3 r = normalize(cross(f, vec3(0.0, 1.0, 0.0)));
@@ -977,10 +827,6 @@ void main() {
   float glitch;
   if (G == 2) {
     glitch = 0.12 + abs(golpe(t, A_FRENO, 0.6) + golpe(t, A_GOLPE3, 0.3) + golpe(t, A_FRENA, 0.9)) + 0.6 * smoothstep(A_FIN - 1.0, A_FIN, t);
-  } else if (G == 3) {
-    float ultimo;
-    golpesTecho(t, ultimo);
-    glitch = 0.15 + abs(golpe(t, B_PORTAZO, 0.5) + golpe(t, ultimo, 0.4) + golpe(t, B_LURCH, 1.0) + golpe(t, B_SALTA, 1.2)) + 0.25 * noche(t);
   } else {
     glitch = 0.12 + abs(golpe(t, T_ATASCO, 0.6) + golpe(t, T_ROTURA, 0.9) + golpe(t, T_PUERTAS, 0.6));
     glitch += 0.3 * smoothstep(T_ROTURA, T_IMPACTO, t);
@@ -1005,18 +851,9 @@ void main() {
       }
     }
   } else {
-    // vision nocturna: verde, granulada y con el foco infrarrojo en el centro
-    float nv = noche(t);
-    if (nv > 0.0) {
-      float lum = dot(col, vec3(0.3, 0.59, 0.11));
-      vec2 v0 = uv01 - 0.5;
-      float foco = 1.15 - dot(v0, v0) * 1.6;
-      float grano = (h2(frag * 0.5 + floor(t * 24.0) * 13.0) - 0.5) * 0.18;
-      col = vec3(0.32, 1.0, 0.42) * clamp(lum * 1.7 * foco + grano + 0.02, 0.0, 1.2);
-    }
     // el final de la cinta: la imagen se rompe en nieve y negro
-    float fin = G == 2 ? A_FIN : B_FIN;
-    float rompe = G == 2 ? smoothstep(fin - 0.6, fin, t) : smoothstep(B_SALTA + 0.25, B_SALTA + 0.4, t);
+    float fin = A_FIN;
+    float rompe = smoothstep(fin - 0.6, fin, t);
     if (rompe > 0.0) {
       float n = h2(floor(frag / vec2(3.0, 1.0)) + floor(t * 50.0));
       col = mix(col, vec3(n) * 0.85, rompe);

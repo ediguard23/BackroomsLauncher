@@ -35,10 +35,11 @@ import net.minecraft.server.level.ServerPlayer;
  *  misiones completar <jugador>  da por hecha la mision en curso (pruebas)
  *  misiones olvidar <jugador>    le quita las misiones
  *  cinematica [jugador]      le pone la cinematica del ascensor, sin viaje
+ *  cinematica piscinas [jugador]  la de la bajada a las Piscinas, sin viaje
  *  apagon|alarma [segundos]  fuerza un apagon o una alarma en la fase donde estas
  *  luz                       vuelve la luz normal
  *  ambiente [auto on|off]    como esta la luz y si los sucesos van solos
- *  fase <n> [jugador]        lo manda ya a la fase n con misiones nuevas
+ *  fase <n> [jugador]        lo manda ya a la fase n con misiones nuevas (solo queda la 1)
  *  vestibulo [jugador]       lo lleva al vestibulo; "vestibulo rehacer" repone los rotulos
  *  muerte eliminar|reaparecer  morir saca de la expedicion (por defecto) o reaparece en la fase
  *  perdonar                   quita el ban a todos los que cayeron (al acabar el evento o tras una prueba)
@@ -91,11 +92,11 @@ public final class Comandos {
 				})))
 			.then(Commands.literal("cinematica")
 				.executes(c -> cinematica(c, c.getSource().getPlayerOrException()))
-				// la bajada a la fase 2, 3 o 4 tal como la ve quien la hace (sin viajar)
-				.then(Commands.literal("fase").then(Commands.argument("n", IntegerArgumentType.integer(2, 4))
-					.executes(c -> cinematicaFase(c, c.getSource().getPlayerOrException(), IntegerArgumentType.getInteger(c, "n")))
+				// la bajada a las Piscinas tal como la ve quien la hace (sin viajar)
+				.then(Commands.literal("piscinas")
+					.executes(c -> cinematicaPiscinas(c, c.getSource().getPlayerOrException()))
 					.then(Commands.argument("jugador", EntityArgument.player())
-						.executes(c -> cinematicaFase(c, EntityArgument.getPlayer(c, "jugador"), IntegerArgumentType.getInteger(c, "n"))))))
+						.executes(c -> cinematicaPiscinas(c, EntityArgument.getPlayer(c, "jugador")))))
 				.then(Commands.argument("jugador", EntityArgument.player())
 					.executes(c -> cinematica(c, EntityArgument.getPlayer(c, "jugador")))))
 			.then(Commands.literal("apagon")
@@ -269,10 +270,10 @@ public final class Comandos {
 		return n;
 	}
 
-	private static int cinematicaFase(CommandContext<CommandSourceStack> c, ServerPlayer j, int n) {
-		Fase f = Fase.numero(n);
-		net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(j, new net.backrooms.evento.red.ViajeAscensor(f.numero(), f.nombre(), f.dificultad()));
-		c.getSource().sendSuccess(() -> Component.literal("Bajada a la fase " + n + " para " + j.getGameProfile().name() + " (solo la animacion)"), false);
+	private static int cinematicaPiscinas(CommandContext<CommandSourceStack> c, ServerPlayer j) {
+		net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(j, new net.backrooms.evento.red.ViajeAscensor(
+			net.backrooms.evento.red.ViajeAscensor.PISCINAS, "NIVEL 37", "LAS PISCINAS"));
+		c.getSource().sendSuccess(() -> Component.literal("Bajada a las Piscinas para " + j.getGameProfile().name() + " (solo la animacion)"), false);
 		return 1;
 	}
 

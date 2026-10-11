@@ -161,7 +161,7 @@ public class PantallaCinematica extends Screen {
 		float tam = h / 16.0F;
 		float m = h / 20.0F;
 		// al caer (y en los golpes fuertes), el HUD tiembla con la imagen
-		boolean tiembla = guion == 2 ? t > 20.4F && t < 22.3F : guion == 3 ? t > 24.6F || (t > 18.6F && t < 19.2F) : t > 26.5F;
+		boolean tiembla = guion == 2 ? t > 20.4F && t < 22.3F : t > 26.5F;
 		float dx = tiembla ? (float) Math.sin(t * 53.0) * h / 160.0F : 0.0F;
 		float dy = tiembla ? (float) Math.cos(t * 41.0) * h / 200.0F : 0.0F;
 		int blanco = 0xFFF2EEE4;
@@ -170,7 +170,7 @@ public class PantallaCinematica extends Screen {
 		}
 		Texto.hud(g, "REC", m + dx + tam * 0.8F, m + dy, tam, 0.08F, blanco);
 		// la misma cinta de la expedicion: cada bajada va mas adelante en el contador
-		int s = (guion == 2 ? 52 * 60 + 40 : guion == 3 ? 58 * 60 + 5 : 47 * 60 + 13) + (int) t;
+		int s = (guion == 2 ? 52 * 60 + 40 : 47 * 60 + 13) + (int) t;
 		String contador = String.format(Locale.ROOT, "0:%02d:%02d", s / 60, s % 60);
 		Texto.hud(g, contador, w - m + dx - Texto.anchoHud(contador, tam, 0.08F), m + dy, tam, 0.08F, blanco);
 		// bateria: al caer se queda en la ultima raya, parpadeando
@@ -180,8 +180,6 @@ public class PantallaCinematica extends Screen {
 		int rayas;
 		if (guion == 2) {
 			rayas = t < 20.4F ? 3 : t < 21.6F ? 2 : ((int) (t * 3) % 2 == 0 ? 2 : 1);
-		} else if (guion == 3) {
-			rayas = t < 9.2F ? 2 : t < 18.6F ? 1 : ((int) (t * 3) % 2 == 0 ? 1 : 0);
 		} else {
 			rayas = t < 20.0F ? 3 : t < 26.5F ? 2 : ((int) (t * 3) % 2 == 0 ? 1 : 0);
 		}
@@ -192,12 +190,9 @@ public class PantallaCinematica extends Screen {
 		Texto.hud(g, "PM 8:59", m + dx, h - m + dy - tam * 2.1F, tam, 0.08F, blanco);
 		Texto.hud(g, this.fecha, m + dx, h - m + dy - tam, tam, 0.08F, blanco);
 		Texto.hud(g, "SP", w - m + dx - Texto.anchoHud("SP", tam, 0.08F), h - m + dy - tam, tam, 0.08F, blanco);
-		if (guion == 3 && t >= 9.8F && t < 19.6F) {
-			Texto.hud(g, "NIGHT SHOT", m + dx, m + dy + tam * 1.3F, tam * 0.8F, 0.08F, 0xFFB8FFB0);
-		}
 	}
 
-	/** "FASE n" y el nombre del sector en el negro de una bajada de fase. */
+	/** "NIVEL 37" y "LAS PISCINAS" en el negro de la bajada por el ascensor de salida. */
 	private void tituloFase(GuiGraphics g, float t, int guion) {
 		float fc = CinematicaCliente.finCinta();
 		float fin = CinematicaCliente.fin();
@@ -205,13 +200,12 @@ public class PantallaCinematica extends Screen {
 		if (a <= 0.01F) {
 			return;
 		}
-		net.backrooms.evento.fase.Fase fase = net.backrooms.evento.fase.Fase.numero(guion);
 		int alfa = Math.round(a * 235) << 24;
 		float tam = this.height / 8.0F;
-		String titulo = "FASE " + guion;
+		String titulo = "NIVEL 37";
 		float y = this.height * 0.36F;
 		Texto.hud(g, titulo, this.width / 2.0F - Texto.anchoHud(titulo, tam, 0.16F) / 2.0F, y, tam, 0.16F, alfa | 0xE8D9A0);
-		String sub = fase.nombre() + " · DIFICULTAD " + fase.dificultad();
+		String sub = "LAS PISCINAS";
 		float ts = tam * 0.32F;
 		Texto.hud(g, sub, this.width / 2.0F - Texto.anchoHud(sub, ts, 0.25F) / 2.0F, y + tam * 1.1F, ts, 0.25F, alfa | 0xC8BC90);
 	}

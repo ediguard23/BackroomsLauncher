@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * Bandas sonoras de las bajadas a la fase 2 y a la fase 3, sincronizadas con
- * los guiones 2 y 3 de evento/.../shaders/core/cinematica.fsh (y los tiempos de
- * CinematicaCliente.java y Fases#bajada). Los instrumentos son los de
- * cinematica.js (la del /start).
+ * Banda sonora de la bajada por el ascensor de salida (a las Piscinas desde la 0.10.0;
+ * antes, a la fase 2), sincronizada con el guion 2 de evento/.../shaders/core/cinematica.fsh
+ * (y los tiempos de CinematicaCliente.java y Fases#bajada). Los instrumentos son los de
+ * cinematica.js (la del /start). La de la fase 3 se quito con esa fase.
  *
- * Fase 2 (33 s), "el ascensor que hay que arreglar":
+ * "El ascensor que hay que arreglar" (33 s):
  *   0.9 pitido del panel; 2.0 se cierran las puertas sobre el Nivel 0 (zumbido de tubos)
  *   3.6 arranca, musica de ascensor por el altavoz
  *   7.6 FRENAZO: se va la luz, alarma, pitidos de error
@@ -16,20 +16,12 @@
  *  24.5 sector B: goteras, tubos que fallan; 25.5 pasos sobre moqueta mojada; 27.8 se corta
  *  28.9 golpe grave y acorde del titulo FASE 2
  *
- * Fase 3 (30.6 s), "algo en el hueco":
- *   0.6 sector B; 1.4 pasos pesados de algo que cruza el pasillo; 2.0 se cierran las puertas
- *   3.6 baja despacio, el cable cruje; 8.6 apagon (se apaga todo); 9.8 vision nocturna
- *  11.5 garras en las puertas (chirrido de metal) y respiracion; 12.9 portazo
- *  14.6-18.1 golpes en el techo; 18.6 se escurre; 19.6 vuelve la luz roja y la alarma
- *  21.2 las puertas se abren solas; 23.6 silencio... 24.6 SUSTO; 25.4 se corta
- *  25.9 golpe y acorde del titulo FASE 3
- *
  * Todo es sintesis propia. Sale a evento/src/main/resources/assets/backrooms_evento/
- * sounds/cinematica_fase2.ogg y cinematica_fase3.ogg, y lo de despues del viaje
- * (Fases#bajada: 28.2 y 25.8 s) a cinematica_fase2_despues.ogg y _fase3_despues.ogg:
+ * sounds/cinematica_fase2.ogg, y lo de despues del viaje (Fases#bajada: 28.2 s) a
+ * cinematica_fase2_despues.ogg:
  * Minecraft corta todo al cambiar de mundo y el cliente lo pone al llegar.
  *
- *   node tools/sonidos/cinematica-fases.js [2|3]
+ *   node tools/sonidos/cinematica-fases.js
  */
 
 const fs = require('fs');
@@ -387,103 +379,12 @@ function fase2 () {
 // la musica tras el arreglo suena hasta que se escurre
 function A_SIN (cae) { return cae - 0.1; }
 
-/* ---------------------------------------------- fase 3: algo en el hueco */
-
-function fase3 () {
-  const DUR = 30.9;
-  const A = mesa(DUR);
-  const APAGON = 8.6;
-  const NOCHE = 9.8;
-  const GARRAS = 11.5;
-  const PORTAZO = 12.9;
-  const GOLPES = [14.6, 15.4, 16.0, 17.0, 17.5, 18.1];
-  const LURCH = 18.6;
-  const LUZ = 19.6;
-  const ABRE = 21.2;
-  const CARA = 23.6;
-  const SALTA = 24.6;
-  const FIN = 25.4;
-
-  camaraEnciende(A, 3001);
-  // el sector B: tubos que fallan y goteras
-  A.poner(0.5, 3.2, tubos((ta) => suave(0.5, 1.0, ta) * (0.5 + 0.5 * (Math.sin(ta * 11.0) > 0 ? 1 : 0)) * (1 - 0.85 * suave(2.0, 3.4, ta)), 3002), { g: -14, sala: 0.5 });
-  for (const tg of [0.7, 1.25, 2.1, 2.9]) A.poner(tg, 0.4, gota(Math.round(tg * 1000)), { g: -18, pan: 0.4, sala: 0.8 });
-  // algo cruza el fondo del pasillo: pisadas enormes y un resuello, de izquierda a derecha
-  [1.45, 1.95, 2.45].forEach((tp, k) => A.poner(tp, 0.9, pisadaGrande(3010 + k), { g: -10 + k, pan: -0.6 + k * 0.6, sala: 0.6, grande: 0.3 }));
-  A.poner(1.4, 1.6, resuello(1.6, 3013), { g: -16, pan: 0, sala: 0.6 });
-  A.poner(0.9, 0.09, pitido(1320, 0.09), { g: -16 });
-  A.poner(1.05, 0.12, pitido(990, 0.12), { g: -16 });
-  puertasCierran(A, 2.0, 3.4, 3020);
-
-  // baja despacio; el cable cruje
-  A.poner(3.6, APAGON + 0.4 - 3.6, motor(3.6, APAGON, 38, 3030), { g: -10 });
-  [[4.8, 1.4, 90, 70, 1], [6.3, 1.8, 120, 85, 2], [7.6, 1.1, 160, 130, 3]].forEach(([t0, d, f0, f1, s]) => A.poner(t0, d, crujido(d, f0, f1, 3030 + s), { g: -9, pan: s % 2 ? 0.4 : -0.4, sala: 0.6 }));
-  for (const t0 of [7.95, 8.2, 8.45]) A.poner(t0, 0.18, chispazoSonido(Math.round(t0 * 100), 0.18), { g: -15, sala: 0.3 });
-  // APAGON: todo se apaga con un quejido electrico
-  { let f = 0; A.poner(APAGON, 1.4, (t) => { f += (420 * Math.exp(-t * 2.2) + 30) / SR; return Math.sin(TAU * f) * Math.exp(-t * 1.6) * 0.5; }, { g: -9, grande: 0.3 }); }
-  A.poner(APAGON, 0.05, (t) => (Math.random() * 2 - 1) * Math.exp(-t * 120), { g: -7 });
-  // a oscuras: latidos y respiracion que se acelera
-  for (let tl = APAGON + 0.5, p = 0.85; tl < LUZ; tl += p, p = Math.max(0.5, p * 0.97)) A.poner(tl, 0.5, latido, { g: -11 });
-  A.poner(APAGON + 0.3, LUZ - APAGON, respiracion(1.15, 3040, 1.1), { g: -18 });
-  // la videocamara cambia a vision nocturna: pitido y el silbido del infrarrojo
-  A.poner(NOCHE, 0.07, pitido(1800, 0.07), { g: -15 });
-  A.poner(NOCHE + 0.12, 0.07, pitido(2400, 0.07), { g: -15 });
-  A.poner(NOCHE, LUZ - NOCHE, (t) => Math.sin(TAU * 15700 * t) * 0.05 * suave(0, 0.3, t), { g: -24 });
-  // algo se arrastra por el hueco
-  A.poner(10.3, 1.4, crujido(1.4, 2200, 1700, 3050, { q: 40, densidad: 0.8 }), { g: -18, pan: -0.3, sala: 0.8 });
-  // GARRAS en las puertas: chirrido de metal y un resuello pegado
-  A.poner(GARRAS, PORTAZO - GARRAS, crujido(PORTAZO - GARRAS, 2600, 3300, 3060, { q: 50, densidad: 1.4 }), { g: -10, sala: 0.5 });
-  A.poner(GARRAS + 0.3, PORTAZO - GARRAS, crujido(PORTAZO - GARRAS, 140, 110, 3061, { q: 12, densidad: 1.8 }), { g: -9, sala: 0.4 });
-  A.poner(GARRAS + 0.2, PORTAZO - GARRAS, resuello(PORTAZO - GARRAS, 3062), { g: -9, sala: 0.3 });
-  A.poner(PORTAZO, 2.0, golpeMetal(130, { caida: 0.8, ruido: 1.4, semilla: 3063 }), { g: -2, sala: 0.6, grande: 0.3 });
-  A.poner(PORTAZO, 1.2, bum(120, 45, 0.4, { click: 0.8, semilla: 3064 }), { g: -3 });
-  // golpes en el techo
-  GOLPES.forEach((t0, k) => {
-    A.poner(t0, 1.6, bum(95 - k * 3, 36, 0.5, { click: 0.7, semilla: 3070 + k }), { g: -3 + k * 0.4, grande: 0.25 });
-    A.poner(t0, 1.4, golpeMetal(110 + k * 7, { caida: 0.6, ruido: 0.8, semilla: 3080 + k }), { g: -6 + k * 0.4, sala: 0.6 });
-    const r = D.azar(3090 + k);
-    const hp = new D.Biquad('hp', 3000, 0.7);
-    A.poner(t0 + 0.05, 1.6, (t) => hp.paso(r() < 300 * Math.exp(-t * 1.8) / SR ? r() * 2 - 1 : 0) * 2, { g: -18 });
-  });
-  A.poner(14.4, LURCH - 14.4, resuello(LURCH - 14.4, 3100), { g: -14, sala: 0.7 });
-  // SE ESCURRE
-  A.poner(LURCH, 1.2, crujido(1.2, 260, 120, 3111, { q: 20, densidad: 2 }), { g: -5, sala: 0.6 });
-  A.poner(LURCH + 0.22, 1.5, bum(100, 34, 0.6, { click: 0.8, semilla: 3112 }), { g: -2 });
-  A.poner(LURCH + 0.22, 2.0, golpeMetal(90, { caida: 1.0, ruido: 1.2, semilla: 3113 }), { g: -4, sala: 0.6, grande: 0.2 });
-  // VUELVE LA LUZ: rele, zumbido de emergencia y alarma lenta
-  A.poner(LUZ, 0.05, (t) => (Math.random() * 2 - 1) * Math.exp(-t * 150), { g: -9, pan: -0.3 });
-  A.poner(LUZ, FIN - LUZ, tubos((ta) => 0.5 + 0.5 * (Math.sin(ta * 7.0) > -0.6 ? 1 : 0), 3120), { g: -16 });
-  for (const t0 of [LUZ + 0.4, LUZ + 2.4]) A.poner(t0, 1.1, alarma(980), { g: -14, pan: 0.3, sala: 0.6 });
-  // LAS PUERTAS SE ABREN SOLAS
-  puertasAbren(A, ABRE, 2.0, 3130, -9);
-  // silencio... un tono que no deberia estar ahi
-  { let f = 0; A.poner(ABRE + 1.6, SALTA - ABRE - 1.6, (t) => { f += (2100 + 900 * t / 3) / SR; return Math.sin(TAU * f) * suave(0, 2.0, t) * 0.08; }, { g: -18, grande: 0.4 }); }
-  for (let tl = ABRE + 0.4, p = 0.6; tl < SALTA; tl += p, p = Math.max(0.36, p * 0.93)) A.poner(tl, 0.5, latido, { g: -9 });
-  // SUSTO: grito de metal y ruido, y la cinta se rompe
-  A.poner(SALTA, 2.0, braaam([25, 32, 37, 44, 49], 2.0, 3140), { g: 0, grande: 0.5 });
-  A.poner(SALTA, 1.2, bum(130, 40, 0.5, { click: 1.0, semilla: 3141 }), { g: 1 });
-  {
-    const r = D.azar(3142);
-    const bp1 = new D.Biquad('bp', 1100, 6);
-    const bp2 = new D.Biquad('bp', 2700, 7);
-    A.poner(SALTA, 0.9, (t) => {
-      const f = 1100 + 900 * Math.sin(t * 23);
-      if ((Math.round(t * SR)) % 64 === 0) { bp1.ajustar(f, 6); bp2.ajustar(f * 2.4, 7); }
-      const x = r() * 2 - 1;
-      return Math.tanh((bp1.paso(x) * 5 + bp2.paso(x) * 3) * 1.6) * Math.exp(-t / 0.6);
-    }, { g: -4, sala: 0.5 });
-  }
-  cintaCorta(A, FIN, 3150);
-  titulo(A, 25.9, [32, 39, 44, 47], 3160);
-  return mezclar(A);
-}
-
 /* ---------------------------------------------------------- salida */
 
 if (require.main === module) (async () => {
   const cual = process.argv[2];
   const hechos = [];
-  for (const [n, fn, viaje] of [[2, fase2, 28.2], [3, fase3, 25.8]]) {
+  for (const [n, fn, viaje] of [[2, fase2, 28.2]]) {
     if (cual && String(n) !== cual) continue;
     const t0 = Date.now();
     const audio = fn();

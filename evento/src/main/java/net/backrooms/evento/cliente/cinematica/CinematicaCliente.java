@@ -15,15 +15,13 @@ import net.minecraft.util.RandomSource;
  * pantalla que las dibuja, pone la banda sonora y dice cuanto se oye el mundo
  * y cuanto desenfoque lleva la vista al despertar.
  *
- * Hay tres guiones (el shader los lee de la V de los vertices):
+ * Hay dos guiones (el shader los lee de la V de los vertices):
  *   0  el /start (abajo)
- *   2  la bajada a la fase 2: el ascensor de salida se atasca, lo arreglas a
- *      golpes, vuelve a fallar y cae; se abre a medias al sector B
- *   3  la bajada a la fase 3: algo cruza el pasillo, apagon y vision
- *      nocturna, garras por la junta, golpes en el techo y una sonrisa
- * En los de las fases no se despierta: la cinta se rompe, negro con el
- * nombre de la fase (el servidor te lleva en ese negro, Fases#bajada) y se
- * vuelve a ver el mundo.
+ *   2  la bajada a las Piscinas por el ascensor de salida del Nivel 0: se
+ *      atasca, lo arreglas a golpes, vuelve a fallar y cae; se abre a medias
+ * En el 2 no se despierta: la cinta se rompe, negro con el nombre del nivel
+ * (el servidor te lleva en ese negro, Fases#bajada) y se vuelve a ver el mundo.
+ * (El guion 3, la bajada a la fase 3, se quito con esa fase en la 0.10.0.)
  *
  * Guion del /start (segundos):
  *   0 - 3.6    la videocamara se enciende; las puertas del ascensor se cierran
@@ -57,7 +55,7 @@ public final class CinematicaCliente {
 
 	/** Hasta cuando se ve la cinta. */
 	public static float finCinta() {
-		return guion == 2 ? 27.8F : guion == 3 ? 25.4F : FIN_CINTA;
+		return guion == 2 ? 27.8F : FIN_CINTA;
 	}
 
 	/** Cuando se despierta (solo el /start; en las fases, nunca). */
@@ -67,7 +65,7 @@ public final class CinematicaCliente {
 
 	/** Cuando se cierra la pantalla. */
 	public static float fin() {
-		return guion == 2 ? 33.0F : guion == 3 ? 30.6F : FIN;
+		return guion == 2 ? 33.0F : FIN;
 	}
 
 	public static void empezar() {
@@ -79,7 +77,7 @@ public final class CinematicaCliente {
 		if (activa()) {
 			terminar();
 		}
-		guion = g == 2 || g == 3 ? g : 0;
+		guion = g == 2 ? 2 : 0;
 		inicio = System.nanoTime();
 		// un aviso de la megafonia del vestibulo que estuviera sonando no sigue dentro del ascensor
 		mc.getSoundManager().stop(net.backrooms.evento.Sonidos.MEGAFONIA_VESTIBULO.location(), null);

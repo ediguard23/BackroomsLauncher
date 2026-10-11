@@ -53,15 +53,11 @@ public final class Fases {
 	public static final int BAJADA = 20 * 6;
 
 	/**
-	 * Ticks de la bajada a esa fase. A la 2 y a la 3 se baja con su cinematica
-	 * (CinematicaCliente, guiones 2 y 3): el viaje es cuando la cinta ya esta en negro.
+	 * Ticks de la bajada a esa fase o nivel. A las Piscinas se baja con su cinematica
+	 * (CinematicaCliente, guion 2): el viaje es cuando la cinta ya esta en negro.
 	 */
-	public static int bajada(int faseDestino) {
-		return switch (faseDestino) {
-			case 2 -> 564;
-			case 3 -> 516;
-			default -> BAJADA;
-		};
+	public static int bajada(int destino) {
+		return destino == net.backrooms.evento.red.ViajeAscensor.PISCINAS ? 564 : BAJADA;
 	}
 
 	public static Fases get() {

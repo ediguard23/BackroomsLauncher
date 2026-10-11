@@ -1,7 +1,22 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-08 (hora de Honduras). Mod `backrooms_evento` 0.9.12, launcher 1.0.0
+Última actualización: 2026-10-11 (hora de Honduras). Mod `backrooms_evento` 0.10.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.10.0, etapa 1: el Nivel 0 se queda con la fase 1 (2026-10-11; Bruno)
+
+Cambio de planificación (Bruno, con EdiGuard al tanto): el Nivel 0 deja de tener 4 fases para
+hacer sitio a niveles nuevos; el siguiente es **las Piscinas (Nivel 37)**. Quitado: las fases 2,
+3 y 4 de `Fase.TODAS` y sus dimensiones (`data/.../dimension/fase_2..4.json`), la cinemática de
+la bajada a la fase 3 (guion 3 de `cinematica.fsh`, su HUD «NIGHT SHOT», sus sonidos
+`cinematica_fase3*.ogg` y su parte de `tools/sonidos/cinematica-fases.js`). Se queda todo lo de
+la fase 1, y el sistema de fases (`Fase`/`Fases`) sigue admitiendo varias. La cinemática de la
+fase 2 (guion 2) pasa a ser la bajada a las Piscinas: su rótulo final dice «NIVEL 37 · LAS
+PISCINAS» y se ve con `/backrooms cinematica piscinas [jugador]` (antes `cinematica fase <n>`).
+**Probado** en el servidor de Bruno: /start todos → Nivel 0 con sus 3 misiones y casetes, la
+Bacteria aparece, el ascensor de salida deniega sin misiones y con ellas (antes de la etapa 2)
+escapaba; la cinemática del guion 2 compila y se ve entera. En los mundos viejos quedan sin usar
+las carpetas `dimensions/backrooms_evento/fase_2..4`: se pueden borrar.
 
 ## Nuevo lore: PROYECTO UMBRAL (2026-10-08; Bruno)
 

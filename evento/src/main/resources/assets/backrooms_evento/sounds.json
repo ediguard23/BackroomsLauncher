@@ -377,24 +377,10 @@
       }
     ]
   },
-  "cinematica.fase3": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:cinematica_fase3"
-      }
-    ]
-  },
   "cinematica.fase2.despues": {
     "sounds": [
       {
         "name": "backrooms_evento:cinematica_fase2_despues"
-      }
-    ]
-  },
-  "cinematica.fase3.despues": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:cinematica_fase3_despues"
       }
     ]
   },
