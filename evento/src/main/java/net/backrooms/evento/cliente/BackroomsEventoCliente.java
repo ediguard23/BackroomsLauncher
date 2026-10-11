@@ -8,7 +8,9 @@ import net.backrooms.evento.cliente.cinematica.PantallaCinematica;
 import net.backrooms.evento.cliente.efectos.Cordura;
 import net.backrooms.evento.cliente.entidad.BacteriaRenderer;
 import net.backrooms.evento.cliente.entidad.MallaBacteria;
+import net.backrooms.evento.cliente.entidad.MallaSerpiente;
 import net.backrooms.evento.cliente.entidad.MallaSmiler;
+import net.backrooms.evento.cliente.entidad.SerpienteRenderer;
 import net.backrooms.evento.cliente.entidad.SmilerRenderer;
 import net.backrooms.evento.red.EstadoJugador;
 import net.backrooms.evento.red.Susto;
@@ -52,8 +54,10 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		EntityRenderers.register(Entidades.COMIDA, ComidaRenderer::new);
 		EntityRenderers.register(Entidades.BACTERIA, BacteriaRenderer::new);
 		EntityRenderers.register(Entidades.SMILER, SmilerRenderer::new);
+		EntityRenderers.register(Entidades.SERPIENTE, SerpienteRenderer::new);
 		EntityModelLayerRegistry.registerModelLayer(BacteriaRenderer.CAPA, MallaBacteria::crear);
 		EntityModelLayerRegistry.registerModelLayer(SmilerRenderer.CAPA, MallaSmiler::crear);
+		EntityModelLayerRegistry.registerModelLayer(SerpienteRenderer.CAPA, MallaSerpiente::crear);
 		// los tubos encendidos se tinen: grises en el apagon, rojos con la alarma
 		ColorProviderRegistry.BLOCK.register((estado, mundo, pos, tinte) -> AmbienteCliente.colorTubos(),
 			Bloques.FLUORESCENTE, Bloques.FLUORESCENTE_PARPADEO);

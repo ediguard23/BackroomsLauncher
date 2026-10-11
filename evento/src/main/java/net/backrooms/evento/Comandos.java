@@ -47,6 +47,7 @@ import net.minecraft.server.level.ServerPlayer;
  *  muerte eliminar|reaparecer  morir saca de la expedicion (por defecto) o reaparece en la fase
  *  perdonar                   quita el ban a todos los que cayeron (al acabar el evento o tras una prueba)
  *  escapados [olvidar]       quienes han escapado y en que puesto
+ *  invocar bacteria|smiler|serpiente  la pone delante (la Serpiente, quieta: aun no tiene IA)
  *
  * Y /start [jugadores]: manda al Nivel 0 a todos (los que no esten en
  * creativo ni espectador) o a los indicados, poco a poco y con cinematica.
@@ -125,7 +126,8 @@ public final class Comandos {
 						return 0;
 					}
 					return 1;
-				})))
+				}))
+				.then(Commands.literal("serpiente").executes(c -> invocarSerpiente(c.getSource().getPlayerOrException()))))
 			.then(Commands.literal("acechadores").then(Commands.argument("si", BoolArgumentType.bool()).executes(c -> {
 				boolean si = BoolArgumentType.getBool(c, "si");
 				net.backrooms.evento.entidad.Acechadores.get().activos(si);
@@ -276,6 +278,31 @@ public final class Comandos {
 		int segundos = (int) Math.ceil(n / 3.0 * 0.5) + 55;
 		c.getSource().sendSuccess(() -> Component.literal("Empieza la expedicion: " + n + " jugadores, todos dentro en unos " + segundos + " s."), true);
 		return n;
+	}
+
+	/**
+	 * Pone la Serpiente 7 bloques por delante, mirando al jugador. Sobre el agua se
+	 * queda medio hundida; en seco, tumbada en el suelo. No se mueve (aun no tiene IA).
+	 */
+	private static int invocarSerpiente(ServerPlayer j) {
+		net.minecraft.server.level.ServerLevel nivel = j.level();
+		net.minecraft.world.phys.Vec3 p = j.position().add(j.getViewVector(1.0F).multiply(1, 0, 1).normalize().scale(7));
+		net.minecraft.core.BlockPos.MutableBlockPos b = net.minecraft.core.BlockPos.containing(p.x, j.getEyeY(), p.z).mutable();
+		while (b.getY() > nivel.getMinY() && nivel.getBlockState(b).isAir()) {
+			b.move(net.minecraft.core.Direction.DOWN);
+		}
+		boolean agua = nivel.getFluidState(b).is(net.minecraft.tags.FluidTags.WATER);
+		double y = agua ? b.getY() + 0.4 : b.getY() + 1.0;
+		var s = net.backrooms.evento.mision.Entidades.SERPIENTE.create(nivel, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+		if (s == null) {
+			return 0;
+		}
+		float mira = j.getYRot() + 180.0F;
+		s.snapTo(p.x, y, p.z, mira, 0.0F);
+		s.setYHeadRot(mira);
+		s.setYBodyRot(mira);
+		nivel.addFreshEntity(s);
+		return 1;
 	}
 
 	/** Las salas de las Piscinas por su nombre en el comando, en el orden de PlanoPiscinas. */

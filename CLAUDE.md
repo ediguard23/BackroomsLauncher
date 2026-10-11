@@ -43,7 +43,8 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
       expedicion/                el /start (cinemática y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas
-      entidad/                   Bacteria (caza, retirada, agarre), Smiler y quién aparece dónde (Acechadores)
+      entidad/                   Bacteria (caza, retirada, agarre), Smiler y quién aparece dónde (Acechadores);
+                                 la Serpiente de las Piscinas (de momento solo el modelo, sin IA)
       escondite/                 las paredes huecas (Hueco) y quién está escondido (Escondites)
       supervivencia/             cordura, estamina, comida, agua de almendras
       objetos/                   traje, linterna, cámara, comida
@@ -54,7 +55,7 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
   src/main/resources/assets/     texturas, modelos, sonidos, shaders (casi todo GENERADO)
 tools/
   texturas/*.js                  dibujan las texturas y modelos (npm run texturas)
-  texturas/entidades.js          modelos de Bacteria y Smiler -> genera Malla*.java (no editarlos a mano)
+  texturas/entidades.js          modelos de Bacteria, Smiler y Serpiente -> genera Malla*.java (no editarlos a mano)
   texturas/huecos.js             las paredes huecas: tabiques, boquetes rotos, interior (multipart)
   texturas/piscinas.js           bloques de las Piscinas (azulejo, causticas animadas, luces...)
   sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros);

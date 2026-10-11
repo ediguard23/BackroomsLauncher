@@ -26,6 +26,10 @@ public final class Entidades {
 	public static final EntityType<net.backrooms.evento.entidad.Smiler> SMILER = registrar("smiler",
 		EntityType.Builder.<net.backrooms.evento.entidad.Smiler>of(net.backrooms.evento.entidad.Smiler::new, MobCategory.MONSTER)
 			.sized(0.7F, 2.2F).eyeHeight(1.95F).clientTrackingRange(8));
+	/** La Serpiente de las Piscinas: la caja cubre la parte alzada (el craneo queda a ~3 bloques); la cola va tumbada detras. */
+	public static final EntityType<net.backrooms.evento.entidad.Serpiente> SERPIENTE = registrar("serpiente",
+		EntityType.Builder.<net.backrooms.evento.entidad.Serpiente>of(net.backrooms.evento.entidad.Serpiente::new, MobCategory.MONSTER)
+			.sized(1.5F, 3.2F).eyeHeight(2.7F).clientTrackingRange(10));
 
 	/** Comida tirada en la moqueta (agua de almendras, galletas, pizza). */
 	public static final EntityType<net.backrooms.evento.supervivencia.ComidaEntidad> COMIDA = registrar("comida",
@@ -43,6 +47,7 @@ public final class Entidades {
 	public static void iniciar() {
 		net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(BACTERIA, net.backrooms.evento.entidad.Bacteria.atributos());
 		net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(SMILER, net.backrooms.evento.entidad.Smiler.atributos());
+		net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(SERPIENTE, net.backrooms.evento.entidad.Serpiente.atributos());
 		BackroomsEvento.LOG.info("Entidades registradas ({})", BuiltInRegistries.ENTITY_TYPE.getKey(CASETE));
 	}
 }

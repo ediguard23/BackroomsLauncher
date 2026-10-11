@@ -1,7 +1,29 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-11 (hora de Honduras). Mod `backrooms_evento` 0.11.0, launcher 1.0.0
+Última actualización: 2026-10-11 (hora de Honduras). Mod `backrooms_evento` 0.12.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.12.0, etapa 3: la entidad de las Piscinas (2026-10-11; Bruno)
+
+**La Serpiente** (`backrooms_evento:serpiente`; nombre provisional, se cambia en `lang` y en la
+clase), según la última imagen de referencia de Bruno: cuerpo larguísimo de azulejos blancos con
+la junta azul y anillos de azulejo azul, que se alza del agua (la cabeza a ~3 bloques), cola en S
+(unos 11 bloques en total), cuello con costillas al aire, un cráneo el doble de ancho que el
+cuello con la mandíbula abierta y los **ojos cian que brillan** (capa de ojos, como el Smiler: se
+ven a oscuras) y dos pares de brazos de hueso con garras. Modelo y textura generados en
+`tools/texturas/entidades.js` (`MallaSerpiente.java`, `serpiente.png`, `serpiente_brillo.png`);
+clases `entidad/Serpiente`, `cliente/entidad/SerpienteRenderer` y `ModeloSerpiente`.
+
+Solo modelo e integración, como se pidió: **sin IA, sin animaciones y sin sonidos** (NoAI,
+silenciosa). No aparece sola en ningún sitio (ni en el Nivel 0 ni en las Piscinas); el staff la
+pone con `/backrooms invocar serpiente` (7 bloques por delante, mirándote; sobre el agua queda
+medio hundida). Es invulnerable (salvo `/kill`), no se puede empujar ni desaparece al alejarse.
+La caja de choque cubre la parte alzada (1,5 x 3,2); la cola no choca.
+**Probado** en el servidor local: compila, el servidor arranca sin errores, se invoca en una sala
+de piscina y se ve de frente, de perfil y desde debajo del agua con los ojos brillando (capturas).
+Queda una puesta en el mundo de pruebas, en las Piscinas (-86.5, 40.4, 408.5).
+**Etapa 4 (pendiente)**: misiones de las Piscinas, sonidos propios (ambiente, la Serpiente),
+animaciones (nadar, alzarse, mandíbula, brazos) y su IA, y la salida del nivel.
 
 ## 0.11.0, etapa 2: las Piscinas (Nivel 37) (2026-10-11; Bruno)
 

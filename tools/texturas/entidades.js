@@ -1,7 +1,7 @@
 'use strict';
 /**
  * Modelos y texturas de las entidades del evento (mod evento/), dibujados
- * por codigo: la Bacteria y el Smiler.
+ * por codigo: la Bacteria y el Smiler (Nivel 0) y la Serpiente (las Piscinas).
  *
  *   node tools/texturas/entidades.js [carpeta-de-vistas]
  *
@@ -165,20 +165,157 @@ const SMILER = {
   ]
 };
 
+/* =========================================================== Serpiente */
+
+// La entidad de las Piscinas (referencia de Bruno): una serpiente larguisima hecha
+// de azulejos blancos con la junta azul y anillos de azulejo azul, que se alza del
+// agua con un craneo enorme de ojos cian que brillan, la mandibula abierta, un
+// cuello de costillas al aire y dos pares de brazos de hueso con garras. Tumbada
+// mide unos 11 bloques; alzada, la cabeza queda a unos 3 del suelo. Los ojos van
+// aparte (serpiente_brillo.png, capa de ojos, como el Smiler).
+
+/** Tramo del cuerpo que avanza hacia -z desde su pivote, con una junta que tapa el hueco de la curva. */
+function tramo (nombre, padre, piv, rot, w, h, l, banda = false) {
+  const cubos = [
+    [-w / 2, -h / 2, -l, w, h, l, 'teja'],
+    [-w / 2, -h / 2, -h / 2, w, h, h, 'teja', -0.3]
+  ];
+  if (banda) cubos.push([-w / 2, -h / 2, -l / 2 - 1.5, w, h, 3, 'teja_azul', 0.35]);
+  return [nombre, padre, piv, rot, cubos];
+}
+
+/** Tramo de la cola, tumbado: avanza hacia +z con la panza en el suelo (y = 7 del pivote). */
+function cola (nombre, padre, piv, giro, w, h, l, banda = false) {
+  const cubos = [
+    [-w / 2, 7 - h, 0, w, h, l, 'teja'],
+    [-w / 2, 7 - h, -w / 2, w, h, w, 'teja', -0.3]
+  ];
+  if (banda) cubos.push([-w / 2, 7 - h, l / 2 - 1.5, w, h, 3, 'teja_azul', 0.35]);
+  return [nombre, padre, piv, [0, giro, 0], cubos];
+}
+
+/** Brazo de hueso: humero, cubito y radio, la mano y cuatro falanges largas en garra. */
+function brazoHueso (lado, padre, piv, rot, largo, codo, abre) {
+  const s = lado === 'izq' ? 1 : -1;
+  const p = `${lado}_${padre}`;
+  const piezas = [
+    [`humero_${p}`, padre, piv, rot, [
+      [-1, 0, -1, 2, largo, 2, 'hueso'],
+      [-1.5, -1, -1.5, 3, 3, 3, 'hueso']
+    ]],
+    [`cubito_${p}`, `humero_${p}`, [0, largo, 0], [codo, 0, 0], [
+      [-1.5, 0, -0.5, 1, largo, 1, 'hueso'],
+      [0.5, 0, -0.5, 1, largo, 1, 'hueso'],
+      [-1.5, -1, -1, 3, 2, 2, 'hueso']
+    ]],
+    [`mano_${p}`, `cubito_${p}`, [0, largo, 0], [abre, 0, 0], [
+      [-2, 0, -1, 4, 2, 2, 'hueso']
+    ]]
+  ];
+  for (let k = 0; k < 4; k++) {
+    const x = -1.5 + k;
+    piezas.push([`falange_${p}_${k}`, `mano_${p}`, [x, 1.5, 0], [28, 0, s * (k - 1.5) * 14], [
+      [-0.5, 0, -0.5, 1, 4, 1, 'hueso'],
+      [-0.5, 3.5, -1.5, 1, 4, 1, 'falange']
+    ]]);
+  }
+  return piezas;
+}
+
+/** Costillas al aire en la panza (+y) de un tramo del cuello. */
+function costillas (nombre, padre, piv, rot, w, n) {
+  const cubos = [];
+  for (let k = 0; k < n; k++) {
+    const z = -2 - k * 3;
+    cubos.push([-w / 2 - 1, 0, z, 1, 4, 1, 'hueso']);
+    cubos.push([w / 2, 0, z, 1, 4, 1, 'hueso']);
+    cubos.push([-w / 2 - 1, 3.5, z, w + 2, 1, 1, 'hueso']);
+  }
+  return [nombre, padre, piv, rot, cubos];
+}
+
+const SERPIENTE = {
+  nombre: 'serpiente',
+  tex: [256, 256],
+  compartir: true,
+  vista: { esc: 2.5, ancho: 620, alto: 420, centro: 0.62 },
+  piezas: [
+    // donde el cuerpo empieza a alzarse, tumbado en el suelo
+    ['base', null, [0, 17, 6], [0, 0, 0], [
+      [-8, -7, -10, 16, 14, 12, 'teja']
+    ]],
+    // el tronco se alza (cada tramo, mas inclinado) y el cuello se dobla hacia delante
+    tramo('tronco1', 'base', [0, 0, -10], [-25, 0, 0], 16, 14, 12),
+    tramo('tronco2', 'tronco1', [0, 0, -12], [-30, 0, 0], 15, 14, 12, true),
+    tramo('tronco3', 'tronco2', [0, 0, -12], [-20, 0, 0], 14, 13, 12),
+    tramo('cuello1', 'tronco3', [0, 0, -12], [15, 0, 0], 14, 13, 11, true),
+    tramo('cuello2', 'cuello1', [0, 0, -11], [30, 0, 0], 13, 12, 10),
+    tramo('cuello3', 'cuello2', [0, 0, -10], [30, 0, 0], 12, 11, 8),
+    costillas('costillas2', 'cuello2', [0, 4.5, 0], [0, 0, 0], 13, 3),
+    costillas('costillas3', 'cuello3', [0, 4, 0], [0, 0, 0], 12, 2),
+    // el craneo, el doble de ancho que el cuello, mirando hacia abajo: hocico,
+    // pomulos, la fila de dientes y la mandibula abierta
+    ['craneo', 'cuello3', [0, -1, -6], [20, 0, 0], [
+      [-12, -14, -20, 24, 16, 20, 'craneo'],
+      [-9, -15.5, -17, 18, 2, 14, 'craneo'],
+      [-9, 2, -19, 18, 4, 14, 'craneo'],
+      [-13, -6, -17, 2, 6, 10, 'hueso'],
+      [11, -6, -17, 2, 6, 10, 'hueso'],
+      [-8, 6, -18.5, 16, 2, 1, 'colmillo'],
+      [-8.5, 6, -18, 1, 2, 11, 'colmillo'],
+      [7.5, 6, -18, 1, 2, 11, 'colmillo']
+    ]],
+    ['mandibula', 'craneo', [0, 5, -4], [22, 0, 0], [
+      [-8, 0, -15, 16, 3, 15, 'craneo'],
+      [-7.5, -2, -14.5, 15, 2, 1, 'colmillo'],
+      [-7.5, -2, -13.5, 1, 2, 10, 'colmillo'],
+      [6.5, -2, -13.5, 1, 2, 10, 'colmillo']
+    ]],
+    // brazos: el par de delante sale del cuello y se estira hacia delante; el de
+    // atras, mas corto, apoya las garras en el suelo
+    ...brazoHueso('izq', 'cuello1', [7, 3, -5], [-10, 0, -30], 15, -42, 34),
+    ...brazoHueso('der', 'cuello1', [-7, 3, -5], [6, 0, 32], 15, -30, 40),
+    ...brazoHueso('izq', 'tronco1', [8, 4, -6], [40, 0, -34], 10, -28, 30),
+    ...brazoHueso('der', 'tronco1', [-8, 4, -6], [40, 0, 34], 10, -28, 30),
+    // la cola, tumbada en S y cada vez mas fina
+    cola('cola1', 'base', [0, 0, 2], 25, 15, 13, 12),
+    cola('cola2', 'cola1', [0, 0, 12], 25, 14, 12, 12, true),
+    cola('cola3', 'cola2', [0, 0, 12], -40, 13, 11, 12),
+    cola('cola4', 'cola3', [0, 0, 12], -45, 12, 10, 12),
+    cola('cola5', 'cola4', [0, 0, 12], -40, 11, 9, 11, true),
+    cola('cola6', 'cola5', [0, 0, 11], 35, 10, 8, 11),
+    cola('cola7', 'cola6', [0, 0, 11], 45, 9, 7, 10),
+    cola('cola8', 'cola7', [0, 0, 10], 45, 8, 6, 10, true),
+    cola('cola9', 'cola8', [0, 0, 10], 30, 6, 5, 9),
+    cola('cola10', 'cola9', [0, 0, 9], 20, 5, 4, 9)
+  ]
+};
+
 /* ====================================================== atlas y pintura */
 
-/** Coloca cada cubo en el atlas (UV de caja: 2*(fondo+ancho) x (fondo+alto)). */
+/**
+ * Coloca cada cubo en el atlas (UV de caja: 2*(fondo+ancho) x (fondo+alto)). Con
+ * `compartir`, los cubos de las mismas medidas y material usan el mismo sitio.
+ */
 function empaquetar (modelo) {
   const [W, H] = modelo.tex;
   let x = 0; let y = 0; let fila = 0;
+  const hechos = new Map();
   for (const p of modelo.piezas) {
     for (const c of p[4]) {
       const w = Math.ceil(c[3]); const h = Math.ceil(c[4]); const d = Math.ceil(c[5]);
+      const clave = `${w}x${h}x${d}:${c[6]}`;
+      if (modelo.compartir && hechos.has(clave)) {
+        c.uv = hechos.get(clave);
+        c.repetido = true;
+        continue;
+      }
       const ancho = 2 * (d + w);
       const alto = d + h;
       if (x + ancho > W) { x = 0; y += fila; fila = 0; }
       if (y + alto > H) throw new Error(`${modelo.nombre}: no cabe en ${W}x${H}`);
       c.uv = [x, y];
+      hechos.set(clave, c.uv);
       x += ancho;
       fila = Math.max(fila, alto);
     }
@@ -216,7 +353,41 @@ const MATERIAL = {
   dientes: (x, y, k) => ((x + k) % 2 === 0 ? [236, 228, 200] : (y % 2 ? [120, 110, 90] : [196, 186, 158])),
   boca: () => [70, 10, 12],
   sombra: (x, y, k) => { const b = 6 + hash(x, y, 440 + k) * 10; return [b, b, b + 2]; },
-  cara: (x, y, k) => { const b = 8 + hash(x, y, 450 + k) * 8; return [b, b, b + 2]; }
+  cara: (x, y, k) => { const b = 8 + hash(x, y, 450 + k) * 8; return [b, b, b + 2]; },
+  // la Serpiente: azulejo blanco con la junta azul, en piezas de 4 contadas desde el
+  // borde de cada cara (como el bloque borde_piscina)
+  teja: (x, y, k, lado, u0, v0) => {
+    const px = x - u0;
+    const py = y - v0;
+    if (px % 4 === 0 || py % 4 === 0) return escala([52, 96, 190], 0.92 + hash(x, y, 460 + k) * 0.12);
+    let c = escala([236, 241, 243], 0.96 + hash(Math.floor(px / 4), Math.floor(py / 4), 461 + k) * 0.05);
+    if (px % 4 === 1 && py % 4 === 1) c = escala(c, 1.04);
+    if (px % 4 === 3 || py % 4 === 3) c = escala(c, 0.93);
+    return c;
+  },
+  teja_azul: (x, y, k, lado, u0, v0) => {
+    const px = x - u0;
+    const py = y - v0;
+    if (px % 3 === 0 || py % 3 === 0) return [196, 214, 232];
+    return escala([60, 112, 200], 0.92 + hash(Math.floor(px / 3), Math.floor(py / 3), 462 + k) * 0.12);
+  },
+  hueso: (x, y, k) => {
+    const v = ruido(x * 0.7, y * 1.6, 6, 470 + k, 64);
+    let c = escala([214, 206, 184], 0.82 + v * 0.22 + hash(x, y, 471 + k) * 0.06);
+    if (hash(x, y, 472 + k) > 0.93) c = escala(c, 0.72);
+    return c;
+  },
+  craneo: (x, y, k) => {
+    const v = ruido(x * 1.1, y * 1.1, 8, 480 + k, 64);
+    let c = escala([224, 218, 200], 0.86 + v * 0.18 + hash(x, y, 481 + k) * 0.05);
+    if (Math.abs(ruido(x * 0.9, y * 0.5, 8, 482 + k, 64) - 0.5) < 0.015) c = escala(c, 0.72); // grietas
+    return c;
+  },
+  colmillo: (x, y, k) => ((x + y + k) % 2 === 0 ? [238, 232, 212] : [58, 50, 42]),
+  falange: (x, y, k, lado, u0, v0) => {
+    const b = 150 - (y - v0) * 14 + hash(x, y, 490 + k) * 12;
+    return [b, b * 0.94, b * 0.82];
+  }
 };
 
 function pintar (modelo) {
@@ -225,16 +396,53 @@ function pintar (modelo) {
   let k = 0;
   for (const p of modelo.piezas) {
     for (const c of p[4]) {
+      if (c.repetido) continue;
       const mat = MATERIAL[c[6]];
       for (const [lado, [u0, v0, u1, v1]] of Object.entries(carasUV(c))) {
         for (let y = v0; y < v1; y++) {
-          for (let x = u0; x < u1; x++) l.punto(x, y, mat(x, y, k, lado));
+          for (let x = u0; x < u1; x++) l.punto(x, y, mat(x, y, k, lado, u0, v0));
         }
       }
       k++;
     }
   }
   return l;
+}
+
+/**
+ * La cara del craneo de la Serpiente (la cara north del primer cubo de "craneo" y la
+ * del hocico): cuencas negras con los ojos cian (que brillan: tambien en `brillo`),
+ * el agujero de la nariz y la sombra de las cejas.
+ */
+function caraSerpiente (modelo, l, brillo) {
+  const craneo = modelo.piezas.find((p) => p[0] === 'craneo')[4];
+  const [u0, v0] = carasUV(craneo[0]).north;
+  const pon = (x, y, c) => l.punto(u0 + x, v0 + y, c);
+  const luz = (x, y, c) => { l.punto(u0 + x, v0 + y, c); brillo.punto(u0 + x, v0 + y, c); };
+  // la frente de 24x16: ceja en sombra, dos cuencas de 7x7 y la nariz entre ellas
+  for (let x = 1; x < 23; x++) pon(x, 3, escala([224, 218, 200], 0.66));
+  for (const x0 of [3, 14]) {
+    for (let y = 4; y < 11; y++) {
+      for (let x = x0; x < x0 + 7; x++) {
+        const borde = y === 4 || y === 10 || x === x0 || x === x0 + 6;
+        pon(x, y, borde ? [46, 50, 56] : [8, 12, 18]);
+      }
+    }
+    // el ojo: 3x3 cian, blanco en el centro, con un pixel de halo arriba y abajo
+    for (let y = 6; y < 9; y++) {
+      for (let x = x0 + 2; x < x0 + 5; x++) luz(x, y, x === x0 + 3 && y === 7 ? [226, 255, 255] : [70, 226, 238]);
+    }
+    luz(x0 + 3, 5, [30, 120, 136]);
+    luz(x0 + 3, 9, [30, 120, 136]);
+  }
+  // la nariz: un agujero en punta hacia arriba que baja hasta el hocico
+  for (let y = 10; y < 16; y++) {
+    const medio = y === 10 ? 1 : 2;
+    for (let x = 12 - medio; x < 12 + medio; x++) pon(x, y, [16, 14, 14]);
+  }
+  const [s0, t0] = carasUV(craneo[2]).north;
+  for (let x = 7; x < 11; x++) l.punto(s0 + x, t0, [16, 14, 14]);
+  for (let x = 8; x < 10; x++) l.punto(s0 + x, t0 + 1, [16, 14, 14]);
 }
 
 /** La cara del Smiler: ojos y sonrisa sobre su frente (la cara north del cubo "cara"). */
@@ -354,15 +562,17 @@ function vista (modelo, tex, archivo, poses = {}) {
       }
     }
   }
-  const W1 = 360; const H = 520; const giros = [0, 90, -38];
+  const vis = modelo.vista || {};
+  const W1 = vis.ancho || 360; const H = vis.alto || 520; const giros = [0, 90, -38];
+  const cx = W1 * (vis.centro || 0.5);
   const out = { width: W1 * 3, height: H, data: new Uint8Array(W1 * 3 * H * 4) };
   for (let i = 0; i < W1 * 3 * H; i++) { const y = Math.floor(i / (W1 * 3)); out.data.set(y > H - 60 ? [150, 128, 70, 255] : [196, 180, 112, 255], i * 4); }
-  const esc = 6.2;
+  const esc = vis.esc || 6.2;
   giros.forEach((giro, vi) => {
     const zb = new Float32Array(W1 * H).fill(Infinity);
     for (const c of caras) {
       // y del modelo hacia abajo y 24 = suelo; la camara mira la cara (desde -z)
-      const P = c.pts.map((p) => { const q = rotZYX(p, [g(-8), g(giro), 0]); return [W1 / 2 - q[0] * esc, H - 60 - (24 - q[1]) * esc, q[2]]; });
+      const P = c.pts.map((p) => { const q = rotZYX(p, [g(-8), g(giro), 0]); return [cx - q[0] * esc, H - 60 - (24 - q[1]) * esc, q[2]]; });
       const a = P[1].map((v, k) => v - P[0][k]); const b = P[3].map((v, k) => v - P[0][k]);
       const nz = a[0] * b[1] - a[1] * b[0];
       const luz = 0.6 + 0.4 * Math.min(1, Math.abs(nz) / (Math.hypot(a[0], a[1]) * Math.hypot(b[0], b[1]) + 1e-6));
@@ -398,13 +608,13 @@ function vista (modelo, tex, archivo, poses = {}) {
 /* =============================================================== todo */
 
 console.log('Entidades');
-for (const modelo of [BACTERIA, SMILER]) {
+for (const modelo of [BACTERIA, SMILER, SERPIENTE]) {
   empaquetar(modelo);
   const tex = pintar(modelo);
-  if (modelo === SMILER) {
+  if (modelo === SMILER || modelo === SERPIENTE) {
     const brillo = new Lienzo(...modelo.tex);
-    caraSmiler(modelo, tex, brillo);
-    guardar(path.join(ASSETS, 'textures', 'entity'), 'smiler_brillo', brillo);
+    (modelo === SMILER ? caraSmiler : caraSerpiente)(modelo, tex, brillo);
+    guardar(path.join(ASSETS, 'textures', 'entity'), `${modelo.nombre}_brillo`, brillo);
   }
   guardar(path.join(ASSETS, 'textures', 'entity'), modelo.nombre, tex);
   java(modelo);
