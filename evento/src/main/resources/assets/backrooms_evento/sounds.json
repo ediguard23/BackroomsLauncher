@@ -6,14 +6,6 @@
       }
     ]
   },
-  "piscinas.ambiente": {
-    "sounds": [
-      {
-        "name": "backrooms:piscinas_ambiente",
-        "stream": true
-      }
-    ]
-  },
   "cinematica": {
     "sounds": [
       {
@@ -396,6 +388,338 @@
     "sounds": [
       {
         "name": "backrooms_evento:cinematica_despues"
+      }
+    ]
+  },
+  "piscinas.gota": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_gota1",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:piscinas_gota2",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:piscinas_gota3",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:piscinas_gota4",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:piscinas_gota5",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:piscinas_gota6",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "piscinas.agua": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_agua1",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:piscinas_agua2",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:piscinas_agua3",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "piscinas.orilla": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_orilla1",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_orilla2",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_orilla3",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_orilla4",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "piscinas.chapoteo": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_chapoteo1",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:piscinas_chapoteo2",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:piscinas_chapoteo3",
+        "attenuation_distance": 40
+      }
+    ]
+  },
+  "piscinas.tuberia": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_tuberia1",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:piscinas_tuberia2",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:piscinas_tuberia3",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:piscinas_tuberia4",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:piscinas_tuberia5",
+        "attenuation_distance": 40
+      }
+    ]
+  },
+  "piscinas.grave": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_grave1",
+        "attenuation_distance": 96
+      },
+      {
+        "name": "backrooms_evento:piscinas_grave2",
+        "attenuation_distance": 96
+      },
+      {
+        "name": "backrooms_evento:piscinas_grave3",
+        "attenuation_distance": 96
+      }
+    ]
+  },
+  "piscinas.voz": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_voz1",
+        "attenuation_distance": 72
+      },
+      {
+        "name": "backrooms_evento:piscinas_voz2",
+        "attenuation_distance": 72
+      },
+      {
+        "name": "backrooms_evento:piscinas_voz3",
+        "attenuation_distance": 72
+      }
+    ]
+  },
+  "piscinas.paso": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_paso1",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_paso2",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_paso3",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_paso4",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_paso5",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_paso6",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "piscinas.paso_agua": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_paso_agua1",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_paso_agua2",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_paso_agua3",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_paso_agua4",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_paso_agua5",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "piscinas.nado": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_nado1",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_nado2",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:piscinas_nado3",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "piscinas.chispa": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_chispa1",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:piscinas_chispa2",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:piscinas_chispa3",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "serpiente.grunido": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:serpiente_grunido1",
+        "attenuation_distance": 128
+      },
+      {
+        "name": "backrooms_evento:serpiente_grunido2",
+        "attenuation_distance": 128
+      },
+      {
+        "name": "backrooms_evento:serpiente_grunido3",
+        "attenuation_distance": 128
+      }
+    ]
+  },
+  "serpiente.respira": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:serpiente_respira1",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:serpiente_respira2",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:serpiente_respira3",
+        "attenuation_distance": 40
+      }
+    ]
+  },
+  "serpiente.paso": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:serpiente_paso1",
+        "attenuation_distance": 32
+      },
+      {
+        "name": "backrooms_evento:serpiente_paso2",
+        "attenuation_distance": 32
+      },
+      {
+        "name": "backrooms_evento:serpiente_paso3",
+        "attenuation_distance": 32
+      },
+      {
+        "name": "backrooms_evento:serpiente_paso4",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "serpiente.agua": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:serpiente_agua1",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:serpiente_agua2",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:serpiente_agua3",
+        "attenuation_distance": 40
+      }
+    ]
+  },
+  "serpiente.grito": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:serpiente_grito",
+        "attenuation_distance": 96
+      }
+    ]
+  },
+  "serpiente.caza": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:serpiente_caza1",
+        "attenuation_distance": 48
+      },
+      {
+        "name": "backrooms_evento:serpiente_caza2",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "serpiente.ataque": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:serpiente_ataque",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "serpiente.mordisco": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:serpiente_mordisco",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "piscinas.susurro": {
+    "sounds": [
+      {
+        "name": "fabric-sound-api-v1:empty",
+        "stream": true
       }
     ]
   }

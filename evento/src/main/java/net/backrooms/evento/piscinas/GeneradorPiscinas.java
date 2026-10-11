@@ -5,6 +5,8 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import net.backrooms.evento.BackroomsEvento;
+import net.backrooms.evento.bloques.EnPared;
+import net.backrooms.evento.bloques.EnSuelo;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.RegistryAccess;
@@ -117,22 +119,46 @@ public class GeneradorPiscinas extends ChunkGenerator {
 						continue;
 					}
 					int y = PlanoPiscinas.Y0 + k;
-					BlockState e = m == PlanoPiscinas.PARED ? pared(wx, y, wz) : ESTADOS[m];
+					BlockState e = m == PlanoPiscinas.PARED ? pared(wx, y, wz)
+						: m == PlanoPiscinas.LUZ && azar(wx, y, wz) % 75 == 0 ? BloquesPiscinas.LUZ_PARPADEO.defaultBlockState()
+						: ESTADOS[m];
 					pos.set(x, y, z);
 					chunk.setBlockState(pos, e);
 					fondo.update(x, y, z, e);
 					superficie.update(x, y, z, e);
+				}
+				for (PlanoPiscinas.Detalle d : p.detallesEn(wx, wz)) {
+					BlockState e = detalle(d);
+					pos.set(x, d.y(), z);
+					chunk.setBlockState(pos, e);
+					fondo.update(x, d.y(), z, e);
+					superficie.update(x, d.y(), z, e);
 				}
 			}
 		}
 		return CompletableFuture.completedFuture(chunk);
 	}
 
-	/** Azulejo de pared o suelo: alguno sucio y alguno con piezas caidas. */
-	private static BlockState pared(int x, int y, int z) {
+	/** El bloque de un detalle del plano (marca, mancha, objeto o azulejo cambiado). */
+	private static BlockState detalle(PlanoPiscinas.Detalle d) {
+		Direction mira = LADOS[d.lado()];
+		return switch (d.tipo()) {
+			case PlanoPiscinas.D_MARCA -> BloquesPiscinas.MARCA.defaultBlockState().setValue(EnPared.FACING, mira).setValue(MarcaPiscina.MARCA, d.variante());
+			case PlanoPiscinas.D_MANCHA -> BloquesPiscinas.MANCHA.defaultBlockState().setValue(EnSuelo.FACING, mira).setValue(ManchaSuelo.MANCHA, d.variante());
+			case PlanoPiscinas.D_OBJETO -> BloquesPiscinas.OBJETOS[d.variante()].defaultBlockState().setValue(EnSuelo.FACING, mira);
+			default -> (d.variante() == 0 ? BloquesPiscinas.AZULEJO_MANCHADO : BloquesPiscinas.AZULEJO_SANGRE).defaultBlockState();
+		};
+	}
+
+	private static int azar(int x, int y, int z) {
 		int h = x * 73856093 ^ y * 19349663 ^ z * 83492791;
 		h = (h ^ (h >>> 13)) * 0x5bd1e995;
-		int r = (h ^ (h >>> 15)) & 1023;
+		return (h ^ (h >>> 15)) & 0x7FFFFFFF;
+	}
+
+	/** Azulejo de pared o suelo: alguno sucio y alguno con piezas caidas. */
+	private static BlockState pared(int x, int y, int z) {
+		int r = azar(x, y, z) & 1023;
 		if (r < 30) {
 			return BloquesPiscinas.AZULEJO_SUCIO.defaultBlockState();
 		}

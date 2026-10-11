@@ -1,7 +1,66 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-11 (hora de Honduras). Mod `backrooms_evento` 0.12.0, launcher 1.0.0
+Última actualización: 2026-10-11 (hora de Honduras). Mod `backrooms_evento` 0.13.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.13.0: pulido de las Piscinas y la Serpiente con IA (2026-10-11; Bruno)
+
+Lo del documento «ACTUALIZACIÓN Y PULIDO — POOLROOMS» de Bruno (las misiones van aparte, después).
+
+- **Luces flotantes** (la foto de Bruno, en el túnel): `PlanoPiscinas#techoSobre` contaba las
+  luces invisibles como techo y colgaba claraboyas en el aire. Arreglado; comprobado fuera del
+  juego (0 de 45.000 luces) y en el túnel.
+- **Sonido**: fuera el ambiente en bucle (el bioma ya no tiene `ambient_sounds`). Ahora suenan
+  cosas sueltas, en 3D y cada una a su ritmo (`cliente/piscinas/AmbientePiscinas`; tiempos en su
+  cabecera): gotas, agua que se mueve, el agua del borde (solo cerca de una piscina), chapoteos,
+  tuberías, algo grave lejos y el gruñido de la Serpiente cada 1-2 min a 55-95 bloques (no quiere
+  decir que esté cerca). Rarísimos: una voz humana lejana (12-40 min) y **un susurro con el
+  nombre de quien lo oye**, justo detrás (25-75 min): el nombre se sintetiza en su cliente
+  (`Susurrador`, sin grabaciones; se lee como en español) y nunca suena para todos a la vez.
+  Pasos propios en el azulejo y en el agua (`AZULEJOS`, `PiscinasJugadorMixin`). Sonidos en
+  `tools/sonidos/nivel37.js` (todos sintetizados).
+- **Luces que fallan**: 1 de cada ~75 paneles (`LuzParpadeante`): de vez en cuando chasquea,
+  se apaga un instante y vuelve; cada panel con su propio nervio.
+- **Detalles raros** (`PlanoPiscinas#detallesCelda`, ~1 de cada 4 celdas tiene algo, casi
+  siempre una sola cosa): manchas, azulejo con sangre, marcas de manos, arañazos, conteos,
+  espirales, carteles viejos, suciedad, charcos, escombros, huellas, objetos abandonados
+  (flotador, toalla, chanclas, mochila) y, muy de vez en cuando (~1 %), **CORRE** escrito a
+  mano en tres azulejos. Texturas en `tools/texturas/piscinas.js`.
+- **Comida y cordura** como en el Nivel 0: galletas y pizza en ~17 % de las celdas, aguas de
+  almendras al llegar, y la cordura baja igual (`Supervivencia#locuraPiscinas`).
+- **Agua pesada**: los jugadores van un 10 % más lentos en el agua de las Piscinas
+  (`AguaPiscinasMixin`, en cliente y servidor).
+- **La Serpiente con IA** (`entidad/Serpiente`): ronda despacio (la mitad de los paseos tiran
+  hacia el jugador más cercano, sin cazarle), detecta a 25 bloques si te ve (a 8 aunque no),
+  va a por el más cercano y solo cambia de presa si otro está claramente más cerca (3 bloques,
+  no más de una vez cada 2 s). Velocidad: 5,5 bloques/s de base (la de la Bacteria), −15 % en
+  el azulejo (4,7: corriendo se le escapa uno) y +15 % en el agua (6,3). Sale del agua por la
+  orilla. **Invulnerable** (solo `/kill`). Una por cada 10 jugadores de la expedición en las
+  Piscinas, mínimo una (`piscinas/Habitantes`): aparece a 45-75 bloques y se va si no queda
+  nadie a 140. Con `/backrooms acechadores false` no sale ninguna.
+- **Muerte**: se echa atrás, se lanza, muerde y sacude; a quien muere la vista se le va al
+  cráneo, tirón y pantalla roja en el mordisco, fundido a negro y muere devorado
+  (`red/Mordisco`, `cliente/piscinas/MordiscoCliente`). Luego la Serpiente sigue a lo suyo.
+  Animaciones propias para quieta, nadando/andando, cazando y atacando (`ModeloSerpiente`).
+- **Modelo mejor**: cráneo con relieve, colmillos, púas en el lomo, brazos más largos y garras
+  más grandes (`tools/texturas/entidades.js`).
+- **Comida que no volvía** (también en el Nivel 0): si se ponía justo al llegar o reaparecer,
+  con el chunk aún sin cargar, se quedaba fuera del mundo y esa comida ya no salía. Ahora
+  espera a que el chunk esté cargado (`Comida#materializar`).
+- Comandos nuevos: `/backrooms piscinas oir <sonido> <jugador>` (gota, agua, orilla, chapoteo,
+  tuberia, grave, grunido, voz, susurro) y `/backrooms piscinas ir detalle|corre`.
+
+**Probado en el servidor local**: túnel sin luces flotantes; CORRE legible; los nueve sonidos
+sueltos se lanzan sin avisos en el log; la Serpiente aparece sola a ~70 bloques, ronda y se
+para, ve al jugador, le persigue nadando, sale de la piscina y le mata con la secuencia entera
+(capturas: vista al cráneo, mordisco en rojo, negro, «HAS CAÍDO»); la cordura baja al verla; la
+comida aparece tras teletransportes y reapariciones; en el agua se va un 10 % más lento
+(medido: 3,52 bloques en 2 s, lo esperado con el −10 %). El susurro se probó fuera del juego
+(mismo volumen que los susurros del Nivel 0).
+**Sin probar de oído** (desde aquí no se puede grabar el audio del juego): cómo suenan en
+partida los sonidos sueltos, el susurro con el nombre y los pasos. **Sin probar**: el parpadeo
+de un panel en el juego (es como el tubo del Nivel 0) y varias Serpientes con muchos jugadores.
+**Ojo**: los jugadores pueden ahogarse en las piscinas hondas (3 de agua) si se quedan en el fondo.
 
 ## 0.12.0, etapa 3: la entidad de las Piscinas (2026-10-11; Bruno)
 

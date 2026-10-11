@@ -1,8 +1,5 @@
 {
   "attributes": {
-    "minecraft:audio/ambient_sounds": {
-      "loop": "backrooms_evento:piscinas.ambiente"
-    },
     "minecraft:visual/fog_color": "#9cc3c6",
     "minecraft:visual/water_fog_color": "#3cb8b2"
   },

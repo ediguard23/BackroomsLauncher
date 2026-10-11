@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "backrooms_evento:block/toalla"
+    },
+    "facing=east": {
+      "model": "backrooms_evento:block/toalla",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "backrooms_evento:block/toalla",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "backrooms_evento:block/toalla",
+      "y": 270
+    }
+  }
+}

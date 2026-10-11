@@ -124,6 +124,11 @@ final class OrdenesPrueba {
 			mc.options.setCameraType(net.minecraft.client.CameraType.values()[Integer.parseInt(orden.substring(5).trim())]);
 			return;
 		}
+		if (orden.startsWith("piscinas")) {
+			// "piscinas <gota|agua|orilla|chapoteo|tuberia|grave|grunido|voz|susurro>": que suene ya
+			net.backrooms.evento.cliente.piscinas.AmbientePiscinas.forzar(mc, orden.substring(8).trim());
+			return;
+		}
 		if (orden.startsWith("girar")) {
 			mc.player.setYRot(mc.player.getYRot() + Float.parseFloat(orden.substring(5).trim()));
 			return;

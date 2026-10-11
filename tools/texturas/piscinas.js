@@ -310,6 +310,379 @@ json('models/block/escalon_azulejo_fuera.json', { parent: 'minecraft:block/outer
 json('items/escalon_azulejo.json', { model: { type: 'minecraft:model', model: t('escalon_azulejo') } });
 console.log('  modelos, estados y objetos');
 
+/* ================================================ detalles (pocos, sueltos) */
+// Lo que dice que alguien estuvo aqui antes. El generador los pone muy de vez en cuando
+// (PlanoPiscinas#detalle): casi todo el nivel sigue limpio.
+
+const FACINGS = { north: 0, east: 90, south: 180, west: 270 };
+const SANGRE = [104, 20, 14];
+const SECA = [66, 18, 12];
+
+// azulejo con una mancha oscura (humedad, moho) y azulejo con una manchita de sangre
+guardar(TEX, 'azulejo_manchado', new Lienzo(L).pintar((x, y) => {
+  let c = azulejo(x, y);
+  const m = fbm(x * 0.8, y * 0.8, 800);
+  const caida = ruido(x, y * 0.25, 8, 801, L) * (y / L);
+  const t = Math.max(0, (m - 0.48) * 3) + Math.max(0, (caida - 0.55) * 2.5);
+  if (t > 0) c = mezcla(c, [52, 56, 44], Math.min(0.8, t));
+  return c;
+}));
+guardar(TEX, 'azulejo_sangre', new Lienzo(L).pintar((x, y) => {
+  let c = azulejo(x, y);
+  // en una sola pieza: una mancha seca y un hilo que cae hasta la junta
+  const d = Math.hypot(x - 12.5, y - 11.5);
+  if (d < 2.6 + ruido(x, y, 8, 802, L) * 1.6) c = mezcla(c, SECA, 0.85);
+  else if (x === 12 && y > 12 && y < 16) c = mezcla(c, SECA, 0.7);
+  return c;
+}));
+
+// el panel del techo apagado (el que parpadea, cuando se va)
+guardar(TEX, 'luz_techo_apagada', new Lienzo(L).pintar((x, y) => {
+  if (x < 3 || y < 3 || x > 28 || y > 28) {
+    if (x === 0 || y === 0 || x === 31 || y === 31) return [150, 160, 162];
+    return [206, 214, 216];
+  }
+  let c = escala([150, 158, 162], 0.94 + fbm(x, y, 805) * 0.1);
+  if (x % 4 === 1 || y % 4 === 1) c = escala(c, 0.96);
+  return c;
+}));
+
+/* ---- marcas en la pared (64x64, transparentes) */
+
+const MARCAS = [];
+function marca (nombre, l) {
+  MARCAS.push(nombre);
+  guardar(TEX, `marca_${nombre}`, l);
+}
+
+/** Trazo de dedo: grueso, irregular, y que gotea hacia abajo de vez en cuando. */
+function dedo (l, pts, color, g, canal) {
+  for (let i = 0; i + 1 < pts.length; i++) {
+    const [x0, y0] = pts[i];
+    const [x1, y1] = pts[i + 1];
+    l.linea(x0, y0, x1, y1, color, g * (0.8 + hash(i, canal, 811) * 0.5), 0.9, 1.4);
+  }
+  for (let i = 0; i < pts.length; i += 3) {
+    if (hash(i, canal, 812) < 0.45) {
+      const [x, y] = pts[i];
+      const largo = 5 + hash(i, canal, 813) * 18;
+      for (let k = 0; k < largo; k++) l.disco(x + Math.sin(k * 0.3) * 0.3, y + k, Math.max(0.5, 1.3 - k / largo), color, 0.85);
+      l.disco(x, y + largo, 1.4, color, 0.85);
+    }
+  }
+}
+
+/** Una letra a mano (C, O, R, E) en la caja (x, y, ancho, alto), algo torcida. */
+function letraMano (l, ch, x, y, w, h, giro, color, canal) {
+  const rot = ([u, v]) => {
+    const px = (u - 0.5) * w;
+    const py = (v - 0.5) * h;
+    return [x + w / 2 + px * Math.cos(giro) - py * Math.sin(giro), y + h / 2 + px * Math.sin(giro) + py * Math.cos(giro)];
+  };
+  const arco = (a0, a1, n = 14) => Array.from({ length: n + 1 }, (_, i) => {
+    const a = a0 + (a1 - a0) * i / n;
+    return [0.5 + 0.48 * Math.cos(a), 0.5 + 0.5 * Math.sin(a)];
+  });
+  const trazos = {
+    C: [arco(0.7, Math.PI * 2 - 0.7, 16)],   // un arco abierto a la derecha
+    O: [arco(0, Math.PI * 2, 18)],
+    R: [[[0.1, 1.0], [0.1, 0.0]], [[0.1, 0.02], [0.6, 0.02], [0.88, 0.22], [0.6, 0.48], [0.12, 0.5]], [[0.4, 0.5], [0.95, 1.0]]],
+    E: [[[0.9, 0.02], [0.08, 0.0], [0.1, 1.0], [0.92, 1.0]], [[0.1, 0.5], [0.7, 0.5]]]
+  };
+  trazos[ch].forEach((tr, k) => dedo(l, tr.map(rot), color, 4.2, canal * 10 + k));
+}
+
+{
+  // CORRE en tres bloques: se pinta en un lienzo de 192x64 y se corta en tres
+  const ancho = new Lienzo(192, 64);
+  const letras = ['C', 'O', 'R', 'R', 'E'];
+  const anchos = letras.map((_, i) => 26 + hash(i, 1, 820) * 8);
+  const huecos = letras.map((_, i) => 6 + hash(i, 5, 820) * 5);
+  // que quepa entera y centrada (si no, la E se salia por el borde)
+  const largo = anchos.reduce((a, b) => a + b) + huecos.slice(0, -1).reduce((a, b) => a + b);
+  const esc = Math.min(1, 172 / largo);
+  let x = (192 - largo * esc) / 2;
+  letras.forEach((ch, i) => {
+    const w = anchos[i] * esc;
+    const h = 30 + hash(i, 2, 820) * 10;
+    const y = 10 + hash(i, 3, 820) * 8 + i * 1.5;
+    letraMano(ancho, ch, x, y, w, h, (hash(i, 4, 820) - 0.5) * 0.3, i < 2 ? SANGRE : mezcla(SANGRE, SECA, 0.4), i);
+    x += w + (i < letras.length - 1 ? huecos[i] * esc : 0);
+  });
+  for (let p = 0; p < 3; p++) {
+    const parte = new Lienzo(64);
+    for (let y = 0; y < 64; y++) {
+      for (let xx = 0; xx < 64; xx++) {
+        const i = (y * 192 + p * 64 + xx) * 4;
+        parte.data.set(ancho.data.subarray(i, i + 4), (y * 64 + xx) * 4);
+      }
+    }
+    marca(`corre_${p}`, parte);
+  }
+}
+
+function manoSangre (l, cx, cy, escalaMano, color, arrastre, canal) {
+  l.disco(cx, cy, 6.5 * escalaMano, color, 0.82);
+  l.disco(cx, cy + 3 * escalaMano, 5.5 * escalaMano, color, 0.82);
+  const dedos = [[-7, -4, -0.7], [-3.5, -10, -0.15], [0.5, -11.5, 0], [4.5, -10, 0.15], [7.5, 1, 0.9]];
+  dedos.forEach(([dx, dy, inc], k) => {
+    l.linea(cx + dx * 0.45 * escalaMano, cy - 2 * escalaMano, cx + (dx + inc * 2) * escalaMano, cy + dy * escalaMano, color, 3 * escalaMano, 0.82, 0.5);
+    l.disco(cx + (dx + inc * 2) * escalaMano, cy + dy * escalaMano, 1.6 * escalaMano, color, 0.82);
+    if (arrastre > 0) l.linea(cx + dx * 0.6 * escalaMano, cy, cx + dx * 0.55 * escalaMano + hash(k, canal, 830), cy + arrastre * (0.7 + hash(k, canal, 831) * 0.3), color, 2.2, 0.6, 0.8);
+  });
+}
+
+marca('mano', (() => {
+  const l = new Lienzo(64);
+  manoSangre(l, 30, 26, 1.6, SANGRE, 10, 1);
+  for (let k = 0; k < 3; k++) l.linea(26 + k * 4, 38, 25 + k * 4, 46 + hash(k, 2, 832) * 14, SECA, 1.2, 0.7);
+  return l;
+})());
+marca('manos', (() => {
+  // dos manos que resbalan pared abajo
+  const l = new Lienzo(64);
+  manoSangre(l, 19, 16, 1.2, SECA, 34, 3);
+  manoSangre(l, 44, 22, 1.2, SECA, 30, 4);
+  return l;
+})());
+marca('aranazos', (() => {
+  // cuatro arañazos que han levantado el esmalte: claros por dentro, oscuros en el borde
+  const l = new Lienzo(64);
+  for (let k = 0; k < 4; k++) {
+    const x0 = 14 + k * 9;
+    const pts = [];
+    for (let i = 0; i <= 12; i++) pts.push([x0 + i * 1.4 + Math.sin(i * 0.5 + k) * 1.2, 8 + i * 3.6]);
+    for (let i = 0; i + 1 < pts.length; i++) {
+      l.linea(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], [70, 70, 66], 2.4, 0.75);
+      l.linea(pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], [214, 214, 206], 1.0, 0.9);
+    }
+  }
+  return l;
+})());
+marca('conteo', (() => {
+  // palitos rayados en el azulejo: alguien contaba algo
+  const l = new Lienzo(64);
+  const c = [58, 60, 62];
+  for (let g = 0; g < 3; g++) {
+    for (let fila = 0; fila < 2; fila++) {
+      if (g === 2 && fila === 1) continue;
+      const x0 = 8 + g * 18;
+      const y0 = 12 + fila * 22;
+      for (let i = 0; i < 4; i++) l.linea(x0 + i * 3, y0, x0 + i * 3 + 0.8, y0 + 14, c, 1.3, 0.85, 0.6);
+      l.linea(x0 - 2, y0 + 12, x0 + 12, y0 + 2, c, 1.3, 0.85, 0.5);
+    }
+  }
+  l.linea(46, 34, 46.5, 48, c, 1.3, 0.85, 0.6);
+  return l;
+})());
+marca('espiral', (() => {
+  // una espiral a rotulador negro, apretada, que no acaba
+  const l = new Lienzo(64);
+  let prev = null;
+  for (let i = 0; i <= 260; i++) {
+    const a = i * 0.12;
+    const r = 1 + i * 0.095;
+    const p = [32 + Math.cos(a) * r, 32 + Math.sin(a) * r * 0.92];
+    if (prev) l.linea(prev[0], prev[1], p[0], p[1], [22, 20, 18], 1.6, 0.88, 0.4);
+    prev = p;
+  }
+  return l;
+})());
+marca('mancha', (() => {
+  // humedad negra que baja por la pared
+  const l = new Lienzo(64);
+  l.pintar((x, y) => {
+    const m = fbm(x, y, 840, 64);
+    const caida = ruido(x * 1.4, y * 0.2, 8, 841, 64);
+    const centro = 1 - Math.min(1, Math.hypot((x - 32) / 30, (y - 20) / 26));
+    const t = Math.max(0, (m - 0.42) * 2.6) * centro + Math.max(0, caida - 0.55) * 2.2 * (y / 64) * (1 - Math.abs(x - 32) / 34);
+    return t > 0.05 ? [40, 44, 34, Math.min(0.85, t)] : null;
+  });
+  return l;
+})());
+marca('sangre', (() => {
+  // un brochazo de sangre a la altura de la mano y unas gotas
+  const l = new Lienzo(64);
+  for (let k = 0; k < 6; k++) l.linea(12, 28 + k, 46 + hash(k, 1, 850) * 8, 24 + k * 1.5, SANGRE, 1.6, 0.7, 1.5);
+  for (let k = 0; k < 5; k++) l.disco(20 + hash(k, 2, 851) * 30, 38 + hash(k, 3, 851) * 18, 0.8 + hash(k, 4, 851) * 1.2, SECA, 0.85);
+  return l;
+})());
+
+/** Cartel de piscina viejo: placa blanca con borde de color, letras gastadas, grieta y esquina rota. */
+function cartel (lineas, color, canal) {
+  const l = new Lienzo(64);
+  const x0 = 4; const y0 = 12; const x1 = 59; const y1 = 51;
+  const rota = (x, y) => x > 47 && y > 41 && (x - 47) + (y - 41) > 9;
+  l.pintar((x, y) => {
+    if (x < x0 || x > x1 || y < y0 || y > y1 || rota(x, y)) return null;
+    const borde = x < x0 + 2 || x > x1 - 2 || y < y0 + 2 || y > y1 - 2;
+    let c = borde ? color : escala([226, 224, 214], 0.93 + fbm(x, y, 860 + canal, 64) * 0.09);
+    if (fbm(x, y, 862 + canal, 64) > 0.62) c = mezcla(c, [150, 140, 104], 0.45);
+    return c;
+  });
+  lineas.forEach(([txt, p, y], k) => l.texto(txt, 'centro', y, mezcla(color, [226, 224, 214], 0.25 + hash(k, canal, 863) * 0.2), p, 0.88));
+  // la grieta
+  let gx = 18; let gy = y0;
+  for (let i = 0; i < 18; i++) {
+    const nx = gx + (hash(i, canal, 864) - 0.4) * 4;
+    const ny = gy + 2.2;
+    l.linea(gx, gy, nx, ny, [70, 66, 58], 0.8, 0.8);
+    gx = nx; gy = ny;
+  }
+  // tornillos (uno se ha caido: el de la esquina rota)
+  for (const [x, y] of [[x0 + 4, y0 + 4], [x1 - 4, y0 + 4], [x0 + 4, y1 - 4]]) l.disco(x, y, 1.2, [120, 118, 110], 1);
+  return l;
+}
+marca('cartel_no_correr', cartel([['NO', 2, 18], ['CORRER', 1, 36]], [176, 30, 28], 1));
+marca('cartel_profundidad', cartel([['PROF.', 1, 19], ['2 M', 2, 30]], [36, 78, 168], 2));
+marca('cartel_saltar', cartel([['PROHIBIDO', 1, 22], ['SALTAR', 1, 33]], [176, 30, 28], 3));
+
+{
+  const modelos = {};
+  MARCAS.forEach((n) => {
+    modelos[`marca_${n}`] = { parent: 'minecraft:block/block', textures: { all: t(`marca_${n}`), particle: t(`marca_${n}`) }, elements: [{ from: [0, 0, 15.92], to: [16, 16, 15.92], faces: { north: { texture: '#all', uv: [0, 0, 16, 16] } } }] };
+  });
+  for (const [n, m] of Object.entries(modelos)) json(`models/block/${n}.json`, m);
+  const v = {};
+  for (const [f, y] of Object.entries(FACINGS)) MARCAS.forEach((n, i) => { v[`facing=${f},marca=${i}`] = { model: t(`marca_${n}`), ...(y ? { y } : {}) }; });
+  json('blockstates/marca.json', { variants: v });
+  json('items/marca.json', { model: { type: 'minecraft:model', model: t('marca_mano') } });
+  console.log(`  ${MARCAS.length} marcas: ${MARCAS.join(', ')}`);
+}
+
+/* ---- manchas en el suelo (32x32, transparentes, pegadas al azulejo) */
+
+const MANCHAS = [];
+function mancha (nombre, fn) {
+  MANCHAS.push(nombre);
+  guardar(TEX, `mancha_${nombre}`, new Lienzo(L).pintar(fn));
+}
+mancha('suciedad', (x, y) => {
+  const m = fbm(x, y, 870);
+  return m > 0.5 ? [...escala([92, 86, 70], 0.8 + hash(x, y, 871) * 0.3), Math.min(0.85, (m - 0.5) * 3.2)] : null;
+});
+mancha('charco', (x, y) => {
+  const d = Math.hypot((x - 15.5) / 13, (y - 16) / 10) + (fbm(x, y, 872) - 0.5) * 0.5;
+  return d < 1 ? [30, 34, 28, Math.min(0.75, (1 - d) * 2.2)] : null;
+});
+mancha('gotas_sangre', (x, y) => {
+  // un rastro de gotas que cruza
+  for (let k = 0; k < 7; k++) {
+    const gx = 3 + k * 4.2 + hash(k, 1, 873) * 2;
+    const gy = 9 + k * 2.2 + hash(k, 2, 873) * 3;
+    if (Math.hypot(x - gx, y - gy) < 0.8 + hash(k, 3, 873) * 1.1) return [...SECA, 0.9];
+  }
+  return null;
+});
+mancha('escombros', (x, y) => {
+  // trozos de azulejo y polvo de cemento
+  if (hash(Math.floor(x / 3), Math.floor(y / 3), 874) > 0.82 && fbm(x, y, 875) > 0.45) return [...escala([228, 232, 230], 0.9 + hash(x, y, 876) * 0.1), 1];
+  const m = fbm(x, y, 877);
+  return m > 0.56 ? [150, 150, 142, Math.min(0.8, (m - 0.56) * 3.5)] : null;
+});
+mancha('huellas', (x, y) => {
+  // pisadas descalzas, mojadas y sucias
+  for (let k = 0; k < 3; k++) {
+    const cx = 9 + k * 7 + (k % 2) * 3;
+    const cy = 26 - k * 9;
+    const dx = x - cx; const dy = y - cy;
+    if (Math.hypot(dx / 2.2, dy / 4) < 1) return [70, 66, 54, 0.6];
+    for (let d = 0; d < 4; d++) if (Math.hypot(x - (cx - 2 + d * 1.4), y - (cy - 5.2)) < 0.8) return [70, 66, 54, 0.6];
+  }
+  return null;
+});
+{
+  for (const n of MANCHAS) {
+    json(`models/block/mancha_${n}.json`, {
+      parent: 'minecraft:block/block',
+      textures: { all: t(`mancha_${n}`), particle: t(`mancha_${n}`) },
+      elements: [{ from: [0, 0, 0], to: [16, 0.06, 16], faces: { up: { texture: '#all', uv: [0, 0, 16, 16] } } }]
+    });
+  }
+  const v = {};
+  for (const [f, y] of Object.entries(FACINGS)) MANCHAS.forEach((n, i) => { v[`facing=${f},mancha=${i}`] = { model: t(`mancha_${n}`), ...(y ? { y } : {}) }; });
+  json('blockstates/mancha.json', { variants: v });
+  json('items/mancha.json', { model: { type: 'minecraft:model', model: t('mancha_suciedad') } });
+  console.log(`  ${MANCHAS.length} manchas: ${MANCHAS.join(', ')}`);
+}
+
+/* ---- objetos abandonados (modelos de bloque, mirando al norte) */
+
+guardar(TEX, 'flotador', new Lienzo(16).pintar((x, y) => {
+  // plastico amarillo con brillo (arriba) y el pico naranja / ojo negro (abajo)
+  if (y >= 12) return x < 8 ? [232, 118, 24] : [18, 18, 20];
+  let c = escala([240, 204, 40], 0.9 + fbm(x, y, 880, 16) * 0.12);
+  if ((x + y) % 7 === 0) c = mezcla(c, [255, 250, 220], 0.4);
+  return c;
+}));
+guardar(TEX, 'toalla', new Lienzo(16).pintar((x, y) => {
+  let c = Math.floor(y / 3) % 2 === 0 ? [70, 120, 176] : [214, 212, 200];
+  c = escala(c, 0.82 + hash(x, y, 881) * 0.16);
+  if (fbm(x, y, 882, 16) > 0.62) c = mezcla(c, [120, 112, 86], 0.35);
+  return c;
+}));
+guardar(TEX, 'chanclas', new Lienzo(16).pintar((x, y) => {
+  if (y < 8) return escala([34, 74, 150], 0.85 + hash(x, y, 883) * 0.15);
+  return escala([214, 64, 52], 0.85 + hash(x, y, 884) * 0.15);
+}));
+guardar(TEX, 'mochila', new Lienzo(16).pintar((x, y) => {
+  let c = escala([58, 74, 52], 0.82 + fbm(x, y, 885, 16) * 0.2);
+  if (y === 5 || y === 6) c = [40, 40, 38];
+  if (y === 6 && x % 2 === 0) c = [150, 150, 140];
+  if (fbm(x, y, 886, 16) > 0.66) c = mezcla(c, [32, 36, 30], 0.5);
+  return c;
+}));
+
+/** Elemento de modelo con la misma textura en todas las caras (uv proporcional). */
+function caja (from, to, tex, extra = {}) {
+  const f = {};
+  const uv = { north: [from[0], 16 - to[1], to[0], 16 - from[1]], south: [from[0], 16 - to[1], to[0], 16 - from[1]],
+    east: [from[2], 16 - to[1], to[2], 16 - from[1]], west: [from[2], 16 - to[1], to[2], 16 - from[1]],
+    up: [from[0], from[2], to[0], to[2]], down: [from[0], from[2], to[0], to[2]] };
+  for (const cara of Object.keys(uv)) f[cara] = { texture: tex, uv: uv[cara].map((v) => Math.max(0, Math.min(16, v))) };
+  return { from, to, faces: f, ...extra };
+}
+
+const OBJETOS = {
+  // el flotador con cabeza de pato (como el de la foto de la sala inundada), tirado en el suelo
+  flotador: { tex: 'flotador', elementos: [
+    caja([2, 0, 2], [14, 3, 5], '#t'), caja([2, 0, 11], [14, 3, 14], '#t'),
+    caja([2, 0, 5], [5, 3, 11], '#t'), caja([11, 0, 5], [14, 3, 11], '#t'),
+    caja([6, 3, 1], [10, 8, 5], '#t'),
+    { from: [7, 4, -1], to: [9, 5.5, 1], faces: { north: { texture: '#t', uv: [0, 12, 4, 15] }, up: { texture: '#t', uv: [0, 12, 4, 15] }, east: { texture: '#t', uv: [0, 12, 4, 15] }, west: { texture: '#t', uv: [0, 12, 4, 15] }, down: { texture: '#t', uv: [0, 12, 4, 15] } } },
+    { from: [5.95, 6, 2], to: [5.95, 7, 3], faces: { west: { texture: '#t', uv: [10, 12, 12, 14] } } },
+    { from: [10.05, 6, 2], to: [10.05, 7, 3], faces: { east: { texture: '#t', uv: [10, 12, 12, 14] } } }
+  ] },
+  // una toalla arrugada
+  toalla: { tex: 'toalla', elementos: [caja([2, 0, 3], [13, 1, 12], '#t'), caja([4, 1, 5], [11, 2, 10], '#t'), caja([9, 1, 2], [14, 1.6, 6], '#t')] },
+  // un par de chanclas, una algo girada
+  chanclas: { tex: 'chanclas', elementos: [
+    caja([3, 0, 3], [7, 0.8, 12], '#t'), caja([4.5, 0.8, 5], [5.5, 1.8, 6], '#t'),
+    { ...caja([9, 0, 4], [13, 0.8, 13], '#t'), rotation: { origin: [11, 0, 8.5], axis: 'y', angle: 22.5 } },
+    { ...caja([10.5, 0.8, 6], [11.5, 1.8, 7], '#t'), rotation: { origin: [11, 0, 8.5], axis: 'y', angle: 22.5 } }
+  ] },
+  // una mochila tirada de lado
+  mochila: { tex: 'mochila', elementos: [caja([3, 0, 4], [13, 6, 12], '#t'), caja([5, 0, 2], [11, 4, 4], '#t'), caja([4, 6, 7], [12, 7, 9], '#t')] }
+};
+for (const [n, o] of Object.entries(OBJETOS)) {
+  json(`models/block/${n}.json`, { parent: 'minecraft:block/block', textures: { t: t(o.tex), particle: t(o.tex) }, elements: o.elementos });
+  const v = {};
+  for (const [f, y] of Object.entries(FACINGS)) v[`facing=${f}`] = { model: t(n), ...(y ? { y } : {}) };
+  json(`blockstates/${n}.json`, { variants: v });
+  json(`items/${n}.json`, { model: { type: 'minecraft:model', model: t(n) } });
+}
+
+// el panel que parpadea: encendido como el panel, apagado gris
+json('models/block/luz_techo_apagada.json', cubo('luz_techo_apagada'));
+json('blockstates/luz_techo_parpadeo.json', { variants: { 'lit=true': { model: t('luz_techo') }, 'lit=false': { model: t('luz_techo_apagada') } } });
+json('items/luz_techo_parpadeo.json', { model: { type: 'minecraft:model', model: t('luz_techo') } });
+for (const n of ['azulejo_manchado', 'azulejo_sangre']) {
+  json(`models/block/${n}.json`, cubo(n));
+  json(`blockstates/${n}.json`, { variants: { '': { model: t(n) } } });
+  json(`items/${n}.json`, { model: { type: 'minecraft:model', model: t(n) } });
+}
+console.log('  detalles: marcas, manchas, objetos, panel que parpadea');
+
 /* ============================================================ nombres */
 
 const NOMBRES = {
@@ -325,7 +698,16 @@ const NOMBRES = {
   claraboya: ['Claraboya', 'Skylight'],
   foco_piscina: ['Foco de piscina', 'Pool light'],
   losa_azulejo: ['Losa de azulejo', 'Tile slab'],
-  escalon_azulejo: ['Escalón de azulejo', 'Tile stairs']
+  escalon_azulejo: ['Escalón de azulejo', 'Tile stairs'],
+  luz_techo_parpadeo: ['Panel de luz que falla', 'Flickering light panel'],
+  azulejo_manchado: ['Azulejo manchado', 'Stained tile'],
+  azulejo_sangre: ['Azulejo con sangre', 'Bloodied tile'],
+  marca: ['Marca en la pared', 'Wall mark'],
+  mancha: ['Mancha en el suelo', 'Floor stain'],
+  flotador: ['Flotador', 'Pool float'],
+  toalla: ['Toalla', 'Towel'],
+  chanclas: ['Chanclas', 'Flip-flops'],
+  mochila: ['Mochila', 'Backpack']
 };
 for (const [archivo, k] of [['es_es.json', 0], ['en_us.json', 1]]) {
   const f = path.join(ASSETS, 'lang', archivo);

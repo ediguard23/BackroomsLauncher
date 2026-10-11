@@ -73,5 +73,14 @@
   "block.backrooms_evento.claraboya": "Claraboya",
   "block.backrooms_evento.foco_piscina": "Foco de piscina",
   "block.backrooms_evento.losa_azulejo": "Losa de azulejo",
-  "block.backrooms_evento.escalon_azulejo": "Escalón de azulejo"
+  "block.backrooms_evento.escalon_azulejo": "Escalón de azulejo",
+  "block.backrooms_evento.luz_techo_parpadeo": "Panel de luz que falla",
+  "block.backrooms_evento.azulejo_manchado": "Azulejo manchado",
+  "block.backrooms_evento.azulejo_sangre": "Azulejo con sangre",
+  "block.backrooms_evento.marca": "Marca en la pared",
+  "block.backrooms_evento.mancha": "Mancha en el suelo",
+  "block.backrooms_evento.flotador": "Flotador",
+  "block.backrooms_evento.toalla": "Toalla",
+  "block.backrooms_evento.chanclas": "Chanclas",
+  "block.backrooms_evento.mochila": "Mochila"
 }

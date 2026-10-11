@@ -302,7 +302,7 @@ public final class Vestibulo {
 		Fase f = Fase.de(donde);
 		if (f == null) {
 			// en las Piscinas: vuelve a otro sitio de las Piscinas
-			Piscinas.llegar(j);
+			Piscinas.llegar(j, false);
 			return;
 		}
 		ServerLevel nivel = this.servidor.getLevel(f.dimension());

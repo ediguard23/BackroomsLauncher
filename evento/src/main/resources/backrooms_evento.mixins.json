@@ -8,7 +8,9 @@
     "DistanceManagerMixin",
     "PlayerMixin",
     "AguanteConexionMixin",
-    "KeepAliveMixin"
+    "KeepAliveMixin",
+    "PiscinasJugadorMixin",
+    "AguaPiscinasMixin"
   ],
   "client": [
     "cliente.CinematicaBlurMixin",

@@ -24,10 +24,10 @@ import net.minecraft.world.level.Level;
  * (GeneradorPiscinas) y la llegada. Se baja por un ascensor de salida del Nivel 0
  * con las misiones hechas (Fases); la bajada es la cinematica del guion 2.
  *
- * De momento es solo el sitio: sin misiones, sin entidad que cace y sin sonidos
- * propios (eso viene despues). No es una Fase: ni apagones, ni Bacteria, ni cordura.
- * Quien muere aqui cuenta como en el Nivel 0 (Vestibulo y Eliminacion lo miran con
- * Piscinas#es).
+ * Aqui viven las Serpientes (Habitantes), hay comida y aguas como en el Nivel 0 (Comida),
+ * la cordura baja igual (Supervivencia) y suenan cosas sueltas de vez en cuando
+ * (AmbientePiscinas, en el cliente). No es una Fase: ni apagones ni Bacteria. Quien muere
+ * aqui cuenta como en el Nivel 0 (Vestibulo y Eliminacion lo miran con Piscinas#es).
  */
 public final class Piscinas {
 	public static final ResourceKey<Level> DIMENSION = ResourceKey.create(Registries.DIMENSION, BackroomsEvento.id("piscinas"));
@@ -61,8 +61,16 @@ public final class Piscinas {
 		return Fase.de(nivel) != null || es(nivel);
 	}
 
-	/** Lo deja en un sitio libre de las Piscinas, lejos de los que ya llegaron. Devuelve false si no hay dimension. */
+	/**
+	 * Lo deja en un sitio libre de las Piscinas, lejos de los que ya llegaron, y reparte sus
+	 * aguas de almendras alrededor (como al llegar al Nivel 0). Devuelve false si no hay dimension.
+	 */
 	public static boolean llegar(ServerPlayer j) {
+		return llegar(j, true);
+	}
+
+	/** Como llegar(j); `aguas` false al reaparecer (sus aguas ya se repartieron al llegar). */
+	public static boolean llegar(ServerPlayer j, boolean aguas) {
 		ServerLevel nivel = servidor == null ? null : servidor.getLevel(DIMENSION);
 		if (nivel == null) {
 			BackroomsEvento.LOG.error("No existe la dimension de las Piscinas ({})", DIMENSION.identifier());
@@ -75,6 +83,9 @@ public final class Piscinas {
 		j.removeEffect(MobEffects.SLOWNESS);
 		j.removeEffect(MobEffects.RESISTANCE);
 		Equipo.vestir(j);
+		if (aguas) {
+			net.backrooms.evento.supervivencia.Comida.get().repartirAguas(nivel, p);
+		}
 		BackroomsEvento.LOG.info("{} llega a las Piscinas en {} {}", j.getGameProfile().name(), p.getX(), p.getZ());
 		return true;
 	}
@@ -116,6 +127,46 @@ public final class Piscinas {
 							j.teleportTo(nivel, x + 0.5, y, z + 0.5, Set.of(), yaw, 0.0F, true);
 							return true;
 						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Lleva al jugador delante del detalle mas cercano (marca, mancha, objeto...); con
+	 * `soloCorre`, delante de un CORRE. Para el staff y las pruebas.
+	 */
+	public static boolean irADetalle(ServerPlayer j, boolean soloCorre) {
+		ServerLevel nivel = servidor == null ? null : servidor.getLevel(DIMENSION);
+		if (nivel == null || !(nivel.getChunkSource().getGenerator() instanceof GeneradorPiscinas gen)) {
+			return false;
+		}
+		PlanoPiscinas p = gen.plano(nivel.getChunkSource().randomState());
+		boolean aqui = es(j.level());
+		int cx0 = aqui ? Math.floorDiv(j.getBlockX(), PlanoPiscinas.C) : 0;
+		int cz0 = aqui ? Math.floorDiv(j.getBlockZ(), PlanoPiscinas.C) : 0;
+		for (int r = 0; r <= 40; r++) {
+			for (int dx = -r; dx <= r; dx++) {
+				for (int dz = -r; dz <= r; dz++) {
+					if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
+						continue;
+					}
+					for (PlanoPiscinas.Detalle d : p.detallesCelda(cx0 + dx, cz0 + dz)) {
+						if (soloCorre && (d.tipo() != PlanoPiscinas.D_MARCA || d.variante() != PlanoPiscinas.M_CORRE + 1)) {
+							continue;
+						}
+						// tres bloques delante de lo que se mira, mirandolo
+						int[] dxz = {0, 1, 0, -1, -1, 0, 1, 0};
+						int lado = d.tipo() == PlanoPiscinas.D_AZULEJO ? (d.lado() + 2) % 4 : d.lado();
+						int fx = dxz[lado];
+						int fz = dxz[lado + 4];
+						double x = d.x() + 0.5 + fx * 3.0;
+						double z = d.z() + 0.5 + fz * 3.0;
+						float yaw = (float) Math.toDegrees(Math.atan2(fx, -fz));
+						j.teleportTo(nivel, x, PlanoPiscinas.PISO, z, Set.of(), yaw, 10.0F, true);
+						return true;
 					}
 				}
 			}

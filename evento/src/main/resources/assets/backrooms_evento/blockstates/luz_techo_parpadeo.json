@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=true": {
+      "model": "backrooms_evento:block/luz_techo"
+    },
+    "lit=false": {
+      "model": "backrooms_evento:block/luz_techo_apagada"
+    }
+  }
+}

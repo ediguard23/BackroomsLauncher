@@ -1,0 +1,79 @@
+{
+  "variants": {
+    "facing=north,mancha=0": {
+      "model": "backrooms_evento:block/mancha_suciedad"
+    },
+    "facing=north,mancha=1": {
+      "model": "backrooms_evento:block/mancha_charco"
+    },
+    "facing=north,mancha=2": {
+      "model": "backrooms_evento:block/mancha_gotas_sangre"
+    },
+    "facing=north,mancha=3": {
+      "model": "backrooms_evento:block/mancha_escombros"
+    },
+    "facing=north,mancha=4": {
+      "model": "backrooms_evento:block/mancha_huellas"
+    },
+    "facing=east,mancha=0": {
+      "model": "backrooms_evento:block/mancha_suciedad",
+      "y": 90
+    },
+    "facing=east,mancha=1": {
+      "model": "backrooms_evento:block/mancha_charco",
+      "y": 90
+    },
+    "facing=east,mancha=2": {
+      "model": "backrooms_evento:block/mancha_gotas_sangre",
+      "y": 90
+    },
+    "facing=east,mancha=3": {
+      "model": "backrooms_evento:block/mancha_escombros",
+      "y": 90
+    },
+    "facing=east,mancha=4": {
+      "model": "backrooms_evento:block/mancha_huellas",
+      "y": 90
+    },
+    "facing=south,mancha=0": {
+      "model": "backrooms_evento:block/mancha_suciedad",
+      "y": 180
+    },
+    "facing=south,mancha=1": {
+      "model": "backrooms_evento:block/mancha_charco",
+      "y": 180
+    },
+    "facing=south,mancha=2": {
+      "model": "backrooms_evento:block/mancha_gotas_sangre",
+      "y": 180
+    },
+    "facing=south,mancha=3": {
+      "model": "backrooms_evento:block/mancha_escombros",
+      "y": 180
+    },
+    "facing=south,mancha=4": {
+      "model": "backrooms_evento:block/mancha_huellas",
+      "y": 180
+    },
+    "facing=west,mancha=0": {
+      "model": "backrooms_evento:block/mancha_suciedad",
+      "y": 270
+    },
+    "facing=west,mancha=1": {
+      "model": "backrooms_evento:block/mancha_charco",
+      "y": 270
+    },
+    "facing=west,mancha=2": {
+      "model": "backrooms_evento:block/mancha_gotas_sangre",
+      "y": 270
+    },
+    "facing=west,mancha=3": {
+      "model": "backrooms_evento:block/mancha_escombros",
+      "y": 270
+    },
+    "facing=west,mancha=4": {
+      "model": "backrooms_evento:block/mancha_huellas",
+      "y": 270
+    }
+  }
+}

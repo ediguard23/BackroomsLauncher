@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "backrooms_evento:block/flotador"
+    },
+    "facing=east": {
+      "model": "backrooms_evento:block/flotador",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "backrooms_evento:block/flotador",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "backrooms_evento:block/flotador",
+      "y": 270
+    }
+  }
+}

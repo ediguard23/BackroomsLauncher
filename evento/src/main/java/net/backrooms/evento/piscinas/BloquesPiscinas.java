@@ -1,8 +1,11 @@
 package net.backrooms.evento.piscinas;
 
 import net.backrooms.evento.BackroomsEvento;
+import net.backrooms.evento.Sonidos;
+import net.backrooms.evento.bloques.EnSuelo;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -11,15 +14,21 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * Bloques de las Piscinas (Nivel 37): azulejo blanco con su junta (limpio, sucio y
  * con piezas caidas), el fondo de la piscina con las causticas animadas, las franjas
- * de las calles, el borde, los paneles de luz, las claraboyas y los focos de debajo
- * del agua. Texturas y modelos: tools/texturas/piscinas.js.
+ * de las calles, el borde, los paneles de luz (y el que falla), las claraboyas y los
+ * focos de debajo del agua; y los detalles que se encuentran muy de vez en cuando:
+ * marcas en la pared, manchas en el suelo y cosas que alguien dejo. Texturas y
+ * modelos: tools/texturas/piscinas.js.
  */
 public final class BloquesPiscinas {
-	private static final SoundType AZULEJOS = SoundType.DEEPSLATE_TILES;
+	/** El azulejo suena como el de pizarra salvo al pisarlo: pasos secos con toda la sala detras (Sonidos). */
+	private static final SoundType AZULEJOS = new SoundType(1.3F, 1.0F, SoundEvents.DEEPSLATE_TILES_BREAK, Sonidos.PISCINAS_PASO,
+		SoundEvents.DEEPSLATE_TILES_PLACE, SoundEvents.DEEPSLATE_TILES_HIT, SoundEvents.DEEPSLATE_TILES_FALL);
 
 	public static final Block AZULEJO = registrar("azulejo", propiedades(MapColor.SNOW, AZULEJOS, 1.5F));
 	public static final Block AZULEJO_SUCIO = registrar("azulejo_sucio", propiedades(MapColor.SNOW, AZULEJOS, 1.5F));
@@ -36,8 +45,30 @@ public final class BloquesPiscinas {
 		propiedades(MapColor.SNOW, AZULEJOS, 1.5F)));
 	public static final Block ESCALON_AZULEJO = conObjeto(Blocks.register(clave("escalon_azulejo"),
 		p -> new StairBlock(AZULEJO.defaultBlockState(), p), propiedades(MapColor.SNOW, AZULEJOS, 1.5F)));
+	public static final Block LUZ_PARPADEO = conObjeto(Blocks.register(clave("luz_techo_parpadeo"), LuzParpadeante::new,
+		propiedades(MapColor.SNOW, SoundType.GLASS, 0.6F).lightLevel(e -> e.getValue(LuzParpadeante.LIT) ? 15 : 0)));
+
+	/* ------------------------------------------------- detalles (raros) */
+
+	public static final Block AZULEJO_MANCHADO = registrar("azulejo_manchado", propiedades(MapColor.SNOW, AZULEJOS, 1.5F));
+	public static final Block AZULEJO_SANGRE = registrar("azulejo_sangre", propiedades(MapColor.SNOW, AZULEJOS, 1.5F));
+	public static final Block MARCA = conObjeto(Blocks.register(clave("marca"), MarcaPiscina::new,
+		propiedades(MapColor.NONE, SoundType.STONE, 0.2F).noCollision().noOcclusion().replaceable()));
+	public static final Block MANCHA = conObjeto(Blocks.register(clave("mancha"), ManchaSuelo::new,
+		propiedades(MapColor.NONE, SoundType.STONE, 0.2F).noCollision().noOcclusion().replaceable()));
+	public static final Block FLOTADOR = objeto("flotador", MapColor.COLOR_YELLOW, SoundType.WOOL, Block.box(1, 0, 0, 15, 8, 15));
+	public static final Block TOALLA = objeto("toalla", MapColor.COLOR_LIGHT_BLUE, SoundType.WOOL, Block.box(2, 0, 2, 14, 2, 13));
+	public static final Block CHANCLAS = objeto("chanclas", MapColor.COLOR_RED, SoundType.WOOL, Block.box(3, 0, 3, 14, 2, 13));
+	public static final Block MOCHILA = objeto("mochila", MapColor.COLOR_GREEN, SoundType.WOOL, Block.box(3, 0, 2, 13, 7, 12));
+	public static final Block[] OBJETOS = {FLOTADOR, TOALLA, CHANCLAS, MOCHILA};
 
 	private BloquesPiscinas() {
+	}
+
+	/** Algo tirado en el suelo y orientado; no choca (no estorba ni a la gente ni a la Serpiente). */
+	private static Block objeto(String id, MapColor color, SoundType sonido, VoxelShape forma) {
+		return conObjeto(Blocks.register(clave(id), p -> new EnSuelo(p, forma, Shapes.empty()),
+			propiedades(color, sonido, 0.5F).noCollision().noOcclusion()));
 	}
 
 	private static ResourceKey<Block> clave(String id) {

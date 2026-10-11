@@ -48,7 +48,8 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		BlockRenderLayerMap.putBlocks(ChunkSectionLayer.CUTOUT,
 			Bloques.DIBUJO, Bloques.VENTILADOR, Bloques.VENTILADOR_GRANDE, Bloques.CAPA_BACILO,
 			Bloques.SENAL_ALTO, Bloques.SENAL_PELIGRO, Bloques.SENAL_SIGA, Bloques.SENAL_ALTO_REVES, Bloques.SENAL_SIGA_REVES,
-			Bloques.PANEL_ASCENSOR, Bloques.HUECO);
+			Bloques.PANEL_ASCENSOR, Bloques.HUECO,
+			net.backrooms.evento.piscinas.BloquesPiscinas.MARCA, net.backrooms.evento.piscinas.BloquesPiscinas.MANCHA);
 		EntityRenderers.register(Entidades.CASETE, CaseteRenderer::new);
 		EntityRenderers.register(Entidades.ASIENTO, NoopRenderer::new);
 		EntityRenderers.register(Entidades.COMIDA, ComidaRenderer::new);
@@ -70,6 +71,10 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(Susto.TYPE, (s, ctx) -> SupervivenciaCliente.susto(s));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Eliminado.TYPE, (s, ctx) -> Eliminaciones.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Agarrado.TYPE, (s, ctx) -> AgarreCliente.empezar(s));
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.SonidoPiscinas.TYPE,
+			(s, ctx) -> net.backrooms.evento.cliente.piscinas.AmbientePiscinas.forzar(ctx.client(), s.que()));
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Mordisco.TYPE,
+			(s, ctx) -> net.backrooms.evento.cliente.piscinas.MordiscoCliente.empezar(s));
 		HerramientasCliente.registrar();
 		HuecoCliente.registrar();
 		AccesoCliente.registrar();
@@ -82,11 +87,14 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			AgarreCliente.tick(mc);
 			Miedo.tick(mc);
 			net.backrooms.evento.cliente.cinematica.CinematicaCliente.tick(mc);
+			net.backrooms.evento.cliente.piscinas.AmbientePiscinas.tick(mc);
+			net.backrooms.evento.cliente.piscinas.MordiscoCliente.tick(mc);
 		});
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("supervivencia"), SupervivenciaCliente::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("camara"), CamaraHud::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("hueco"), HuecoCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("agarre"), AgarreCliente::render);
+		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("mordisco"), net.backrooms.evento.cliente.piscinas.MordiscoCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("ascensor"), AscensorCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("eliminaciones"), Eliminaciones::render);
 		// con la camara levantada no se ve nada del juego (mira, barra, vida, armadura, comida,
@@ -112,6 +120,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			SupervivenciaCliente.olvidar();
 			Miedo.olvidar();
 			AgarreCliente.olvidar();
+			net.backrooms.evento.cliente.piscinas.MordiscoCliente.olvidar();
 			HuecoCliente.olvidar();
 		});
 		PantallaCinematica.cargar();

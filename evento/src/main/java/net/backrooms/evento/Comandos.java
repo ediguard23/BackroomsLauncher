@@ -43,11 +43,13 @@ import net.minecraft.server.level.ServerPlayer;
  *  piscinas [jugador]        lo manda ya a un sitio libre de las Piscinas (Nivel 37)
  *  piscinas ir <sala>        a la sala de ese tipo mas cercana (pasillos, piscina, inundada,
  *                            bovedas, tunel, caracol, terrazas)
+ *  piscinas oir <sonido> <jugador>  que oiga ya uno de los sonidos sueltos de las Piscinas
+ *                            (gota, agua, orilla, chapoteo, tuberia, grave, grunido, voz, susurro)
  *  vestibulo [jugador]       lo lleva al vestibulo; "vestibulo rehacer" repone los rotulos
  *  muerte eliminar|reaparecer  morir saca de la expedicion (por defecto) o reaparece en la fase
  *  perdonar                   quita el ban a todos los que cayeron (al acabar el evento o tras una prueba)
  *  escapados [olvidar]       quienes han escapado y en que puesto
- *  invocar bacteria|smiler|serpiente  la pone delante (la Serpiente, quieta: aun no tiene IA)
+ *  invocar bacteria|smiler|serpiente  la pone delante
  *
  * Y /start [jugadores]: manda al Nivel 0 a todos (los que no esten en
  * creativo ni espectador) o a los indicados, poco a poco y con cinematica.
@@ -168,6 +170,15 @@ public final class Comandos {
 			.then(Commands.literal("piscinas")
 				.executes(c -> net.backrooms.evento.piscinas.Piscinas.llegar(c.getSource().getPlayerOrException()) ? 1 : 0)
 				.then(irPiscinas())
+				.then(Commands.literal("oir").then(Commands.argument("sonido", StringArgumentType.word())
+					.suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(
+						java.util.List.of("gota", "agua", "orilla", "chapoteo", "tuberia", "grave", "grunido", "voz", "susurro"), b))
+					.then(Commands.argument("jugador", EntityArgument.player()).executes(c -> {
+						ServerPlayer j = EntityArgument.getPlayer(c, "jugador");
+						net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking.send(j,
+							new net.backrooms.evento.red.SonidoPiscinas(StringArgumentType.getString(c, "sonido")));
+						return 1;
+					}))))
 				.then(Commands.argument("jugador", EntityArgument.player())
 					.executes(c -> net.backrooms.evento.piscinas.Piscinas.llegar(EntityArgument.getPlayer(c, "jugador")) ? 1 : 0)))
 			.then(Commands.literal("vestibulo")
@@ -281,8 +292,9 @@ public final class Comandos {
 	}
 
 	/**
-	 * Pone la Serpiente 7 bloques por delante, mirando al jugador. Sobre el agua se
-	 * queda medio hundida; en seco, tumbada en el suelo. No se mueve (aun no tiene IA).
+	 * Pone la Serpiente 7 bloques por delante, mirando al jugador: en el agua, a flor de
+	 * agua; en seco, en el suelo. Luego hace lo suyo (ojo: si hay alguien en modo aventura
+	 * a menos de 25 bloques, va a por el).
 	 */
 	private static int invocarSerpiente(ServerPlayer j) {
 		net.minecraft.server.level.ServerLevel nivel = j.level();
@@ -311,6 +323,15 @@ public final class Comandos {
 	/** piscinas ir <tipo>: a la sala de ese tipo mas cercana (pruebas y rodaje). */
 	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> irPiscinas() {
 		var ir = Commands.literal("ir");
+		for (boolean corre : new boolean[] {false, true}) {
+			ir.then(Commands.literal(corre ? "corre" : "detalle").executes(c -> {
+				boolean ok = net.backrooms.evento.piscinas.Piscinas.irADetalle(c.getSource().getPlayerOrException(), corre);
+				if (!ok) {
+					c.getSource().sendFailure(Component.literal("No hay nada asi cerca (o no hay Piscinas)."));
+				}
+				return ok ? 1 : 0;
+			}));
+		}
 		for (int k = 0; k < SALAS_PISCINAS.length; k++) {
 			int tipo = k;
 			ir.then(Commands.literal(SALAS_PISCINAS[k]).executes(c -> {

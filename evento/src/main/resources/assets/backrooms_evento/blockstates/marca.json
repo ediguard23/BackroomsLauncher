@@ -1,0 +1,199 @@
+{
+  "variants": {
+    "facing=north,marca=0": {
+      "model": "backrooms_evento:block/marca_corre_0"
+    },
+    "facing=north,marca=1": {
+      "model": "backrooms_evento:block/marca_corre_1"
+    },
+    "facing=north,marca=2": {
+      "model": "backrooms_evento:block/marca_corre_2"
+    },
+    "facing=north,marca=3": {
+      "model": "backrooms_evento:block/marca_mano"
+    },
+    "facing=north,marca=4": {
+      "model": "backrooms_evento:block/marca_manos"
+    },
+    "facing=north,marca=5": {
+      "model": "backrooms_evento:block/marca_aranazos"
+    },
+    "facing=north,marca=6": {
+      "model": "backrooms_evento:block/marca_conteo"
+    },
+    "facing=north,marca=7": {
+      "model": "backrooms_evento:block/marca_espiral"
+    },
+    "facing=north,marca=8": {
+      "model": "backrooms_evento:block/marca_mancha"
+    },
+    "facing=north,marca=9": {
+      "model": "backrooms_evento:block/marca_sangre"
+    },
+    "facing=north,marca=10": {
+      "model": "backrooms_evento:block/marca_cartel_no_correr"
+    },
+    "facing=north,marca=11": {
+      "model": "backrooms_evento:block/marca_cartel_profundidad"
+    },
+    "facing=north,marca=12": {
+      "model": "backrooms_evento:block/marca_cartel_saltar"
+    },
+    "facing=east,marca=0": {
+      "model": "backrooms_evento:block/marca_corre_0",
+      "y": 90
+    },
+    "facing=east,marca=1": {
+      "model": "backrooms_evento:block/marca_corre_1",
+      "y": 90
+    },
+    "facing=east,marca=2": {
+      "model": "backrooms_evento:block/marca_corre_2",
+      "y": 90
+    },
+    "facing=east,marca=3": {
+      "model": "backrooms_evento:block/marca_mano",
+      "y": 90
+    },
+    "facing=east,marca=4": {
+      "model": "backrooms_evento:block/marca_manos",
+      "y": 90
+    },
+    "facing=east,marca=5": {
+      "model": "backrooms_evento:block/marca_aranazos",
+      "y": 90
+    },
+    "facing=east,marca=6": {
+      "model": "backrooms_evento:block/marca_conteo",
+      "y": 90
+    },
+    "facing=east,marca=7": {
+      "model": "backrooms_evento:block/marca_espiral",
+      "y": 90
+    },
+    "facing=east,marca=8": {
+      "model": "backrooms_evento:block/marca_mancha",
+      "y": 90
+    },
+    "facing=east,marca=9": {
+      "model": "backrooms_evento:block/marca_sangre",
+      "y": 90
+    },
+    "facing=east,marca=10": {
+      "model": "backrooms_evento:block/marca_cartel_no_correr",
+      "y": 90
+    },
+    "facing=east,marca=11": {
+      "model": "backrooms_evento:block/marca_cartel_profundidad",
+      "y": 90
+    },
+    "facing=east,marca=12": {
+      "model": "backrooms_evento:block/marca_cartel_saltar",
+      "y": 90
+    },
+    "facing=south,marca=0": {
+      "model": "backrooms_evento:block/marca_corre_0",
+      "y": 180
+    },
+    "facing=south,marca=1": {
+      "model": "backrooms_evento:block/marca_corre_1",
+      "y": 180
+    },
+    "facing=south,marca=2": {
+      "model": "backrooms_evento:block/marca_corre_2",
+      "y": 180
+    },
+    "facing=south,marca=3": {
+      "model": "backrooms_evento:block/marca_mano",
+      "y": 180
+    },
+    "facing=south,marca=4": {
+      "model": "backrooms_evento:block/marca_manos",
+      "y": 180
+    },
+    "facing=south,marca=5": {
+      "model": "backrooms_evento:block/marca_aranazos",
+      "y": 180
+    },
+    "facing=south,marca=6": {
+      "model": "backrooms_evento:block/marca_conteo",
+      "y": 180
+    },
+    "facing=south,marca=7": {
+      "model": "backrooms_evento:block/marca_espiral",
+      "y": 180
+    },
+    "facing=south,marca=8": {
+      "model": "backrooms_evento:block/marca_mancha",
+      "y": 180
+    },
+    "facing=south,marca=9": {
+      "model": "backrooms_evento:block/marca_sangre",
+      "y": 180
+    },
+    "facing=south,marca=10": {
+      "model": "backrooms_evento:block/marca_cartel_no_correr",
+      "y": 180
+    },
+    "facing=south,marca=11": {
+      "model": "backrooms_evento:block/marca_cartel_profundidad",
+      "y": 180
+    },
+    "facing=south,marca=12": {
+      "model": "backrooms_evento:block/marca_cartel_saltar",
+      "y": 180
+    },
+    "facing=west,marca=0": {
+      "model": "backrooms_evento:block/marca_corre_0",
+      "y": 270
+    },
+    "facing=west,marca=1": {
+      "model": "backrooms_evento:block/marca_corre_1",
+      "y": 270
+    },
+    "facing=west,marca=2": {
+      "model": "backrooms_evento:block/marca_corre_2",
+      "y": 270
+    },
+    "facing=west,marca=3": {
+      "model": "backrooms_evento:block/marca_mano",
+      "y": 270
+    },
+    "facing=west,marca=4": {
+      "model": "backrooms_evento:block/marca_manos",
+      "y": 270
+    },
+    "facing=west,marca=5": {
+      "model": "backrooms_evento:block/marca_aranazos",
+      "y": 270
+    },
+    "facing=west,marca=6": {
+      "model": "backrooms_evento:block/marca_conteo",
+      "y": 270
+    },
+    "facing=west,marca=7": {
+      "model": "backrooms_evento:block/marca_espiral",
+      "y": 270
+    },
+    "facing=west,marca=8": {
+      "model": "backrooms_evento:block/marca_mancha",
+      "y": 270
+    },
+    "facing=west,marca=9": {
+      "model": "backrooms_evento:block/marca_sangre",
+      "y": 270
+    },
+    "facing=west,marca=10": {
+      "model": "backrooms_evento:block/marca_cartel_no_correr",
+      "y": 270
+    },
+    "facing=west,marca=11": {
+      "model": "backrooms_evento:block/marca_cartel_profundidad",
+      "y": 270
+    },
+    "facing=west,marca=12": {
+      "model": "backrooms_evento:block/marca_cartel_saltar",
+      "y": 270
+    }
+  }
+}

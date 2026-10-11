@@ -15,6 +15,9 @@ import net.backrooms.evento.fase.Fase;
 import net.backrooms.evento.mision.Entidades;
 import net.backrooms.evento.mundo.GeneradorNivel0;
 import net.backrooms.evento.mundo.Plano;
+import net.backrooms.evento.piscinas.GeneradorPiscinas;
+import net.backrooms.evento.piscinas.Piscinas;
+import net.backrooms.evento.piscinas.PlanoPiscinas;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.ChatFormatting;
@@ -154,6 +157,10 @@ public final class Comida {
 
 	/** Pone AGUAS_POR_JUGADOR aguas de almendras cerca de donde llega un jugador. */
 	public void repartirAguas(ServerLevel nivel, net.minecraft.core.BlockPos llegada) {
+		if (nivel.getChunkSource().getGenerator() instanceof GeneradorPiscinas piscinas) {
+			this.repartirAguasPiscinas(nivel, piscinas.plano(nivel.getChunkSource().randomState()), llegada);
+			return;
+		}
 		if (!(nivel.getChunkSource().getGenerator() instanceof GeneradorNivel0 gen)) {
 			return;
 		}
@@ -170,6 +177,30 @@ public final class Comida {
 				continue;
 			}
 			if (p.pared(x, z) || p.decoracion(x, z).tipo() != Plano.D_NADA || p.comida(x, z) != Plano.C_NADA || a.contains(clave(x, z))) {
+				continue;
+			}
+			a.add(clave(x, z));
+			puestas++;
+		}
+		this.sucio = true;
+	}
+
+	/** Lo mismo en las Piscinas: en suelo seco, donde se pueda estar de pie, y no encima de otra comida. */
+	private void repartirAguasPiscinas(ServerLevel nivel, PlanoPiscinas p, net.minecraft.core.BlockPos llegada) {
+		Set<Long> a = this.aguas(nivel);
+		byte[] col = new byte[PlanoPiscinas.ALTO];
+		int puestas = 0;
+		for (int intento = 0; intento < 120 && puestas < AGUAS_POR_JUGADOR; intento++) {
+			double ang = this.azar.nextDouble() * Math.PI * 2;
+			double d = 25 + this.azar.nextDouble() * 150;
+			int x = llegada.getX() + (int) Math.round(Math.cos(ang) * d);
+			int z = llegada.getZ() + (int) Math.round(Math.sin(ang) * d);
+			p.columna(x, z, col);
+			if (!p.pisable(x, PlanoPiscinas.PISO, z, col) || !p.detallesEn(x, z).isEmpty() || a.contains(clave(x, z))) {
+				continue;
+			}
+			int[] fija = p.comidaEnCelda(Math.floorDiv(x, PlanoPiscinas.C), Math.floorDiv(z, PlanoPiscinas.C));
+			if (fija != null && fija[0] == x && fija[1] == z) {
 				continue;
 			}
 			a.add(clave(x, z));
@@ -196,15 +227,23 @@ public final class Comida {
 			SoundSource.PLAYERS, 0.9F, 0.95F + nivel.getRandom().nextFloat() * 0.1F);
 	}
 
-	private void materializar(ServerLevel nivel, String dim, int x, int z, int tipo) {
+	private void materializar(ServerLevel nivel, String dim, int x, int z, int tipo, int y) {
 		String k = dim + " " + x + " " + z;
+		// con su chunk sin cargar del todo (justo al llegar o reaparecer) no se pone: se quedaria
+		// fuera del mundo, sin verse ni quitarse, y esa comida ya no volvia
+		if (!nivel.isPositionEntityTicking(new net.minecraft.core.BlockPos(x, y, z))) {
+			return;
+		}
 		ComidaEntidad viva = this.vivas.get(k);
 		if (viva != null && !viva.isRemoved()) {
-			return;
+			if (nivel.getEntity(viva.getId()) == viva) {
+				return;
+			}
+			viva.discard();
 		}
 		ComidaEntidad nueva = new ComidaEntidad(Entidades.COMIDA, nivel);
 		nueva.preparar(tipo, Math.floorMod(x * 53 + z * 29, 360));
-		nueva.setPos(x + 0.5, GeneradorNivel0.SUELO + 1.0, z + 0.5);
+		nueva.setPos(x + 0.5, y, z + 0.5);
 		nivel.addFreshEntity(nueva);
 		this.vivas.put(k, nueva);
 	}
@@ -214,6 +253,10 @@ public final class Comida {
 			return;
 		}
 		for (ServerLevel nivel : this.servidor.getAllLevels()) {
+			if (Piscinas.es(nivel) && nivel.getChunkSource().getGenerator() instanceof GeneradorPiscinas piscinas) {
+				this.piscinas(nivel, piscinas.plano(nivel.getChunkSource().randomState()));
+				continue;
+			}
 			if (Fase.de(nivel) == null || !(nivel.getChunkSource().getGenerator() instanceof GeneradorNivel0 gen)) {
 				continue;
 			}
@@ -235,7 +278,7 @@ public final class Comida {
 					if (Math.abs(ax - j.getBlockX()) > RADIO || Math.abs(az - j.getBlockZ()) > RADIO || cogidas.contains(k)) {
 						continue;
 					}
-					this.materializar(nivel, dim, ax, az, Plano.C_AGUA);
+					this.materializar(nivel, dim, ax, az, Plano.C_AGUA, GeneradorNivel0.SUELO + 1);
 				}
 				for (int gx = gx0; gx <= gx1; gx++) {
 					for (int gz = gz0; gz <= gz1; gz++) {
@@ -243,7 +286,7 @@ public final class Comida {
 						if (c == null || cogidas.contains(clave(c[0], c[1]))) {
 							continue;
 						}
-						this.materializar(nivel, dim, c[0], c[1], c[2]);
+						this.materializar(nivel, dim, c[0], c[1], c[2], GeneradorNivel0.SUELO + 1);
 					}
 				}
 			}
@@ -261,6 +304,36 @@ public final class Comida {
 		}
 		if (this.ticks % 1200 == 0) {
 			this.guardar();
+		}
+	}
+
+	/** Las Piscinas: lo mismo que en el Nivel 0, con la comida de cada celda del plano y las aguas de la partida. */
+	private void piscinas(ServerLevel nivel, PlanoPiscinas p) {
+		Set<Long> cogidas = this.cogidas(nivel);
+		String dim = nivel.dimension().identifier().toString();
+		for (ServerPlayer j : nivel.players()) {
+			if (j.isSpectator()) {
+				continue;
+			}
+			for (long k : this.aguas(nivel)) {
+				int ax = (int) (k >> 32);
+				int az = (int) k;
+				if (Math.abs(ax - j.getBlockX()) <= RADIO && Math.abs(az - j.getBlockZ()) <= RADIO && !cogidas.contains(k)) {
+					this.materializar(nivel, dim, ax, az, Plano.C_AGUA, PlanoPiscinas.PISO);
+				}
+			}
+			int cx0 = Math.floorDiv(j.getBlockX() - RADIO, PlanoPiscinas.C);
+			int cx1 = Math.floorDiv(j.getBlockX() + RADIO, PlanoPiscinas.C);
+			int cz0 = Math.floorDiv(j.getBlockZ() - RADIO, PlanoPiscinas.C);
+			int cz1 = Math.floorDiv(j.getBlockZ() + RADIO, PlanoPiscinas.C);
+			for (int cx = cx0; cx <= cx1; cx++) {
+				for (int cz = cz0; cz <= cz1; cz++) {
+					int[] c = p.comidaEnCelda(cx, cz);
+					if (c != null && !cogidas.contains(clave(c[0], c[1]))) {
+						this.materializar(nivel, dim, c[0], c[1], c[2], PlanoPiscinas.PISO);
+					}
+				}
+			}
 		}
 	}
 }

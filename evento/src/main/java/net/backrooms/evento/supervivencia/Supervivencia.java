@@ -7,7 +7,11 @@ import java.util.UUID;
 import net.backrooms.evento.BackroomsEvento;
 import net.backrooms.evento.ambiente.Ambiente;
 import net.backrooms.evento.entidad.Bacteria;
+import net.backrooms.evento.entidad.Serpiente;
 import net.backrooms.evento.entidad.Smiler;
+import net.backrooms.evento.piscinas.GeneradorPiscinas;
+import net.backrooms.evento.piscinas.Piscinas;
+import net.backrooms.evento.piscinas.PlanoPiscinas;
 import net.backrooms.evento.fase.Fase;
 import net.backrooms.evento.mision.Misiones;
 import net.backrooms.evento.mundo.GeneradorNivel0;
@@ -39,8 +43,10 @@ import net.minecraft.world.phys.AABB;
  * (flashbang, golpes) la bajan de golpe. Solo el agua de almendras la sube.
  * Baja, el cliente oye cosas y ve alucinaciones; a 0, el jugador muere.
  *
- * Solo cuenta dentro de una fase y para quien esta en la expedicion; la
- * cordura se guarda con el jugador (vuelve a 100 al reaparecer).
+ * Solo cuenta dentro de una fase o en las Piscinas (igual que en la fase 1: alli
+ * acelera la oscuridad de las salas apagadas y que te persiga la Serpiente) y para
+ * quien esta en la expedicion; la cordura se guarda con el jugador (vuelve a 100 al
+ * reaparecer).
  */
 public final class Supervivencia {
 	public static final AttachmentType<Float> CORDURA = AttachmentRegistry.create(BackroomsEvento.id("cordura"),
@@ -86,7 +92,7 @@ public final class Supervivencia {
 
 	/** true si a este jugador le cuentan la cordura y la estamina. */
 	public static boolean cuenta(ServerPlayer j) {
-		return !j.isCreative() && !j.isSpectator() && Fase.de(j.level()) != null && Misiones.get().enExpedicion(j);
+		return !j.isCreative() && !j.isSpectator() && Piscinas.delEvento(j.level()) && Misiones.get().enExpedicion(j);
 	}
 
 	public float cordura(ServerPlayer j) {
@@ -160,6 +166,9 @@ public final class Supervivencia {
 		ServerLevel nivel = j.level();
 		Fase f = Fase.de(nivel);
 		if (f == null) {
+			if (Piscinas.es(nivel)) {
+				this.locuraPiscinas(j, nivel);
+			}
 			return;
 		}
 		float ritmo = 1.0F;
@@ -179,7 +188,28 @@ public final class Supervivencia {
 		if (!nivel.getEntitiesOfClass(Smiler.class, j.getBoundingBox().inflate(16)).isEmpty()) {
 			ritmo *= 2.0F;
 		}
-		float porSegundo = 100.0F / (MINUTOS_CORDURA * 60.0F) * (float) f.cordura() * ritmo;
+		this.bajar(j, nivel, 100.0F / (MINUTOS_CORDURA * 60.0F) * (float) f.cordura() * ritmo);
+	}
+
+	/** En las Piscinas: como en la fase 1; mas deprisa en una sala a oscuras y mucho mas si la Serpiente te persigue. */
+	private void locuraPiscinas(ServerPlayer j, ServerLevel nivel) {
+		float ritmo = 1.0F;
+		if (nivel.getChunkSource().getGenerator() instanceof GeneradorPiscinas gen) {
+			PlanoPiscinas p = gen.plano(nivel.getChunkSource().randomState());
+			if (p.sala(Math.floorDiv(j.getBlockX(), PlanoPiscinas.C), Math.floorDiv(j.getBlockZ(), PlanoPiscinas.C)).oscura()) {
+				ritmo *= 1.5F;
+			}
+		}
+		for (Serpiente s : nivel.getEntitiesOfClass(Serpiente.class, j.getBoundingBox().inflate(28))) {
+			if (s.getTarget() == j) {
+				ritmo *= 4.0F;
+				break;
+			}
+		}
+		this.bajar(j, nivel, 100.0F / (MINUTOS_CORDURA * 60.0F) * ritmo);
+	}
+
+	private void bajar(ServerPlayer j, ServerLevel nivel, float porSegundo) {
 		float nueva = this.cordura(j) - porSegundo;
 		this.cordura(j, nueva);
 		if (nueva <= 0.0F && j.isAlive()) {

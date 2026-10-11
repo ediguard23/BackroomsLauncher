@@ -12,8 +12,28 @@ import net.minecraft.sounds.SoundEvent;
  */
 public final class Sonidos {
 	public static final SoundEvent ZUMBIDO = registrar("nivel0.zumbido");
-	/** Ambiente en bucle del bioma de las Piscinas: de momento el del menu (depuradora, agua, gotas, eco). */
-	public static final SoundEvent PISCINAS_AMBIENTE = registrar("piscinas.ambiente");
+	// las Piscinas (tools/sonidos/nivel37.js): nada en bucle; lo suelto lo pone AmbientePiscinas
+	public static final SoundEvent PISCINAS_GOTA = registrar("piscinas.gota");
+	public static final SoundEvent PISCINAS_AGUA = registrar("piscinas.agua");
+	public static final SoundEvent PISCINAS_ORILLA = registrar("piscinas.orilla");
+	public static final SoundEvent PISCINAS_CHAPOTEO = registrar("piscinas.chapoteo");
+	public static final SoundEvent PISCINAS_TUBERIA = registrar("piscinas.tuberia");
+	public static final SoundEvent PISCINAS_GRAVE = registrar("piscinas.grave");
+	public static final SoundEvent PISCINAS_VOZ = registrar("piscinas.voz");
+	public static final SoundEvent PISCINAS_PASO = registrar("piscinas.paso");
+	public static final SoundEvent PISCINAS_PASO_AGUA = registrar("piscinas.paso_agua");
+	public static final SoundEvent PISCINAS_NADO = registrar("piscinas.nado");
+	public static final SoundEvent PISCINAS_CHISPA = registrar("piscinas.chispa");
+	/** El susurro con el nombre: se sintetiza en el cliente (SusurroNombre); en sounds.json solo hay un hueco. */
+	public static final SoundEvent PISCINAS_SUSURRO = registrar("piscinas.susurro");
+	public static final SoundEvent SERPIENTE_GRUNIDO = registrar("serpiente.grunido");
+	public static final SoundEvent SERPIENTE_RESPIRA = registrar("serpiente.respira");
+	public static final SoundEvent SERPIENTE_PASO = registrar("serpiente.paso");
+	public static final SoundEvent SERPIENTE_AGUA = registrar("serpiente.agua");
+	public static final SoundEvent SERPIENTE_GRITO = registrar("serpiente.grito");
+	public static final SoundEvent SERPIENTE_CAZA = registrar("serpiente.caza");
+	public static final SoundEvent SERPIENTE_ATAQUE = registrar("serpiente.ataque");
+	public static final SoundEvent SERPIENTE_MORDISCO = registrar("serpiente.mordisco");
 	public static final SoundEvent LINTERNA = registrar("linterna");
 	public static final SoundEvent CAMARA = registrar("camara");
 	public static final SoundEvent APAGON = registrar("apagon");

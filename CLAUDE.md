@@ -44,7 +44,7 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas
       entidad/                   Bacteria (caza, retirada, agarre), Smiler y quién aparece dónde (Acechadores);
-                                 la Serpiente de las Piscinas (de momento solo el modelo, sin IA)
+                                 la Serpiente de las Piscinas (caza, ataque propio; la pone piscinas/Habitantes)
       escondite/                 las paredes huecas (Hueco) y quién está escondido (Escondites)
       supervivencia/             cordura, estamina, comida, agua de almendras
       objetos/                   traje, linterna, cámara, comida
@@ -57,9 +57,10 @@ tools/
   texturas/*.js                  dibujan las texturas y modelos (npm run texturas)
   texturas/entidades.js          modelos de Bacteria, Smiler y Serpiente -> genera Malla*.java (no editarlos a mano)
   texturas/huecos.js             las paredes huecas: tabiques, boquetes rotos, interior (multipart)
-  texturas/piscinas.js           bloques de las Piscinas (azulejo, causticas animadas, luces...)
+  texturas/piscinas.js           bloques de las Piscinas (azulejo, causticas animadas, luces, marcas y detalles...)
   sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros);
-                                 la Bacteria y el agarre en sonidos/bacteria.js
+                                 la Bacteria y el agarre en sonidos/bacteria.js; las Piscinas y la
+                                 Serpiente en sonidos/nivel37.js
   sonidos/voces/                 las únicas grabaciones: voces generadas con Higgsfield
   video/                         tráiler 4K (npm run trailer)
   cartel/                        cartel animado para Yamipa (GIF 7x4 en colores de mapa)
@@ -92,7 +93,8 @@ servidor-ejemplo/                configuración del servidor del evento
   pantalla completa). El cursor del sistema no sale en las capturas: `cursor` escribe en el
   log si se ve, está oculto o capturado. `node tools/rcon.js "<comando>"` manda comandos al servidor.
 - Comandos de staff: `/start`, `/backrooms ...` (buscar, cinematica, apagon, alarma, luz,
-  ambiente, fase, piscinas [ir <sala>], vestibulo, muerte, escapados, invocar bacteria|smiler,
+  ambiente, fase, piscinas [ir <sala>|ir detalle|ir corre|oir <sonido> <jugador>], vestibulo,
+  muerte, escapados, invocar bacteria|smiler|serpiente,
   acechadores, cordura, comida reponer, misiones...). Ver `Comandos.java`. La lista del evento (quién puede
   entrar): `/brwhitelist agregar|quitar|ver|lista|recargar` (`acceso/Whitelist.java`; la lista vive
   en la tienda, ver `VENTA.md`).
@@ -143,6 +145,11 @@ servidor-ejemplo/                configuración del servidor del evento
   si solo está en sounds.json, el servidor no carga el mundo.
 - `tools/sonidos` y `tools/texturas` sobrescriben archivos generados: cambia el script, no
   el resultado.
+- Una entidad que se añade con su chunk aún sin cargar (justo tras un teletransporte o al
+  reaparecer) se queda fuera del mundo: ni se ve ni se quita. Comprueba antes
+  `ServerLevel#isPositionEntityTicking` (ver `Comida#materializar`).
+- Un mob que nada con su propio `travelInWater` (como el ajolote) no sale solo del agua por un
+  borde: hay que darle el impulso hacia arriba (`Serpiente#orillaDelante`).
 
 ## Cómo trabajar en equipo (dos personas con Claude)
 

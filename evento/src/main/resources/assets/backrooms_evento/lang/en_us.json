@@ -73,5 +73,14 @@
   "block.backrooms_evento.claraboya": "Skylight",
   "block.backrooms_evento.foco_piscina": "Pool light",
   "block.backrooms_evento.losa_azulejo": "Tile slab",
-  "block.backrooms_evento.escalon_azulejo": "Tile stairs"
+  "block.backrooms_evento.escalon_azulejo": "Tile stairs",
+  "block.backrooms_evento.luz_techo_parpadeo": "Flickering light panel",
+  "block.backrooms_evento.azulejo_manchado": "Stained tile",
+  "block.backrooms_evento.azulejo_sangre": "Bloodied tile",
+  "block.backrooms_evento.marca": "Wall mark",
+  "block.backrooms_evento.mancha": "Floor stain",
+  "block.backrooms_evento.flotador": "Pool float",
+  "block.backrooms_evento.toalla": "Towel",
+  "block.backrooms_evento.chanclas": "Flip-flops",
+  "block.backrooms_evento.mochila": "Backpack"
 }

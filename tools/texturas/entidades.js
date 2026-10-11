@@ -174,11 +174,15 @@ const SMILER = {
 // mide unos 11 bloques; alzada, la cabeza queda a unos 3 del suelo. Los ojos van
 // aparte (serpiente_brillo.png, capa de ojos, como el Smiler).
 
-/** Tramo del cuerpo que avanza hacia -z desde su pivote, con una junta que tapa el hueco de la curva. */
+/**
+ * Tramo del cuerpo que avanza hacia -z desde su pivote, con una junta que tapa el hueco de
+ * la curva y una vertebra que asoma por el lomo (la cresta se ve de lejos).
+ */
 function tramo (nombre, padre, piv, rot, w, h, l, banda = false) {
   const cubos = [
     [-w / 2, -h / 2, -l, w, h, l, 'teja'],
-    [-w / 2, -h / 2, -h / 2, w, h, h, 'teja', -0.3]
+    [-w / 2, -h / 2, -h / 2, w, h, h, 'teja', -0.3],
+    [-1, -h / 2 - 3, -l / 2 - 1, 2, 3, 2, 'hueso']
   ];
   if (banda) cubos.push([-w / 2, -h / 2, -l / 2 - 1.5, w, h, 3, 'teja_azul', 0.35]);
   return [nombre, padre, piv, rot, cubos];
@@ -190,6 +194,7 @@ function cola (nombre, padre, piv, giro, w, h, l, banda = false) {
     [-w / 2, 7 - h, 0, w, h, l, 'teja'],
     [-w / 2, 7 - h, -w / 2, w, h, w, 'teja', -0.3]
   ];
+  if (w >= 8) cubos.push([-1, 7 - h - 2.5, l / 2 - 1, 2, 2.5, 2, 'hueso']);
   if (banda) cubos.push([-w / 2, 7 - h, l / 2 - 1.5, w, h, 3, 'teja_azul', 0.35]);
   return [nombre, padre, piv, [0, giro, 0], cubos];
 }
@@ -215,8 +220,8 @@ function brazoHueso (lado, padre, piv, rot, largo, codo, abre) {
   for (let k = 0; k < 4; k++) {
     const x = -1.5 + k;
     piezas.push([`falange_${p}_${k}`, `mano_${p}`, [x, 1.5, 0], [28, 0, s * (k - 1.5) * 14], [
-      [-0.5, 0, -0.5, 1, 4, 1, 'hueso'],
-      [-0.5, 3.5, -1.5, 1, 4, 1, 'falange']
+      [-0.5, 0, -0.5, 1, 5, 1, 'hueso'],
+      [-0.5, 4.5, -1.5, 1, 6, 1, 'falange']
     ]]);
   }
   return piezas;
@@ -238,10 +243,11 @@ const SERPIENTE = {
   nombre: 'serpiente',
   tex: [256, 256],
   compartir: true,
-  vista: { esc: 2.5, ancho: 620, alto: 420, centro: 0.62 },
+  vista: { esc: 2.5, ancho: 700, alto: 420, centro: 0.75 },
   piezas: [
-    // donde el cuerpo empieza a alzarse, tumbado en el suelo
-    ['base', null, [0, 17, 6], [0, 0, 0], [
+    // donde el cuerpo empieza a alzarse, tumbado en el suelo: 3 bloques por detras del
+    // origen de la entidad, para que la cabeza quede sobre su caja de choque
+    ['base', null, [0, 17, 54], [0, 0, 0], [
       [-8, -7, -10, 16, 14, 12, 'teja']
     ]],
     // el tronco se alza (cada tramo, mas inclinado) y el cuello se dobla hacia delante
@@ -263,20 +269,36 @@ const SERPIENTE = {
       [11, -6, -17, 2, 6, 10, 'hueso'],
       [-8, 6, -18.5, 16, 2, 1, 'colmillo'],
       [-8.5, 6, -18, 1, 2, 11, 'colmillo'],
-      [7.5, 6, -18, 1, 2, 11, 'colmillo']
+      [7.5, 6, -18, 1, 2, 11, 'colmillo'],
+      // relieve de la cara: la ceja, los pomulos, el tabique y los bordes hunden las cuencas
+      [-12, -14, -21.5, 24, 3.5, 1.5, 'craneo'],
+      [-12, -4, -21, 10, 2, 1, 'craneo'],
+      [2, -4, -21, 10, 2, 1, 'craneo'],
+      [-2, -10.5, -21, 4, 6.5, 1, 'craneo'],
+      [-12, -10.5, -21, 3, 6.5, 1, 'craneo'],
+      [9, -10.5, -21, 3, 6.5, 1, 'craneo'],
+      // colmillos largos que asoman de la fila de dientes
+      [-6.5, 6, -18.9, 1, 4, 1, 'diente'],
+      [-3, 6, -18.9, 1, 3, 1, 'diente'],
+      [2, 6, -18.9, 1, 3, 1, 'diente'],
+      [5.5, 6, -18.9, 1, 4, 1, 'diente']
     ]],
     ['mandibula', 'craneo', [0, 5, -4], [22, 0, 0], [
       [-8, 0, -15, 16, 3, 15, 'craneo'],
       [-7.5, -2, -14.5, 15, 2, 1, 'colmillo'],
       [-7.5, -2, -13.5, 1, 2, 10, 'colmillo'],
-      [6.5, -2, -13.5, 1, 2, 10, 'colmillo']
+      [6.5, -2, -13.5, 1, 2, 10, 'colmillo'],
+      [-5.5, -4, -14.9, 1, 3, 1, 'diente'],
+      [-2, -4, -14.9, 1, 2, 1, 'diente'],
+      [1, -4, -14.9, 1, 2, 1, 'diente'],
+      [4.5, -4, -14.9, 1, 3, 1, 'diente']
     ]],
     // brazos: el par de delante sale del cuello y se estira hacia delante; el de
     // atras, mas corto, apoya las garras en el suelo
-    ...brazoHueso('izq', 'cuello1', [7, 3, -5], [-10, 0, -30], 15, -42, 34),
-    ...brazoHueso('der', 'cuello1', [-7, 3, -5], [6, 0, 32], 15, -30, 40),
-    ...brazoHueso('izq', 'tronco1', [8, 4, -6], [40, 0, -34], 10, -28, 30),
-    ...brazoHueso('der', 'tronco1', [-8, 4, -6], [40, 0, 34], 10, -28, 30),
+    ...brazoHueso('izq', 'cuello1', [7, 3, -5], [-10, 0, -30], 19, -42, 34),
+    ...brazoHueso('der', 'cuello1', [-7, 3, -5], [6, 0, 32], 19, -30, 40),
+    ...brazoHueso('izq', 'tronco1', [8, 4, -6], [40, 0, -34], 13, -28, 30),
+    ...brazoHueso('der', 'tronco1', [-8, 4, -6], [40, 0, 34], 13, -28, 30),
     // la cola, tumbada en S y cada vez mas fina
     cola('cola1', 'base', [0, 0, 2], 25, 15, 13, 12),
     cola('cola2', 'cola1', [0, 0, 12], 25, 14, 12, 12, true),
@@ -384,6 +406,7 @@ const MATERIAL = {
     return c;
   },
   colmillo: (x, y, k) => ((x + y + k) % 2 === 0 ? [238, 232, 212] : [58, 50, 42]),
+  diente: (x, y, k, lado, u0, v0) => escala([236, 228, 204], 1 - Math.max(0, (y - v0) - 1) * 0.12),
   falange: (x, y, k, lado, u0, v0) => {
     const b = 150 - (y - v0) * 14 + hash(x, y, 490 + k) * 12;
     return [b, b * 0.94, b * 0.82];

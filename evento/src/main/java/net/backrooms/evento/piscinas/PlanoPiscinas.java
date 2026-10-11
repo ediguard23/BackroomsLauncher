@@ -298,7 +298,9 @@ public final class PlanoPiscinas {
 	/** Primer bloque macizo del techo por encima de y. */
 	private static int techoSobre(byte[] c, int y) {
 		for (int k = y; k <= TOPE; k++) {
-			if (en(c, k) != AIRE && en(c, k) != AGUA) {
+			byte m = en(c, k);
+			// las luces invisibles no son techo: si no, la claraboya acaba flotando a media altura
+			if (m != AIRE && m != AGUA && m != LUZ_OCULTA && m != LUZ_TENUE) {
 				return k;
 			}
 		}
@@ -875,6 +877,259 @@ public final class PlanoPiscinas {
 				poner(col, t, LUZ);
 			}
 		}
+	}
+
+	/* -------------------------------------------------------- detalles */
+
+	// las marcas (MarcaPiscina) y las manchas (ManchaSuelo), en el orden de tools/texturas/piscinas.js
+	public static final int M_CORRE = 0;   // 0, 1, 2: de izquierda a derecha
+	public static final int M_MANO = 3;
+	public static final int M_MANOS = 4;
+	public static final int M_ARANAZOS = 5;
+	public static final int M_CONTEO = 6;
+	public static final int M_ESPIRAL = 7;
+	public static final int M_MANCHA = 8;
+	public static final int M_SANGRE = 9;
+	public static final int M_CARTEL = 10; // 10, 11, 12: no correr, profundidad, prohibido saltar
+	public static final int M_CUANTAS = 13;
+	public static final int S_SUCIEDAD = 0;
+	public static final int S_CHARCO = 1;
+	public static final int S_GOTAS_SANGRE = 2;
+	public static final int S_ESCOMBROS = 3;
+	public static final int S_HUELLAS = 4;
+	public static final int S_CUANTAS = 5;
+
+	/** Algo en una pared (MarcaPiscina, `variante` = la marca). */
+	public static final int D_MARCA = 0;
+	/** Una mancha pegada al suelo (ManchaSuelo). */
+	public static final int D_MANCHA = 1;
+	/** Un objeto tirado (BloquesPiscinas.OBJETOS). */
+	public static final int D_OBJETO = 2;
+	/** Un azulejo de la pared cambiado: 0 manchado, 1 con sangre. */
+	public static final int D_AZULEJO = 3;
+
+	/**
+	 * Lo que dice que alguien estuvo aqui antes. `lado` es hacia donde mira (N, E, S, O):
+	 * las marcas, al contrario que la pared que tienen detras.
+	 */
+	public record Detalle(int x, int y, int z, int tipo, int variante, int lado) {
+	}
+
+	private final java.util.concurrent.ConcurrentHashMap<Long, java.util.List<Detalle>> detalles = new java.util.concurrent.ConcurrentHashMap<>();
+
+	/** Los detalles que caen en la columna (x, z). */
+	public java.util.List<Detalle> detallesEn(int x, int z) {
+		java.util.List<Detalle> todos = this.detallesCelda(Math.floorDiv(x, C), Math.floorDiv(z, C));
+		if (todos.isEmpty()) {
+			return todos;
+		}
+		java.util.List<Detalle> aqui = new java.util.ArrayList<>(1);
+		for (Detalle d : todos) {
+			if (d.x() == x && d.z() == z) {
+				aqui.add(d);
+			}
+		}
+		return aqui;
+	}
+
+	public java.util.List<Detalle> detallesCelda(int cx, int cz) {
+		long k = ((long) cx << 32) ^ (cz & 0xFFFFFFFFL);
+		java.util.List<Detalle> l = this.detalles.get(k);
+		if (l == null) {
+			l = this.calcularDetalles(cx, cz);
+			if (this.detalles.size() > 20000) {
+				this.detalles.clear();
+			}
+			this.detalles.put(k, l);
+		}
+		return l;
+	}
+
+	/**
+	 * En 3 de cada 10 celdas, uno (a veces dos) de estos, cada uno con su peso: un cartel
+	 * viejo de piscina, humedad, suciedad o escombros, algo abandonado, aranazos o palotes,
+	 * manos, sangre y, muy pocas veces, CORRE. Lo demas, limpio.
+	 */
+	private java.util.List<Detalle> calcularDetalles(int cx, int cz) {
+		double r = this.azar(cx, cz, 61);
+		if (r >= 0.30) {
+			return java.util.List.of();
+		}
+		Sala s = this.sala(cx, cz);
+		boolean piscina = s.tipo() == SALA || s.tipo() == BOVEDAS || s.tipo() == CARACOL || s.tipo() == INUNDADA;
+		java.util.List<Detalle> out = new java.util.ArrayList<>();
+		int cuantos = r < 0.05 ? 2 : 1;
+		for (int k = 0; k < cuantos; k++) {
+			double q = this.azar(cx, cz, 62 + k);
+			int h = this.hash(cx, cz, 63 + k);
+			if (q < 0.05) {
+				this.marcaAncha(out, cx, cz, k, M_CORRE, 3);
+			} else if (q < 0.25) {
+				int cartel = piscina ? M_CARTEL + h % 3 : M_CONTEO;
+				this.marca(out, cx, cz, k, cartel, PISO + 2);
+			} else if (q < 0.43) {
+				if (h % 3 == 0) {
+					this.azulejoPared(out, cx, cz, k, 0);
+				} else {
+					this.marca(out, cx, cz, k, M_MANCHA, PISO + 1);
+				}
+			} else if (q < 0.60) {
+				int[] suelos = {S_SUCIEDAD, S_CHARCO, S_ESCOMBROS, S_HUELLAS};
+				this.suelo(out, cx, cz, k, D_MANCHA, suelos[h % suelos.length]);
+			} else if (q < 0.75) {
+				this.suelo(out, cx, cz, k, D_OBJETO, h % 4);
+			} else if (q < 0.87) {
+				int[] rayas = {M_ARANAZOS, M_CONTEO, M_ESPIRAL};
+				this.marca(out, cx, cz, k, rayas[h % rayas.length], PISO + (h % 2));
+			} else if (q < 0.94) {
+				this.marca(out, cx, cz, k, h % 2 == 0 ? M_MANO : M_MANOS, PISO + 1);
+			} else {
+				switch (h % 3) {
+					case 0 -> this.marca(out, cx, cz, k, M_SANGRE, PISO);
+					case 1 -> this.suelo(out, cx, cz, k, D_MANCHA, S_GOTAS_SANGRE);
+					default -> this.azulejoPared(out, cx, cz, k, 1);
+				}
+			}
+		}
+		return java.util.List.copyOf(out);
+	}
+
+	/** Columna (x, z) de la celda donde probar el intento t del detalle k. */
+	private int[] candidata(int cx, int cz, int k, int t) {
+		int u = 2 + Math.floorMod(this.hash(cx, cz, 70 + k * 101 + t * 7), C - 3);
+		int v = 2 + Math.floorMod(this.hash(cx, cz, 71 + k * 101 + t * 7), C - 3);
+		return new int[] {cx * C + u, cz * C + v};
+	}
+
+	private static boolean hueco(byte[] col, int y) {
+		return en(col, y) == AIRE && en(col, y + 1) == AIRE && en(col, PISO - 1) != AIRE;
+	}
+
+	private static boolean macizoEn(byte[] col, int y) {
+		byte m = en(col, y);
+		return m == PARED || m == AZULEJO;
+	}
+
+	/** Busca una pared con la columna de delante libre a la altura y; devuelve {x, z, lado de la pared} o null. */
+	private int[] pared(int cx, int cz, int k, int y, int ancho) {
+		byte[] col = new byte[ALTO];
+		byte[] vec = new byte[ALTO];
+		for (int t = 0; t < 70; t++) {
+			int[] c = this.candidata(cx, cz, k, t);
+			int primero = this.hash(cx, cz, 72 + k + t) % 4;
+			for (int i = 0; i < 4; i++) {
+				int lado = (primero + i) % 4;
+				boolean vale = true;
+				// a lo largo de la pared (para CORRE, varias columnas seguidas)
+				int tx = DX[(lado + 1) % 4];
+				int tz = DZ[(lado + 1) % 4];
+				for (int a = 0; a < ancho && vale; a++) {
+					int x = c[0] + tx * a;
+					int z = c[1] + tz * a;
+					if (Math.floorDiv(x, C) != cx || Math.floorDiv(z, C) != cz) {
+						vale = false;
+						break;
+					}
+					this.columna(x, z, col);
+					this.columna(x + DX[lado], z + DZ[lado], vec);
+					vale = hueco(col, y) && macizoEn(vec, y) && macizoEn(vec, y + 1);
+				}
+				if (vale) {
+					return new int[] {c[0], c[1], lado};
+				}
+			}
+		}
+		return null;
+	}
+
+	private void marca(java.util.List<Detalle> out, int cx, int cz, int k, int marca, int y) {
+		int[] p = this.pared(cx, cz, k, y, 1);
+		if (p != null) {
+			out.add(new Detalle(p[0], y, p[1], D_MARCA, marca, (p[2] + 2) % 4));
+		}
+	}
+
+	/** Una marca de varios bloques (CORRE): la parte 0 a la izquierda de quien la mira. */
+	private void marcaAncha(java.util.List<Detalle> out, int cx, int cz, int k, int primera, int ancho) {
+		int y = PISO + 1;
+		int[] p = this.pared(cx, cz, k, y, ancho);
+		if (p == null) {
+			return;
+		}
+		int mira = (p[2] + 2) % 4;
+		// las columnas van de p hacia (lado + 1): mirando la pared (hacia `lado`), de izquierda a derecha
+		for (int a = 0; a < ancho; a++) {
+			int x = p[0] + DX[(p[2] + 1) % 4] * a;
+			int z = p[1] + DZ[(p[2] + 1) % 4] * a;
+			out.add(new Detalle(x, y, z, D_MARCA, primera + a, mira));
+		}
+	}
+
+	private void azulejoPared(java.util.List<Detalle> out, int cx, int cz, int k, int cual) {
+		int y = PISO + 1;
+		int[] p = this.pared(cx, cz, k, y, 1);
+		if (p == null) {
+			return;
+		}
+		int x = p[0] + DX[p[2]];
+		int z = p[1] + DZ[p[2]];
+		// el azulejo es de la pared: solo si esa pared es de esta celda (si no, nadie lo pondria)
+		if (Math.floorDiv(x, C) == cx && Math.floorDiv(z, C) == cz) {
+			out.add(new Detalle(x, y, z, D_AZULEJO, cual, p[2]));
+		}
+	}
+
+	/** En un sitio seco del suelo, lejos de las puertas. */
+	private void suelo(java.util.List<Detalle> out, int cx, int cz, int k, int tipo, int variante) {
+		byte[] col = new byte[ALTO];
+		for (int t = 0; t < 70; t++) {
+			int[] c = this.candidata(cx, cz, k + 5, t);
+			int u = c[0] - cx * C;
+			int v = c[1] - cz * C;
+			if (Math.abs(u - M) <= 3 && (v <= 3 || v >= C - 3) || Math.abs(v - M) <= 3 && (u <= 3 || u >= C - 3)) {
+				continue;
+			}
+			this.columna(c[0], c[1], col);
+			if (this.pisable(c[0], PISO, c[1], col) && en(col, PISO - 1) != LOSA && en(col, PISO + 2) == AIRE) {
+				out.add(new Detalle(c[0], PISO, c[1], tipo, variante, this.hash(cx, cz, 90 + k) % 4));
+				return;
+			}
+		}
+	}
+
+	/* ----------------------------------------------------------- comida */
+
+	/** Lo que hay tirado para comer (los mismos numeros que Plano: 2 galletas, 3 pizza). */
+	public static final int C_GALLETAS = 2;
+	public static final int C_PIZZA = 3;
+	private static final int[] SIN_COMIDA = new int[0];
+	private final java.util.concurrent.ConcurrentHashMap<Long, int[]> comidas = new java.util.concurrent.ConcurrentHashMap<>();
+
+	/**
+	 * La comida tirada en la celda: {x, z, tipo} en un sitio seco, o null. Con la misma
+	 * densidad que en el Nivel 0 (unas 0,17 cosas por cada 24x24): galletas o pizza. El agua
+	 * de almendras no sale de aqui: la reparte Comida alrededor de donde llega cada uno.
+	 */
+	public int[] comidaEnCelda(int cx, int cz) {
+		long k = ((long) cx << 32) ^ (cz & 0xFFFFFFFFL);
+		int[] c = this.comidas.get(k);
+		if (c == null) {
+			c = SIN_COMIDA;
+			double r = this.azar(cx, cz, 95);
+			int tipo = r < 0.11 ? C_GALLETAS : r < 0.17 ? C_PIZZA : 0;
+			if (tipo != 0) {
+				java.util.List<Detalle> sitio = new java.util.ArrayList<>();
+				this.suelo(sitio, cx, cz, 9, D_MANCHA, 0);
+				if (!sitio.isEmpty()) {
+					c = new int[] {sitio.get(0).x(), sitio.get(0).z(), tipo};
+				}
+			}
+			if (this.comidas.size() > 20000) {
+				this.comidas.clear();
+			}
+			this.comidas.put(k, c);
+		}
+		return c.length == 0 ? null : c;
 	}
 
 	/* ---------------------------------------------------------- llegada */
