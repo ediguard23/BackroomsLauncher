@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "angulo=0,facing=north": {
+      "model": "backrooms_evento:block/valvula_0"
+    },
+    "angulo=1,facing=north": {
+      "model": "backrooms_evento:block/valvula_1"
+    },
+    "angulo=2,facing=north": {
+      "model": "backrooms_evento:block/valvula_2"
+    },
+    "angulo=3,facing=north": {
+      "model": "backrooms_evento:block/valvula_3"
+    },
+    "angulo=0,facing=east": {
+      "model": "backrooms_evento:block/valvula_0",
+      "y": 90
+    },
+    "angulo=1,facing=east": {
+      "model": "backrooms_evento:block/valvula_1",
+      "y": 90
+    },
+    "angulo=2,facing=east": {
+      "model": "backrooms_evento:block/valvula_2",
+      "y": 90
+    },
+    "angulo=3,facing=east": {
+      "model": "backrooms_evento:block/valvula_3",
+      "y": 90
+    },
+    "angulo=0,facing=south": {
+      "model": "backrooms_evento:block/valvula_0",
+      "y": 180
+    },
+    "angulo=1,facing=south": {
+      "model": "backrooms_evento:block/valvula_1",
+      "y": 180
+    },
+    "angulo=2,facing=south": {
+      "model": "backrooms_evento:block/valvula_2",
+      "y": 180
+    },
+    "angulo=3,facing=south": {
+      "model": "backrooms_evento:block/valvula_3",
+      "y": 180
+    },
+    "angulo=0,facing=west": {
+      "model": "backrooms_evento:block/valvula_0",
+      "y": 270
+    },
+    "angulo=1,facing=west": {
+      "model": "backrooms_evento:block/valvula_1",
+      "y": 270
+    },
+    "angulo=2,facing=west": {
+      "model": "backrooms_evento:block/valvula_2",
+      "y": 270
+    },
+    "angulo=3,facing=west": {
+      "model": "backrooms_evento:block/valvula_3",
+      "y": 270
+    }
+  }
+}

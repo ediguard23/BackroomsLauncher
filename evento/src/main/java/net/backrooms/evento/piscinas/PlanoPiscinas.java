@@ -951,6 +951,29 @@ public final class PlanoPiscinas {
 	 * manos, sangre y, muy pocas veces, CORRE. Lo demas, limpio.
 	 */
 	private java.util.List<Detalle> calcularDetalles(int cx, int cz) {
+		// lo de las misiones va primero: la puerta de salida, las valvulas y los carteles que llevan a ella
+		Salida sal = this.salida();
+		if (cx == sal.celdaX() && cz == sal.celdaZ()) {
+			return this.detallesSalida(sal);
+		}
+		java.util.List<Detalle> mision = new java.util.ArrayList<>();
+		for (Valvula v : this.valvulas()) {
+			if (Math.floorDiv(v.x(), C) == cx && Math.floorDiv(v.z(), C) == cz) {
+				mision.add(new Detalle(v.x(), v.y(), v.z(), D_VALVULA, v.id(), v.lado()));
+			}
+		}
+		if (!mision.isEmpty()) {
+			return java.util.List.copyOf(mision);
+		}
+		if (Math.max(Math.abs(cx - sal.celdaX()), Math.abs(cz - sal.celdaZ())) <= CARTELES && this.azar(cx, cz, 97) < 0.5) {
+			int[] p = this.pared(cx, cz, 8, PISO + 2, 1);
+			if (p != null) {
+				// mirando la pared (hacia p[2]), la derecha es (p[2] + 1): la flecha va hacia el lado de la puerta
+				int[] puerta = sal.columna(1);
+				long lateral = (long) (puerta[0] - p[0]) * DX[(p[2] + 1) % 4] + (long) (puerta[1] - p[1]) * DZ[(p[2] + 1) % 4];
+				return java.util.List.of(new Detalle(p[0], PISO + 2, p[1], D_CARTEL, lateral >= 0 ? CARTEL_DERECHA : CARTEL_IZQUIERDA, (p[2] + 2) % 4));
+			}
+		}
 		double r = this.azar(cx, cz, 61);
 		if (r >= 0.30) {
 			return java.util.List.of();
@@ -1095,6 +1118,270 @@ public final class PlanoPiscinas {
 				return;
 			}
 		}
+	}
+
+	/* -------------------------------------------------------- misiones */
+
+	/** Medio lado del cuadrado donde se reparte a quien llega (Piscinas): las valvulas lo cubren. */
+	public static final int MAPA = 900;
+	public static final int VALVULAS = 25;
+	/** Una valvula en la pared (`variante` = su numero). */
+	public static final int D_VALVULA = 4;
+	/** Un trozo de la puerta de salida, en la pared: `variante` = columna * 3 + fila (0 abajo). */
+	public static final int D_PUERTA = 5;
+	/** Un lector de tarjeta junto a la puerta: `variante` = color (T_*). */
+	public static final int D_LECTOR = 6;
+	/** Un cartel de salida de emergencia: `variante` = CARTEL_*. */
+	public static final int D_CARTEL = 7;
+	public static final int CARTEL_IZQUIERDA = 0;
+	public static final int CARTEL_DERECHA = 1;
+	/** El grande de encima de la puerta, en dos mitades: 2 la izquierda, 3 la derecha. */
+	public static final int CARTEL_GRANDE = 2;
+	public static final int T_ROJA = 0;
+	public static final int T_AMARILLA = 1;
+	public static final int T_VERDE = 2;
+	/** Celdas alrededor de la puerta con carteles que llevan a ella (la mitad tiene uno). */
+	private static final int CARTELES = 10;
+	/** Columnas de pared que ocupa la salida: margen, puerta (2) y los tres lectores. */
+	private static final int ANCHO_SALIDA = 6;
+
+	/** Una valvula: donde esta (el bloque de delante de la pared) y hacia donde mira. */
+	public record Valvula(int id, int x, int y, int z, int lado) {
+	}
+
+	/**
+	 * La salida de emergencia: (x, z) es la columna de delante de la pared donde empieza y
+	 * `lado` hacia la pared. A lo largo (hacia lado + 1, la derecha de quien la mira): un
+	 * margen, la puerta (columnas 1 y 2, en la pared, 3 de alto) con el cartel grande encima, y
+	 * los lectores (3, 4 y 5: roja, amarilla y verde) a la altura del pecho.
+	 */
+	public record Salida(int x, int z, int lado) {
+		/** La columna de delante de la pared en la posicion a (0..5). */
+		public int[] columna(int a) {
+			return new int[] {this.x + DX[(this.lado + 1) % 4] * a, this.z + DZ[(this.lado + 1) % 4] * a};
+		}
+
+		/** La de la pared misma en la posicion a (donde va la puerta). */
+		public int[] pared(int a) {
+			int[] c = this.columna(a);
+			return new int[] {c[0] + DX[this.lado], c[1] + DZ[this.lado]};
+		}
+
+		/** Hacia donde miran la puerta, los lectores y los carteles. */
+		public int mira() {
+			return (this.lado + 2) % 4;
+		}
+
+		public int celdaX() {
+			return Math.floorDiv(this.x, C);
+		}
+
+		public int celdaZ() {
+			return Math.floorDiv(this.z, C);
+		}
+
+		/** El lector de ese color: {x, y, z}. */
+		public int[] lector(int color) {
+			int[] c = this.columna(3 + color);
+			return new int[] {c[0], PISO + 1, c[1]};
+		}
+	}
+
+	private volatile Salida salida;
+	private volatile java.util.List<Valvula> valvulas;
+	private final int[][] tarjetas = new int[3][];
+
+	/** La salida de emergencia: la pared libre mas cercana al centro del mapa donde cabe. */
+	public Salida salida() {
+		Salida s = this.salida;
+		if (s == null) {
+			s = this.buscarSalida();
+			this.salida = s;
+		}
+		return s;
+	}
+
+	private Salida buscarSalida() {
+		byte[] col = new byte[ALTO];
+		byte[] vec = new byte[ALTO];
+		for (int r = 0; r < 40; r++) {
+			for (int dx = -r; dx <= r; dx++) {
+				for (int dz = -r; dz <= r; dz++) {
+					if (Math.max(Math.abs(dx), Math.abs(dz)) != r || this.sala(dx, dz).oscura()) {
+						continue;
+					}
+					for (int t = 0; t < 70; t++) {
+						int[] c = this.candidata(dx, dz, 9, t);
+						for (int lado = 0; lado < 4; lado++) {
+							Salida s = new Salida(c[0], c[1], lado);
+							if (this.cabeSalida(s, dx, dz, col, vec)) {
+								return s;
+							}
+						}
+					}
+				}
+			}
+		}
+		return new Salida(0, 0, NORTE);
+	}
+
+	/** Las seis columnas en la celda, secas y altas, con pared maciza detras de 4 de alto. */
+	private boolean cabeSalida(Salida s, int cx, int cz, byte[] col, byte[] vec) {
+		for (int a = 0; a < ANCHO_SALIDA; a++) {
+			int[] c = s.columna(a);
+			int[] p = s.pared(a);
+			if (Math.floorDiv(c[0], C) != cx || Math.floorDiv(c[1], C) != cz || Math.floorDiv(p[0], C) != cx || Math.floorDiv(p[1], C) != cz) {
+				return false;
+			}
+			this.columna(c[0], c[1], col);
+			this.columna(p[0], p[1], vec);
+			if (!this.pisable(c[0], PISO, c[1], col) || en(col, PISO + 2) != AIRE || en(col, PISO + 3) != AIRE) {
+				return false;
+			}
+			for (int y = PISO; y <= PISO + 3; y++) {
+				if (!macizoEn(vec, y)) {
+					return false;
+				}
+			}
+			// delante, al menos dos columnas por donde andar (los pasillos son de 3)
+			for (int d = 1; d <= 2; d++) {
+				int x = c[0] + DX[s.mira()] * d;
+				int z = c[1] + DZ[s.mira()] * d;
+				this.columna(x, z, vec);
+				if (this.dePie(vec) < 0 || en(vec, PISO + 2) != AIRE) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	private java.util.List<Detalle> detallesSalida(Salida s) {
+		java.util.List<Detalle> out = new java.util.ArrayList<>();
+		int mira = s.mira();
+		for (int a = 1; a <= 2; a++) {
+			int[] p = s.pared(a);
+			for (int f = 0; f < 3; f++) {
+				out.add(new Detalle(p[0], PISO + f, p[1], D_PUERTA, (a - 1) * 3 + f, mira));
+			}
+			int[] c = s.columna(a);
+			out.add(new Detalle(c[0], PISO + 3, c[1], D_CARTEL, CARTEL_GRANDE + a - 1, mira));
+		}
+		for (int color = 0; color < 3; color++) {
+			int[] l = s.lector(color);
+			out.add(new Detalle(l[0], l[1], l[2], D_LECTOR, color, mira));
+		}
+		return java.util.List.copyOf(out);
+	}
+
+	/**
+	 * Las VALVULAS valvulas: una en cada casilla de una cuadricula de 5x5 sobre el mapa (unas
+	 * 360 bloques entre vecinas), movida un poco al azar, en una pared con suelo seco delante.
+	 */
+	public java.util.List<Valvula> valvulas() {
+		java.util.List<Valvula> l = this.valvulas;
+		if (l == null) {
+			java.util.List<Valvula> nuevas = new java.util.ArrayList<>();
+			Salida s = this.salida();
+			double paso = 2.0 * MAPA / 5;
+			for (int id = 0; id < VALVULAS; id++) {
+				int tx = (int) Math.round(-MAPA + (id % 5 + 0.5) * paso + (this.azar(id, 1, 98) - 0.5) * 160);
+				int tz = (int) Math.round(-MAPA + (id / 5 + 0.5) * paso + (this.azar(id, 2, 98) - 0.5) * 160);
+				Valvula v = this.buscarValvula(id, Math.floorDiv(tx, C), Math.floorDiv(tz, C), s);
+				if (v != null) {
+					nuevas.add(v);
+				}
+			}
+			l = java.util.List.copyOf(nuevas);
+			this.valvulas = l;
+		}
+		return l;
+	}
+
+	private Valvula buscarValvula(int id, int cx0, int cz0, Salida s) {
+		byte[] col = new byte[ALTO];
+		byte[] vec = new byte[ALTO];
+		for (int r = 0; r <= 5; r++) {
+			for (int dx = -r; dx <= r; dx++) {
+				for (int dz = -r; dz <= r; dz++) {
+					int cx = cx0 + dx;
+					int cz = cz0 + dz;
+					if (Math.max(Math.abs(dx), Math.abs(dz)) != r || this.sala(cx, cz).oscura() || cx == s.celdaX() && cz == s.celdaZ()) {
+						continue;
+					}
+					for (int t = 0; t < 70; t++) {
+						int[] c = this.candidata(cx, cz, 600 + id, t);
+						this.columna(c[0], c[1], col);
+						if (!this.pisable(c[0], PISO, c[1], col) || en(col, PISO + 2) != AIRE) {
+							continue;
+						}
+						for (int lado = 0; lado < 4; lado++) {
+							this.columna(c[0] + DX[lado], c[1] + DZ[lado], vec);
+							if (macizoEn(vec, PISO) && macizoEn(vec, PISO + 1) && macizoEn(vec, PISO + 2)) {
+								return new Valvula(id, c[0], PISO + 1, c[1], (lado + 2) % 4);
+							}
+						}
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Donde esta escondida la tarjeta de ese color: {x, y, z} (el bloque donde queda tirada).
+	 * Cada una en una direccion desde la puerta y cada vez mas dificil: la verde a ~260 bloques
+	 * en una sala con luz; la amarilla a ~480, en una sala a oscuras; la roja a ~700, en el
+	 * fondo de una piscina honda (hay que bucear) y con una Serpiente que la guarda (Tarjetas).
+	 */
+	public int[] tarjeta(int color) {
+		int[] t = this.tarjetas[color];
+		if (t == null) {
+			t = this.buscarTarjeta(color);
+			this.tarjetas[color] = t;
+		}
+		return t;
+	}
+
+	private int[] buscarTarjeta(int color) {
+		Salida s = this.salida();
+		double base = this.azar(1, 2, 99) * Math.PI * 2;
+		double dist = color == T_VERDE ? 260 : color == T_AMARILLA ? 480 : 700;
+		byte[] col = new byte[ALTO];
+		for (int intento = 0; intento < 400; intento++) {
+			// en espiral alrededor del punto ideal: primero cerca de la direccion y la distancia
+			double ang = base + color * Math.PI * 2 / 3 + (intento % 2 == 0 ? 1 : -1) * (intento / 2) * 0.012;
+			double d = dist + ((intento / 7) % 5 - 2) * 30;
+			int cx = Math.floorDiv(s.x() + (int) Math.round(Math.cos(ang) * d), C);
+			int cz = Math.floorDiv(s.z() + (int) Math.round(Math.sin(ang) * d), C);
+			Sala sala = this.sala(cx, cz);
+			boolean vale = switch (color) {
+				case T_ROJA -> sala.tipo() == SALA && !sala.oscura();
+				case T_AMARILLA -> sala.oscura();
+				default -> !sala.oscura();
+			};
+			if (!vale) {
+				continue;
+			}
+			for (int t = 0; t < 70; t++) {
+				int[] c = this.candidata(cx, cz, 700 + color, t);
+				this.columna(c[0], c[1], col);
+				if (color == T_ROJA) {
+					// agua de 3 o mas: la tarjeta queda en el fondo
+					if (en(col, SUELO) == AGUA && en(col, SUELO - 1) == AGUA && en(col, SUELO - 2) == AGUA) {
+						int y = SUELO - 2;
+						while (y > Y0 && en(col, y - 1) == AGUA) {
+							y--;
+						}
+						return new int[] {c[0], y, c[1]};
+					}
+				} else if (this.pisable(c[0], PISO, c[1], col) && en(col, PISO + 2) == AIRE) {
+					return new int[] {c[0], PISO, c[1]};
+				}
+			}
+		}
+		int[] c = s.columna(0);
+		return new int[] {c[0], PISO, c[1]};
 	}
 
 	/* ----------------------------------------------------------- comida */

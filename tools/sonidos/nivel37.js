@@ -33,6 +33,13 @@
  *   serpiente_caza1-2     persiguiendote: resoplidos y siseo
  *   serpiente_ataque      se lanza: siseo, rugido y la mandibula que se abre
  *   serpiente_mordisco    la mandibula que cierra: hueso y agua
+ *  Las misiones
+ *   valvula_giro1-3       un cuarto de vuelta del volante: hierro que se resiste y el tubo que vibra
+ *   valvula_cierre        el tope, el tubo que retumba y la presion que se escapa silbando
+ *   valvula_maquinaria    lejos, una maquinaria que arranca (al cerrar las tres; solo la oye el)
+ *   tarjeta_coger         plastico que roza y un clic
+ *   lector_acepta         la ranura, dos pitidos y el rele del cierre
+ *   puerta_salida         los cierres que saltan, el aire y la puerta pesada que se arrastra
  */
 
 const fs = require('fs');
@@ -444,6 +451,123 @@ function serpienteMordisco () {
   return fuerte(piscina(buf, 0.45, 0.88), 2.4, -0.5);
 }
 
+/* ============================================================ misiones */
+
+/** Un cuarto de vuelta del volante: el hierro oxidado que se resiste (roce a tirones) y el tubo que vibra. */
+function valvulaGiro (k) {
+  const rnd = D.azar(4100 + k);
+  const buf = mono(0.9);
+  // stick-slip: clics metalicos irregulares que se juntan y se separan
+  let t = 0.02;
+  while (t < 0.34) {
+    poner(buf, t, 0.03, clicMetal(2200 + rnd() * 1600, 0.004 + rnd() * 0.004, rnd));
+    t += 0.012 + rnd() * 0.03;
+  }
+  // el chirrido del eje
+  const f0 = 620 + rnd() * 420;
+  poner(buf, 0.03, 0.3, (u) => Math.sin(TAU * f0 * u + Math.sin(TAU * 23 * u) * 2.5) * Math.sin(Math.PI * u / 0.3) * (0.5 + 0.5 * rnd()) * 0.22);
+  // y el tubo que suena
+  poner(buf, 0.02, 0.8, (u) => (Math.sin(TAU * 312 * u) * 0.5 + Math.sin(TAU * 861 * u) * 0.25) * Math.exp(-u / 0.18) * 0.25);
+  return bajar(pico(piscina(buf, 0.45, 0.8), -1), -3);
+}
+
+/** Clic metalico con ruido del generador dado. */
+function clicMetal (f, caida, rnd) {
+  const bp = new D.Biquad('bp', f, 7);
+  return (t) => bp.paso(rnd() * 2 - 1) * Math.exp(-t / caida) * 2.5;
+}
+
+/** La valvula cierra: el golpe del tope, el tubo que retumba y la presion que se escapa silbando. */
+function valvulaCierre () {
+  const rnd = D.azar(4120);
+  const buf = mono(3.2);
+  poner(buf, 0.02, 0.6, (t) => (Math.sin(TAU * (95 + 60 * Math.exp(-t * 25)) * t) * 0.9) * Math.exp(-t / 0.12));
+  poner(buf, 0.02, 0.05, clicMetal(1800, 0.01, rnd));
+  poner(buf, 0.02, 2.0, (t) => (Math.sin(TAU * 247 * t) * 0.4 + Math.sin(TAU * 553 * t) * 0.3 + Math.sin(TAU * 1180 * t) * 0.12) * Math.exp(-t / 0.5) * 0.5);
+  // el siseo: ruido agudo que sale fuerte y se va apagando
+  const hp = new D.Biquad('hp', 2600, 0.7);
+  const bp = new D.Biquad('bp', 5200, 0.9);
+  poner(buf, 0.12, 2.4, (t) => bp.paso(hp.paso(rnd() * 2 - 1)) * Math.min(1, t / 0.03) * Math.exp(-t / 0.7) * (0.85 + 0.15 * Math.sin(TAU * 9 * t)) * 1.6);
+  // y algo de agua que gorgotea en el tubo
+  for (let n = 0; n < 9; n++) poner(buf, 0.4 + rnd() * 1.4, 0.2, burbuja(180 + rnd() * 260, 1.4, 0.04));
+  return fuerte(piscina(buf, 0.5, 0.9), 1.8, -0.5);
+}
+
+/** Lejos, una maquinaria grande que arranca: un motor que coge vueltas y pistones cada vez mas seguidos. */
+function valvulaMaquinaria () {
+  const rnd = D.azar(4140);
+  const dur = 7.5;
+  const buf = mono(dur);
+  let fase = 0;
+  poner(buf, 0, dur, (t) => {
+    const f = 28 + 30 * suave(0.3, 4.5, t);
+    fase += f / SR;
+    const motor = Math.sin(TAU * fase) + Math.sin(TAU * fase * 2) * 0.5 + Math.sin(TAU * fase * 3.02) * 0.3 + Math.sin(TAU * fase * 5.1) * 0.12;
+    return motor * suave(0, 1.2, t) * (1 - suave(dur - 1.2, dur, t)) * 0.45;
+  });
+  let t = 0.6;
+  let paso = 0.9;
+  while (t < dur - 0.6) {
+    poner(buf, t, 0.4, (u) => Math.sin(TAU * (70 + 40 * Math.exp(-u * 20)) * u) * Math.exp(-u / 0.07) * 0.8);
+    poner(buf, t, 0.05, clicMetal(900 + rnd() * 500, 0.012, rnd));
+    t += paso;
+    paso = Math.max(0.28, paso * 0.86);
+  }
+  // un quejido de metal a mitad
+  poner(buf, 2.4, 1.4, (u) => Math.sin(TAU * (380 - 90 * u) * u + Math.sin(TAU * 5 * u) * 3) * Math.sin(Math.PI * u / 1.4) * 0.25);
+  return bajar(pico(lejos(piscina(buf, 0.9, 0.95), 900), -1), -2);
+}
+
+/** Coger una tarjeta: el plastico que roza y un clic. */
+function tarjetaCoger () {
+  const rnd = D.azar(4160);
+  const buf = mono(0.7);
+  const hp = new D.Biquad('hp', 1800, 0.8);
+  poner(buf, 0.02, 0.14, (t) => hp.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 0.14) * 0.9);
+  poner(buf, 0.16, 0.03, clicMetal(3400, 0.004, rnd));
+  poner(buf, 0.2, 0.25, (t) => Math.sin(TAU * 1320 * t) * Math.exp(-t / 0.05) * 0.3);
+  return bajar(pico(piscina(buf, 0.35, 0.7), -1), -2);
+}
+
+/** El lector se traga la tarjeta: la ranura, dos pitidos y el rele del cierre que salta. */
+function lectorAcepta () {
+  const rnd = D.azar(4180);
+  const buf = mono(1.6);
+  const hp = new D.Biquad('hp', 1500, 0.8);
+  poner(buf, 0.02, 0.22, (t) => hp.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 0.22) * 0.7);
+  const pitido = (f) => (t) => Math.sign(Math.sin(TAU * f * t)) * 0.18 * Math.min(1, t / 0.004) * (t < 0.11 ? 1 : Math.exp(-(t - 0.11) / 0.01));
+  poner(buf, 0.3, 0.14, pitido(1760));
+  poner(buf, 0.46, 0.14, pitido(2350));
+  poner(buf, 0.66, 0.4, (t) => Math.sin(TAU * (130 + 50 * Math.exp(-t * 30)) * t) * Math.exp(-t / 0.06));
+  poner(buf, 0.66, 0.05, clicMetal(1400, 0.008, rnd));
+  return bajar(pico(piscina(buf, 0.4, 0.8), -1), -1);
+}
+
+/** La salida se abre: los cierres que saltan uno tras otro, el aire que entra y la puerta pesada que se arrastra. */
+function puertaSalida () {
+  const rnd = D.azar(4200);
+  const dur = 6.0;
+  const buf = mono(dur);
+  for (let k = 0; k < 3; k++) {
+    poner(buf, 0.1 + k * 0.35, 0.5, (t) => Math.sin(TAU * (80 + 70 * Math.exp(-t * 25)) * t) * Math.exp(-t / 0.1) * 1.1);
+    poner(buf, 0.1 + k * 0.35, 0.06, clicMetal(1100 + k * 300, 0.015, rnd));
+  }
+  // zumbido electrico del electroiman que se suelta
+  poner(buf, 0.05, 1.1, (t) => (Math.sign(Math.sin(TAU * 100 * t)) * 0.15 + Math.sin(TAU * 200 * t) * 0.1) * Math.exp(-t / 0.4));
+  // la puerta: chapa que se arrastra (ruido grave con resonancias que cambian) y el golpe al llegar al tope
+  const bp = new D.Biquad('bp', 180, 3);
+  const bp2 = new D.Biquad('bp', 640, 5);
+  poner(buf, 1.3, 3.4, (t) => {
+    const r = rnd() * 2 - 1;
+    return (bp.paso(r) * 1.4 + bp2.paso(r) * (0.4 + 0.3 * Math.sin(TAU * 1.7 * t))) * Math.sin(Math.PI * Math.min(1, t / 3.4)) * (0.8 + 0.2 * Math.sin(TAU * 11 * t));
+  });
+  poner(buf, 4.7, 1.2, (t) => (Math.sin(TAU * (60 + 40 * Math.exp(-t * 20)) * t) + Math.sin(TAU * 233 * t) * 0.4 * Math.exp(-t / 0.3)) * Math.exp(-t / 0.25));
+  // el aire de detras, frio
+  const lp = new D.Biquad('lp', 700, 0.7);
+  poner(buf, 1.4, 4.4, (t) => lp.paso(rnd() * 2 - 1) * suave(0, 1.5, t) * (1 - suave(3.2, 4.4, t)) * 0.6);
+  return fuerte(piscina(buf, 0.7, 0.93), 1.8, -0.5);
+}
+
 /* ================================================================ todos */
 
 const SONIDOS = [];
@@ -466,6 +590,12 @@ SONIDOS.push(['serpiente_grito', serpienteGrito]);
 for (let k = 0; k < 2; k++) SONIDOS.push([`serpiente_caza${k + 1}`, () => serpienteCaza(k)]);
 SONIDOS.push(['serpiente_ataque', serpienteAtaque]);
 SONIDOS.push(['serpiente_mordisco', serpienteMordisco]);
+for (let k = 0; k < 3; k++) SONIDOS.push([`valvula_giro${k + 1}`, () => valvulaGiro(k)]);
+SONIDOS.push(['valvula_cierre', valvulaCierre]);
+SONIDOS.push(['valvula_maquinaria', valvulaMaquinaria]);
+SONIDOS.push(['tarjeta_coger', tarjetaCoger]);
+SONIDOS.push(['lector_acepta', lectorAcepta]);
+SONIDOS.push(['puerta_salida', puertaSalida]);
 
 /**
  * Entradas de sounds.json: evento -> [prefijo, cuantos, distancia de atenuacion]. La
@@ -490,7 +620,13 @@ const EVENTOS = {
   'serpiente.grito': ['serpiente_grito', 1, 96],
   'serpiente.caza': ['serpiente_caza', 2, 48],
   'serpiente.ataque': ['serpiente_ataque', 1, 48],
-  'serpiente.mordisco': ['serpiente_mordisco', 1, 32]
+  'serpiente.mordisco': ['serpiente_mordisco', 1, 32],
+  'valvula.giro': ['valvula_giro', 3, 16],
+  'valvula.cierre': ['valvula_cierre', 1, 32],
+  'valvula.maquinaria': ['valvula_maquinaria', 1, 16],
+  'tarjeta.coger': ['tarjeta_coger', 1, 12],
+  'lector.acepta': ['lector_acepta', 1, 16],
+  'puerta.salida': ['puerta_salida', 1, 96]
 };
 
 if (require.main === module) (async () => {

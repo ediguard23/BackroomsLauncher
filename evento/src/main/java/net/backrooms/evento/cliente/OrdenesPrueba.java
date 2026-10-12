@@ -16,7 +16,9 @@ import org.lwjgl.glfw.GLFW;
  * abrir pantallas sin tocar la ventana ni robar el foco.
  *
  *   inventario | pausa | cerrar | cinematica | linterna | camara | tab [n] | andar [s] | correr [s] | captura <nombre> | cursor
- *   agacharse [s] | vista <0|1|2> | girar <grados> | atras [s] | reaparecer
+ *   agacharse [s] | vista <0|1|2> | girar <grados> | atras [s] | reaparecer | usar [s]
+ *
+ * "usar <s>" deja pulsado el clic derecho s segundos (las valvulas y los lectores de las Piscinas).
  *
  * "andar <s>" y "correr <s>" dejan pulsado hacia delante (y correr) s segundos: para oir las
  * pisadas y ver el balanceo.
@@ -42,6 +44,8 @@ final class OrdenesPrueba {
 	/** Ticks que queda pulsado Mayus (orden "agacharse") y hacia atras (orden "atras"). */
 	private static int agacharse;
 	private static int atras;
+	/** Ticks que queda pulsado el clic derecho (orden "usar"). */
+	private static int usar;
 
 	private OrdenesPrueba() {
 	}
@@ -64,6 +68,9 @@ final class OrdenesPrueba {
 			}
 			if (atras > 0 && --atras == 0) {
 				mc.options.keyDown.setDown(false);
+			}
+			if (usar > 0 && --usar == 0) {
+				mc.options.keyUse.setDown(false);
 			}
 			if (++ticks % 10 != 0 || !Files.exists(archivo)) {
 				return;
@@ -106,6 +113,12 @@ final class OrdenesPrueba {
 			mc.options.keyUp.setDown(true);
 			mc.options.keySprint.setDown(correr);
 			andar = 20 * (s.isEmpty() ? 3 : Integer.parseInt(s));
+			return;
+		}
+		if (orden.startsWith("usar")) {
+			String s = orden.substring(4).trim();
+			mc.options.keyUse.setDown(true);
+			usar = s.isEmpty() ? 4 : 20 * Integer.parseInt(s);
 			return;
 		}
 		if (orden.startsWith("agacharse")) {

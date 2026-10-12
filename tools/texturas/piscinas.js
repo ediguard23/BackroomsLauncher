@@ -42,16 +42,19 @@ function pieza (x, y, base, junta, canal) {
   const py = y % PASO;
   const tx = Math.floor(x / PASO);
   const ty = Math.floor(y / PASO);
-  if (px === 0 || py === 0) {
+  // la junta va a los dos lados de cada pieza (1 px y 1 px: 2 entre piezas y entre bloques),
+  // asi la textura es simetrica: las caras de los lados, que Minecraft pinta como en un
+  // espejo respecto a la de arriba, casan en las esquinas y todas las lineas miden igual
+  if (px === 0 || py === 0 || px === PASO - 1 || py === PASO - 1) {
     const c = escala(junta, 0.94 + hash(x, y, canal + 1) * 0.1);
     return { c, junta: true, px, py, tx, ty };
   }
-  // cada pieza con su tono, un degradado de esmalte y el bisel (claro arriba-izquierda)
+  // cada pieza con su tono, un degradado de esmalte y un bisel suave (que no engorde la junta)
   let c = escala(base, 0.975 + hash(tx, ty, canal + 2) * 0.05);
-  const d = (px + py) / (2 * (PASO - 1));
-  c = escala(c, 1.025 - d * 0.05);
-  if (px === 1 || py === 1) c = escala(c, 1.03);
-  if (px === PASO - 1 || py === PASO - 1) c = escala(c, 0.93);
+  const d = (px + py - 2) / (2 * (PASO - 3));
+  c = escala(c, 1.02 - d * 0.04);
+  if (px === 1 || py === 1) c = escala(c, 1.02);
+  if (px === PASO - 2 || py === PASO - 2) c = escala(c, 0.975);
   // reflejo del esmalte: un punto claro en algunas piezas
   if (px === 2 && py === 2 && hash(tx, ty, canal + 3) > 0.35) c = mezcla(c, [255, 255, 255], 0.5);
   c = escala(c, 0.99 + fbm(x, y, canal + 4) * 0.02);
@@ -683,6 +686,233 @@ for (const n of ['azulejo_manchado', 'azulejo_sangre']) {
 }
 console.log('  detalles: marcas, manchas, objetos, panel que parpadea');
 
+/* ============================================================ misiones */
+
+/** Un cubo con una cara (`frente`, la del norte) distinta y las demas de azulejo (va metido en la pared). */
+function enPared (frente, extra = {}) {
+  const az = t('azulejo');
+  const cara = (tex, d) => ({ texture: tex, cullface: d });
+  return {
+    parent: 'minecraft:block/block',
+    textures: { f: t(frente), a: az, particle: t(frente) },
+    elements: [{ from: [0, 0, 0], to: [16, 16, 16], ...extra,
+      faces: { north: cara('#f', 'north'), south: cara('#a', 'south'), east: cara('#a', 'east'), west: cara('#a', 'west'), up: cara('#a', 'up'), down: cara('#a', 'down') } }]
+  };
+}
+
+const ACERO = [104, 112, 108];
+const ROJO_VALVULA = [168, 30, 24];
+const VERDE_SALIDA = [22, 150, 74];
+const COLORES_TARJETA = { roja: [196, 34, 30], amarilla: [232, 190, 30], verde: [34, 160, 70] };
+
+// la valvula: volante de hierro pintado de rojo (desconchado) en un tubo con su brida
+guardar(TEX, 'valvula_rueda', new Lienzo(16).pintar((x, y) => {
+  let c = escala(ROJO_VALVULA, 0.82 + fbm(x, y, 900, 16) * 0.25);
+  if (fbm(x, y, 901, 16) > 0.64) c = mezcla(c, [70, 52, 44], 0.7); // pintura saltada: hierro oxidado
+  if ((x * 7 + y * 3) % 11 === 0) c = escala(c, 1.15);
+  return c;
+}));
+guardar(TEX, 'valvula_tubo', new Lienzo(16).pintar((x, y) => {
+  let c = escala(ACERO, 0.8 + fbm(x, y, 902, 16) * 0.25);
+  if (y % 8 === 0) c = escala(c, 0.8);
+  if (fbm(x, y, 903, 16) > 0.62) c = mezcla(c, [118, 82, 48], 0.5); // oxido
+  return c;
+}));
+{
+  // cuatro radios: con cuatro angulos (0, 22,5, 45 y 67,5 = -22,5) da la vuelta entera
+  const GIROS = [0, 22.5, 45, -22.5];
+  const GIROS2 = [45, -22.5, 0, 22.5]; // el aro: otro cuadrado a 45 grados hace el octogono
+  const z0 = 9.2;
+  const z1 = 10.6;
+  const rot = (a) => ({ rotation: { origin: [8, 8, 10], axis: 'z', angle: a, rescale: false } });
+  for (let a = 0; a < 4; a++) {
+    // cada cuadrado son los lados de un octogono (no se pasan de las esquinas: si no, sale una estrella)
+    const aro = (g) => [
+      { ...caja([5.5, 12.2, z0], [10.5, 13.6, z1], '#r'), ...rot(g) },
+      { ...caja([5.5, 2.4, z0], [10.5, 3.8, z1], '#r'), ...rot(g) },
+      { ...caja([2.4, 5.5, z0], [3.8, 10.5, z1], '#r'), ...rot(g) },
+      { ...caja([12.2, 5.5, z0], [13.6, 10.5, z1], '#r'), ...rot(g) }
+    ];
+    const elementos = [
+      caja([4, 4, 15], [12, 12, 16], '#t'), // brida contra la pared
+      caja([6, 6, 11], [10, 10, 15], '#t'), // el tubo
+      caja([6.8, 6.8, 9], [9.2, 9.2, 11], '#t'), // el eje
+      ...aro(GIROS[a]), ...aro(GIROS2[a]),
+      { ...caja([3.5, 7.4, 9.5], [12.5, 8.6, 10.3], '#r'), ...rot(GIROS[a]) }, // radios
+      { ...caja([7.4, 3.5, 9.5], [8.6, 12.5, 10.3], '#r'), ...rot(GIROS[a]) }
+    ];
+    json(`models/block/valvula_${a}.json`, { parent: 'minecraft:block/block', textures: { r: t('valvula_rueda'), t: t('valvula_tubo'), particle: t('valvula_rueda') }, elements: elementos });
+  }
+  const v = {};
+  for (const [f, y] of Object.entries(FACINGS)) for (let a = 0; a < 4; a++) v[`angulo=${a},facing=${f}`] = { model: t(`valvula_${a}`), ...(y ? { y } : {}) };
+  json('blockstates/valvula.json', { variants: v });
+  json('items/valvula.json', { model: { type: 'minecraft:model', model: t('valvula_0') } });
+}
+
+// los lectores: caja negra con la franja de su color, la ranura y un piloto (encendido al meterla)
+{
+  const nombres = ['roja', 'amarilla', 'verde'];
+  nombres.forEach((n, k) => {
+    for (const on of [false, true]) {
+      const col = COLORES_TARJETA[n];
+      guardar(TEX, `lector_${n}${on ? '_on' : ''}`, new Lienzo(16).pintar((x, y) => {
+        let c = escala([38, 40, 42], 0.85 + fbm(x, y, 910 + k, 16) * 0.2);
+        if (x === 0 || y === 0 || x === 15 || y === 15) c = [70, 72, 74];
+        if (y >= 2 && y <= 4 && x >= 2 && x <= 13) c = escala(col, on ? 1.1 : 0.75);
+        if (y === 9 && x >= 3 && x <= 12) c = [8, 8, 10]; // la ranura
+        if (y === 8 && x >= 3 && x <= 12) c = [90, 92, 94];
+        if (x >= 6 && x <= 9 && y >= 12 && y <= 13) c = on ? [120, 255, 140] : [40, 70, 44]; // el piloto
+        return c;
+      }));
+      const m = `lector_${n}${on ? '_on' : ''}`;
+      const caraF = { texture: '#f' };
+      json(`models/block/${m}.json`, { parent: 'minecraft:block/block', textures: { f: t(m), l: t('valvula_tubo'), particle: t(m) },
+        elements: [{ from: [4, 2, 14], to: [12, 14, 16], ...(on ? { shade: false, light_emission: 8 } : {}),
+          faces: { north: { ...caraF, uv: [0, 0, 16, 16] }, east: { texture: '#l', uv: [0, 0, 2, 12] }, west: { texture: '#l', uv: [0, 0, 2, 12] },
+            up: { texture: '#l', uv: [0, 0, 8, 2] }, down: { texture: '#l', uv: [0, 0, 8, 2] } } }] });
+    }
+  });
+  const v = {};
+  for (const [f, y] of Object.entries(FACINGS)) {
+    nombres.forEach((n, k) => {
+      for (const on of [false, true]) v[`color=${k},facing=${f},lit=${on}`] = { model: t(`lector_${n}${on ? '_on' : ''}`), ...(y ? { y } : {}) };
+    });
+  }
+  json('blockstates/lector_tarjeta.json', { variants: v });
+  json('items/lector_tarjeta.json', { model: { type: 'minecraft:model', model: t('lector_roja') } });
+}
+
+// la puerta: dos hojas de chapa gris verdosa con barra antipanico, bisagras y una franja roja;
+// se dibuja entera (64x96, 2x3 bloques) y se corta en seis. Abierta: negro.
+{
+  const P = new Lienzo(64, 96);
+  P.pintar((x, y) => {
+    const hoja = x < 32 ? 0 : 1;
+    const lx = x - hoja * 32;
+    let c = escala([96, 112, 104], 0.86 + fbm(x, y, 920, 64) * 0.16);
+    if (fbm(x * 0.5, y * 2, 921, 64) > 0.6) c = escala(c, 0.9); // chorretones de suciedad
+    // marco y canto de cada hoja
+    if (lx <= 1 || lx >= 30 || y <= 1) c = escala([70, 80, 76], 0.9);
+    if (hoja === 0 && lx === 31) c = [30, 32, 30]; // la junta entre las hojas
+    // paneles hundidos
+    const panel = (y > 8 && y < 40) || (y > 46 && y < 90);
+    if (panel && lx > 5 && lx < 26 && (lx === 6 || lx === 25 || y === 9 || y === 39 || y === 47 || y === 89)) c = escala(c, 0.78);
+    // franja roja de emergencia
+    if (y >= 41 && y <= 44) c = escala([176, 36, 28], 0.85 + hash(x, y, 922) * 0.15);
+    return c;
+  });
+  // barra antipanico (a la altura de la cintura) y bisagras
+  P.rect(5, 58, 58, 61, [176, 178, 172]).rect(5, 62, 58, 62, [90, 92, 88]);
+  for (const yb of [12, 50, 84]) { P.rect(0, yb, 1, yb + 5, [40, 42, 40]); P.rect(62, yb, 63, yb + 5, [40, 42, 40]); }
+  // ventanuco de malla en cada hoja
+  for (const hx of [10, 42]) {
+    P.rect(hx, 14, hx + 11, 30, [28, 36, 38]);
+    for (let y = 14; y <= 30; y += 3) P.rect(hx, y, hx + 11, y, [70, 78, 80]);
+    for (let x = hx; x <= hx + 11; x += 3) P.rect(x, 14, x, 30, [70, 78, 80]);
+  }
+  P.texto('SALIDA', 'centro', 68, [235, 235, 225], 1);
+  for (let col = 0; col < 2; col++) {
+    for (let fila = 0; fila < 3; fila++) {
+      const parte = new Lienzo(32);
+      for (let y = 0; y < 32; y++) {
+        for (let x = 0; x < 32; x++) {
+          const i = ((96 - 32 * (fila + 1) + y) * 64 + col * 32 + x) * 4;
+          parte.data.set(P.data.subarray(i, i + 4), (y * 32 + x) * 4);
+        }
+      }
+      guardar(TEX, `puerta_salida_${col * 3 + fila}`, parte);
+      json(`models/block/puerta_salida_${col * 3 + fila}.json`, enPared(`puerta_salida_${col * 3 + fila}`));
+    }
+  }
+  guardar(TEX, 'puerta_salida_abierta', new Lienzo(32).pintar((x, y) => escala([10, 12, 14], 0.7 + fbm(x, y, 924, 32) * 0.4)));
+  json('models/block/puerta_salida_abierta.json', enPared('puerta_salida_abierta'));
+  const v = {};
+  for (const [f, y] of Object.entries(FACINGS)) {
+    for (let p = 0; p < 6; p++) {
+      v[`abierta=false,facing=${f},parte=${p}`] = { model: t(`puerta_salida_${p}`), ...(y ? { y } : {}) };
+      v[`abierta=true,facing=${f},parte=${p}`] = { model: t('puerta_salida_abierta'), ...(y ? { y } : {}) };
+    }
+  }
+  json('blockstates/puerta_salida.json', { variants: v });
+  json('items/puerta_salida.json', { model: { type: 'minecraft:model', model: t('puerta_salida_1') } });
+}
+
+// carteles verdes de salida de emergencia (con luz propia): el pequeno con el hombrecillo que
+// corre hacia una puerta y la flecha; el grande de encima de la puerta, en dos mitades
+{
+  const BLANCO_S = [244, 248, 240];
+  const hombrecillo = (l, x, y, s, espejo) => {
+    const X = (v) => espejo ? x - v * s : x + v * s;
+    const Y = (v) => y + v * s;
+    l.disco(X(3), Y(0), 2.2 * s, BLANCO_S);
+    l.linea(X(2.4), Y(2.6), X(0.8), Y(8), BLANCO_S, 2.4 * s);   // cuerpo
+    l.linea(X(2.2), Y(3.6), X(5), Y(5.5), BLANCO_S, 1.8 * s);   // brazo delante
+    l.linea(X(2), Y(3.8), X(-0.8), Y(4.6), BLANCO_S, 1.8 * s);  // brazo detras
+    l.linea(X(0.8), Y(8), X(3.6), Y(10.5), BLANCO_S, 2 * s);    // pierna delante
+    l.linea(X(3.6), Y(10.5), X(3.2), Y(13.5), BLANCO_S, 2 * s);
+    l.linea(X(0.8), Y(8), X(-2.2), Y(11), BLANCO_S, 2 * s);     // pierna detras
+    l.linea(X(-2.2), Y(11), X(-4.6), Y(11.5), BLANCO_S, 2 * s);
+  };
+  const flecha = (l, x, y, s, izquierda) => {
+    const d = izquierda ? -1 : 1;
+    l.linea(x - 5 * s * d, y, x + 4 * s * d, y, BLANCO_S, 2.6 * s);
+    l.poligono([[x + 7 * s * d, y], [x + 2.5 * s * d, y - 4.5 * s], [x + 2.5 * s * d, y + 4.5 * s]], BLANCO_S);
+  };
+  {
+    // hacia la derecha: el hombrecillo corre hacia la puerta y, al lado, la flecha; el de la
+    // izquierda es el mismo en espejo
+    const l = new Lienzo(64);
+    l.pintar((x, y) => (x >= 4 && x <= 59 && y >= 15 && y <= 48 ? escala(VERDE_SALIDA, 0.94 + fbm(x, y, 930, 64) * 0.1) : null));
+    l.rect(34, 19, 44, 44, BLANCO_S).rect(36, 21, 42, 44, VERDE_SALIDA);
+    hombrecillo(l, 20, 20.5, 1.75, false);
+    flecha(l, 51, 31, 0.95, false);
+    guardar(TEX, 'cartel_salida_derecha', l);
+    guardar(TEX, 'cartel_salida_izquierda', l.espejo());
+  }
+  const g = new Lienzo(128, 64);
+  g.pintar((x, y) => (x >= 2 && x <= 125 && y >= 6 && y <= 57 ? escala(VERDE_SALIDA, 0.94 + fbm(x, y, 931, 64) * 0.1) : null));
+  g.texto('SALIDA', 'centro', 12, BLANCO_S, 3).texto('EMERGENCIA', 'centro', 38, BLANCO_S, 2);
+  for (const [k, n] of [[0, 'izq'], [1, 'der']]) {
+    const parte = new Lienzo(64);
+    for (let y = 0; y < 64; y++) {
+      for (let x = 0; x < 64; x++) {
+        const i = (y * 128 + k * 64 + x) * 4;
+        parte.data.set(g.data.subarray(i, i + 4), (y * 64 + x) * 4);
+      }
+    }
+    guardar(TEX, `cartel_salida_grande_${n}`, parte);
+  }
+  const panel = (tex) => ({ parent: 'minecraft:block/block', textures: { all: t(tex), particle: t(tex) },
+    elements: [{ from: [0, 0, 15.9], to: [16, 16, 15.9], shade: false, light_emission: 12, faces: { north: { texture: '#all', uv: [0, 0, 16, 16] } } }] });
+  const nombres = ['cartel_salida_izquierda', 'cartel_salida_derecha', 'cartel_salida_grande_izq', 'cartel_salida_grande_der'];
+  nombres.forEach((n) => json(`models/block/${n}.json`, panel(n)));
+  const v = {};
+  for (const [f, y] of Object.entries(FACINGS)) nombres.forEach((n, i) => { v[`facing=${f},variante=${i}`] = { model: t(n), ...(y ? { y } : {}) }; });
+  json('blockstates/cartel_salida.json', { variants: v });
+  json('items/cartel_salida.json', { model: { type: 'minecraft:model', model: t('cartel_salida_derecha') } });
+}
+
+// las tres tarjetas (objetos): plastico de su color, banda blanca con la etiqueta, banda magnetica y chip
+{
+  const ITEM = path.join(ASSETS, 'textures', 'item');
+  for (const [n, col] of Object.entries(COLORES_TARJETA)) {
+    guardar(ITEM, `tarjeta_${n}`, new Lienzo(16).pintar((x, y) => {
+      if (y < 3 || y > 12 || x < 1 || x > 14) return null;
+      if ((x === 1 || x === 14) && (y === 3 || y === 12)) return null; // esquinas redondeadas
+      let c = escala(col, 0.9 + fbm(x, y, 940, 16) * 0.15);
+      if (x === 1 || x === 14 || y === 3 || y === 12) c = escala(col, 0.65);
+      if (y === 5) c = [24, 24, 26];                      // banda magnetica
+      if (y >= 8 && y <= 10 && x >= 7 && x <= 13) c = [236, 236, 228]; // etiqueta
+      if (y === 9 && x >= 8 && x <= 12 && x % 2 === 0) c = [60, 60, 60];
+      if (y >= 8 && y <= 10 && x >= 3 && x <= 5) c = (x + y) % 2 ? [214, 176, 64] : [168, 132, 40]; // chip
+      return c;
+    }));
+    json(`models/item/tarjeta_${n}.json`, { parent: 'minecraft:item/generated', textures: { layer0: `${NS}:item/tarjeta_${n}` } });
+    json(`items/tarjeta_${n}.json`, { model: { type: 'minecraft:model', model: `${NS}:item/tarjeta_${n}` } });
+  }
+}
+console.log('  misiones: valvula, lectores, puerta de salida, carteles y tarjetas');
+
 /* ============================================================ nombres */
 
 const NOMBRES = {
@@ -707,12 +937,23 @@ const NOMBRES = {
   flotador: ['Flotador', 'Pool float'],
   toalla: ['Toalla', 'Towel'],
   chanclas: ['Chanclas', 'Flip-flops'],
-  mochila: ['Mochila', 'Backpack']
+  mochila: ['Mochila', 'Backpack'],
+  valvula: ['Válvula', 'Valve'],
+  lector_tarjeta: ['Lector de tarjeta', 'Card reader'],
+  puerta_salida: ['Salida de emergencia', 'Emergency exit'],
+  cartel_salida: ['Cartel de salida', 'Exit sign']
+};
+const OTROS = {
+  'item.backrooms_evento.tarjeta_roja': ['Tarjeta roja', 'Red keycard'],
+  'item.backrooms_evento.tarjeta_amarilla': ['Tarjeta amarilla', 'Yellow keycard'],
+  'item.backrooms_evento.tarjeta_verde': ['Tarjeta verde', 'Green keycard'],
+  'entity.backrooms_evento.tarjeta': ['Tarjeta', 'Keycard']
 };
 for (const [archivo, k] of [['es_es.json', 0], ['en_us.json', 1]]) {
   const f = path.join(ASSETS, 'lang', archivo);
   const lang = JSON.parse(fs.readFileSync(f, 'utf8'));
   for (const [id, v] of Object.entries(NOMBRES)) lang[`block.${NS}.${id}`] = v[k];
+  for (const [id, v] of Object.entries(OTROS)) lang[id] = v[k];
   fs.writeFileSync(f, JSON.stringify(lang, null, 2) + '\n');
 }
 console.log('  lang: bloques de las piscinas');

@@ -41,6 +41,21 @@ public final class Objetos {
 	public static final Item CAMARA = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("camara")),
 		p -> new Herramienta(AccionJugador.CAMARA, p), new Item.Properties().stacksTo(1));
 
+	/**
+	 * Las tres tarjetas de la salida de emergencia de las Piscinas (en el orden de
+	 * PlanoPiscinas.T_*: roja, amarilla y verde). Solo hay una de cada para todo el evento
+	 * (Tarjetas): en el suelo es una entidad; el objeto es lo que lleva quien la coge.
+	 */
+	public static final Item TARJETA_ROJA = tarjeta("tarjeta_roja");
+	public static final Item TARJETA_AMARILLA = tarjeta("tarjeta_amarilla");
+	public static final Item TARJETA_VERDE = tarjeta("tarjeta_verde");
+	public static final Item[] TARJETAS = {TARJETA_ROJA, TARJETA_AMARILLA, TARJETA_VERDE};
+
+	private static Item tarjeta(String id) {
+		return Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id(id)), Item::new,
+			new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.EPIC));
+	}
+
 	/* ---------------------------------------------- comida del Nivel 0 */
 
 	/** Agua de almendras: la unica que sube la cordura. */

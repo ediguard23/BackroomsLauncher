@@ -181,8 +181,9 @@ public class InventarioBackrooms extends AbstractContainerScreen<InventoryMenu> 
 			return;
 		}
 		Texto.hud(g, "MISIÓN " + (actual + 1) + "/" + misiones.size(), x, 37, 9, 0.06F, MenuBackrooms.alfa(this.tema.tubo, 0.7F));
-		if (misiones.get(actual) == TipoMision.CASETES) {
-			Texto.hud(g, "CASETES " + MisionesCliente.casetes() + "/" + MisionesCliente.necesarios(), x, 48, 13, 0.04F, this.tema.tubo);
+		String cuenta = HojaMisiones.cuenta(misiones.get(actual));
+		if (cuenta != null) {
+			Texto.hud(g, cuenta + " " + MisionesCliente.casetes() + "/" + MisionesCliente.necesarios(), x, 48, 13, 0.04F, this.tema.tubo);
 		} else {
 			Texto.hud(g, "GRABAR", x, 48, 13, 0.06F, this.tema.tubo);
 		}

@@ -84,6 +84,8 @@ public final class Piscinas {
 		j.removeEffect(MobEffects.RESISTANCE);
 		Equipo.vestir(j);
 		if (aguas) {
+			// llega de verdad (no reaparece): sus misiones de aqui y sus aguas de almendras
+			net.backrooms.evento.mision.Misiones.get().asignarPiscinas(j, p);
 			net.backrooms.evento.supervivencia.Comida.get().repartirAguas(nivel, p);
 		}
 		BackroomsEvento.LOG.info("{} llega a las Piscinas en {} {}", j.getGameProfile().name(), p.getX(), p.getZ());
@@ -172,6 +174,71 @@ public final class Piscinas {
 			}
 		}
 		return false;
+	}
+
+	/* ------------------------------------------- staff: ir a lo de las misiones */
+
+	private static final int[] PASO_X = {0, 1, 0, -1};
+	private static final int[] PASO_Z = {-1, 0, 1, 0};
+
+	/** Lo deja a `d` bloques delante de (x, y, z) segun `mira`, mirandolo. */
+	private static boolean delante(ServerPlayer j, int x, int y, int z, int mira, double d) {
+		ServerLevel nivel = servidor == null ? null : servidor.getLevel(DIMENSION);
+		if (nivel == null) {
+			return false;
+		}
+		double px = x + 0.5 + PASO_X[mira] * d;
+		double pz = z + 0.5 + PASO_Z[mira] * d;
+		float yaw = (float) Math.toDegrees(Math.atan2(-(x + 0.5 - px), z + 0.5 - pz));
+		j.teleportTo(nivel, px, PlanoPiscinas.PISO, pz, Set.of(), yaw, 10.0F, true);
+		return true;
+	}
+
+	private static PlanoPiscinas planoDe() {
+		ServerLevel nivel = servidor == null ? null : servidor.getLevel(DIMENSION);
+		return nivel == null ? null : Valvulas.plano(nivel);
+	}
+
+	/** Delante de su valvula pendiente mas cercana; si no tiene, de la mas cercana. */
+	public static boolean irAValvula(ServerPlayer j) {
+		PlanoPiscinas p = planoDe();
+		if (p == null) {
+			return false;
+		}
+		net.backrooms.evento.mision.Misiones.Estado e = net.backrooms.evento.mision.Misiones.get().estado(j);
+		PlanoPiscinas.Valvula mejor = null;
+		double dMejor = Double.MAX_VALUE;
+		for (PlanoPiscinas.Valvula v : p.valvulas()) {
+			boolean suya = e != null && e.valvulas.contains(v.id()) && !e.valvulasHechas.contains(v.id());
+			double d = j.distanceToSqr(v.x(), v.y(), v.z()) - (suya ? 1.0E12 : 0);
+			if (d < dMejor) {
+				dMejor = d;
+				mejor = v;
+			}
+		}
+		return mejor != null && delante(j, mejor.x(), mejor.y(), mejor.z(), mejor.lado(), 2.0);
+	}
+
+	public static boolean irASalida(ServerPlayer j) {
+		PlanoPiscinas p = planoDe();
+		if (p == null) {
+			return false;
+		}
+		PlanoPiscinas.Salida s = p.salida();
+		int[] c = s.columna(2);
+		return delante(j, c[0], PlanoPiscinas.PISO, c[1], s.mira(), 2.2);
+	}
+
+	/** Al escondite de esa tarjeta (la roja esta bajo el agua: encima de ella). */
+	public static boolean irATarjeta(ServerPlayer j, int color) {
+		PlanoPiscinas p = planoDe();
+		ServerLevel nivel = servidor == null ? null : servidor.getLevel(DIMENSION);
+		if (p == null || nivel == null) {
+			return false;
+		}
+		int[] t = p.tarjeta(color);
+		j.teleportTo(nivel, t[0] + 0.5, t[1] + (color == PlanoPiscinas.T_ROJA ? 1.0 : 0.0), t[2] + 2.5, Set.of(), 180.0F, 30.0F, true);
+		return true;
 	}
 
 	/** Punto al azar, seco y con luz, separado de las llegadas anteriores. */

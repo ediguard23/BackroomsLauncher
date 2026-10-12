@@ -49,8 +49,11 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			Bloques.DIBUJO, Bloques.VENTILADOR, Bloques.VENTILADOR_GRANDE, Bloques.CAPA_BACILO,
 			Bloques.SENAL_ALTO, Bloques.SENAL_PELIGRO, Bloques.SENAL_SIGA, Bloques.SENAL_ALTO_REVES, Bloques.SENAL_SIGA_REVES,
 			Bloques.PANEL_ASCENSOR, Bloques.HUECO,
-			net.backrooms.evento.piscinas.BloquesPiscinas.MARCA, net.backrooms.evento.piscinas.BloquesPiscinas.MANCHA);
+			net.backrooms.evento.piscinas.BloquesPiscinas.MARCA, net.backrooms.evento.piscinas.BloquesPiscinas.MANCHA,
+			net.backrooms.evento.piscinas.BloquesPiscinas.LECTOR, net.backrooms.evento.piscinas.BloquesPiscinas.CARTEL_SALIDA);
 		EntityRenderers.register(Entidades.CASETE, CaseteRenderer::new);
+		EntityRenderers.register(Entidades.TARJETA, net.backrooms.evento.cliente.piscinas.TarjetaRenderer::new);
+		net.backrooms.evento.piscinas.PuertaSalida.pasaCliente = p -> p == net.minecraft.client.Minecraft.getInstance().player && MisionesCliente.todasHechas();
 		EntityRenderers.register(Entidades.ASIENTO, NoopRenderer::new);
 		EntityRenderers.register(Entidades.COMIDA, ComidaRenderer::new);
 		EntityRenderers.register(Entidades.BACTERIA, BacteriaRenderer::new);
@@ -73,6 +76,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Agarrado.TYPE, (s, ctx) -> AgarreCliente.empezar(s));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.SonidoPiscinas.TYPE,
 			(s, ctx) -> net.backrooms.evento.cliente.piscinas.AmbientePiscinas.forzar(ctx.client(), s.que()));
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Evidencia.TYPE, (s, ctx) -> MisionesCliente.evidencia());
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Mordisco.TYPE,
 			(s, ctx) -> net.backrooms.evento.cliente.piscinas.MordiscoCliente.empezar(s));
 		HerramientasCliente.registrar();

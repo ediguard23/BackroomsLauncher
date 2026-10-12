@@ -98,6 +98,21 @@ public final class CamaraHud {
 				a | 0xE5281E);
 		}
 		Texto.hud(g, "SP", w - m - Texto.anchoHud("SP", tam, 0.08F), h - m - tam, tam, 0.08F, blanco);
+
+		// la Serpiente grabada: el visor lo confirma (el primer segundo, parpadeando)
+		float ev = MisionesCliente.segundosEvidencia();
+		if (ev >= 0 && (ev > 1.0F || (int) (ev * 6) % 2 == 0)) {
+			String l1 = "EVIDENCIA OBTENIDA";
+			String l2 = "SUJETO CONFIRMADO";
+			float t1 = tam * 1.3F;
+			float a1 = Texto.anchoHud(l1, t1, 0.08F);
+			float ye = h * 0.34F;
+			int fondo = Math.round(Mth.clamp(subida, 0, 1) * 150) << 24;
+			g.fill(Math.round(w / 2.0F - a1 / 2.0F - tam * 0.7F), Math.round(ye - tam * 0.5F),
+				Math.round(w / 2.0F + a1 / 2.0F + tam * 0.7F), Math.round(ye + t1 * 1.15F + tam * 1.5F), fondo);
+			Texto.hud(g, l1, w / 2.0F - a1 / 2.0F, ye, t1, 0.08F, a | 0xFFE36B);
+			Texto.hud(g, l2, w / 2.0F - Texto.anchoHud(l2, tam, 0.08F) / 2.0F, ye + t1 * 1.15F, tam, 0.08F, a | 0xE5281E);
+		}
 	}
 
 	private static void esquina(GuiGraphics g, int x, int y, int largo, int grueso, int sx, int sy, int color) {

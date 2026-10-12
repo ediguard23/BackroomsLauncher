@@ -79,19 +79,47 @@ public final class MisionesCliente {
 		return ultimo.grabando();
 	}
 
-	/** Lo que hay que grabar, para el visor de la camara; null si la mision en curso no es de grabar. */
+	/**
+	 * Lo que hay que grabar, para el visor de la camara: la primera de grabar que le quede (se
+	 * hacen en cualquier orden: en las Piscinas va detras de las valvulas); null si ninguna.
+	 */
 	public static String objetivoGrabacion() {
 		List<TipoMision> m = misiones();
-		int i = actual();
-		if (i < 0 || i >= m.size()) {
-			return null;
+		for (int i = Math.max(0, actual()); i < m.size(); i++) {
+			String o = switch (m.get(i)) {
+				case LUCES_ROJAS -> "OBJETIVO: ALARMAS";
+				case ENTIDAD -> "OBJETIVO: BACTERIA";
+				case ENTIDAD_ALARMA -> "OBJETIVO: BACTERIA EN ALARMA";
+				case SMILER -> "OBJETIVO: SMILER";
+				case SERPIENTE -> "OBJETIVO: SUJETO DEL NIVEL 37";
+				default -> null;
+			};
+			if (o != null) {
+				return o;
+			}
 		}
-		return switch (m.get(i)) {
-			case LUCES_ROJAS -> "OBJETIVO: ALARMAS";
-			case ENTIDAD -> "OBJETIVO: BACTERIA";
-			case ENTIDAD_ALARMA -> "OBJETIVO: BACTERIA EN ALARMA";
-			case SMILER -> "OBJETIVO: SMILER";
-			default -> null;
-		};
+		return null;
+	}
+
+	/** Si ya hizo todas sus misiones (en las Piscinas: puede cruzar la salida de emergencia). */
+	public static boolean todasHechas() {
+		List<TipoMision> m = misiones();
+		return !m.isEmpty() && actual() >= m.size();
+	}
+
+	/** Cuando llego la ultima evidencia (ms), o -1. */
+	private static long evidencia = -1;
+
+	public static void evidencia() {
+		evidencia = net.minecraft.util.Util.getMillis();
+	}
+
+	/** Segundos desde que grabo a la Serpiente (Evidencia), o -1 si no fue hace poco. */
+	public static float segundosEvidencia() {
+		if (evidencia < 0) {
+			return -1;
+		}
+		float t = (net.minecraft.util.Util.getMillis() - evidencia) / 1000.0F;
+		return t > 5.0F ? -1 : t;
 	}
 }

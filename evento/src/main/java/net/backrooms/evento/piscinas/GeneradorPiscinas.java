@@ -146,6 +146,10 @@ public class GeneradorPiscinas extends ChunkGenerator {
 			case PlanoPiscinas.D_MARCA -> BloquesPiscinas.MARCA.defaultBlockState().setValue(EnPared.FACING, mira).setValue(MarcaPiscina.MARCA, d.variante());
 			case PlanoPiscinas.D_MANCHA -> BloquesPiscinas.MANCHA.defaultBlockState().setValue(EnSuelo.FACING, mira).setValue(ManchaSuelo.MANCHA, d.variante());
 			case PlanoPiscinas.D_OBJETO -> BloquesPiscinas.OBJETOS[d.variante()].defaultBlockState().setValue(EnSuelo.FACING, mira);
+			case PlanoPiscinas.D_VALVULA -> BloquesPiscinas.VALVULA.defaultBlockState().setValue(EnPared.FACING, mira);
+			case PlanoPiscinas.D_PUERTA -> BloquesPiscinas.PUERTA_SALIDA.defaultBlockState().setValue(PuertaSalida.FACING, mira).setValue(PuertaSalida.PARTE, d.variante());
+			case PlanoPiscinas.D_LECTOR -> BloquesPiscinas.LECTOR.defaultBlockState().setValue(EnPared.FACING, mira).setValue(LectorTarjeta.COLOR, d.variante());
+			case PlanoPiscinas.D_CARTEL -> BloquesPiscinas.CARTEL_SALIDA.defaultBlockState().setValue(EnPared.FACING, mira).setValue(CartelSalida.VARIANTE, d.variante());
 			default -> (d.variante() == 0 ? BloquesPiscinas.AZULEJO_MANCHADO : BloquesPiscinas.AZULEJO_SANGRE).defaultBlockState();
 		};
 	}

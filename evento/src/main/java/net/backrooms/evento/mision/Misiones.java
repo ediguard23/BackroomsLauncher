@@ -84,7 +84,13 @@ public final class Misiones {
 		public int escapado;
 		/** Si en el ultimo segundo estaba grabando lo que pide su mision (no se guarda). */
 		public transient boolean grabando;
+		/** En las Piscinas: sus tres valvulas (PlanoPiscinas.Valvula#id) y las que ya cerro. */
+		public List<Integer> valvulas = new ArrayList<>();
+		public List<Integer> valvulasHechas = new ArrayList<>();
 	}
+
+	/** El "numero de fase" de quien esta en las Piscinas (no es una Fase). */
+	public static final int FASE_PISCINAS = 37;
 
 	/** Segundos de grabacion que pide cada mision de grabar. */
 	public static float segundosGrabar(TipoMision m) {
@@ -92,6 +98,7 @@ public final class Misiones {
 			case LUCES_ROJAS -> 5.0F;
 			case ENTIDAD, ENTIDAD_ALARMA -> 4.0F;
 			case SMILER -> 3.0F;
+			case SERPIENTE -> 4.0F;
 			default -> 0.0F;
 		};
 	}
@@ -196,6 +203,68 @@ public final class Misiones {
 		this.sincronizar(jugador);
 	}
 
+	/**
+	 * Las misiones de las Piscinas: cerrar sus 3 valvulas y grabar a la Serpiente (suyas) y
+	 * abrir la salida de emergencia (de todos: si ya esta abierta, la trae hecha). Las da
+	 * Piscinas#llegar al bajar en el ascensor; sustituyen a las del Nivel 0.
+	 */
+	public void asignarPiscinas(ServerPlayer jugador, BlockPos origen) {
+		this.quitarCasetes(jugador.getUUID());
+		Estado e = new Estado();
+		e.fase = FASE_PISCINAS;
+		e.misiones.add(TipoMision.VALVULAS);
+		e.misiones.add(TipoMision.SERPIENTE);
+		e.misiones.add(TipoMision.SALIDA);
+		e.valvulas.addAll(net.backrooms.evento.piscinas.Valvulas.get().elegir(jugador.level(), origen));
+		this.estados.put(jugador.getUUID(), e);
+		this.sucio = true;
+		if (net.backrooms.evento.piscinas.Tarjetas.get().abierta()) {
+			java.util.Collections.swap(e.misiones, 2, 0);
+			e.actual = 1;
+		}
+		this.sincronizar(jugador);
+	}
+
+	/** Ha cerrado una de sus valvulas: true si era suya y no la tenia hecha. */
+	public boolean cerrarValvula(ServerPlayer j, int id) {
+		Estado e = this.estado(j);
+		if (e == null || !e.valvulas.contains(id) || e.valvulasHechas.contains(id)) {
+			return false;
+		}
+		e.valvulasHechas.add(id);
+		this.sucio = true;
+		if (e.valvulasHechas.size() >= e.valvulas.size()) {
+			this.completar(j, TipoMision.VALVULAS);
+		}
+		this.sincronizar(j);
+		return true;
+	}
+
+	/** Esa mision hecha para todos los que la tengan pendiente (la salida de emergencia). */
+	public void completarParaTodos(TipoMision tipo) {
+		for (Map.Entry<UUID, Estado> en : this.estados.entrySet()) {
+			Estado e = en.getValue();
+			int k = pendiente(e, tipo);
+			if (k < 0) {
+				continue;
+			}
+			ServerPlayer j = this.servidor == null ? null : this.servidor.getPlayerList().getPlayer(en.getKey());
+			if (j != null) {
+				this.completar(j, tipo);
+			} else {
+				java.util.Collections.swap(e.misiones, k, e.actual);
+				e.actual++;
+				this.sucio = true;
+			}
+		}
+	}
+
+	/** true si tiene hechas todas sus misiones (en las Piscinas: puede cruzar la salida). */
+	public boolean todasHechas(ServerPlayer j) {
+		Estado e = this.estado(j);
+		return e != null && !e.misiones.isEmpty() && e.actual >= e.misiones.size();
+	}
+
 	/** Columna sin pared ni decoracion mas cercana a (x, z). */
 	private static int[] sueloLibre(Plano p, int x, int z) {
 		for (int r = 0; r <= Plano.G * 2; r++) {
@@ -283,7 +352,8 @@ public final class Misiones {
 		this.sucio = true;
 		net.backrooms.evento.Sonidos.aJugador(jugador, net.backrooms.evento.Sonidos.MISION_COMPLETA, 0.9F);
 		if (e.actual >= e.misiones.size()) {
-			jugador.displayClientMessage(Component.literal("Misiones completadas. El radar ya marca el ascensor de salida: síguelo.").withStyle(ChatFormatting.GOLD), false);
+			String donde = e.fase == FASE_PISCINAS ? "la salida de emergencia: crúzala" : "el ascensor de salida: síguelo";
+			jugador.displayClientMessage(Component.literal("Misiones completadas. El radar ya marca " + donde + ".").withStyle(ChatFormatting.GOLD), false);
 		} else {
 			TipoMision sig = e.misiones.get(e.actual);
 			jugador.displayClientMessage(Component.literal("Misión completada. Siguiente: " + sig.titulo).withStyle(ChatFormatting.YELLOW), false);
@@ -369,9 +439,36 @@ public final class Misiones {
 		int distancia = -1;
 		float rumbo = 0;
 		boolean salida = false;
+		int hechos = e.casetes;
+		int total = necesarios(e);
 		Fase f = Fase.de(j.level());
 		int alcance = f == null ? ALCANCE_SENAL : f.alcanceSenal();
-		if (f != null && e.actual >= e.misiones.size() && !e.eliminado && e.escapado == 0
+		int[] objetivo = null;
+		if (e.fase == FASE_PISCINAS && net.backrooms.evento.piscinas.Piscinas.es(j.level()) && !e.eliminado && e.escapado == 0) {
+			// el radar: la valvula suya mas cercana sin cerrar; con las valvulas hechas, la salida
+			if (pendiente(e, TipoMision.VALVULAS) >= 0) {
+				objetivo = net.backrooms.evento.piscinas.Valvulas.get().cercana(j, e);
+			}
+			if (objetivo == null) {
+				objetivo = net.backrooms.evento.piscinas.Tarjetas.get().puerta(j.level());
+				salida = objetivo != null;
+			}
+			// lo que cuenta la hoja: las valvulas cerradas o, con la salida en curso, las tarjetas metidas
+			TipoMision enCurso = e.actual < e.misiones.size() ? e.misiones.get(e.actual) : null;
+			if (enCurso == TipoMision.SALIDA) {
+				hechos = net.backrooms.evento.piscinas.Tarjetas.get().metidas();
+				total = 3;
+			} else {
+				hechos = e.valvulasHechas.size();
+				total = e.valvulas.size();
+			}
+		}
+		if (objetivo != null) {
+			double dx = objetivo[0] + 0.5 - j.getX();
+			double dz = objetivo[1] + 0.5 - j.getZ();
+			distancia = (int) Math.round(Math.sqrt(dx * dx + dz * dz));
+			rumbo = (float) Math.toDegrees(Math.atan2(-dx, dz));
+		} else if (f != null && e.actual >= e.misiones.size() && !e.eliminado && e.escapado == 0
 			&& j.level().getChunkSource().getGenerator() instanceof GeneradorNivel0 gen) {
 			// misiones hechas: el radar lleva al ascensor de salida mas cercano (sin limite de alcance)
 			Plano.Ascensor a = gen.plano(j.level().getChunkSource().randomState()).ascensorCercano(j.getBlockX(), j.getBlockZ());
@@ -409,7 +506,7 @@ public final class Misiones {
 			float seg = segundosGrabar(grabada);
 			grabado = seg > 0 && grabada == e.grabandoTipo ? Math.min(1.0F, e.grabado / seg) : 0;
 		}
-		ServerPlayNetworking.send(j, new SyncMisiones(nombres, e.actual, e.casetes, necesarios(e), distancia, rumbo,
+		ServerPlayNetworking.send(j, new SyncMisiones(nombres, e.actual, hechos, total, distancia, rumbo,
 			salida, grabado, e.grabando, f == null ? 0 : f.numero()));
 	}
 
@@ -432,6 +529,9 @@ public final class Misiones {
 		this.sucio = true;
 		if (e.grabado >= segundosGrabar(tipo)) {
 			this.completar(j, tipo);
+			if (tipo == TipoMision.SERPIENTE && ServerPlayNetworking.canSend(j, net.backrooms.evento.red.Evidencia.TYPE)) {
+				ServerPlayNetworking.send(j, new net.backrooms.evento.red.Evidencia());
+			}
 		}
 	}
 

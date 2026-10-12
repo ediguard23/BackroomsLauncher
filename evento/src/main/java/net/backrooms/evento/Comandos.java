@@ -43,6 +43,11 @@ import net.minecraft.server.level.ServerPlayer;
  *  piscinas [jugador]        lo manda ya a un sitio libre de las Piscinas (Nivel 37)
  *  piscinas ir <sala>        a la sala de ese tipo mas cercana (pasillos, piscina, inundada,
  *                            bovedas, tunel, caracol, terrazas)
+ *  piscinas ir valvula|salida|tarjeta_roja|tarjeta_amarilla|tarjeta_verde
+ *                            delante de su valvula pendiente mas cercana (o de la mas
+ *                            cercana), de la salida de emergencia o del escondite de una tarjeta
+ *  tarjetas [reponer|abrir]  donde esta cada tarjeta; todas a su escondite y la salida
+ *                            cerrada; o la salida abierta ya (pruebas)
  *  piscinas oir <sonido> <jugador>  que oiga ya uno de los sonidos sueltos de las Piscinas
  *                            (gota, agua, orilla, chapoteo, tuberia, grave, grunido, voz, susurro)
  *  vestibulo [jugador]       lo lleva al vestibulo; "vestibulo rehacer" repone los rotulos
@@ -181,6 +186,7 @@ public final class Comandos {
 					}))))
 				.then(Commands.argument("jugador", EntityArgument.player())
 					.executes(c -> net.backrooms.evento.piscinas.Piscinas.llegar(EntityArgument.getPlayer(c, "jugador")) ? 1 : 0)))
+			.then(tarjetas())
 			.then(Commands.literal("vestibulo")
 				.executes(c -> {
 					Vestibulo.get().llevar(c.getSource().getPlayerOrException());
@@ -317,6 +323,34 @@ public final class Comandos {
 		return 1;
 	}
 
+	private static int irMision(CommandContext<CommandSourceStack> c, boolean ok) {
+		if (!ok) {
+			c.getSource().sendFailure(Component.literal("No se encuentra (hay que estar en las Piscinas)."));
+		}
+		return ok ? 1 : 0;
+	}
+
+	/** tarjetas [reponer|abrir]: donde esta cada tarjeta de la salida de las Piscinas. */
+	private static com.mojang.brigadier.builder.LiteralArgumentBuilder<CommandSourceStack> tarjetas() {
+		return Commands.literal("tarjetas")
+			.executes(c -> {
+				for (String l : net.backrooms.evento.piscinas.Tarjetas.get().resumen()) {
+					c.getSource().sendSuccess(() -> Component.literal(l), false);
+				}
+				return 1;
+			})
+			.then(Commands.literal("reponer").executes(c -> {
+				net.backrooms.evento.piscinas.Tarjetas.get().reponer();
+				c.getSource().sendSuccess(() -> Component.literal("Las tres tarjetas vuelven a su escondite y la salida se cierra."), true);
+				return 1;
+			}))
+			.then(Commands.literal("abrir").executes(c -> {
+				net.backrooms.evento.piscinas.Tarjetas.get().abrirYa();
+				c.getSource().sendSuccess(() -> Component.literal("Salida de emergencia abierta."), true);
+				return 1;
+			}));
+	}
+
 	/** Las salas de las Piscinas por su nombre en el comando, en el orden de PlanoPiscinas. */
 	private static final String[] SALAS_PISCINAS = {"pasillos", "piscina", "inundada", "bovedas", "tunel", "caracol", "terrazas"};
 
@@ -331,6 +365,13 @@ public final class Comandos {
 				}
 				return ok ? 1 : 0;
 			}));
+		}
+		ir.then(Commands.literal("valvula").executes(c -> irMision(c, net.backrooms.evento.piscinas.Piscinas.irAValvula(c.getSource().getPlayerOrException()))));
+		ir.then(Commands.literal("salida").executes(c -> irMision(c, net.backrooms.evento.piscinas.Piscinas.irASalida(c.getSource().getPlayerOrException()))));
+		for (int k = 0; k < 3; k++) {
+			int color = k;
+			ir.then(Commands.literal("tarjeta_" + net.backrooms.evento.piscinas.Tarjetas.NOMBRES[k]).executes(c ->
+				irMision(c, net.backrooms.evento.piscinas.Piscinas.irATarjeta(c.getSource().getPlayerOrException(), color))));
 		}
 		for (int k = 0; k < SALAS_PISCINAS.length; k++) {
 			int tipo = k;

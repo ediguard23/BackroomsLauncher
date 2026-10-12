@@ -36,6 +36,11 @@ public final class Entidades {
 		EntityType.Builder.<net.backrooms.evento.supervivencia.ComidaEntidad>of(net.backrooms.evento.supervivencia.ComidaEntidad::new, MobCategory.MISC)
 			.sized(0.5F, 0.3F).noLootTable().noSave().noSummon().clientTrackingRange(4).updateInterval(40));
 
+	/** Una de las tres tarjetas de la salida de las Piscinas, tirada donde este (Tarjetas). */
+	public static final EntityType<net.backrooms.evento.piscinas.TarjetaEntidad> TARJETA = registrar("tarjeta",
+		EntityType.Builder.<net.backrooms.evento.piscinas.TarjetaEntidad>of(net.backrooms.evento.piscinas.TarjetaEntidad::new, MobCategory.MISC)
+			.sized(0.5F, 0.5F).noLootTable().noSave().noSummon().clientTrackingRange(6).updateInterval(20));
+
 	private Entidades() {
 	}
 

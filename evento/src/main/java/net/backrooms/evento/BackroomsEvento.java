@@ -60,6 +60,7 @@ public class BackroomsEvento implements ModInitializer {
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Agarrado.TYPE, net.backrooms.evento.red.Agarrado.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.SonidoPiscinas.TYPE, net.backrooms.evento.red.SonidoPiscinas.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Mordisco.TYPE, net.backrooms.evento.red.Mordisco.CODEC);
+		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Evidencia.TYPE, net.backrooms.evento.red.Evidencia.CODEC);
 		PayloadTypeRegistry.playC2S().register(AccionJugador.TYPE, AccionJugador.CODEC);
 		Misiones.registrar();
 		net.backrooms.evento.expedicion.Expedicion.registrar();
@@ -70,6 +71,8 @@ public class BackroomsEvento implements ModInitializer {
 		Vestibulo.registrar();
 		net.backrooms.evento.piscinas.Piscinas.registrar();
 		net.backrooms.evento.piscinas.Habitantes.registrar();
+		net.backrooms.evento.piscinas.Valvulas.registrar();
+		net.backrooms.evento.piscinas.Tarjetas.registrar();
 		net.backrooms.evento.supervivencia.Supervivencia.registrar();
 		net.backrooms.evento.supervivencia.Comida.registrar();
 		net.backrooms.evento.entidad.Acechadores.registrar();

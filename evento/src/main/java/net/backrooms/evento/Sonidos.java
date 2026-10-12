@@ -34,6 +34,13 @@ public final class Sonidos {
 	public static final SoundEvent SERPIENTE_CAZA = registrar("serpiente.caza");
 	public static final SoundEvent SERPIENTE_ATAQUE = registrar("serpiente.ataque");
 	public static final SoundEvent SERPIENTE_MORDISCO = registrar("serpiente.mordisco");
+	/* las misiones de las Piscinas */
+	public static final SoundEvent VALVULA_GIRO = registrar("valvula.giro");
+	public static final SoundEvent VALVULA_CIERRE = registrar("valvula.cierre");
+	public static final SoundEvent VALVULA_MAQUINARIA = registrar("valvula.maquinaria");
+	public static final SoundEvent TARJETA_COGER = registrar("tarjeta.coger");
+	public static final SoundEvent LECTOR_ACEPTA = registrar("lector.acepta");
+	public static final SoundEvent PUERTA_SALIDA = registrar("puerta.salida");
 	public static final SoundEvent LINTERNA = registrar("linterna");
 	public static final SoundEvent CAMARA = registrar("camara");
 	public static final SoundEvent APAGON = registrar("apagon");

@@ -68,8 +68,9 @@ public final class HojaMisiones {
 			y += alto;
 			if (enCurso) {
 				y += Texto.parrafo(g, m.descripcion, 46, y + 2, 12.5F, x1 - 62, 1.45F, tema.papelTexto) + 4;
-				if (m == TipoMision.CASETES) {
-					Texto.hud(g, "CASETES " + MisionesCliente.casetes() + "/" + MisionesCliente.necesarios(), 46, y, 22, 0.08F, tema.papelFecha);
+				String cuenta = cuenta(m);
+				if (cuenta != null) {
+					Texto.hud(g, cuenta + " " + MisionesCliente.casetes() + "/" + MisionesCliente.necesarios(), 46, y, 22, 0.08F, tema.papelFecha);
 					y += 24;
 				}
 			}
@@ -80,6 +81,21 @@ public final class HojaMisiones {
 		}
 		detector(g, tema, MisionesCliente.distancia(), MisionesCliente.rumbo() - mirando, y1);
 		p.popMatrix();
+	}
+
+	/** Lo que se cuenta de esa mision mientras va en curso (CASETES 3/5...), o null. */
+	public static String cuenta(TipoMision m) {
+		return switch (m) {
+			case CASETES -> "CASETES";
+			case VALVULAS -> "VÁLVULAS";
+			case SALIDA -> "TARJETAS";
+			default -> null;
+		};
+	}
+
+	/** En las Piscinas el radar marca lejos (valvulas, la salida): da los metros y apenas tiembla. */
+	private static boolean piscinas() {
+		return MisionesCliente.misiones().contains(TipoMision.VALVULAS);
 	}
 
 	private static void casilla(GuiGraphics g, int cx, int cy, int tinta, boolean hecha, boolean enCurso) {
@@ -106,7 +122,8 @@ public final class HojaMisiones {
 		}
 		int cx = 70;
 		int cy = y1 - 46;
-		Texto.maquina(g, "SEÑAL DE CASETE", 106, y1 - 64, 12, 0.14F, tema.papelTexto);
+		String que = MisionesCliente.salida() ? "SEÑAL DE SALIDA" : piscinas() ? "SEÑAL DE VÁLVULA" : "SEÑAL DE CASETE";
+		Texto.maquina(g, que, 106, y1 - 64, 12, 0.14F, tema.papelTexto);
 		g.renderOutline(cx - 22, cy - 22, 44, 44, MenuBackrooms.alfa(tema.papelTinta, 0.4F));
 		float t = Fondo.segundos();
 		if (distancia < 0) {
@@ -118,6 +135,12 @@ public final class HojaMisiones {
 				g.fill(cx + px, cy + py, cx + px + 2, cy + py + 2, MenuBackrooms.alfa(tema.papelTinta, 0.35F));
 			}
 			Texto.hud(g, "SIN SEÑAL", 106, y1 - 46, 26, 0.06F, tema.papelVacio);
+			return;
+		}
+		if (piscinas()) {
+			float ruido = (float) (Math.sin(t * 2.3) * 0.6 + Math.sin(t * 5.7 + 1.3) * 0.3);
+			flecha(g, tema, cx, cy, grados + ruido * 6);
+			Texto.hud(g, distancia + " M", 106, y1 - 46, 26, 0.06F, tema.papelTinta);
 			return;
 		}
 		float cerca = 1.0F - Math.min(1.0F, distancia / 70.0F);

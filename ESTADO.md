@@ -1,7 +1,64 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-11 (hora de Honduras). Mod `backrooms_evento` 0.13.0, launcher 1.0.0
+Última actualización: 2026-10-12 (hora de Honduras). Mod `backrooms_evento` 0.14.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.14.0: las misiones de las Piscinas, Serpiente sin patinar y azulejos (2026-10-12; Bruno)
+
+**Misiones de las Piscinas** (las da `Misiones#asignarPiscinas` al bajar en el ascensor;
+sustituyen a las del Nivel 0):
+1. **Cierra tus válvulas** (individual). Hay 25 en el mapa, una por casilla de una cuadrícula
+   de 5x5 sobre los 1.800x1.800 bloques donde se llega (`PlanoPiscinas#valvulas`, en paredes con
+   suelo seco; ~360 entre vecinas). A cada uno le tocan 3 al azar entre las 7 más cercanas a
+   donde llega (`piscinas/Valvulas`). Se cierran manteniendo el clic derecho 3 s: el volante
+   rojo gira (cuatro posiciones del modelo), suena el metal, sale la barra «CERRANDO» y al
+   final el siseo de la presión con vapor. Con las 3, una maquinaria lejana (solo la oye él).
+   Las de otros están «atascadas». El radar de la hoja de misiones (E) marca su válvula más
+   cercana con los metros («SEÑAL DE VÁLVULA 357 M»).
+2. **Graba a la Serpiente** (individual): 4 s en el encuadre de la cámara (C) a menos de 30
+   bloques; al acabar, el visor muestra «EVIDENCIA OBTENIDA / SUJETO CONFIRMADO» (`red/Evidencia`).
+3. **Abre la salida de emergencia** (de todos). Solo hay **3 tarjetas** (roja, amarilla,
+   verde) en todo el nivel (`piscinas/Tarjetas`, estado en `backrooms/tarjetas.json`), cada una
+   más lejos y en peor sitio: la verde a ~230 bloques de la puerta en una sala con luz, la
+   amarilla a ~450 en una sala a oscuras y la roja a ~650 en el fondo de una piscina honda,
+   guardada por una Serpiente que no se aleja de ella. Al cogerla sale en el chat «X ha
+   obtenido la tarjeta roja». Si quien la lleva muere, cae donde murió (el evento juega con
+   `keep_inventory`, así que se le quita a mano) y sale en el chat; si se desconecta, vuelve a
+   su escondite. La puerta de emergencia (2x3, en un pasillo cerca del centro del mapa) tiene un
+   lector por color al lado y un cartel verde grande encima; por las paredes de alrededor
+   (~220 carteles en 10 celdas a la redonda) hay carteles de salida con la flecha hacia ella.
+   Con las 3 metidas la puerta se abre para siempre (chat en dorado y sonido) y la misión queda
+   hecha para todos. **Cruzar**: solo quien tiene sus misiones hechas (a los demás la puerta
+   abierta les sigue cerrando el paso: «ACCESO DENEGADO»). Como dijo Bruno, el final queda para
+   el siguiente nivel: de momento cruzar es escapar (`Tarjetas#cruzar`, una línea que cambiar).
+
+**La Serpiente**: en el agua un 25 % más rápida que la base (6,9 bloques/s; medido: 7,0) y ya
+no patina: gira como la Bacteria (90 grados por tick en seco, 35 nadando, antes 14) y en el
+agua frena enseguida (conserva el 75 % de la velocidad por tick, antes el 90 %); de cerca
+rehace el camino cada 2-3 ticks. Sin probar a fondo cómo se ve girando en seco.
+
+**Azulejos**: la junta ahora va a los dos lados de cada pieza (2 px entre piezas y entre
+bloques): la textura es simétrica y casan las esquinas entre la cara de arriba y las de los
+lados (Minecraft pinta las de los lados como en un espejo y antes quedaban corridas un píxel),
+y todas las líneas miden igual (antes la sombra del bisel engordaba una).
+
+**Sonidos**: hoja para escucharlos todos con cuándo suenan y cuánto duran (privada, del
+usuario): https://claude.ai/artifact/YJZ67xfhtovSKRR1HaiW5L . Bruno va a marcar los que
+quiere cambiar. Nuevos: `valvula_giro1-3`, `valvula_cierre`, `valvula_maquinaria`,
+`tarjeta_coger`, `lector_acepta`, `puerta_salida` (en `tools/sonidos/nivel37.js`).
+
+Comandos nuevos: `/backrooms piscinas ir valvula|salida|tarjeta_roja|tarjeta_amarilla|tarjeta_verde`
+y `/backrooms tarjetas [reponer|abrir]`. Orden de prueba nueva: `usar [s]` (clic derecho mantenido).
+
+**Probado en el servidor local** (capturas): la puerta, los lectores y los carteles en su sitio;
+la válvula gira, se cierra y luego dice «Esta ya la cerraste»; la hoja cuenta «VÁLVULAS 1/3» y
+el radar marca la válvula; la tarjeta verde flota con luz, se coge y sale en el chat; meterla
+enciende su lector y cuenta 1/3; abierta la puerta, sin misiones no deja pasar y con ellas se
+cruza (escapa); la tarjeta cae donde muere quien la lleva y sale en el chat; la grabación de la
+Serpiente da la evidencia; la roja está en el fondo de la
+piscina y su guardiana aparece y ronda a menos de 15 bloques; la Serpiente nada a 7 bloques/s.
+**Sin probar**: soltarla con Q, desconectarse llevándola, la maquinaria al cerrar las tres, cómo suenan los
+sonidos nuevos en el juego y varias personas a la vez con las tarjetas.
 
 ## 0.13.0: pulido de las Piscinas y la Serpiente con IA (2026-10-11; Bruno)
 
@@ -62,7 +119,7 @@ partida los sonidos sueltos, el susurro con el nombre y los pasos. **Sin probar*
 de un panel en el juego (es como el tubo del Nivel 0) y varias Serpientes con muchos jugadores.
 **Ojo**: los jugadores pueden ahogarse en las piscinas hondas (3 de agua) si se quedan en el fondo.
 
-**Siguiente (pendiente, sin empezar): las 3 misiones de las Piscinas** que pidió Bruno.
+**Las 3 misiones de las Piscinas** (hechas en 0.14.0, ver arriba) se pidieron así:
 Hoy al llegar a las Piscinas se conservan las misiones del Nivel 0 (`Misiones.Estado`; `TipoMision`
 solo tiene las del Nivel 0) y no hay salida.
 1. **Cerrar 3 válvulas** a ~150-200 bloques entre sí, en zonas distintas: animación de giro,

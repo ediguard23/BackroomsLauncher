@@ -18,7 +18,8 @@ import net.minecraft.world.phys.Vec3;
  *  - alarmas: basta con grabar mientras los tubos estan en rojo;
  *  - la Bacteria (o la Bacteria con alarma): tenerla en el encuadre (25
  *    grados del centro), a menos de 28 bloques y sin paredes en medio;
- *  - un Smiler: lo mismo, a menos de 22 (por el visor no hace flash).
+ *  - un Smiler: lo mismo, a menos de 22 (por el visor no hace flash);
+ *  - la Serpiente de las Piscinas: lo mismo, a menos de 30.
  * Lo grabado se acumula en Misiones.grabar, que completa la mision.
  */
 public final class Grabacion {
@@ -40,7 +41,7 @@ public final class Grabacion {
 			return;
 		}
 		for (ServerPlayer j : servidor.getPlayerList().getPlayers()) {
-			if (!HerramientasServidor.get().camara(j) || Fase.de(j.level()) == null) {
+			if (!HerramientasServidor.get().camara(j) || Fase.de(j.level()) == null && !net.backrooms.evento.piscinas.Piscinas.es(j.level())) {
 				continue;
 			}
 			// cualquier mision de grabar que le quede cuenta, no solo la "en curso" (en la beta #1
@@ -51,6 +52,7 @@ public final class Grabacion {
 					case ENTIDAD -> encuadra(j, Bacteria.class, 28);
 					case ENTIDAD_ALARMA -> Ambiente.get().alarma(j.level()) && encuadra(j, Bacteria.class, 28);
 					case SMILER -> encuadra(j, Smiler.class, 22);
+					case SERPIENTE -> encuadra(j, net.backrooms.evento.entidad.Serpiente.class, 30);
 					default -> false;
 				};
 				if (bien) {

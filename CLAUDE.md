@@ -38,8 +38,9 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
       mundo/                     Plano.java (trazado procedural) y GeneradorNivel0
       vestibulo/                 el "Centro de Expediciones" (PlanoVestibulo = cajas de bloques)
       fase/                      la fase del Nivel 0 (solo queda la 1) y los ascensores de salida
-      piscinas/                  las Piscinas (Nivel 37): PlanoPiscinas (trazado), su generador,
-                                 sus bloques y la llegada desde el ascensor de salida
+      piscinas/                  las Piscinas (Nivel 37): PlanoPiscinas (trazado, y donde van las valvulas,
+                                 la salida y las tarjetas), su generador, sus bloques, la llegada y
+                                 sus misiones (Valvulas, Tarjetas: las 3 tarjetas y la puerta)
       expedicion/                el /start (cinemática y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas
@@ -88,12 +89,13 @@ servidor-ejemplo/                configuración del servidor del evento
   `node tools/acceso/tienda-prueba.js <carpeta-del-servidor>`.
 - Probar sin tocar la ventana del juego (solo con `BACKROOMS_PRUEBAS=1`): escribir en
   `%TEMP%/backrooms-ordenes.txt` una orden: `inventario | pausa | cerrar | cinematica |
-  linterna | camara | tab [n] | andar [s] | correr [s] | captura <nombre> | cursor`. `captura` guarda
+  linterna | camara | tab [n] | andar [s] | correr [s] | usar [s] | captura <nombre> | cursor`. `captura` guarda
   la imagen en `%APPDATA%/.backrooms-event/screenshots` (vale aunque la ventana esté a
   pantalla completa). El cursor del sistema no sale en las capturas: `cursor` escribe en el
   log si se ve, está oculto o capturado. `node tools/rcon.js "<comando>"` manda comandos al servidor.
 - Comandos de staff: `/start`, `/backrooms ...` (buscar, cinematica, apagon, alarma, luz,
-  ambiente, fase, piscinas [ir <sala>|ir detalle|ir corre|oir <sonido> <jugador>], vestibulo,
+  ambiente, fase, piscinas [ir <sala>|ir detalle|ir corre|ir valvula|ir salida|ir tarjeta_<color>|
+  oir <sonido> <jugador>], tarjetas [reponer|abrir], vestibulo,
   muerte, escapados, invocar bacteria|smiler|serpiente,
   acechadores, cordura, comida reponer, misiones...). Ver `Comandos.java`. La lista del evento (quién puede
   entrar): `/brwhitelist agregar|quitar|ver|lista|recargar` (`acceso/Whitelist.java`; la lista vive
@@ -150,6 +152,11 @@ servidor-ejemplo/                configuración del servidor del evento
   `ServerLevel#isPositionEntityTicking` (ver `Comida#materializar`).
 - Un mob que nada con su propio `travelInWater` (como el ajolote) no sale solo del agua por un
   borde: hay que darle el impulso hacia arriba (`Serpiente#orillaDelante`).
+- El servidor del evento juega con `keep_inventory`: al morir no se cae nada. Lo que tenga que
+  caer (las tarjetas de las Piscinas) se quita a mano en `AFTER_DEATH` (`Tarjetas#alMorir`).
+- Una colision que dependa del jugador (la puerta de salida abierta solo para quien ha hecho
+  sus misiones) tiene que saberse tambien en el cliente: es el cliente quien mueve al jugador
+  (`PuertaSalida#pasaCliente`).
 
 ## Cómo trabajar en equipo (dos personas con Claude)
 

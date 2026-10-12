@@ -82,5 +82,13 @@
   "block.backrooms_evento.flotador": "Pool float",
   "block.backrooms_evento.toalla": "Towel",
   "block.backrooms_evento.chanclas": "Flip-flops",
-  "block.backrooms_evento.mochila": "Backpack"
+  "block.backrooms_evento.mochila": "Backpack",
+  "block.backrooms_evento.valvula": "Valve",
+  "block.backrooms_evento.lector_tarjeta": "Card reader",
+  "block.backrooms_evento.puerta_salida": "Emergency exit",
+  "block.backrooms_evento.cartel_salida": "Exit sign",
+  "item.backrooms_evento.tarjeta_roja": "Red keycard",
+  "item.backrooms_evento.tarjeta_amarilla": "Yellow keycard",
+  "item.backrooms_evento.tarjeta_verde": "Green keycard",
+  "entity.backrooms_evento.tarjeta": "Keycard"
 }

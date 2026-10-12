@@ -14,7 +14,12 @@ public enum TipoMision {
 	LUCES_ROJAS("Graba las alarmas", "Cuando los tubos se pongan en rojo, grábalo con la cámara (C)."),
 	ENTIDAD("Graba una entidad", "Consigue grabar a la Bacteria unos segundos sin que te atrape."),
 	ENTIDAD_ALARMA("Graba la Bacteria en alarma", "Grábala con las alarmas encendidas. En rojo está más furiosa: no dejes que te vea primero."),
-	SMILER("Graba un Smiler", "Solo salen de noche, en la oscuridad. Grábalo con la cámara antes de que se acerque.");
+	SMILER("Graba un Smiler", "Solo salen de noche, en la oscuridad. Grábalo con la cámara antes de que se acerque."),
+
+	/* las de las Piscinas (Nivel 37): las dos primeras de cada uno; la tercera, de todos */
+	VALVULAS("Cierra tus válvulas", "Tres válvulas de las Piscinas son tuyas: el radar marca la más cercana. Mantén pulsado el clic derecho para cerrarlas."),
+	SERPIENTE("Graba a la Serpiente", "Grábala con la cámara (C) unos segundos sin perderla del encuadre. Que no te vea primero."),
+	SALIDA("Abre la salida de emergencia", "Solo hay tres tarjetas en todo el nivel: roja, amarilla y verde. Entre todos hay que encontrarlas y meterlas en los lectores de la puerta.");
 
 	public final String titulo;
 	public final String descripcion;

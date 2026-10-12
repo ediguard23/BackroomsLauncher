@@ -82,5 +82,13 @@
   "block.backrooms_evento.flotador": "Flotador",
   "block.backrooms_evento.toalla": "Toalla",
   "block.backrooms_evento.chanclas": "Chanclas",
-  "block.backrooms_evento.mochila": "Mochila"
+  "block.backrooms_evento.mochila": "Mochila",
+  "block.backrooms_evento.valvula": "Válvula",
+  "block.backrooms_evento.lector_tarjeta": "Lector de tarjeta",
+  "block.backrooms_evento.puerta_salida": "Salida de emergencia",
+  "block.backrooms_evento.cartel_salida": "Cartel de salida",
+  "item.backrooms_evento.tarjeta_roja": "Tarjeta roja",
+  "item.backrooms_evento.tarjeta_amarilla": "Tarjeta amarilla",
+  "item.backrooms_evento.tarjeta_verde": "Tarjeta verde",
+  "entity.backrooms_evento.tarjeta": "Tarjeta"
 }

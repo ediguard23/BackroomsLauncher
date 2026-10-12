@@ -28,8 +28,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.control.SmoothSwimmingLookControl;
-import net.minecraft.world.entity.ai.control.SmoothSwimmingMoveControl;
 import net.minecraft.world.entity.ai.navigation.AmphibiousPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.ai.util.DefaultRandomPos;
@@ -51,8 +51,11 @@ import org.jspecify.annotations.Nullable;
  * distancia no la vuelven loca. Si te pierde de vista 5 s o te alejas mas de 28, te deja.
  *
  * Velocidad: la base es la de la Bacteria cazando en la fase 1 (5,5 bloques/s); por el
- * azulejo, un 15 % menos (4,7: corriendo se le escapa uno) y en el agua un 15 % mas (6,3:
- * en el agua no hay quien se le escape). Las cuentas, en atributo() y AGUA.
+ * azulejo, un 15 % menos (4,7: corriendo se le escapa uno) y en el agua un 25 % mas (6,9:
+ * en el agua no hay quien se le escape). Las cuentas, en ATRIBUTO y AGUA_MOD.
+ *
+ * Se mueve como la Bacteria: gira de golpe hacia donde va (Movimiento), sin las curvas
+ * abiertas de antes, y en el agua frena enseguida (ARRASTRE), sin patinar.
  *
  * Si te alcanza te mata con un ataque propio (MORDISCO_*): se echa atras, se lanza con la
  * mandibula abierta, muerde y sacude, y mueres devorado; quien muere lo ve todo (Mordisco,
@@ -62,7 +65,11 @@ public class Serpiente extends Monster {
 	/** Bloques por segundo de base (cazando). */
 	private static final double BASE_BPS = 5.5;
 	private static final double TIERRA = 0.85;
-	private static final double AGUA = 1.15;
+	private static final double AGUA = 1.25;
+	/** En el agua conserva esto de la velocidad cada tick (el ajolote, 0,9: patinaba). */
+	private static final double ARRASTRE = 0.75;
+	/** Grados por tick que gira nadando (en seco, 90 como cualquier mob). */
+	private static final float GIRO_AGUA = 35.0F;
 	/** Modificador de velocidad paseando: ~1,8 bloques/s de base (la velocidad va con su cuadrado). */
 	private static final double PASEO = Math.sqrt(1.8 / BASE_BPS);
 	/** Distancias de deteccion: si te ve; pegado a ella, aunque no te vea; y hasta donde te sigue. */
@@ -97,6 +104,8 @@ public class Serpiente extends Monster {
 	private int recalcular;
 	/** Servidor: ticks de ataque (-1 sin atacar) y a quien. */
 	private int ataque = -1;
+	/** Si guarda algo (la tarjeta roja de las Piscinas): ronda alrededor y vuelve. No se guarda. */
+	private @Nullable BlockPos casa;
 	private @Nullable ServerPlayer presa;
 	/** Cliente: 0..1 suavizado de si caza, y ticks del ataque vistos aqui. */
 	private float caza;
@@ -107,8 +116,7 @@ public class Serpiente extends Monster {
 		super(tipo, nivel);
 		this.xpReward = 0;
 		this.setPersistenceRequired();
-		// gira despacio (es muy larga); en el agua nada sin hundirse ni flotar
-		this.moveControl = new SmoothSwimmingMoveControl(this, 40, 14, (float) AGUA_MOD, 1.0F, false);
+		this.moveControl = new Movimiento(this);
 		this.lookControl = new SmoothSwimmingLookControl(this, 20);
 		this.setPathfindingMalus(PathType.WATER, 0.0F);
 	}
@@ -119,10 +127,11 @@ public class Serpiente extends Monster {
 	 */
 	private static final double ATRIBUTO = Math.sqrt(BASE_BPS * TIERRA / 43.17);
 	/**
-	 * En el agua (travelInWater, como el ajolote) avanza 180·v²·k bloques/s, con v el atributo
-	 * y k este modificador: k sale de querer BASE_BPS * AGUA.
+	 * En el agua (travelInWater) cada tick empuja getSpeed()·|entrada| = (v·k)·(0,98·v) y
+	 * conserva ARRASTRE de lo que llevaba: avanza 20·0,98·k·v² / (1 - ARRASTRE) bloques/s,
+	 * con v el atributo y k este modificador, que sale de querer BASE_BPS * AGUA.
 	 */
-	private static final double AGUA_MOD = BASE_BPS * AGUA / (180.0 * ATRIBUTO * ATRIBUTO);
+	private static final double AGUA_MOD = BASE_BPS * AGUA * (1.0 - ARRASTRE) / (20.0 * 0.98 * ATRIBUTO * ATRIBUTO);
 
 	public static AttributeSupplier.Builder atributos() {
 		return Monster.createMonsterAttributes()
@@ -157,11 +166,62 @@ public class Serpiente extends Monster {
 	protected void travelInWater(Vec3 entrada, double gravedad, boolean cayendo, double y) {
 		this.moveRelative(this.getSpeed(), entrada);
 		this.move(MoverType.SELF, this.getDeltaMovement());
-		Vec3 v = this.getDeltaMovement().scale(0.9);
+		Vec3 v = this.getDeltaMovement().scale(ARRASTRE);
 		if (this.horizontalCollision && this.orillaDelante()) {
 			v = new Vec3(v.x, 0.3, v.z);
 		}
 		this.setDeltaMovement(v);
+	}
+
+	/**
+	 * Como el de cualquier mob en seco (gira hasta 90 grados por tick y salta escalones);
+	 * nadando gira GIRO_AGUA por tick y sube o baja derecho hacia el punto, sin cabecear
+	 * despacio como el ajolote.
+	 */
+	private static final class Movimiento extends MoveControl {
+		private final Serpiente s;
+
+		Movimiento(Serpiente s) {
+			super(s);
+			this.s = s;
+		}
+
+		@Override
+		public void tick() {
+			if (!this.s.isInWater()) {
+				this.s.setYya(0.0F);
+				super.tick();
+				return;
+			}
+			if (this.operation != Operation.MOVE_TO || this.s.getNavigation().isDone()) {
+				this.s.setSpeed(0.0F);
+				this.s.setXxa(0.0F);
+				this.s.setYya(0.0F);
+				this.s.setZza(0.0F);
+				return;
+			}
+			double dx = this.wantedX - this.s.getX();
+			double dy = this.wantedY - this.s.getY();
+			double dz = this.wantedZ - this.s.getZ();
+			double h = Math.sqrt(dx * dx + dz * dz);
+			if (h * h + dy * dy < 2.5E-7) {
+				this.s.setZza(0.0F);
+				this.s.setYya(0.0F);
+				return;
+			}
+			float giro = (float) (Mth.atan2(dz, dx) * Mth.RAD_TO_DEG) - 90.0F;
+			this.s.setYRot(this.rotlerp(this.s.getYRot(), giro, GIRO_AGUA));
+			this.s.yBodyRot = this.s.getYRot();
+			float v = (float) (this.speedModifier * this.s.getAttributeValue(Attributes.MOVEMENT_SPEED));
+			// si aun no mira hacia alli, casi no avanza: gira en el sitio en vez de trazar la curva
+			float desvio = Math.abs(Mth.wrapDegrees(giro - this.s.getYRot()));
+			float avance = desvio > 60.0F ? 0.25F : 1.0F;
+			this.s.setSpeed(v * (float) AGUA_MOD);
+			float cabeceo = (float) Mth.clamp(Mth.atan2(dy, Math.max(h, 0.5)), -1.1, 1.1);
+			this.s.setXRot(this.rotlerp(this.s.getXRot(), -cabeceo * Mth.RAD_TO_DEG, 15.0F));
+			this.s.setZza(Mth.cos(cabeceo) * v * avance);
+			this.s.setYya(Mth.sin(cabeceo) * v);
+		}
 	}
 
 	/** Si lo que tiene delante es un borde de 2 bloques como mucho sobre sus pies, con sitio encima. */
@@ -212,6 +272,11 @@ public class Serpiente extends Monster {
 			this.caza += ((this.entityData.get(CAZANDO) ? 1.0F : 0.0F) - this.caza) * 0.12F;
 			this.ataqueCliente = this.entityData.get(ATACANDO) ? this.ataqueCliente + 1 : -1;
 		}
+	}
+
+	/** Lo que guarda (null: nada, ronda libre). */
+	public void casa(@Nullable BlockPos casa) {
+		this.casa = casa;
 	}
 
 	/** 0..1 interpolado entre ticks: cuanto esta cazando. */
@@ -320,7 +385,8 @@ public class Serpiente extends Monster {
 			return;
 		}
 		if (--this.recalcular <= 0) {
-			this.recalcular = 4 + this.random.nextInt(4);
+			// de cerca rehace el camino casi cada tick: si giras o te escondes tras una columna, lo nota
+			this.recalcular = dx * dx + dz * dz < 144 ? 2 + this.random.nextInt(2) : 4 + this.random.nextInt(4);
 			if (!this.getNavigation().moveTo(j, 1.0)) {
 				this.recalcular += 6;
 			}
@@ -341,7 +407,11 @@ public class Serpiente extends Monster {
 			return; // se queda quieta un rato
 		}
 		Vec3 p = null;
-		if (this.random.nextBoolean() && this.level() instanceof ServerLevel nivel) {
+		if (this.casa != null) {
+			// la guardiana: no se aleja de lo que guarda
+			Vec3 c = Vec3.atBottomCenterOf(this.casa);
+			p = this.position().distanceTo(c) > 10 ? c : DefaultRandomPos.getPosTowards(this, 8, 3, c, Math.PI);
+		} else if (this.random.nextBoolean() && this.level() instanceof ServerLevel nivel) {
 			ServerPlayer cerca = null;
 			double dCerca = 140.0;
 			for (ServerPlayer j : nivel.players()) {
