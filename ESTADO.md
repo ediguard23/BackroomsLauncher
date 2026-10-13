@@ -1,7 +1,21 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-12 (hora de Honduras). Mod `backrooms_evento` 0.14.0, launcher 1.0.0
+Última actualización: 2026-10-13 (hora de Honduras). Mod `backrooms_evento` 0.14.1, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.14.1: sonidos de las Piscinas que pidió cambiar Bruno (2026-10-13; Bruno)
+
+Bruno escuchó la hoja de sonidos y pidió quitar las gotas 4-6 (las del azulejo), toda la orilla y
+el chapoteo 3, y rehacer los pasos y las brazadas. Mandó cuatro efectos de Epidemic Sound como
+referencia (olas contra un muro, un chapuzón, pasos en un almacén, agua con salpicaduras); **no se
+usan**: son de pago, la licencia normal no cubre meterlos en un juego que se reparte, el repo es
+público y la regla del organizador es todo por código. Se sintetizaron parecidos (`nivel37.js`):
+- `piscinas_olas1-3` (evento `piscinas.orilla`): una ola que rompe contra el borde; cada 15-40 s
+  cerca de una piscina (antes la orilla, cada 7-18 s).
+- `piscinas_zambullida1-2` (`piscinas.zambullida`, nuevo): al tirarse o caer al agua en las
+  Piscinas (`PiscinasJugadorMixin`, en lugar del chapuzón de Minecraft).
+- `piscinas_paso1-6`: pasos de nave enorme con eco. `piscinas_nado1-3`: brazadas nuevas.
+Hoja actualizada (https://claude.ai/artifact/YJZ67xfhtovSKRR1HaiW5L). **Sin probar de oído en el juego.**
 
 ## 0.14.0: las misiones de las Piscinas, Serpiente sin patinar y azulejos (2026-10-12; Bruno)
 

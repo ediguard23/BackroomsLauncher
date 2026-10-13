@@ -29,6 +29,14 @@ public abstract class PiscinasJugadorMixin {
 		}
 	}
 
+	/** Al tirarse (o caer) al agua de las Piscinas: la zambullida, con toda la sala. */
+	@Inject(method = {"getSwimSplashSound", "getSwimHighSpeedSplashSound"}, at = @At("HEAD"), cancellable = true)
+	private void backrooms$zambullida(CallbackInfoReturnable<SoundEvent> cir) {
+		if (Piscinas.es(((Player) (Object) this).level())) {
+			cir.setReturnValue(Sonidos.PISCINAS_ZAMBULLIDA);
+		}
+	}
+
 	@Inject(method = "getSwimSound", at = @At("HEAD"), cancellable = true)
 	private void backrooms$brazada(CallbackInfoReturnable<SoundEvent> cir) {
 		if (Piscinas.es(((Player) (Object) this).level())) {

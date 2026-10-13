@@ -11,10 +11,11 @@
  * (Los del menu de las Piscinas van en piscinas.js; aquellos son otra cosa.)
  *
  *  Ambiente (los dispara de vez en cuando AmbientePiscinas, en el cliente)
- *   piscinas_gota1-6      gotas sueltas: al agua (la burbuja que resuena y sube) y en el azulejo
+ *   piscinas_gota1-3      gotas sueltas al agua (la burbuja que resuena y sube)
  *   piscinas_agua1-3      agua que se mueve, muy baja, como una piscina lejana que se asienta
- *   piscinas_orilla1-4    el agua que lame el borde, cerca de una piscina
- *   piscinas_chapoteo1-3  un chapoteo suave en algun sitio
+ *   piscinas_olas1-3      una ola que rompe contra el borde de la piscina (evento piscinas.orilla)
+ *   piscinas_zambullida1-2  alguien que se tira al agua
+ *   piscinas_chapoteo1-2  un chapoteo suave en algun sitio
  *   piscinas_tuberia1-5   tuberias: golpes de dilatacion, un crujido, un siseo, un gorgoteo, una vibracion
  *   piscinas_grave1-3     cosas graves que no se sabe que son
  *   piscinas_voz1-3       una voz humana lejanisima, irreconocible (rarisimo)
@@ -133,20 +134,77 @@ function agua (k) {
   return bajar(pico(piscina(lejos(buf, 1100), 0.8, 0.92), -1), -4);
 }
 
-function orilla (k) {
+
+/** Una ola que rompe contra el borde: crece grave, golpea el azulejo, se deshace en espuma y escurre. */
+function olas (k) {
   const rnd = D.azar(3720 + k);
-  const buf = mono(3.2);
-  let t0 = 0.05;
-  const olas = 2 + Math.floor(rnd() * 3);
-  for (let n = 0; n < olas; n++) {
-    const fuerza = 0.6 + rnd() * 0.4;
-    poner(buf, t0, 0.35, soplo(rnd, 700 + rnd() * 700, 1.3, 0.006, 0.07 + rnd() * 0.04));
-    poner(buf, t0, 0.25, (t) => Math.sin(TAU * (110 + rnd() * 2) * t) * Math.exp(-t / 0.05) * 0.5 * fuerza);
-    // gotitas que vuelven a caer
-    for (let m = 0; m < 3; m++) poner(buf, t0 + 0.06 + rnd() * 0.25, 0.2, burbuja(1100 + rnd() * 1300, 1.8, 0.015));
-    t0 += 0.45 + rnd() * 0.45;
-  }
-  return bajar(pico(piscina(buf, 0.5, 0.85), -1), -3);
+  const buf = mono(4.6);
+  const t0 = 0.25 + rnd() * 0.2;
+  // la ola que llega: ruido grave que crece
+  const lp = new D.Biquad('lp', 380, 0.7);
+  poner(buf, 0.0, t0 + 0.1, (t) => lp.paso(rnd() * 2 - 1) * Math.pow(Math.min(1, t / (t0 + 0.1)), 2) * 1.6);
+  // el golpe contra la pared: un bum hueco y el chasquido del agua
+  poner(buf, t0, 0.5, (t) => Math.sin(TAU * (70 + 30 * Math.exp(-t * 18)) * t) * Math.exp(-t / 0.11) * 1.1);
+  const bp = new D.Biquad('bp', 900 + rnd() * 500, 0.9);
+  poner(buf, t0, 0.5, (t) => bp.paso(rnd() * 2 - 1) * Math.min(1, t / 0.006) * Math.exp(-t / 0.09) * 2.2);
+  // la espuma: siseo que se apaga, con crepitar de burbujas
+  const hp = new D.Biquad('hp', 1800, 0.7);
+  poner(buf, t0 + 0.05, 2.6, (t) => hp.paso(rnd() * 2 - 1) * Math.exp(-t / 0.7) * (0.7 + 0.3 * rnd()) * 0.9);
+  for (let m = 0; m < 26; m++) poner(buf, t0 + 0.1 + rnd() * 1.6, 0.12, burbuja(1400 + rnd() * 2600, 1.6, 0.008 + rnd() * 0.01));
+  // el agua que escurre de vuelta
+  const lp2 = new D.Biquad('lp', 1100, 0.7);
+  poner(buf, t0 + 0.8, 2.4, (t) => lp2.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 2.4) * 0.45);
+  return bajar(pico(piscina(buf, 0.6, 0.9), -1), -4);
+}
+
+/** Alguien se tira al agua: el golpe del cuerpo, la zambullida con burbujas y la lluvia de gotas, con toda la sala. */
+function zambullida (k) {
+  const rnd = D.azar(3740 + k);
+  const buf = mono(3.4);
+  // el impacto: palmada seca y un golpe grave
+  const bp = new D.Biquad('bp', 1500 + rnd() * 600, 1.1);
+  poner(buf, 0.03, 0.2, (t) => bp.paso(rnd() * 2 - 1) * Math.min(1, t / 0.002) * Math.exp(-t / 0.035) * 3.2);
+  poner(buf, 0.03, 0.4, (t) => Math.sin(TAU * (85 + 70 * Math.exp(-t * 25)) * t) * Math.exp(-t / 0.08) * 1.3);
+  // la cavidad que se cierra: un "plop" grave que sube y burbujas
+  poner(buf, 0.09, 0.5, burbuja(230 + rnd() * 80, 2.2, 0.09));
+  for (let m = 0; m < 18; m++) poner(buf, 0.1 + rnd() * 0.5, 0.15, burbuja(500 + rnd() * 1500, 1.8, 0.02));
+  // el agua que salta y vuelve a caer, mas aguda
+  const hp = new D.Biquad('hp', 2200, 0.7);
+  poner(buf, 0.05, 1.2, (t) => hp.paso(rnd() * 2 - 1) * Math.exp(-t / 0.25) * 1.2);
+  for (let m = 0; m < 40; m++) poner(buf, 0.35 + rnd() * 0.9, 0.05, soplo(rnd, 3000 + rnd() * 3000, 4, 0.0005, 0.006));
+  for (let m = 0; m < 12; m++) poner(buf, 0.4 + rnd() * 0.9, 0.12, burbuja(1600 + rnd() * 2000, 1.7, 0.01));
+  return bajar(fuerte(piscina(buf, 0.85, 0.94), 1.6, -0.5), -5);
+}
+
+/** Un paso en el azulejo de una nave enorme: el tacon, el roce de la suela y el eco que tarda en irse. */
+function paso (k) {
+  const rnd = D.azar(3800 + k);
+  const buf = mono(1.8);
+  const g = 0.85 + rnd() * 0.3;
+  // tacon: golpe sordo con algo de cuerpo
+  const lp = new D.Biquad('lp', 900 + rnd() * 400, 0.7);
+  poner(buf, 0.01, 0.12, (t) => (lp.paso(rnd() * 2 - 1) * 1.4 + Math.sin(TAU * (110 + rnd() * 40) * t) * 0.8) * Math.min(1, t / 0.0015) * Math.exp(-t / 0.028) * g);
+  // la suela que roza (a veces), aguda y corta
+  if (rnd() < 0.7) poner(buf, 0.05 + rnd() * 0.03, 0.09, soplo(rnd, 2600 + rnd() * 1800, 2.2, 0.01, 0.025));
+  // el resto del pie
+  poner(buf, 0.07, 0.08, (t) => lp.paso(rnd() * 2 - 1) * Math.exp(-t / 0.02) * 0.5 * g);
+  return bajar(pico(ecos(piscina(buf, 0.8, 0.93), [0.19, 0.37, 0.61], 0.35, 3000), -1), -5);
+}
+
+/** Una brazada: la mano que entra, el tiron bajo el agua y las salpicaduras que caen. */
+function nado (k) {
+  const rnd = D.azar(3820 + k);
+  const buf = mono(1.6);
+  const bp = new D.Biquad('bp', 1100 + rnd() * 500, 0.9);
+  poner(buf, 0.02, 0.25, (t) => bp.paso(rnd() * 2 - 1) * Math.min(1, t / 0.004) * Math.exp(-t / 0.05) * 2.2);
+  poner(buf, 0.03, 0.2, burbuja(320 + rnd() * 120, 1.9, 0.05));
+  const lp = new D.Biquad('lp', 700, 0.7);
+  poner(buf, 0.08, 0.45, (t) => lp.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 0.45) * 1.3);
+  const hp = new D.Biquad('hp', 2500, 0.7);
+  poner(buf, 0.3, 0.5, (t) => hp.paso(rnd() * 2 - 1) * Math.min(1, t / 0.01) * Math.exp(-t / 0.12) * 0.9);
+  for (let m = 0; m < 14; m++) poner(buf, 0.3 + rnd() * 0.5, 0.06, soplo(rnd, 2500 + rnd() * 3000, 4, 0.0005, 0.007));
+  for (let m = 0; m < 6; m++) poner(buf, 0.15 + rnd() * 0.4, 0.12, burbuja(900 + rnd() * 1300, 1.7, 0.012));
+  return bajar(pico(piscina(buf, 0.55, 0.9), -1), -5);
 }
 
 function chapoteo (k) {
@@ -273,18 +331,6 @@ function voz (k) {
 
 /* ============================================================== jugador */
 
-/** Paso seco sobre azulejo: el tacon, el golpe del pie y el roce, y luego toda la sala. */
-function paso (k) {
-  const rnd = D.azar(3800 + k);
-  const buf = mono(1.2);
-  const g = 0.85 + rnd() * 0.3;
-  poner(buf, 0.01, 0.05, soplo(rnd, 2600 + rnd() * 1400, 3, 0.0008, 0.009));
-  poner(buf, 0.012, 0.1, (t) => Math.sin(TAU * (150 + rnd() * 50) * t) * Math.exp(-t / 0.022) * 0.9 * g);
-  const lp = new D.Biquad('lp', 1500, 0.7);
-  poner(buf, 0.04, 0.09, (t) => lp.paso(rnd() * 2 - 1) * Math.exp(-t / 0.03) * 0.35);
-  return bajar(pico(piscina(buf, 0.55, 0.9), -1), -4);
-}
-
 /** Paso en el agua por los tobillos: el pie que entra y el agua que salpica. */
 function pasoAgua (k) {
   const rnd = D.azar(3810 + k);
@@ -296,17 +342,6 @@ function pasoAgua (k) {
   return bajar(pico(piscina(buf, 0.45, 0.88), -1), -4);
 }
 
-function nado (k) {
-  const rnd = D.azar(3820 + k);
-  const buf = mono(1.6);
-  const bp = new D.Biquad('bp', 600, 0.8);
-  poner(buf, 0.02, 0.6, (t) => {
-    if (Math.round(t * SR) % 64 === 0) bp.ajustar(500 + 900 * Math.sin(Math.PI * t / 0.6), 0.8);
-    return bp.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 0.6) * 1.6;
-  });
-  for (let m = 0; m < 6; m++) poner(buf, 0.2 + rnd() * 0.4, 0.15, burbuja(800 + rnd() * 1200, 1.7, 0.015));
-  return bajar(pico(piscina(buf, 0.45, 0.88), -1), -5);
-}
 
 /* ================================================================ luces */
 
@@ -571,10 +606,11 @@ function puertaSalida () {
 /* ================================================================ todos */
 
 const SONIDOS = [];
-for (let k = 0; k < 6; k++) SONIDOS.push([`piscinas_gota${k + 1}`, () => gota(k)]);
+for (let k = 0; k < 3; k++) SONIDOS.push([`piscinas_gota${k + 1}`, () => gota(k)]);
 for (let k = 0; k < 3; k++) SONIDOS.push([`piscinas_agua${k + 1}`, () => agua(k)]);
-for (let k = 0; k < 4; k++) SONIDOS.push([`piscinas_orilla${k + 1}`, () => orilla(k)]);
-for (let k = 0; k < 3; k++) SONIDOS.push([`piscinas_chapoteo${k + 1}`, () => chapoteo(k)]);
+for (let k = 0; k < 3; k++) SONIDOS.push([`piscinas_olas${k + 1}`, () => olas(k)]);
+for (let k = 0; k < 2; k++) SONIDOS.push([`piscinas_zambullida${k + 1}`, () => zambullida(k)]);
+for (let k = 0; k < 2; k++) SONIDOS.push([`piscinas_chapoteo${k + 1}`, () => chapoteo(k)]);
 for (let k = 0; k < 5; k++) SONIDOS.push([`piscinas_tuberia${k + 1}`, () => tuberia(k)]);
 for (let k = 0; k < 3; k++) SONIDOS.push([`piscinas_grave${k + 1}`, () => grave(k)]);
 for (let k = 0; k < 3; k++) SONIDOS.push([`piscinas_voz${k + 1}`, () => voz(k)]);
@@ -602,10 +638,11 @@ SONIDOS.push(['puerta_salida', puertaSalida]);
  * distancia es hasta donde se oye a volumen 1 (con mas volumen, mas lejos).
  */
 const EVENTOS = {
-  'piscinas.gota': ['piscinas_gota', 6, 24],
+  'piscinas.gota': ['piscinas_gota', 3, 24],
   'piscinas.agua': ['piscinas_agua', 3, 24],
-  'piscinas.orilla': ['piscinas_orilla', 4, 16],
-  'piscinas.chapoteo': ['piscinas_chapoteo', 3, 40],
+  'piscinas.orilla': ['piscinas_olas', 3, 20],
+  'piscinas.zambullida': ['piscinas_zambullida', 2, 32],
+  'piscinas.chapoteo': ['piscinas_chapoteo', 2, 40],
   'piscinas.tuberia': ['piscinas_tuberia', 5, 40],
   'piscinas.grave': ['piscinas_grave', 3, 96],
   'piscinas.voz': ['piscinas_voz', 3, 72],

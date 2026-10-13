@@ -24,7 +24,7 @@ import org.jspecify.annotations.Nullable;
  *
  *   gotas                     cada 5-16 s, a 4-18 bloques, desde el techo
  *   agua que se mueve, baja   cada 25-70 s, en el agua mas cercana (o lejos)
- *   el agua que lame el borde cada 7-18 s, solo con una piscina a menos de 7 bloques
+ *   una ola contra el borde  cada 15-40 s, solo con una piscina a menos de 7 bloques
  *   un chapoteo suave         cada 50-140 s, en un agua a 14-34 bloques
  *   tuberias                  cada 45-150 s, dentro de las paredes, a 8-26 bloques
  *   algo grave                cada 2-5 min, a 40-70 bloques
@@ -36,7 +36,7 @@ import org.jspecify.annotations.Nullable;
  */
 public final class AmbientePiscinas {
 	private enum Tipo {
-		GOTA(5, 16), AGUA(25, 70), ORILLA(7, 18), CHAPOTEO(50, 140), TUBERIA(45, 150), GRAVE(120, 300), GRUNIDO(60, 120),
+		GOTA(5, 16), AGUA(25, 70), ORILLA(15, 40), CHAPOTEO(50, 140), TUBERIA(45, 150), GRAVE(120, 300), GRUNIDO(60, 120),
 		VOZ(12 * 60, 40 * 60), SUSURRO(25 * 60, 75 * 60);
 
 		final int min;

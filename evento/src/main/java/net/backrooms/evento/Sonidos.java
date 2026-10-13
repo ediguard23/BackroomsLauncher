@@ -23,6 +23,7 @@ public final class Sonidos {
 	public static final SoundEvent PISCINAS_PASO = registrar("piscinas.paso");
 	public static final SoundEvent PISCINAS_PASO_AGUA = registrar("piscinas.paso_agua");
 	public static final SoundEvent PISCINAS_NADO = registrar("piscinas.nado");
+	public static final SoundEvent PISCINAS_ZAMBULLIDA = registrar("piscinas.zambullida");
 	public static final SoundEvent PISCINAS_CHISPA = registrar("piscinas.chispa");
 	/** El susurro con el nombre: se sintetiza en el cliente (SusurroNombre); en sounds.json solo hay un hueco. */
 	public static final SoundEvent PISCINAS_SUSURRO = registrar("piscinas.susurro");
