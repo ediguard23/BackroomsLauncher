@@ -512,20 +512,30 @@ function clicMetal (f, caida, rnd) {
   return (t) => bp.paso(rnd() * 2 - 1) * Math.exp(-t / caida) * 2.5;
 }
 
-/** La valvula cierra: el golpe del tope, el tubo que retumba y la presion que se escapa silbando. */
+/**
+ * La valvula cierra: el tope metalico y la presion que sale de golpe, como un freno de aire
+ * (PSSSH seco: sube en un instante, silba y se corta), con la sala detras.
+ */
 function valvulaCierre () {
   const rnd = D.azar(4120);
-  const buf = mono(3.2);
-  poner(buf, 0.02, 0.6, (t) => (Math.sin(TAU * (95 + 60 * Math.exp(-t * 25)) * t) * 0.9) * Math.exp(-t / 0.12));
-  poner(buf, 0.02, 0.05, clicMetal(1800, 0.01, rnd));
-  poner(buf, 0.02, 2.0, (t) => (Math.sin(TAU * 247 * t) * 0.4 + Math.sin(TAU * 553 * t) * 0.3 + Math.sin(TAU * 1180 * t) * 0.12) * Math.exp(-t / 0.5) * 0.5);
-  // el siseo: ruido agudo que sale fuerte y se va apagando
-  const hp = new D.Biquad('hp', 2600, 0.7);
-  const bp = new D.Biquad('bp', 5200, 0.9);
-  poner(buf, 0.12, 2.4, (t) => bp.paso(hp.paso(rnd() * 2 - 1)) * Math.min(1, t / 0.03) * Math.exp(-t / 0.7) * (0.85 + 0.15 * Math.sin(TAU * 9 * t)) * 1.6);
-  // y algo de agua que gorgotea en el tubo
-  for (let n = 0; n < 9; n++) poner(buf, 0.4 + rnd() * 1.4, 0.2, burbuja(180 + rnd() * 260, 1.4, 0.04));
-  return fuerte(piscina(buf, 0.5, 0.9), 1.8, -0.5);
+  const buf = mono(2.6);
+  // el tope: chasquido metalico y un golpe corto
+  poner(buf, 0.02, 0.05, clicMetal(2400, 0.008, rnd));
+  poner(buf, 0.02, 0.3, (t) => Math.sin(TAU * (140 + 60 * Math.exp(-t * 30)) * t) * Math.exp(-t / 0.05) * 0.9);
+  // la descarga: ruido brillante con cuerpo, ataque instantaneo, meseta corta y caida rapida
+  const hp = new D.Biquad('hp', 1500, 0.7);
+  const bp = new D.Biquad('bp', 4200, 0.8);
+  const bp2 = new D.Biquad('bp', 7000, 1.2);
+  const dur = 0.95;
+  poner(buf, 0.06, dur + 0.4, (t) => {
+    const r = rnd() * 2 - 1;
+    const env = Math.min(1, t / 0.008) * (t < 0.12 ? 1.3 - t * 2.5 : Math.exp(-(t - 0.12) / 0.28));
+    const silbo = Math.sin(TAU * (2950 - 400 * t) * t) * 0.12; // la valvula que silba al vaciarse
+    return (bp.paso(hp.paso(r)) * 2.6 + bp2.paso(r) * 1.4 + silbo) * env;
+  });
+  // el ultimo resoplido
+  poner(buf, 0.06 + dur, 0.35, (t) => hp.paso(rnd() * 2 - 1) * Math.exp(-t / 0.08) * 0.6);
+  return fuerte(piscina(buf, 0.45, 0.88), 2.0, -0.5);
 }
 
 /** Lejos, una maquinaria grande que arranca: un motor que coge vueltas y pistones cada vez mas seguidos. */

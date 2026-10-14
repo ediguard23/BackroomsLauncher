@@ -965,6 +965,11 @@ public final class PlanoPiscinas {
 		if (!mision.isEmpty()) {
 			return java.util.List.copyOf(mision);
 		}
+		// un cuerpo: su charco de sangre debajo (y nada mas en la celda)
+		Cadaver cad = this.cadaverEnCelda(cx, cz);
+		if (cad != null) {
+			return java.util.List.of(new Detalle((int) Math.floor(cad.x()), PISO, (int) Math.floor(cad.z()), D_MANCHA, S_GOTAS_SANGRE, this.hash(cx, cz, 129) & 3));
+		}
 		if (Math.max(Math.abs(cx - sal.celdaX()), Math.abs(cz - sal.celdaZ())) <= CARTELES && this.azar(cx, cz, 97) < 0.5) {
 			int[] p = this.pared(cx, cz, 8, PISO + 2, 1);
 			if (p != null) {
@@ -1382,6 +1387,99 @@ public final class PlanoPiscinas {
 		}
 		int[] c = s.columna(0);
 		return new int[] {c[0], PISO, c[1]};
+	}
+
+	/* -------------------------------------------------------- cadaveres */
+
+	/** Cuantas pieles de cadaver hay (texturas cadaver_0..; las dibuja tools/texturas/cadaveres.js). */
+	public static final int PIELES = 5;
+	public static final int BOCA_ARRIBA = 0;
+	public static final int BOCA_ABAJO = 1;
+	public static final int SENTADO = 2;
+	public static final int COLGADO_PIES = 3;
+	public static final int COLGADO_CUELLO = 4;
+	/** Bits de lo que le falta: el brazo derecho, la pierna izquierda. */
+	public static final int SIN_BRAZO = 1;
+	public static final int SIN_PIERNA = 2;
+
+	/**
+	 * Un cuerpo: donde (en el suelo, o el punto del techo del que cuelga), que piel, que
+	 * postura, hacia donde mira (grados, como el yaw), que le falta y cuanta cuerda tiene.
+	 */
+	public record Cadaver(double x, double y, double z, int piel, int postura, float giro, int mutilado, float cuerda) {
+		public boolean colgado() {
+			return this.postura == COLGADO_PIES || this.postura == COLGADO_CUELLO;
+		}
+	}
+
+	private static final Cadaver SIN_CADAVER = new Cadaver(0, 0, 0, -1, 0, 0, 0, 0);
+	private final java.util.concurrent.ConcurrentHashMap<Long, Cadaver> cadaveres = new java.util.concurrent.ConcurrentHashMap<>();
+
+	/**
+	 * El cuerpo de la celda, o null: en ~1 de cada 30. En salas de techo alto, a veces colgado
+	 * (de los pies o del cuello); si no, tirado boca arriba o boca abajo, o sentado contra la
+	 * pared; a algunos les falta un brazo o una pierna. Nunca en la celda de la salida.
+	 */
+	public Cadaver cadaverEnCelda(int cx, int cz) {
+		long k = ((long) cx << 32) ^ (cz & 0xFFFFFFFFL);
+		Cadaver c = this.cadaveres.get(k);
+		if (c == null) {
+			c = this.calcularCadaver(cx, cz);
+			if (this.cadaveres.size() > 20000) {
+				this.cadaveres.clear();
+			}
+			this.cadaveres.put(k, c == null ? SIN_CADAVER : c);
+		}
+		return c == null || c.piel() < 0 ? null : c;
+	}
+
+	private Cadaver calcularCadaver(int cx, int cz) {
+		if (this.azar(cx, cz, 120) >= 0.034) {
+			return null;
+		}
+		Salida s = this.salida();
+		if (cx == s.celdaX() && cz == s.celdaZ()) {
+			return null;
+		}
+		int h = this.hash(cx, cz, 121);
+		int piel = Math.floorMod(h, PIELES);
+		int mutilado = this.azar(cx, cz, 122) < 0.45 ? (h >>> 8) % 3 + 1 : 0;
+		float giro = (float) (this.azar(cx, cz, 123) * 360.0);
+		byte[] col = new byte[ALTO];
+		// colgado: una columna con el techo alto (5 o mas sobre el suelo)
+		if (this.azar(cx, cz, 124) < 0.4) {
+			for (int t = 0; t < 40; t++) {
+				int[] cc = this.candidata(cx, cz, 125, t);
+				this.columna(cc[0], cc[1], col);
+				if (!this.pisable(cc[0], PISO, cc[1], col)) {
+					continue;
+				}
+				int techo = techoSobre(col, PISO);
+				if (techo - PISO >= 6 && techo < Y0 + ALTO) {
+					int postura = (h >>> 4) % 3 == 0 ? COLGADO_CUELLO : COLGADO_PIES;
+					// la cuerda: que los pies (o la cabeza) queden a 1-2 bloques del suelo
+					float cuerda = (float) Math.max(0.6, techo - PISO - 2.0 - 1.2 - this.azar(cx, cz, 126));
+					return new Cadaver(cc[0] + 0.5, techo, cc[1] + 0.5, piel, postura, giro, 0, cuerda);
+				}
+			}
+		}
+		if (this.azar(cx, cz, 127) < 0.3) {
+			// sentado contra la pared, mirando a la sala
+			int[] p = this.pared(cx, cz, 12, PISO, 1);
+			if (p != null) {
+				int mira = (p[2] + 2) % 4;
+				float g = new float[] {180.0F, 270.0F, 0.0F, 90.0F}[mira];
+				return new Cadaver(p[0] + 0.5 - DX[mira] * 0.25, PISO, p[1] + 0.5 - DZ[mira] * 0.25, piel, SENTADO, g, mutilado, 0);
+			}
+		}
+		for (int t = 0; t < 40; t++) {
+			int[] cc = this.candidata(cx, cz, 128, t);
+			this.columna(cc[0], cc[1], col);
+			if (this.pisable(cc[0], PISO, cc[1], col) && en(col, PISO - 1) != LOSA) {
+				return new Cadaver(cc[0] + 0.5, PISO, cc[1] + 0.5, piel, (h >>> 6) % 2 == 0 ? BOCA_ARRIBA : BOCA_ABAJO, giro, mutilado, 0);
+			}
+		}
+		return null;
 	}
 
 	/* ----------------------------------------------------------- comida */

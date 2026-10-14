@@ -73,6 +73,7 @@ public class BackroomsEvento implements ModInitializer {
 		net.backrooms.evento.piscinas.Habitantes.registrar();
 		net.backrooms.evento.piscinas.Valvulas.registrar();
 		net.backrooms.evento.piscinas.Tarjetas.registrar();
+		net.backrooms.evento.piscinas.Cadaveres.registrar();
 		net.backrooms.evento.supervivencia.Supervivencia.registrar();
 		net.backrooms.evento.supervivencia.Comida.registrar();
 		net.backrooms.evento.entidad.Acechadores.registrar();

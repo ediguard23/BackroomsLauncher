@@ -90,5 +90,7 @@
   "item.backrooms_evento.tarjeta_roja": "Tarjeta roja",
   "item.backrooms_evento.tarjeta_amarilla": "Tarjeta amarilla",
   "item.backrooms_evento.tarjeta_verde": "Tarjeta verde",
-  "entity.backrooms_evento.tarjeta": "Tarjeta"
+  "entity.backrooms_evento.tarjeta": "Tarjeta",
+  "entity.backrooms_evento.cadaver": "Cadáver",
+  "item.backrooms_evento.volante_valvula": "Volante de válvula"
 }

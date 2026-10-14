@@ -43,7 +43,7 @@ import net.minecraft.server.level.ServerPlayer;
  *  piscinas [jugador]        lo manda ya a un sitio libre de las Piscinas (Nivel 37)
  *  piscinas ir <sala>        a la sala de ese tipo mas cercana (pasillos, piscina, inundada,
  *                            bovedas, tunel, caracol, terrazas)
- *  piscinas ir valvula|salida|tarjeta_roja|tarjeta_amarilla|tarjeta_verde
+ *  piscinas ir valvula|salida|cadaver|tarjeta_roja|tarjeta_amarilla|tarjeta_verde
  *                            delante de su valvula pendiente mas cercana (o de la mas
  *                            cercana), de la salida de emergencia o del escondite de una tarjeta
  *  tarjetas [reponer|abrir]  donde esta cada tarjeta; todas a su escondite y la salida
@@ -367,6 +367,8 @@ public final class Comandos {
 			}));
 		}
 		ir.then(Commands.literal("valvula").executes(c -> irMision(c, net.backrooms.evento.piscinas.Piscinas.irAValvula(c.getSource().getPlayerOrException()))));
+		ir.then(Commands.literal("cadaver").executes(c -> irMision(c, net.backrooms.evento.piscinas.Piscinas.irACadaver(c.getSource().getPlayerOrException(), false)))
+			.then(Commands.literal("colgado").executes(c -> irMision(c, net.backrooms.evento.piscinas.Piscinas.irACadaver(c.getSource().getPlayerOrException(), true)))));
 		ir.then(Commands.literal("salida").executes(c -> irMision(c, net.backrooms.evento.piscinas.Piscinas.irASalida(c.getSource().getPlayerOrException()))));
 		for (int k = 0; k < 3; k++) {
 			int color = k;

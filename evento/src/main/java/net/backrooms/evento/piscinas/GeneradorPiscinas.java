@@ -133,6 +133,10 @@ public class GeneradorPiscinas extends ChunkGenerator {
 					chunk.setBlockState(pos, e);
 					fondo.update(x, d.y(), z, e);
 					superficie.update(x, d.y(), z, e);
+					if (d.tipo() == PlanoPiscinas.D_VALVULA) {
+						// el volante (lo que gira) es un block entity: al generar no se crea solo
+						chunk.setBlockEntity(new ValvulaEntidad(new BlockPos(wx, d.y(), wz), e));
+					}
 				}
 			}
 		}

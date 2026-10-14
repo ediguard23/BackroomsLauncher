@@ -229,6 +229,38 @@ public final class Piscinas {
 		return delante(j, c[0], PlanoPiscinas.PISO, c[1], s.mira(), 2.2);
 	}
 
+	/** Delante del cuerpo mas cercano (PlanoPiscinas#cadaverEnCelda); con `colgado`, de uno que cuelga. */
+	public static boolean irACadaver(ServerPlayer j, boolean colgado) {
+		PlanoPiscinas p = planoDe();
+		ServerLevel nivel = servidor == null ? null : servidor.getLevel(DIMENSION);
+		if (p == null || nivel == null) {
+			return false;
+		}
+		int cx0 = es(j.level()) ? Math.floorDiv(j.getBlockX(), PlanoPiscinas.C) : 0;
+		int cz0 = es(j.level()) ? Math.floorDiv(j.getBlockZ(), PlanoPiscinas.C) : 0;
+		for (int r = 0; r <= 40; r++) {
+			for (int dx = -r; dx <= r; dx++) {
+				for (int dz = -r; dz <= r; dz++) {
+					if (Math.max(Math.abs(dx), Math.abs(dz)) != r) {
+						continue;
+					}
+					PlanoPiscinas.Cadaver c = p.cadaverEnCelda(cx0 + dx, cz0 + dz);
+					if (c != null && (!colgado || c.colgado())) {
+						BlockPos libre = nivel.getChunkSource().getGenerator() instanceof GeneradorPiscinas gen
+							? gen.puntoLibre(nivel.getChunkSource().randomState(), (int) Math.floor(c.x()) + 3, (int) Math.floor(c.z()))
+							: BlockPos.containing(c.x() + 3, PlanoPiscinas.PISO, c.z());
+						double ox = c.x() - (libre.getX() + 0.5);
+						double oz = c.z() - (libre.getZ() + 0.5);
+						float yaw = (float) Math.toDegrees(Math.atan2(-ox, oz));
+						j.teleportTo(nivel, libre.getX() + 0.5, libre.getY(), libre.getZ() + 0.5, Set.of(), yaw, c.colgado() ? -15.0F : 25.0F, true);
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 	/** Al escondite de esa tarjeta (la roja esta bajo el agua: encima de ella). */
 	public static boolean irATarjeta(ServerPlayer j, int color) {
 		PlanoPiscinas p = planoDe();

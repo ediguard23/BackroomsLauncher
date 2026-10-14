@@ -1,7 +1,28 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-13 (hora de Honduras). Mod `backrooms_evento` 0.14.1, launcher 1.0.0
+Última actualización: 2026-10-14 (hora de Honduras). Mod `backrooms_evento` 0.15.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.15.0: cadáveres, válvulas suaves y la Serpiente por los techos bajos (2026-10-14; Bruno)
+
+- **Cadáveres** en las Piscinas (~1 de cada 30 celdas; `PlanoPiscinas#cadaverEnCelda`, `Cadaveres`,
+  `CadaverEntidad`, `CadaverRenderer`/`ModeloCadaver`): boca arriba, boca abajo, sentados contra la
+  pared o, en salas de techo alto, colgados de los pies o del cuello con una cuerda; a algunos les
+  falta un brazo o una pierna; charco de sangre debajo. Cinco pieles hechas por código
+  (`tools/texturas/cadaveres.js`): tres al estilo de las fotos que mandó Bruno (pelo gris y jersey de
+  rayas; figura negra con manchas verde agua; negra con ojos y sonrisa rojos) y dos exploradores con
+  el traje amarillo. **Las skins de NameMC no se usan** (son de sus autores; regla de no usar
+  assets de terceros). `/backrooms piscinas ir cadaver [colgado]`.
+- **Válvulas**: el volante gira suave (block entity `ValvulaEntidad` + `ValvulaRenderer`; el
+  bloque es solo el tubo) y lo girado **no se pierde al soltar** (se acumula por jugador y válvula;
+  se pierde si se reinicia el servidor). Cierre nuevo con carácter de freno de aire (sintetizado;
+  la referencia de Epidemic no se usa).
+- **Techos bajos**: en las terrazas hay pasos de 2,5 de alto (bajo las losas de los arcos) y en el
+  caracol de 3; la Serpiente (caja 1,5x3,2) no pasaba. Caja nueva 1,2x2,4 (el modelo igual).
+- Velocidad en el agua: ya era +25 % sobre la base (6,9 bloques/s; medido 7,0).
+**Probado** (capturas): cuerpo tumbado, colgado de los pies con su cuerda y la sangre debajo; el
+volante gira suave y el cierre se completa en dos tandas de clic. **Sin probar**: sentados y colgados
+del cuello a la vista, la Serpiente pasando por las terrazas bajas, el sonido nuevo en el juego.
 
 ## 0.14.1: sonidos de las Piscinas que pidió cambiar Bruno (2026-10-13; Bruno)
 

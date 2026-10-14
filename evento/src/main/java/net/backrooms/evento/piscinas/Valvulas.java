@@ -21,8 +21,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -31,8 +29,9 @@ import org.jspecify.annotations.Nullable;
  * a unos 360 bloques unas de otras. Es individual: cada valvula se puede cerrar una vez por
  * cada jugador al que le toca; para los demas esta atascada.
  *
- * Se cierra manteniendo el clic derecho CERRAR ticks (Minecraft repite el uso cada 4 ticks
- * mientras se mantiene): el volante gira (BloqueValvula#ANGULO) con el chirrido del metal y, al
+ * Se cierra manteniendo el clic derecho CERRAR ticks en total (Minecraft repite el uso cada 4
+ * ticks mientras se mantiene; lo girado no se pierde al soltar): el volante gira suave
+ * (ValvulaEntidad) con el chirrido del metal y, al
  * cerrar, suelta la presion (un siseo y vapor). Con las 3 cerradas, a lo lejos arranca una
  * maquinaria (solo la oye el, como el resto de la mision).
  */
@@ -40,15 +39,13 @@ public final class Valvulas {
 	private static final Valvulas INSTANCIA = new Valvulas();
 	/** Ticks de clic mantenido para cerrar una (3 s). */
 	private static final int CERRAR = 60;
-	/** Si entre un uso y el siguiente pasan mas ticks que esto, ha soltado: vuelve a empezar. */
-	private static final int SOLTAR = 10;
+	/** Lo que cuenta cada uso (el clic mantenido se repite cada 4 ticks). */
+	private static final int POR_USO = 4;
 	/** Entre las cuantas mas cercanas se sortean las 3 de cada uno. */
 	private static final int CERCANAS = 7;
 
-	private record Giro(BlockPos pos, long empezo, long ultimo) {
-	}
-
-	private final Map<UUID, Giro> giros = new HashMap<>();
+	/** Lo que lleva girado cada uno de cada valvula (ticks): "uuid#id". No se pierde al soltar. */
+	private final Map<String, Integer> girado = new HashMap<>();
 	/** Quien acaba de cerrar las tres: cuando le suena la maquinaria. */
 	private final Map<UUID, Long> maquinaria = new HashMap<>();
 	private final Map<UUID, Long> avisado = new HashMap<>();
@@ -68,7 +65,6 @@ public final class Valvulas {
 		ServerLifecycleEvents.SERVER_STOPPED.register(s -> INSTANCIA.servidor = null);
 		ServerTickEvents.END_SERVER_TICK.register(s -> INSTANCIA.tick());
 		ServerPlayConnectionEvents.DISCONNECT.register((h, s) -> {
-			INSTANCIA.giros.remove(h.player.getUUID());
 			INSTANCIA.maquinaria.remove(h.player.getUUID());
 		});
 	}
@@ -140,7 +136,7 @@ public final class Valvulas {
 	}
 
 	/** Lo llama BloqueValvula a cada uso (cada 4 ticks mientras se mantiene el clic). */
-	public void girar(ServerPlayer j, BlockPos pos, BlockState estado) {
+	public void girar(ServerPlayer j, BlockPos pos) {
 		ServerLevel nivel = j.level();
 		PlanoPiscinas.Valvula v = this.en(nivel, pos);
 		if (v == null) {
@@ -157,18 +153,19 @@ public final class Valvulas {
 			this.avisar(j, "Esta ya la cerraste.");
 			return;
 		}
-		Giro g = this.giros.get(j.getUUID());
-		g = g == null || !g.pos().equals(pos) || this.ticks - g.ultimo() > SOLTAR ? new Giro(pos, this.ticks, this.ticks) : new Giro(pos, g.empezo(), this.ticks);
-		this.giros.put(j.getUUID(), g);
-		nivel.setBlock(pos, estado.setValue(BloqueValvula.ANGULO, (estado.getValue(BloqueValvula.ANGULO) + 1) % 4), Block.UPDATE_CLIENTS);
-		nivel.playSound(null, pos, Sonidos.VALVULA_GIRO, SoundSource.BLOCKS, 0.8F, 0.9F + j.getRandom().nextFloat() * 0.2F);
-		float hecho = Math.min(1.0F, (this.ticks - g.empezo()) / (float) CERRAR);
+		String clave = j.getUUID() + "#" + v.id();
+		int llevado = this.girado.merge(clave, POR_USO, Integer::sum);
+		nivel.blockEvent(pos, BloquesPiscinas.VALVULA, 1, 0);
+		if (llevado % (POR_USO * 2) == 0) {
+			nivel.playSound(null, pos, Sonidos.VALVULA_GIRO, SoundSource.BLOCKS, 0.8F, 0.9F + j.getRandom().nextFloat() * 0.2F);
+		}
+		float hecho = Math.min(1.0F, llevado / (float) CERRAR);
 		if (hecho < 1.0F) {
 			int llenas = Math.round(hecho * 12);
 			j.displayClientMessage(Component.literal("CERRANDO  " + "▮".repeat(llenas) + "▯".repeat(12 - llenas)).withStyle(ChatFormatting.YELLOW), true);
 			return;
 		}
-		this.giros.remove(j.getUUID());
+		this.girado.remove(clave);
 		nivel.playSound(null, pos, Sonidos.VALVULA_CIERRE, SoundSource.BLOCKS, 1.6F, 1.0F);
 		nivel.sendParticles(ParticleTypes.CLOUD, pos.getX() + 0.5, pos.getY() + 0.6, pos.getZ() + 0.5, 18, 0.25, 0.3, 0.25, 0.04);
 		Misiones.get().cerrarValvula(j, v.id());

@@ -52,6 +52,10 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			net.backrooms.evento.piscinas.BloquesPiscinas.MARCA, net.backrooms.evento.piscinas.BloquesPiscinas.MANCHA,
 			net.backrooms.evento.piscinas.BloquesPiscinas.LECTOR, net.backrooms.evento.piscinas.BloquesPiscinas.CARTEL_SALIDA);
 		EntityRenderers.register(Entidades.CASETE, CaseteRenderer::new);
+		net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(net.backrooms.evento.piscinas.BloquesPiscinas.VALVULA_ENTIDAD,
+			net.backrooms.evento.cliente.piscinas.ValvulaRenderer::new);
+		EntityRenderers.register(Entidades.CADAVER, net.backrooms.evento.cliente.entidad.CadaverRenderer::new);
+		EntityModelLayerRegistry.registerModelLayer(net.backrooms.evento.cliente.entidad.CadaverRenderer.CAPA, net.backrooms.evento.cliente.entidad.ModeloCadaver::crear);
 		EntityRenderers.register(Entidades.TARJETA, net.backrooms.evento.cliente.piscinas.TarjetaRenderer::new);
 		net.backrooms.evento.piscinas.PuertaSalida.pasaCliente = p -> p == net.minecraft.client.Minecraft.getInstance().player && MisionesCliente.todasHechas();
 		EntityRenderers.register(Entidades.ASIENTO, NoopRenderer::new);

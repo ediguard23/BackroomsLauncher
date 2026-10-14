@@ -56,6 +56,9 @@ public final class Objetos {
 			new Item.Properties().stacksTo(1).rarity(net.minecraft.world.item.Rarity.EPIC));
 	}
 
+	/** Solo para dibujar el volante de las valvulas de las Piscinas (ValvulaRenderer); no se consigue. */
+	public static final Item VOLANTE_VALVULA = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("volante_valvula")), Item::new, new Item.Properties());
+
 	/* ---------------------------------------------- comida del Nivel 0 */
 
 	/** Agua de almendras: la unica que sube la cordura. */

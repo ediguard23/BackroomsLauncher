@@ -90,5 +90,7 @@
   "item.backrooms_evento.tarjeta_roja": "Red keycard",
   "item.backrooms_evento.tarjeta_amarilla": "Yellow keycard",
   "item.backrooms_evento.tarjeta_verde": "Green keycard",
-  "entity.backrooms_evento.tarjeta": "Keycard"
+  "entity.backrooms_evento.tarjeta": "Keycard",
+  "entity.backrooms_evento.cadaver": "Corpse",
+  "item.backrooms_evento.volante_valvula": "Valve wheel"
 }

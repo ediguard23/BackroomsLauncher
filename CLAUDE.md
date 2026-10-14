@@ -59,6 +59,7 @@ tools/
   texturas/entidades.js          modelos de Bacteria, Smiler y Serpiente -> genera Malla*.java (no editarlos a mano)
   texturas/huecos.js             las paredes huecas: tabiques, boquetes rotos, interior (multipart)
   texturas/piscinas.js           bloques de las Piscinas (azulejo, causticas animadas, luces, marcas y detalles...)
+  texturas/cadaveres.js          las pieles de los cuerpos de las Piscinas (formato de piel de jugador)
   sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros);
                                  la Bacteria y el agarre en sonidos/bacteria.js; las Piscinas y la
                                  Serpiente en sonidos/nivel37.js
@@ -94,7 +95,7 @@ servidor-ejemplo/                configuración del servidor del evento
   pantalla completa). El cursor del sistema no sale en las capturas: `cursor` escribe en el
   log si se ve, está oculto o capturado. `node tools/rcon.js "<comando>"` manda comandos al servidor.
 - Comandos de staff: `/start`, `/backrooms ...` (buscar, cinematica, apagon, alarma, luz,
-  ambiente, fase, piscinas [ir <sala>|ir detalle|ir corre|ir valvula|ir salida|ir tarjeta_<color>|
+  ambiente, fase, piscinas [ir <sala>|ir detalle|ir corre|ir valvula|ir salida|ir tarjeta_<color>|ir cadaver [colgado]|
   oir <sonido> <jugador>], tarjetas [reponer|abrir], vestibulo,
   muerte, escapados, invocar bacteria|smiler|serpiente,
   acechadores, cordura, comida reponer, misiones...). Ver `Comandos.java`. La lista del evento (quién puede
@@ -157,6 +158,9 @@ servidor-ejemplo/                configuración del servidor del evento
 - Una colision que dependa del jugador (la puerta de salida abierta solo para quien ha hecho
   sus misiones) tiene que saberse tambien en el cliente: es el cliente quien mueve al jugador
   (`PuertaSalida#pasaCliente`).
+- Un bloque con block entity puesto al generar el mundo no lo crea solo: hay que ponerlo en el
+  chunk (`GeneradorPiscinas`, las valvulas). Y una entidad colgada del techo toma la luz de su
+  posicion: `CadaverEntidad#getLightProbePosition` la baja al cuerpo.
 
 ## Cómo trabajar en equipo (dos personas con Claude)
 

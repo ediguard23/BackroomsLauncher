@@ -719,34 +719,27 @@ guardar(TEX, 'valvula_tubo', new Lienzo(16).pintar((x, y) => {
   return c;
 }));
 {
-  // cuatro radios: con cuatro angulos (0, 22,5, 45 y 67,5 = -22,5) da la vuelta entera
-  const GIROS = [0, 22.5, 45, -22.5];
-  const GIROS2 = [45, -22.5, 0, 22.5]; // el aro: otro cuadrado a 45 grados hace el octogono
+  // el bloque es el tubo con su brida y el eje; el volante es un objeto aparte que gira suave
+  // (ValvulaRenderer): un octogono de dos cuadrados (el segundo a 45 grados) y cuatro radios
   const z0 = 9.2;
   const z1 = 10.6;
-  const rot = (a) => ({ rotation: { origin: [8, 8, 10], axis: 'z', angle: a, rescale: false } });
-  for (let a = 0; a < 4; a++) {
-    // cada cuadrado son los lados de un octogono (no se pasan de las esquinas: si no, sale una estrella)
-    const aro = (g) => [
-      { ...caja([5.5, 12.2, z0], [10.5, 13.6, z1], '#r'), ...rot(g) },
-      { ...caja([5.5, 2.4, z0], [10.5, 3.8, z1], '#r'), ...rot(g) },
-      { ...caja([2.4, 5.5, z0], [3.8, 10.5, z1], '#r'), ...rot(g) },
-      { ...caja([12.2, 5.5, z0], [13.6, 10.5, z1], '#r'), ...rot(g) }
-    ];
-    const elementos = [
-      caja([4, 4, 15], [12, 12, 16], '#t'), // brida contra la pared
-      caja([6, 6, 11], [10, 10, 15], '#t'), // el tubo
-      caja([6.8, 6.8, 9], [9.2, 9.2, 11], '#t'), // el eje
-      ...aro(GIROS[a]), ...aro(GIROS2[a]),
-      { ...caja([3.5, 7.4, 9.5], [12.5, 8.6, 10.3], '#r'), ...rot(GIROS[a]) }, // radios
-      { ...caja([7.4, 3.5, 9.5], [8.6, 12.5, 10.3], '#r'), ...rot(GIROS[a]) }
-    ];
-    json(`models/block/valvula_${a}.json`, { parent: 'minecraft:block/block', textures: { r: t('valvula_rueda'), t: t('valvula_tubo'), particle: t('valvula_rueda') }, elements: elementos });
-  }
+  const a45 = { rotation: { origin: [8, 8, 10], axis: 'z', angle: 45, rescale: false } };
+  const aro = (extra) => [
+    { ...caja([5.5, 12.2, z0], [10.5, 13.6, z1], '#r'), ...extra },
+    { ...caja([5.5, 2.4, z0], [10.5, 3.8, z1], '#r'), ...extra },
+    { ...caja([2.4, 5.5, z0], [3.8, 10.5, z1], '#r'), ...extra },
+    { ...caja([12.2, 5.5, z0], [13.6, 10.5, z1], '#r'), ...extra }
+  ];
+  json('models/block/valvula.json', { parent: 'minecraft:block/block', textures: { t: t('valvula_tubo'), particle: t('valvula_rueda') },
+    elements: [caja([4, 4, 15], [12, 12, 16], '#t'), caja([6, 6, 11], [10, 10, 15], '#t'), caja([6.8, 6.8, 9], [9.2, 9.2, 11], '#t')] });
+  json('models/item/volante_valvula.json', { parent: 'minecraft:block/block', textures: { r: t('valvula_rueda'), particle: t('valvula_rueda') },
+    elements: [...aro({}), ...aro(a45), caja([3.5, 7.4, 9.5], [12.5, 8.6, 10.3], '#r'), caja([7.4, 3.5, 9.5], [8.6, 12.5, 10.3], '#r')] });
+  json('items/volante_valvula.json', { model: { type: 'minecraft:model', model: `${NS}:item/volante_valvula` } });
+  for (let a = 0; a < 4; a++) fs.rmSync(path.join(ASSETS, 'models', 'block', `valvula_${a}.json`), { force: true });
   const v = {};
-  for (const [f, y] of Object.entries(FACINGS)) for (let a = 0; a < 4; a++) v[`angulo=${a},facing=${f}`] = { model: t(`valvula_${a}`), ...(y ? { y } : {}) };
+  for (const [f, y] of Object.entries(FACINGS)) v[`facing=${f}`] = { model: t('valvula'), ...(y ? { y } : {}) };
   json('blockstates/valvula.json', { variants: v });
-  json('items/valvula.json', { model: { type: 'minecraft:model', model: t('valvula_0') } });
+  json('items/valvula.json', { model: { type: 'minecraft:model', model: t('valvula') } });
 }
 
 // los lectores: caja negra con la franja de su color, la ranura y un piloto (encendido al meterla)
@@ -947,7 +940,9 @@ const OTROS = {
   'item.backrooms_evento.tarjeta_roja': ['Tarjeta roja', 'Red keycard'],
   'item.backrooms_evento.tarjeta_amarilla': ['Tarjeta amarilla', 'Yellow keycard'],
   'item.backrooms_evento.tarjeta_verde': ['Tarjeta verde', 'Green keycard'],
-  'entity.backrooms_evento.tarjeta': ['Tarjeta', 'Keycard']
+  'entity.backrooms_evento.tarjeta': ['Tarjeta', 'Keycard'],
+  'entity.backrooms_evento.cadaver': ['Cadáver', 'Corpse'],
+  'item.backrooms_evento.volante_valvula': ['Volante de válvula', 'Valve wheel']
 };
 for (const [archivo, k] of [['es_es.json', 0], ['en_us.json', 1]]) {
   const f = path.join(ASSETS, 'lang', archivo);

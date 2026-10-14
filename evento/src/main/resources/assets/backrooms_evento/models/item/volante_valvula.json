@@ -2,216 +2,11 @@
   "parent": "minecraft:block/block",
   "textures": {
     "r": "backrooms_evento:block/valvula_rueda",
-    "t": "backrooms_evento:block/valvula_tubo",
     "particle": "backrooms_evento:block/valvula_rueda"
   },
   "elements": [
     {
       "from": [
-        4,
-        4,
-        15
-      ],
-      "to": [
-        12,
-        12,
-        16
-      ],
-      "faces": {
-        "north": {
-          "texture": "#t",
-          "uv": [
-            4,
-            4,
-            12,
-            12
-          ]
-        },
-        "south": {
-          "texture": "#t",
-          "uv": [
-            4,
-            4,
-            12,
-            12
-          ]
-        },
-        "east": {
-          "texture": "#t",
-          "uv": [
-            15,
-            4,
-            16,
-            12
-          ]
-        },
-        "west": {
-          "texture": "#t",
-          "uv": [
-            15,
-            4,
-            16,
-            12
-          ]
-        },
-        "up": {
-          "texture": "#t",
-          "uv": [
-            4,
-            15,
-            12,
-            16
-          ]
-        },
-        "down": {
-          "texture": "#t",
-          "uv": [
-            4,
-            15,
-            12,
-            16
-          ]
-        }
-      }
-    },
-    {
-      "from": [
-        6,
-        6,
-        11
-      ],
-      "to": [
-        10,
-        10,
-        15
-      ],
-      "faces": {
-        "north": {
-          "texture": "#t",
-          "uv": [
-            6,
-            6,
-            10,
-            10
-          ]
-        },
-        "south": {
-          "texture": "#t",
-          "uv": [
-            6,
-            6,
-            10,
-            10
-          ]
-        },
-        "east": {
-          "texture": "#t",
-          "uv": [
-            11,
-            6,
-            15,
-            10
-          ]
-        },
-        "west": {
-          "texture": "#t",
-          "uv": [
-            11,
-            6,
-            15,
-            10
-          ]
-        },
-        "up": {
-          "texture": "#t",
-          "uv": [
-            6,
-            11,
-            10,
-            15
-          ]
-        },
-        "down": {
-          "texture": "#t",
-          "uv": [
-            6,
-            11,
-            10,
-            15
-          ]
-        }
-      }
-    },
-    {
-      "from": [
-        6.8,
-        6.8,
-        9
-      ],
-      "to": [
-        9.2,
-        9.2,
-        11
-      ],
-      "faces": {
-        "north": {
-          "texture": "#t",
-          "uv": [
-            6.8,
-            6.800000000000001,
-            9.2,
-            9.2
-          ]
-        },
-        "south": {
-          "texture": "#t",
-          "uv": [
-            6.8,
-            6.800000000000001,
-            9.2,
-            9.2
-          ]
-        },
-        "east": {
-          "texture": "#t",
-          "uv": [
-            9,
-            6.800000000000001,
-            11,
-            9.2
-          ]
-        },
-        "west": {
-          "texture": "#t",
-          "uv": [
-            9,
-            6.800000000000001,
-            11,
-            9.2
-          ]
-        },
-        "up": {
-          "texture": "#t",
-          "uv": [
-            6.8,
-            9,
-            9.2,
-            11
-          ]
-        },
-        "down": {
-          "texture": "#t",
-          "uv": [
-            6.8,
-            9,
-            9.2,
-            11
-          ]
-        }
-      }
-    },
-    {
-      "from": [
         5.5,
         12.2,
         9.2
@@ -276,16 +71,6 @@
             10.6
           ]
         }
-      },
-      "rotation": {
-        "origin": [
-          8,
-          8,
-          10
-        ],
-        "axis": "z",
-        "angle": 0,
-        "rescale": false
       }
     },
     {
@@ -354,16 +139,6 @@
             10.6
           ]
         }
-      },
-      "rotation": {
-        "origin": [
-          8,
-          8,
-          10
-        ],
-        "axis": "z",
-        "angle": 0,
-        "rescale": false
       }
     },
     {
@@ -432,16 +207,6 @@
             10.6
           ]
         }
-      },
-      "rotation": {
-        "origin": [
-          8,
-          8,
-          10
-        ],
-        "axis": "z",
-        "angle": 0,
-        "rescale": false
       }
     },
     {
@@ -510,16 +275,6 @@
             10.6
           ]
         }
-      },
-      "rotation": {
-        "origin": [
-          8,
-          8,
-          10
-        ],
-        "axis": "z",
-        "angle": 0,
-        "rescale": false
       }
     },
     {
@@ -900,16 +655,6 @@
             10.3
           ]
         }
-      },
-      "rotation": {
-        "origin": [
-          8,
-          8,
-          10
-        ],
-        "axis": "z",
-        "angle": 0,
-        "rescale": false
       }
     },
     {
@@ -978,16 +723,6 @@
             10.3
           ]
         }
-      },
-      "rotation": {
-        "origin": [
-          8,
-          8,
-          10
-        ],
-        "axis": "z",
-        "angle": 0,
-        "rescale": false
       }
     }
   ]

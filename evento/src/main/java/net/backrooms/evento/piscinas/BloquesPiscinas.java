@@ -67,6 +67,10 @@ public final class BloquesPiscinas {
 	/** No se rompen (ni en creativo por error): son de las misiones. */
 	public static final Block VALVULA = conObjeto(Blocks.register(clave("valvula"), BloqueValvula::new,
 		propiedades(MapColor.COLOR_RED, SoundType.METAL, -1.0F).explosionResistance(3600000.0F).noOcclusion()));
+	/** El volante de cada valvula (solo cliente: lo que gira suave). */
+	public static final net.minecraft.world.level.block.entity.BlockEntityType<ValvulaEntidad> VALVULA_ENTIDAD = net.minecraft.core.Registry.register(
+		net.minecraft.core.registries.BuiltInRegistries.BLOCK_ENTITY_TYPE, BackroomsEvento.id("valvula"),
+		net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder.create(ValvulaEntidad::new, VALVULA).build());
 	public static final Block LECTOR = conObjeto(Blocks.register(clave("lector_tarjeta"), LectorTarjeta::new,
 		propiedades(MapColor.METAL, SoundType.METAL, -1.0F).explosionResistance(3600000.0F).noOcclusion()
 			.lightLevel(e -> e.getValue(LectorTarjeta.LIT) ? 6 : 2)));
