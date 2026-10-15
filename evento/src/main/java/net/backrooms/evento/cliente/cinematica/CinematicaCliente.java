@@ -68,8 +68,12 @@ public final class CinematicaCliente {
 		return guion == 2 ? 33.0F : FIN;
 	}
 
+	/** El /start: primero el prologo (la firma, PantallaPrologo) y, en cuanto acaba, el ascensor. */
 	public static void empezar() {
-		empezar(0);
+		if (activa()) {
+			terminar();
+		}
+		PantallaPrologo.empezar(() -> empezar(0));
 	}
 
 	public static void empezar(int g) {

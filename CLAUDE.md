@@ -36,12 +36,13 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
     menu/                        menú principal, pausa, carga, inventario, muerte, TAB...
     evento/
       mundo/                     Plano.java (trazado procedural) y GeneradorNivel0
-      vestibulo/                 el "Centro de Expediciones" (PlanoVestibulo = cajas de bloques)
+      vestibulo/                 la recepcion (donde se espera el /start) y el "Centro de Expediciones"
+                                 (la sala del final); PlanoVestibulo = cajas de bloques de los dos
       fase/                      la fase del Nivel 0 (solo queda la 1) y los ascensores de salida
       piscinas/                  las Piscinas (Nivel 37): PlanoPiscinas (trazado, y donde van las valvulas,
                                  la salida y las tarjetas), su generador, sus bloques, la llegada y
                                  sus misiones (Valvulas, Tarjetas: las 3 tarjetas y la puerta)
-      expedicion/                el /start (cinemática y viaje escalonado)
+      expedicion/                el /start (prologo de la firma, cinemática del ascensor y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas
       entidad/                   Bacteria (caza, retirada, agarre), Smiler y quién aparece dónde (Acechadores);
@@ -96,7 +97,7 @@ servidor-ejemplo/                configuración del servidor del evento
   log si se ve, está oculto o capturado. `node tools/rcon.js "<comando>"` manda comandos al servidor.
 - Comandos de staff: `/start`, `/backrooms ...` (buscar, cinematica, apagon, alarma, luz,
   ambiente, fase, piscinas [ir <sala>|ir detalle|ir corre|ir valvula|ir salida|ir tarjeta_<color>|ir cadaver [colgado]|
-  oir <sonido> <jugador>], tarjetas [reponer|abrir], vestibulo,
+  oir <sonido> <jugador>], tarjetas [reponer|abrir], recepcion, vestibulo,
   muerte, escapados, invocar bacteria|smiler|serpiente,
   acechadores, cordura, comida reponer, misiones...). Ver `Comandos.java`. La lista del evento (quién puede
   entrar): `/brwhitelist agregar|quitar|ver|lista|recargar` (`acceso/Whitelist.java`; la lista vive

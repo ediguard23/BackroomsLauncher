@@ -27,7 +27,7 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
 /**
- * Genera el vestibulo (PlanoVestibulo) en su dimension; fuera del edificio
+ * Genera el vestibulo y la recepcion (PlanoVestibulo) en su dimension; fuera de los edificios
  * no hay nada. Como todo sale del plano, se puede borrar la dimension y se
  * vuelve a generar igual.
  */
@@ -52,7 +52,9 @@ public class GeneradorVestibulo extends ChunkGenerator {
 		int cz0 = cp.getMinBlockZ();
 		int cx1 = cx0 + 15;
 		int cz1 = cz0 + 15;
-		if (cx1 < PlanoVestibulo.X0 || cx0 > PlanoVestibulo.X1 || cz1 < PlanoVestibulo.Z0 || cz0 > PlanoVestibulo.Z1) {
+		boolean vestibulo = !(cx1 < PlanoVestibulo.X0 || cx0 > PlanoVestibulo.X1 || cz1 < PlanoVestibulo.Z0 || cz0 > PlanoVestibulo.Z1);
+		boolean recepcion = !(cx1 < PlanoVestibulo.R_X0 || cx0 > PlanoVestibulo.R_X1 || cz1 < PlanoVestibulo.R_Z0 || cz0 > PlanoVestibulo.R_Z1);
+		if (!vestibulo && !recepcion) {
 			return CompletableFuture.completedFuture(chunk);
 		}
 		Heightmap fondo = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);

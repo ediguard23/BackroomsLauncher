@@ -8,23 +8,17 @@ import net.backrooms.evento.bloques.EnSuelo;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.ButtonBlock;
-import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.LanternBlock;
-import net.minecraft.world.level.block.RedstoneLampBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.WallBannerBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.AttachFace;
-import net.minecraft.world.level.block.state.properties.DoorHingeSide;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.SlabType;
 
 /**
- * El "Centro de Expediciones": el vestibulo donde todos esperan antes del
- * /start. Se describe como una lista de cajas de bloques (las de despues
+ * El "Centro de Expediciones": el vestibulo donde se vuelve al acabar (al
+ * escapar o al caer). Se describe como una lista de cajas de bloques (las de despues
  * pisan a las de antes) que GeneradorVestibulo pone al generar cada chunk;
  * los rotulos y las vitrinas son entidades de texto y de objeto que pone
  * Vestibulo la primera vez.
@@ -34,9 +28,10 @@ import net.minecraft.world.level.block.state.properties.SlabType;
  *    focos, y 200 butacas (10 filas de 20, pasillo central) para la
  *    conferencia inicial.
  *  - Vestibulo, al sur (z -23..32, 73 de ancho): suelo ajedrezado, columnas
- *    de cuarzo, mostrador de informacion en el centro, zonas de espera con
- *    sofas, plantas, maquinas de agua de almendras, taquillas, la vitrina
- *    del equipo y, al fondo, los ascensores al Nivel 0.
+ *    de cuarzo, zonas de espera con sofas, plantas, maquinas de agua de
+ *    almendras y la vitrina del equipo.
+ * Desde la 0.16.0 es la sala del final: aqui vuelven quien escapa y quien cae.
+ * Antes del /start se espera en la recepcion (PlanoRecepcion), otro edificio.
  * Unos 4000 m2 para 200 personas: ni apretados ni perdidos.
  */
 public final class PlanoVestibulo {
@@ -46,8 +41,7 @@ public final class PlanoVestibulo {
 	public static final int X0 = -37;
 	public static final int X1 = 37;
 	public static final int Z0 = -69;
-	/** Hasta el fondo de las cabinas de los ascensores (la pared sur del vestibulo esta en 33). */
-	public static final int Z1 = 38;
+	public static final int Z1 = 33;
 	public static final int Y0 = 62;
 	public static final int Y1 = 79;
 
@@ -56,27 +50,6 @@ public final class PlanoVestibulo {
 	public static final double SPAWN_Y = SUELO + 1;
 	public static final double SPAWN_Z = 6.5;
 
-	/**
-	 * Centros de las puertas de los ascensores (en la pared sur, z = PUERTA_Z). Las puertas
-	 * ocupan x = c-1 y c: fuera las de acero del rellano (PUERTA_Z) y dentro las de hierro
-	 * de la cabina (PUERTA_Z + 1). La cabina, x = c-2..c+1 y z = CABINA_Z0..CABINA_Z1, es
-	 * la misma que sale en la cinematica (cinematica.fsh): bloque de hierro con zocalo de
-	 * roble oscuro, suelo de piedra lisa, lampara de redstone, el indicador de planta
-	 * encima de las puertas y la botonera de piedra negra pulida a la derecha.
-	 */
-	public static final int[] ASCENSORES = {-24, -12, 0, 12, 24};
-	public static final int PUERTA_Z = 33;
-	public static final int CABINA_Z0 = 35;
-	public static final int CABINA_Z1 = 37;
-	/**
-	 * El hueco de los ascensores, escondido bajo el vestibulo: quien sube a una cabina
-	 * espera aqui (por dentro es otra cabina) a que le toque la cinematica y el viaje,
-	 * para no tapar la puerta a los que vienen detras.
-	 */
-	public static final int HUECO_X0 = -30;
-	public static final int HUECO_X1 = 30;
-	public static final int HUECO_Y = 48;
-	public static final int HUECO_Z = 36;
 	/** Pedestales de la vitrina del equipo (x; z = VITRINA_Z). */
 	public static final int[] VITRINA_X = {-22, -19, -16, -13};
 	public static final int VITRINA_Z = -18;
@@ -127,41 +100,6 @@ public final class PlanoVestibulo {
 
 	private static BlockState pared(Block b, Direction d) {
 		return b.defaultBlockState().setValue(EnPared.FACING, d);
-	}
-
-	/** Una hoja cerrada de la puerta de acero de un rellano: 0 la izquierda (x = c-1), 1 la derecha (x = c). */
-	public static BlockState puerta(int hoja) {
-		return mira(hoja == 0 ? Bloques.PUERTA_ASCENSOR_IZQ : Bloques.PUERTA_ASCENSOR_DER, Direction.NORTH);
-	}
-
-	/**
-	 * Media hoja de la puerta de hierro de una cabina (dos de alto, como en la cinematica).
-	 * Miran a la cabina; al abrirse cada una gira hacia su lado.
-	 */
-	public static BlockState puertaCabina(int hoja, boolean arriba, boolean abierta) {
-		return Blocks.IRON_DOOR.defaultBlockState()
-			.setValue(DoorBlock.FACING, Direction.NORTH)
-			.setValue(DoorBlock.HINGE, hoja == 0 ? DoorHingeSide.LEFT : DoorHingeSide.RIGHT)
-			.setValue(DoorBlock.HALF, arriba ? DoubleBlockHalf.UPPER : DoubleBlockHalf.LOWER)
-			.setValue(DoorBlock.OPEN, abierta);
-	}
-
-	/** Lampara de redstone encendida (lleva un bloque de redstone encima para que no se apague). */
-	private static BlockState lampara() {
-		return Blocks.REDSTONE_LAMP.defaultBlockState().setValue(RedstoneLampBlock.LIT, true);
-	}
-
-	/** El ascensor (indice de ASCENSORES) en cuya cabina esta ese punto, o -1. */
-	public static int cabina(double x, double y, double z) {
-		if (y < SUELO + 1 || y >= SUELO + 5 || z < CABINA_Z0 || z >= CABINA_Z1 + 1) {
-			return -1;
-		}
-		for (int i = 0; i < ASCENSORES.length; i++) {
-			if (x >= ASCENSORES[i] - 2 && x < ASCENSORES[i] + 2) {
-				return i;
-			}
-		}
-		return -1;
 	}
 
 	static {
@@ -227,25 +165,6 @@ public final class PlanoVestibulo {
 			}
 		}
 
-		// ------------------------------------------- mostrador de informacion
-		caja(-5, SUELO + 1, 14, 5, SUELO + 1, 22, b(Blocks.DARK_OAK_PLANKS));
-		caja(-5, SUELO + 2, 14, 5, SUELO + 2, 22, losa(Blocks.SMOOTH_QUARTZ_SLAB));
-		caja(-3, SUELO + 1, 16, 3, SUELO + 2, 20, aire);
-		caja(-1, SUELO + 1, 22, 1, SUELO + 2, 22, aire);           // entrada del personal
-		caja(-3, SUELO, 16, 3, SUELO, 20, b(Blocks.DARK_OAK_PLANKS));
-		punto(-2, SUELO + 1, 17, mira(Bloques.SOFA, Direction.NORTH));
-		punto(2, SUELO + 1, 17, mira(Bloques.SOFA, Direction.NORTH));
-		punto(-2, SUELO + 1, 19, mira(Bloques.SOFA, Direction.SOUTH));
-		punto(2, SUELO + 1, 19, mira(Bloques.SOFA, Direction.SOUTH));
-		punto(0, SUELO + 1, 18, b(Blocks.LECTERN));
-		punto(-5, SUELO + 3, 14, b(Blocks.POTTED_FERN));
-		punto(5, SUELO + 3, 14, b(Blocks.POTTED_FERN));
-		punto(-5, SUELO + 3, 22, b(Blocks.POTTED_AZALEA));
-		punto(5, SUELO + 3, 22, b(Blocks.POTTED_AZALEA));
-		// lampara colgando encima
-		caja(0, SUELO + 9, 18, 0, TECHO - 1, 18, b(Blocks.IRON_CHAIN));
-		punto(0, SUELO + 8, 18, b(Blocks.LANTERN).setValue(LanternBlock.HANGING, true));
-
 		// ----------------------------------------------------- zonas de espera
 		for (int sx : new int[] {-18, 18}) {
 			for (int sz : new int[] {-6, 24}) {
@@ -265,44 +184,12 @@ public final class PlanoVestibulo {
 		}
 		caja(35, SUELO, -3, 35, SUELO, 4, b(Blocks.POLISHED_DEEPSLATE));
 
-		// ------------------------------------------------------------ taquillas
-		for (int z = -4; z <= 7; z++) {
-			punto(-36, SUELO + 1, z, mira(Bloques.TAQUILLA, Direction.EAST));
-			punto(-36, SUELO + 2, z, mira(Bloques.TAQUILLA, Direction.EAST));
-		}
-		caja(-33, SUELO + 1, -3, -33, SUELO + 1, 6, losa(Blocks.SPRUCE_SLAB));
-
 		// ------------------------------------------------- vitrina del equipo
 		for (int i = 0; i < 4; i++) {
 			int x = -22 + i * 3;
 			punto(x, SUELO + 1, -18, b(Blocks.QUARTZ_PILLAR));
 			caja(x, SUELO + 2, -18, x, SUELO + 3, -18, b(Blocks.GLASS));
 		}
-
-		// ------------------------------------------------------- ascensores
-		caja(-36, SUELO, 29, 36, SUELO, 32, (x, y, z) -> z == 29 && ((x & 1) == 0) ? b(Blocks.YELLOW_CONCRETE)
-			: z == 29 ? b(Blocks.BLACK_CONCRETE) : b(Blocks.POLISHED_DEEPSLATE));
-		BlockState acero = b(Bloques.ACERO);
-		for (int cx : ASCENSORES) {
-			caja(cx - 2, SUELO + 1, PUERTA_Z, cx + 1, SUELO + 5, PUERTA_Z, acero);
-			caja(cx - 1, SUELO + 1, PUERTA_Z, cx, SUELO + 3, PUERTA_Z, (x, y, z) -> puerta(x - cx + 1));
-			punto(cx + 2, SUELO + 2, PUERTA_Z - 1, pared(Bloques.PANEL_ASCENSOR, Direction.NORTH));
-			cabina(cx, SUELO, CABINA_Z0, CABINA_Z1, cx - 2, cx + 1);
-			// la pared de las puertas por dentro: hierro, las dos hojas y el indicador negro encima
-			caja(cx - 2, SUELO + 1, PUERTA_Z + 1, cx + 1, SUELO + 4, PUERTA_Z + 1, b(Blocks.IRON_BLOCK));
-			for (int hoja = 0; hoja < 2; hoja++) {
-				punto(cx - 1 + hoja, SUELO + 1, PUERTA_Z + 1, puertaCabina(hoja, false, false));
-				punto(cx - 1 + hoja, SUELO + 2, PUERTA_Z + 1, puertaCabina(hoja, true, false));
-			}
-			caja(cx - 1, SUELO + 3, PUERTA_Z + 1, cx, SUELO + 3, PUERTA_Z + 1, b(Blocks.BLACK_CONCRETE));
-			// la botonera, en la pared derecha junto a la puerta
-			for (int by = SUELO + 2; by <= SUELO + 3; by++) {
-				punto(cx + 1, by, CABINA_Z0, Blocks.POLISHED_BLACKSTONE_BUTTON.defaultBlockState()
-					.setValue(ButtonBlock.FACE, AttachFace.WALL).setValue(ButtonBlock.FACING, Direction.WEST));
-			}
-		}
-		// el hueco de espera, bajo el vestibulo (ver HUECO_*): por dentro, otra cabina larga
-		cabina(0, HUECO_Y - 1, HUECO_Z - 1, HUECO_Z + 1, HUECO_X0, HUECO_X1);
 
 		// ------------------------------------------------- auditorio: sala
 		caja(-26, SUELO, -68, 26, SUELO, -25, (x, y, z) -> {
@@ -387,27 +274,153 @@ public final class PlanoVestibulo {
 		for (int[] p : new int[][] {{-24, -27}, {24, -27}, {-24, -52}, {24, -52}}) {
 			maceta(p[0], p[1]);
 		}
+
+		recepcion();
 	}
 
+	/* ============================================================ recepcion */
+
 	/**
-	 * Una cabina como la de la cinematica, de x0..x1 y z0..z1 por dentro, con el suelo en
-	 * y = suelo: bloque de hierro, zocalo de roble oscuro, suelo de piedra lisa, tres de
-	 * alto y lamparas de redstone en el techo (con su bloque de redstone encima).
+	 * La recepcion del Proyecto Umbral: donde se espera al /start (Vestibulo#recepcion). Otro
+	 * edificio, al este del vestibulo, con el mismo suelo (y = SUELO): una sala de espera de
+	 * oficina de 33 x 29 y 5 de alto. Al norte, el mostrador con la pantalla del proyecto
+	 * detras y dos puertas (la sala de reuniones, donde se firma en la cinematica, y la de
+	 * personal); en medio, filas de sillas sobre moqueta; al oeste, las maquinas de agua y los
+	 * aseos; al este, el tablon con las instrucciones; al sur, la entrada.
 	 */
-	private static void cabina(int cx, int suelo, int z0, int z1, int x0, int x1) {
-		caja(x0 - 1, suelo, z0 - 1, x1 + 1, suelo + 5, z1 + 1, b(Blocks.IRON_BLOCK));
-		caja(x0 - 1, suelo + 1, z0, x1 + 1, suelo + 1, z1 + 1, b(Blocks.DARK_OAK_PLANKS));
-		caja(x0, suelo, z0, x1, suelo, z1, b(Blocks.SMOOTH_STONE));
-		caja(x0, suelo + 1, z0, x1, suelo + 3, z1, b(Blocks.AIR));
-		int zm = (z0 + z1) / 2;
-		for (int x = x0; x <= x1; x++) {
-			// en las cabinas, las dos del centro; en el hueco largo, una de cada tres
-			boolean luz = x1 - x0 < 6 ? Math.abs(2 * x - (x0 + x1)) <= 1 : Math.floorMod(x - cx, 3) == 0;
-			if (luz) {
-				punto(x, suelo + 4, zm, lampara());
-				punto(x, suelo + 5, zm, b(Blocks.REDSTONE_BLOCK));
+	public static final int R_X0 = 100;
+	public static final int R_X1 = 134;
+	public static final int R_Z0 = -16;
+	public static final int R_Z1 = 14;
+	public static final int R_TECHO = SUELO + 6;
+	/** Donde aparece la gente: cerca de la entrada, mirando al mostrador. */
+	public static final double R_SPAWN_X = 117.5;
+	public static final double R_SPAWN_Z = 9.5;
+	/** El centro del mostrador y de la pantalla (x) y la fila del mostrador (z). */
+	public static final int R_MOSTRADOR_X = 117;
+	public static final int R_MOSTRADOR_Z = R_Z0 + 5;
+	/** Las puertas de la pared norte: sala de reuniones (oeste) y personal (este); y la de los aseos (z, pared oeste). */
+	public static final int R_PUERTA_REUNIONES = 104;
+	public static final int R_PUERTA_PERSONAL = 130;
+	public static final int R_PUERTA_ASEOS_Z = 8;
+
+	/** true si el punto esta dentro de la recepcion. */
+	public static boolean enRecepcion(double x, double y, double z) {
+		return x >= R_X0 && x <= R_X1 + 1 && z >= R_Z0 && z <= R_Z1 + 1 && y >= SUELO && y <= R_TECHO + 1;
+	}
+
+	private static BlockState puertaHierro(Direction mira, boolean arriba) {
+		return Blocks.IRON_DOOR.defaultBlockState().setValue(net.minecraft.world.level.block.DoorBlock.FACING, mira)
+			.setValue(net.minecraft.world.level.block.DoorBlock.HALF, arriba
+				? net.minecraft.world.level.block.state.properties.DoubleBlockHalf.UPPER : net.minecraft.world.level.block.state.properties.DoubleBlockHalf.LOWER);
+	}
+
+	private static void puertaPared(int x, int z, Direction mira) {
+		punto(x, SUELO + 1, z, puertaHierro(mira, false));
+		punto(x, SUELO + 2, z, puertaHierro(mira, true));
+	}
+
+	private static void recepcion() {
+		BlockState aire = b(Blocks.AIR);
+		int s = SUELO;
+		// casco: piedra lisa, hueco de la sala
+		caja(R_X0, Y0, R_Z0, R_X1, R_TECHO + 1, R_Z1, b(Blocks.SMOOTH_STONE));
+		caja(R_X0 + 1, s + 1, R_Z0 + 1, R_X1 - 1, R_TECHO - 1, R_Z1 - 1, aire);
+		// suelo: baldosa clara junto al mostrador y la entrada, moqueta gris (borde cian) en la sala de espera
+		caja(R_X0 + 1, s, R_Z0 + 1, R_X1 - 1, s, R_Z1 - 1, (x, y, z) -> {
+			if (x >= 104 && x <= 130 && z >= -5 && z <= 11) {
+				return (x == 104 || x == 130 || z == -5 || z == 11) ? b(Blocks.CYAN_WOOL) : b(Blocks.GRAY_WOOL);
+			}
+			return ((x + z) & 1) == 0 ? b(Blocks.SMOOTH_QUARTZ) : b(Blocks.POLISHED_DIORITE);
+		});
+		// techo de placas con paneles de luz
+		caja(R_X0 + 1, R_TECHO, R_Z0 + 1, R_X1 - 1, R_TECHO, R_Z1 - 1, (x, y, z) ->
+			Math.floorMod(x - 101, 4) == 2 && Math.floorMod(z + 15, 4) == 2 ? b(net.backrooms.evento.piscinas.BloquesPiscinas.LUZ_TECHO) : b(Blocks.SMOOTH_QUARTZ));
+		// paredes: zocalo gris, blanco, una franja cian a media altura y la moldura
+		Patron paredOficina = (x, y, z) -> {
+			if (y == s + 1) {
+				return b(Blocks.POLISHED_ANDESITE);
+			}
+			if (y == s + 3) {
+				return b(Blocks.CYAN_TERRACOTTA);
+			}
+			if (y == R_TECHO - 1) {
+				return b(Blocks.SMOOTH_QUARTZ);
+			}
+			return b(Blocks.WHITE_CONCRETE);
+		};
+		caja(R_X0, s + 1, R_Z0, R_X1, R_TECHO - 1, R_Z0, paredOficina);
+		caja(R_X0, s + 1, R_Z1, R_X1, R_TECHO - 1, R_Z1, paredOficina);
+		caja(R_X0, s + 1, R_Z0, R_X0, R_TECHO - 1, R_Z1, paredOficina);
+		caja(R_X1, s + 1, R_Z0, R_X1, R_TECHO - 1, R_Z1, paredOficina);
+
+		// ---- norte: la pantalla del proyecto, el mostrador y las dos puertas
+		caja(R_MOSTRADOR_X - 5, s + 2, R_Z0, R_MOSTRADOR_X + 5, s + 5, R_Z0, b(Blocks.BLACK_CONCRETE));
+		caja(R_MOSTRADOR_X - 6, s + 2, R_Z0, R_MOSTRADOR_X - 6, s + 5, R_Z0, b(Blocks.POLISHED_BLACKSTONE));
+		caja(R_MOSTRADOR_X + 6, s + 2, R_Z0, R_MOSTRADOR_X + 6, s + 5, R_Z0, b(Blocks.POLISHED_BLACKSTONE));
+		// el mostrador: madera oscura y encimera de cuarzo, en U, con la entrada del personal por un lado
+		int mz = R_MOSTRADOR_Z;
+		caja(R_MOSTRADOR_X - 7, s + 1, mz, R_MOSTRADOR_X + 7, s + 1, mz, b(Blocks.DARK_OAK_PLANKS));
+		caja(R_MOSTRADOR_X - 7, s + 2, mz, R_MOSTRADOR_X + 7, s + 2, mz, b(Blocks.SMOOTH_QUARTZ));
+		caja(R_MOSTRADOR_X - 7, s + 1, mz - 2, R_MOSTRADOR_X - 7, s + 2, mz - 1, b(Blocks.DARK_OAK_PLANKS));
+		caja(R_MOSTRADOR_X + 7, s + 1, mz - 2, R_MOSTRADOR_X + 7, s + 1, mz - 1, b(Blocks.DARK_OAK_PLANKS));
+		punto(R_MOSTRADOR_X + 7, s + 2, mz - 1, b(Blocks.SMOOTH_QUARTZ));
+		// detras: dos sillas de recepcionista y los ordenadores (pantallas negras sobre la encimera)
+		punto(R_MOSTRADOR_X - 3, s + 1, mz - 1, mira(Bloques.SOFA, Direction.SOUTH));
+		punto(R_MOSTRADOR_X + 3, s + 1, mz - 1, mira(Bloques.SOFA, Direction.SOUTH));
+		punto(R_MOSTRADOR_X - 3, s + 3, mz, b(Blocks.BLACK_STAINED_GLASS_PANE));
+		punto(R_MOSTRADOR_X + 3, s + 3, mz, b(Blocks.BLACK_STAINED_GLASS_PANE));
+		punto(R_MOSTRADOR_X - 6, s + 3, mz, b(Blocks.POTTED_FERN));
+		punto(R_MOSTRADOR_X + 6, s + 3, mz, b(Blocks.POTTED_FERN));
+		punto(R_MOSTRADOR_X, s + 3, mz, b(Blocks.POTTED_WHITE_TULIP));
+		// las puertas (de hierro: no se abren) con su marco
+		for (int px : new int[] {R_PUERTA_REUNIONES, R_PUERTA_PERSONAL}) {
+			caja(px - 1, s + 1, R_Z0, px + 1, s + 3, R_Z0, b(Blocks.STRIPPED_DARK_OAK_LOG));
+			puertaPared(px, R_Z0, Direction.SOUTH);
+		}
+
+		// ---- en medio: la sala de espera, filas de sillas mirando al mostrador
+		for (int fila = 0; fila < 4; fila++) {
+			int z = -2 + fila * 3;
+			caja(106, s + 1, z, 112, s + 1, z, mira(Bloques.BUTACA, Direction.NORTH));
+			caja(122, s + 1, z, 128, s + 1, z, mira(Bloques.BUTACA, Direction.NORTH));
+		}
+		// mesitas con revistas al final de cada bloque de sillas
+		for (int z : new int[] {-2, 4}) {
+			for (int x : new int[] {105, 113, 121, 129}) {
+				punto(x, s + 1, z, b(Blocks.SPRUCE_FENCE));
+				punto(x, s + 2, z, losa(Blocks.SPRUCE_SLAB));
 			}
 		}
+
+		// ---- oeste: agua de almendras y los aseos
+		for (int z = -3; z <= 0; z++) {
+			punto(R_X0 + 1, s + 1, z, mira(Bloques.MAQUINA_ABAJO, Direction.EAST));
+			punto(R_X0 + 1, s + 2, z, mira(Bloques.MAQUINA_ARRIBA, Direction.EAST));
+		}
+		caja(R_X0, s + 1, R_PUERTA_ASEOS_Z - 1, R_X0, s + 3, R_PUERTA_ASEOS_Z + 1, b(Blocks.STRIPPED_DARK_OAK_LOG));
+		puertaPared(R_X0, R_PUERTA_ASEOS_Z, Direction.EAST);
+
+		// ---- este: el rincon de las instrucciones (corcho y unos sofas delante)
+		caja(R_X1, s + 2, -8, R_X1, s + 4, 4, b(Blocks.SPRUCE_PLANKS));
+		caja(R_X1 - 4, s + 1, -6, R_X1 - 4, s + 1, 2, mira(Bloques.SOFA, Direction.EAST));
+		punto(R_X1 - 1, s + 1, -9, b(Blocks.CHISELED_BOOKSHELF));
+		punto(R_X1 - 1, s + 1, 5, b(Blocks.CHISELED_BOOKSHELF));
+
+		// ---- sur: la entrada (dos puertas) y plantas por la sala
+		caja(R_MOSTRADOR_X - 1, s + 1, R_Z1, R_MOSTRADOR_X + 2, s + 3, R_Z1, b(Blocks.STRIPPED_DARK_OAK_LOG));
+		puertaPared(R_MOSTRADOR_X, R_Z1, Direction.NORTH);
+		puertaPared(R_MOSTRADOR_X + 1, R_Z1, Direction.NORTH);
+		for (int[] p : new int[][] {{R_X0 + 2, R_Z0 + 2}, {R_X1 - 2, R_Z0 + 2}, {R_X0 + 2, R_Z1 - 2}, {R_X1 - 2, R_Z1 - 2}}) {
+			macetaBaja(p[0], p[1]);
+		}
+	}
+
+	/** Una planta de oficina: azalea sobre un macetero oscuro. */
+	private static void macetaBaja(int x, int z) {
+		punto(x, SUELO + 1, z, b(Blocks.POLISHED_BLACKSTONE));
+		punto(x, SUELO + 2, z, b(Blocks.FLOWERING_AZALEA_LEAVES).setValue(net.minecraft.world.level.block.LeavesBlock.PERSISTENT, true));
+		punto(x, SUELO + 3, z, b(Blocks.AZALEA_LEAVES).setValue(net.minecraft.world.level.block.LeavesBlock.PERSISTENT, true));
 	}
 
 	/** Sofas en U alrededor de una mesa baja, con alfombra y plantas. */

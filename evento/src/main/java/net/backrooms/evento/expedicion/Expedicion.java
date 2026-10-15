@@ -29,8 +29,9 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 
 /**
- * El /start: abre los ascensores del vestibulo y quien entra en uno baja al
- * Nivel 0 (subir); /start todos o /start <jugadores> los mandan sin ascensor.
+ * El /start: todos los que esperan en la recepcion ven la cinematica (la firma del
+ * contrato y la bajada en el ascensor) y aparecen en el Nivel 0; /start <jugadores>
+ * manda solo a esos.
  * Con el /start la luz del Nivel 0 empieza de cero: los apagones y las
  * alarmas se sortean desde que llega el primero (Ambiente#reiniciar).
  *
@@ -44,8 +45,11 @@ import net.minecraft.world.effect.MobEffects;
  * volver a entrar.
  */
 public final class Expedicion {
-	/** Ticks entre que empieza la cinematica y el viaje: 41 s, la pantalla ya esta en negro tras el golpe. */
-	public static final int RETRASO_VIAJE = 820;
+	/**
+	 * Ticks entre que empieza la cinematica y el viaje: el prologo de la firma (PantallaPrologo,
+	 * 26 s) y 41 s del ascensor, con la pantalla ya en negro tras el golpe.
+	 */
+	public static final int RETRASO_VIAJE = 520 + 820;
 	private static final int LOTE = 3;
 	private static final int CADA = 10;
 
@@ -59,8 +63,6 @@ public final class Expedicion {
 	private final ArrayDeque<UUID> cola = new ArrayDeque<>();
 	private final Map<UUID, Long> viajes = new HashMap<>();
 	private final Map<UUID, BlockPos> destinos = new HashMap<>();
-	/** Los que ya bajaron desde que se abrieron los ascensores: no vuelven a bajar si vuelven al vestibulo. */
-	private final Set<UUID> embarcados = new HashSet<>();
 	private final Random azar = new Random();
 	private long ticks;
 
@@ -73,31 +75,14 @@ public final class Expedicion {
 		ServerPlayConnectionEvents.JOIN.register((h, e, s) -> INSTANCIA.alVolver(h.player));
 	}
 
-	/** El /start: luz del Nivel 0 de cero y ascensores abiertos. */
-	public void abrir() {
-		this.embarcados.clear();
+	/** Los que esperan en la recepcion (sin el staff en creativo o espectador): los del /start. */
+	public List<ServerPlayer> enRecepcion() {
 		ServerLevel v = Vestibulo.get().nivel();
-		Fases.get().previstos(v == null ? 0 : (int) v.players().stream().filter(j -> !j.isCreative() && !j.isSpectator()).count());
-		Ambiente.get().reiniciar(this.servidor.overworld());
-		Vestibulo.get().ascensores(true);
-	}
-
-	/** Cierra los ascensores: el siguiente /start es otra ronda (pueden volver a bajar todos). */
-	public void cerrar() {
-		Vestibulo.get().ascensores(false);
-		this.embarcados.clear();
-	}
-
-	/**
-	 * Alguien entra en la cabina de un ascensor abierto: al hueco de espera y a la cola de
-	 * la cinematica. Quien ya esta jugando una fase o ya bajo en esta ronda se queda.
-	 */
-	public boolean subir(ServerPlayer j) {
-		if (this.embarcados.contains(j.getUUID()) || !this.poner(j)) {
-			return false;
+		if (v == null) {
+			return List.of();
 		}
-		Vestibulo.get().alHueco(j);
-		return true;
+		return v.players().stream().filter(j -> !j.isCreative() && !j.isSpectator()
+			&& net.backrooms.evento.vestibulo.PlanoVestibulo.enRecepcion(j.getX(), j.getY(), j.getZ())).toList();
 	}
 
 	/** Pone en la cola a estos jugadores (sin ascensor). Devuelve cuantos. */
@@ -122,7 +107,6 @@ public final class Expedicion {
 		if (this.pendiente(j) || Misiones.get().enExpedicion(j)) {
 			return false;
 		}
-		this.embarcados.add(id);
 		this.destinos.put(id, this.zonaNueva());
 		this.cola.add(id);
 		return true;

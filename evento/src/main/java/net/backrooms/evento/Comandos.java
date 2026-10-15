@@ -50,14 +50,15 @@ import net.minecraft.server.level.ServerPlayer;
  *                            cerrada; o la salida abierta ya (pruebas)
  *  piscinas oir <sonido> <jugador>  que oiga ya uno de los sonidos sueltos de las Piscinas
  *                            (gota, agua, orilla, chapoteo, tuberia, grave, grunido, voz, susurro)
- *  vestibulo [jugador]       lo lleva al vestibulo; "vestibulo rehacer" repone los rotulos
+ *  recepcion [jugador]       lo lleva a la recepcion (donde se espera el /start)
+ *  vestibulo [jugador]       lo lleva al vestibulo (la sala del final); "vestibulo rehacer" repone los rotulos
  *  muerte eliminar|reaparecer  morir saca de la expedicion (por defecto) o reaparece en la fase
  *  perdonar                   quita el ban a todos los que cayeron (al acabar el evento o tras una prueba)
  *  escapados [olvidar]       quienes han escapado y en que puesto
  *  invocar bacteria|smiler|serpiente  la pone delante
  *
- * Y /start [jugadores]: manda al Nivel 0 a todos (los que no esten en
- * creativo ni espectador) o a los indicados, poco a poco y con cinematica.
+ * Y /start [todos|jugadores]: la cinematica y al Nivel 0 a los que esperan en la recepcion
+ * (todos: a todos los conectados; o a los indicados), poco a poco; el staff en creativo o espectador no.
  */
 public final class Comandos {
 	private static final List<String> COSAS = List.of(
@@ -73,7 +74,7 @@ public final class Comandos {
 	private static void registrar(CommandDispatcher<CommandSourceStack> d) {
 		d.register(Commands.literal("start")
 			.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
-			.executes(Comandos::abrirAscensores)
+			.executes(c -> empezar(c, Expedicion.get().enRecepcion()))
 			.then(Commands.literal("todos")
 				.executes(c -> empezar(c, c.getSource().getServer().getPlayerList().getPlayers().stream()
 					.filter(j -> !j.isCreative() && !j.isSpectator()).toList())))
@@ -94,13 +95,6 @@ public final class Comandos {
 				c.getSource().sendSuccess(() -> Component.literal("Panel pulsado por " + j.getGameProfile().name()), true);
 				return 1;
 			})))
-			.then(Commands.literal("ascensores")
-				.then(Commands.literal("abrir").executes(Comandos::abrirAscensores))
-				.then(Commands.literal("cerrar").executes(c -> {
-					Expedicion.get().cerrar();
-					c.getSource().sendSuccess(() -> Component.literal("Ascensores cerrados. El proximo /start es otra ronda."), true);
-					return 1;
-				})))
 			.then(Commands.literal("cinematica")
 				.executes(c -> cinematica(c, c.getSource().getPlayerOrException()))
 				// la bajada a las Piscinas tal como la ve quien la hace (sin viajar)
@@ -187,6 +181,15 @@ public final class Comandos {
 				.then(Commands.argument("jugador", EntityArgument.player())
 					.executes(c -> net.backrooms.evento.piscinas.Piscinas.llegar(EntityArgument.getPlayer(c, "jugador")) ? 1 : 0)))
 			.then(tarjetas())
+			.then(Commands.literal("recepcion")
+				.executes(c -> {
+					Vestibulo.get().recepcion(c.getSource().getPlayerOrException());
+					return 1;
+				})
+				.then(Commands.argument("jugador", EntityArgument.player()).executes(c -> {
+					Vestibulo.get().recepcion(EntityArgument.getPlayer(c, "jugador"));
+					return 1;
+				})))
 			.then(Commands.literal("vestibulo")
 				.executes(c -> {
 					Vestibulo.get().llevar(c.getSource().getPlayerOrException());
@@ -277,22 +280,13 @@ public final class Comandos {
 		return 1;
 	}
 
-	private static int abrirAscensores(CommandContext<CommandSourceStack> c) {
-		Expedicion.get().abrir();
-		long n = net.backrooms.evento.vestibulo.Vestibulo.get().nivel() == null ? 0
-			: net.backrooms.evento.vestibulo.Vestibulo.get().nivel().players().stream().filter(j -> !j.isCreative() && !j.isSpectator()).count();
-		c.getSource().sendSuccess(() -> Component.literal("Ascensores abiertos: " + n + " jugadores en el vestibulo. Bajan al entrar en una cabina"
-			+ " (/start todos manda a los que queden; /backrooms ascensores cerrar los cierra)."), true);
-		return 1;
-	}
-
 	private static int empezar(CommandContext<CommandSourceStack> c, List<ServerPlayer> jugadores) {
 		int n = Expedicion.get().empezar(jugadores);
 		if (n == 0) {
 			c.getSource().sendFailure(Component.literal("Nadie que mandar (los de creativo y espectador se quedan)."));
 			return 0;
 		}
-		int segundos = (int) Math.ceil(n / 3.0 * 0.5) + 55;
+		int segundos = (int) Math.ceil(n / 3.0 * 0.5) + 26 + 55;
 		c.getSource().sendSuccess(() -> Component.literal("Empieza la expedicion: " + n + " jugadores, todos dentro en unos " + segundos + " s."), true);
 		return n;
 	}

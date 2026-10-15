@@ -1,7 +1,30 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-14 (hora de Honduras). Mod `backrooms_evento` 0.15.0, launcher 1.0.0
+Última actualización: 2026-10-15 (hora de Honduras). Mod `backrooms_evento` 0.16.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.16.0: recepción, prólogo de la firma y el vestíbulo como sala del final (2026-10-15; Bruno)
+
+Lo que pidió Bruno para el principio del evento (LORE.md, 7):
+- **Recepción** (`PlanoVestibulo#recepcion`, otro edificio en la dimensión del vestíbulo, x 100..134):
+  sala de espera de oficina con techo de paneles de luz, mostrador con la pantalla del «PROYECTO
+  UMBRAL», filas de sillas sobre moqueta gris, máquinas de agua, puertas (sala de reuniones,
+  personal, aseos, entrada; de hierro, no se abren) y un rincón de instrucciones (normas y
+  controles). **Al entrar al servidor por primera vez se aparece aquí** (`Vestibulo#alEntrar`; quien
+  ya jugó va al vestíbulo). `/backrooms recepcion [jugador]`.
+- **/start** ya no abre ascensores: lanza la cinemática a todos los de la recepción (`/start todos`
+  y `/start <jugadores>` siguen). Cada uno ve el **prólogo** (`PantallaPrologo`, 26 s, dibujado en
+  2D con sonido `cinematica.prologo` de `tools/sonidos/prologo.js`): la sala de reuniones con
+  alguien de bata sin cara, el contrato «CONSENTIMIENTO INFORMADO» de cerca (la cláusula de las
+  consecuencias marcada) y **su nick firmado a mano**, «Acompáñeme», el pasillo y el ascensor que se
+  abre; sigue sin corte la cinemática del ascensor de siempre y cae al Nivel 0
+  (`Expedicion.RETRASO_VIAJE` = 26 s + 41 s).
+- **El vestíbulo es la sala del final** (adonde van quien escapa y quien cae): sin mostrador, sin
+  taquillas, sin tablones de instrucciones y sin los ascensores al Nivel 0 (ni su hueco).
+**Probado**: la recepción a la vista (capturas), /start desde la recepción → prólogo → ascensor →
+Nivel 0, y la cinemática completa con capturas. **Sin probar**: con muchos jugadores a la vez,
+sentarse en las sillas de la recepción, y que alguien que entra con el evento ya empezado espere
+bien en la recepción. **Para pedir a EdiGuard**: que vea el cambio del vestíbulo (era el inicio).
 
 ## 0.15.0: cadáveres, válvulas suaves y la Serpiente por los techos bajos (2026-10-14; Bruno)
 

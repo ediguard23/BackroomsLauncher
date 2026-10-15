@@ -31,11 +31,7 @@ public class PanelAscensor extends EnPared {
 	@Override
 	protected InteractionResult useWithoutItem(BlockState estado, Level nivel, BlockPos pos, Player jugador, BlockHitResult golpe) {
 		if (jugador instanceof ServerPlayer sp) {
-			if (nivel.dimension().equals(net.backrooms.evento.vestibulo.Vestibulo.DIMENSION)) {
-				net.backrooms.evento.vestibulo.Vestibulo.get().pulsarPanel(sp, pos);
-			} else {
-				Fases.get().pulsar(sp, pos);
-			}
+			Fases.get().pulsar(sp, pos);
 		}
 		return InteractionResult.SUCCESS;
 	}
