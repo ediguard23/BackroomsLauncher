@@ -46,10 +46,11 @@ import net.minecraft.world.effect.MobEffects;
  */
 public final class Expedicion {
 	/**
-	 * Ticks entre que empieza la cinematica y el viaje: el prologo de la firma (PantallaPrologo,
-	 * 26 s) y 41 s del ascensor, con la pantalla ya en negro tras el golpe.
+	 * Ticks entre que empieza la cinematica y el viaje: el prologo (la sala, la firma y el
+	 * pasillo, CinematicaCliente.PRO = 36.5 s) y 41 s del ascensor, con la pantalla ya en
+	 * negro tras el golpe.
 	 */
-	public static final int RETRASO_VIAJE = 520 + 820;
+	public static final int RETRASO_VIAJE = 730 + 820;
 	private static final int LOTE = 3;
 	private static final int CADA = 10;
 

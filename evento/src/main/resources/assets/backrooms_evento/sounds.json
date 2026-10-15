@@ -9,7 +9,8 @@
   "cinematica": {
     "sounds": [
       {
-        "name": "backrooms_evento:cinematica"
+        "name": "backrooms_evento:cinematica",
+        "stream": true
       }
     ]
   },
@@ -768,14 +769,6 @@
       {
         "name": "backrooms_evento:piscinas_zambullida2",
         "attenuation_distance": 32
-      }
-    ]
-  },
-  "cinematica.prologo": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:cinematica_prologo",
-        "stream": true
       }
     ]
   }

@@ -23,8 +23,16 @@ import net.minecraft.util.RandomSource;
  * (el servidor te lleva en ese negro, Fases#bajada) y se vuelve a ver el mundo.
  * (El guion 3, la bajada a la fase 3, se quito con esa fase en la 0.10.0.)
  *
- * Guion del /start (segundos):
- *   0 - 3.6    la videocamara se enciende; las puertas del ascensor se cierran
+ * Guion del /start (segundos), de un solo plano, todo en cinematica.fsh:
+ *   0 - 6       la videocamara se enciende en la sala de reuniones 3: el investigador
+ *               te acerca el consentimiento informado y un boligrafo
+ *   6 - 18      te inclinas sobre la hoja y la lees de arriba abajo (12 s)
+ *  17.4 - 23.5  coges el boligrafo, firmas con tu nombre y lo dejas
+ *  23.4 - 27.2  te incorporas, se lleva el papel, te levantas
+ *  28.0 - 36.5  le sigues por el pasillo, llama al ascensor, entras y te das la vuelta:
+ *               ves el pasillo por el que has venido y a el delante de las puertas
+ * y luego el ascensor (PRO + ...):
+ *   0 - 3.6    se cierran las puertas
  *   3.6 - 20   baja con calma (musica de ascensor), a los 18 la luz falla
  *  20 - 26.5   frenazo: atascado, crujidos, alarma, se escurre dos veces
  *  26.5 - 39   se parte el cable: caida libre, chispas, fuego, revientan las puertas
@@ -32,9 +40,11 @@ import net.minecraft.util.RandomSource;
  *  45 - 55     abres los ojos: parpadeos, todo borroso, el oido vuelve poco a poco
  */
 public final class CinematicaCliente {
-	public static final float FIN_CINTA = 39.4F;
-	public static final float DESPERTAR = 45.0F;
-	public static final float FIN = 55.0F;
+	/** Lo que dura el prologo (la sala, la firma y el pasillo): ahi empieza el ascensor. */
+	public static final float PRO = 36.5F;
+	public static final float FIN_CINTA = PRO + 39.4F;
+	public static final float DESPERTAR = PRO + 45.0F;
+	public static final float FIN = PRO + 55.0F;
 	public static final Identifier SONIDO = BackroomsEvento.id("cinematica");
 
 	private static long inicio = -1;
@@ -68,12 +78,9 @@ public final class CinematicaCliente {
 		return guion == 2 ? 33.0F : FIN;
 	}
 
-	/** El /start: primero el prologo (la firma, PantallaPrologo) y, en cuanto acaba, el ascensor. */
+	/** El /start: la sala de reuniones, la firma, el pasillo y el ascensor, de un tiron. */
 	public static void empezar() {
-		if (activa()) {
-			terminar();
-		}
-		PantallaPrologo.empezar(() -> empezar(0));
+		empezar(0);
 	}
 
 	public static void empezar(int g) {
@@ -82,6 +89,10 @@ public final class CinematicaCliente {
 			terminar();
 		}
 		guion = g == 2 ? 2 : 0;
+		if (guion == 0) {
+			// el contrato lleva tu nombre
+			LienzoCinematica.preparar(mc.player != null ? mc.player.getGameProfile().name() : "Participante");
+		}
 		inicio = System.nanoTime();
 		// un aviso de la megafonia del vestibulo que estuviera sonando no sigue dentro del ascensor
 		mc.getSoundManager().stop(net.backrooms.evento.Sonidos.MEGAFONIA_VESTIBULO.location(), null);
@@ -125,6 +136,12 @@ public final class CinematicaCliente {
 		if (despues == null) {
 			despues = sonar(mc, bandaId().withSuffix(".despues"));
 		}
+	}
+
+	/** Segundos del ascensor (en el /start, desde que acaba el prologo). */
+	public static float segundosAscensor() {
+		float t = segundos();
+		return guion == 0 ? t - PRO : t;
 	}
 
 	/** Segundos desde que empezo (o -1). */

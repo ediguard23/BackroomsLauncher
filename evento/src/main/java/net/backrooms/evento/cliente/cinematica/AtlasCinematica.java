@@ -12,8 +12,8 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.resources.Identifier;
 
 /**
- * Las texturas que usa la cinematica, juntas en una imagen de 16 x 6 casillas
- * de 16 px que el shader lee por indice (ver cinematica.fsh). Las filas 4 y 5
+ * Las texturas que usa la cinematica, juntas en una imagen de 16 x 7 casillas
+ * de 16 px que el shader lee por indice (ver cinematica.fsh). Las filas 4 a 6
  * son del mod (el Nivel 0, el vestibulo y el ascensor de salida): esas se
  * escriben con su espacio de nombres ("backrooms_evento:block/...").
  *
@@ -42,7 +42,12 @@ public final class AtlasCinematica {
 			"backrooms_evento:block/fluorescente_apagado", "backrooms_evento:block/madera_oscura", "block/light_gray_concrete",
 			"block/yellow_concrete", "block/polished_deepslate", "block/quartz_block_bottom", "backrooms_evento:block/acero",
 			"backrooms_evento:block/ascensor_suelo", "backrooms_evento:block/luz_ascensor", "backrooms_evento:block/panel_ascensor"},
-		{"backrooms_evento:block/puerta_ascensor_izq", "backrooms_evento:block/puerta_ascensor_der", "backrooms_evento:block/bacilo"}};
+		{"backrooms_evento:block/puerta_ascensor_izq", "backrooms_evento:block/puerta_ascensor_der", "backrooms_evento:block/bacilo"},
+		// la sala de reuniones y el pasillo del principio del /start (como la recepcion)
+		{"block/cyan_terracotta", "block/polished_diorite", "block/gray_wool", "block/cyan_wool", "backrooms_evento:block/luz_techo",
+			"block/dark_oak_door_top", "block/dark_oak_door_bottom", "block/stripped_dark_oak_log", "block/spruce_planks",
+			"block/bookshelf", "block/flower_pot", "block/azalea_leaves", "block/white_wool", "block/light_gray_wool",
+			"block/dark_oak_log", "block/iron_trapdoor"}};
 
 	private static DynamicTexture textura;
 

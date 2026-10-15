@@ -39,6 +39,7 @@ public class PantallaCinematica extends Screen {
 			.withVertexShader(Identifier.fromNamespaceAndPath("backrooms", "core/fondo"))
 			.withFragmentShader(BackroomsEvento.id("core/cinematica"))
 			.withSampler("Sampler0")
+			.withSampler("Sampler1")
 			.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
 			.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
 			.withDepthWrite(false)
@@ -124,8 +125,11 @@ public class PantallaCinematica extends Screen {
 		int guion = CinematicaCliente.guion();
 		if (t < CinematicaCliente.finCinta()) {
 			g.guiRenderState.submitGuiElement(new Capa(CINTA, new Matrix3x2f(g.pose()), w, h, t, guion,
-				TextureSetup.singleTexture(AtlasCinematica.vista(), AtlasCinematica.muestreo())));
+				TextureSetup.doubleTexture(AtlasCinematica.vista(), AtlasCinematica.muestreo(), LienzoCinematica.vista(), LienzoCinematica.muestreo())));
 			this.hudCamara(g, t);
+			if (guion == 0) {
+				this.subtitulos(g, w, h, t);
+			}
 		} else if (guion != 0) {
 			// bajada de fase: negro con el nombre de la fase y, al final, se vuelve a ver el mundo
 			float alfa = Mth.clamp((CinematicaCliente.fin() - t) / 1.0F, 0.0F, 1.0F);
@@ -160,8 +164,10 @@ public class PantallaCinematica extends Screen {
 		int h = this.height;
 		float tam = h / 16.0F;
 		float m = h / 20.0F;
+		// los momentos del ascensor van en su tiempo (en el /start, tras el prologo)
+		float ta = CinematicaCliente.segundosAscensor();
 		// al caer (y en los golpes fuertes), el HUD tiembla con la imagen
-		boolean tiembla = guion == 2 ? t > 20.4F && t < 22.3F : t > 26.5F;
+		boolean tiembla = guion == 2 ? t > 20.4F && t < 22.3F : ta > 26.5F;
 		float dx = tiembla ? (float) Math.sin(t * 53.0) * h / 160.0F : 0.0F;
 		float dy = tiembla ? (float) Math.cos(t * 41.0) * h / 200.0F : 0.0F;
 		int blanco = 0xFFF2EEE4;
@@ -181,7 +187,7 @@ public class PantallaCinematica extends Screen {
 		if (guion == 2) {
 			rayas = t < 20.4F ? 3 : t < 21.6F ? 2 : ((int) (t * 3) % 2 == 0 ? 2 : 1);
 		} else {
-			rayas = t < 20.0F ? 3 : t < 26.5F ? 2 : ((int) (t * 3) % 2 == 0 ? 1 : 0);
+			rayas = ta < 20.0F ? 3 : ta < 26.5F ? 2 : ((int) (t * 3) % 2 == 0 ? 1 : 0);
 		}
 		for (int i = 0; i < rayas; i++) {
 			float x0 = bx + tam * (0.12F + i * 0.39F);
@@ -190,6 +196,36 @@ public class PantallaCinematica extends Screen {
 		Texto.hud(g, "PM 8:59", m + dx, h - m + dy - tam * 2.1F, tam, 0.08F, blanco);
 		Texto.hud(g, this.fecha, m + dx, h - m + dy - tam, tam, 0.08F, blanco);
 		Texto.hud(g, "SP", w - m + dx - Texto.anchoHud("SP", tam, 0.08F), h - m + dy - tam, tam, 0.08F, blanco);
+	}
+
+	/**
+	 * Lo que se dice en la sala y en el pasillo (no se oyen voces: subtitulos, como una
+	 * grabacion de vigilancia). Los tiempos van con cinematica.fsh.
+	 */
+	private void subtitulos(GuiGraphics g, int w, int h, float t) {
+		String s = null;
+		if (t > 1.5F && t < 4.9F) {
+			s = "—Gracias por venir. Solo necesitamos su firma.";
+		} else if (t > 5.0F && t < 8.6F) {
+			s = "—Es un estudio sencillo. Léalo con calma.";
+		} else if (t > 16.4F && t < 19.4F) {
+			s = "—Aquí abajo, por favor.";
+		} else if (t > 24.7F && t < 28.4F) {
+			s = "—Perfecto. Acompáñeme: el ascensor le espera.";
+		} else if (t > 32.6F && t < 35.0F) {
+			s = "—Pase, por favor.";
+		} else if (t > 36.7F && t < 39.6F) {
+			s = "—Le veremos al otro lado.";
+		}
+		if (s == null) {
+			return;
+		}
+		float tam = h / 26.0F;
+		float ancho = Texto.anchoMaquina(s, tam, 0.0F);
+		float x = w / 2.0F - ancho / 2.0F;
+		float y = h - h / 11.0F - tam * 2.6F;
+		g.fill(Math.round(x - tam * 0.5F), Math.round(y - tam * 0.25F), Math.round(x + ancho + tam * 0.5F), Math.round(y + tam * 1.15F), 0x99000000);
+		Texto.maquina(g, s, x, y, tam, 0.0F, 0xFFF2EEE4);
 	}
 
 	/** "NIVEL 37" y "LAS PISCINAS" en el negro de la bajada por el ascensor de salida. */
@@ -212,7 +248,7 @@ public class PantallaCinematica extends Screen {
 
 	/** "NIVEL 0" mientras se te aclara la vista. */
 	private void titulo(GuiGraphics g, float t) {
-		float a = Mth.clamp((t - 50.5F) / 1.0F, 0.0F, 1.0F) * Mth.clamp((CinematicaCliente.FIN - t) / 1.2F, 0.0F, 1.0F);
+		float a = Mth.clamp((t - CinematicaCliente.PRO - 50.5F) / 1.0F, 0.0F, 1.0F) * Mth.clamp((CinematicaCliente.FIN - t) / 1.2F, 0.0F, 1.0F);
 		if (a <= 0.01F) {
 			return;
 		}

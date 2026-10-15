@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 'use strict';
 /**
- * Banda sonora de la cinematica del /start (55 s), sincronizada con
- * evento/.../shaders/core/cinematica.fsh y CinematicaCliente.java:
+ * Banda sonora de la cinematica del /start, sincronizada con
+ * evento/.../shaders/core/cinematica.fsh y CinematicaCliente.java. Delante va el
+ * prologo (prologo.js: la sala de reuniones, la firma y el pasillo, PRO = 36.5 s); lo
+ * de abajo es el ascensor, en segundos desde que acaba el prologo:
  *
- *   0.0  la videocamara se enciende (pitidos y motor de cinta)
- *   0.9  vestibulo: murmullo de 200 personas; ding del ascensor
  *   2.0  se cierran las puertas (rodillos y golpe metalico)
  *   3.6  arranca el motor; musica de ascensor (bossa nova por un altavoz barato)
  *  18.0  la luz falla: chasquidos electricos; la cinta de la musica se arrastra
@@ -20,9 +20,10 @@
  *  50.5  golpe grave y acorde para el titulo NIVEL 0
  *
  * Todo es sintesis propia (sin muestras de nadie). Sale a
- * evento/src/main/resources/assets/backrooms_evento/sounds/cinematica.ogg y, aparte, lo de
- * despues del viaje (41 s) a cinematica_despues.ogg: Minecraft corta todos los sonidos al
- * cambiar de mundo y el cliente lo pone al llegar (CinematicaCliente).
+ * evento/src/main/resources/assets/backrooms_evento/sounds/cinematica.ogg (prologo y
+ * ascensor) y, aparte, lo de despues del viaje (PRO + 41 s) a cinematica_despues.ogg:
+ * Minecraft corta todos los sonidos al cambiar de mundo y el cliente lo pone al llegar
+ * (CinematicaCliente).
  *
  *   node tools/sonidos/cinematica.js
  */
@@ -325,46 +326,6 @@ function altavoz (x) {
 
 function componer () {
   const rnd = D.azar(7);
-
-  // --- la videocamara se enciende
-  poner(A, 0.1, 0.06, (t) => Math.sin(TAU * 2800 * t) * 0.25, { g: -8 });
-  poner(A, 0.26, 0.06, (t) => Math.sin(TAU * 2800 * t) * 0.25, { g: -8 });
-  {
-    const hp = new D.Biquad('bp', 900, 1.5);
-    poner(A, 0.0, 1.0, (t) => (Math.sin(TAU * (700 + 500 * t) * t) * 0.15 + hp.paso(rnd() * 2 - 1) * 0.6) * Math.sin(Math.PI * t), { g: -18 });
-  }
-  poner(A, 0.86, 0.03, (t) => (rnd() * 2 - 1) * Math.exp(-t * 200), { g: -14 });
-
-  // --- vestibulo: murmullo de mucha gente que se apaga al cerrarse las puertas
-  {
-    const voces = [];
-    for (let v = 0; v < 7; v++) {
-      const r2 = D.azar(200 + v);
-      voces.push({ f1: 450 + r2() * 250, f2: 1300 + r2() * 600, fase: r2() * 10, vel: 3.5 + r2() * 2.5, pan: r2() * 2 - 1,
-        bp1: new D.Biquad('bp', 500, 4), bp2: new D.Biquad('bp', 1500, 5), n: D.rosa(r2) });
-    }
-    const lp = new D.Biquad('lp', 6000, 0.7);
-    poner(A, 0.6, 3.4, (t, ta) => {
-      let l = 0;
-      let r = 0;
-      for (const v of voces) {
-        const x = v.n();
-        const silaba = Math.max(0, Math.sin(TAU * v.vel * t + v.fase + Math.sin(t * 1.3 + v.fase) * 2));
-        const s = (v.bp1.paso(x) + v.bp2.paso(x) * 0.6) * silaba;
-        const [pl, pr] = paneo(v.pan);
-        l += s * pl;
-        r += s * pr;
-      }
-      const cierre = 1 - suave(T_CIERRA0, T_CIERRA1, ta);
-      if ((Math.round(t * SR)) % 64 === 0) lp.ajustar(400 + 5600 * cierre, 0.7);
-      const amp = suave(0.6, 1.2, ta) * (0.15 + 0.85 * cierre);
-      return [lp.paso(l) * amp * 1.4, lp.paso(r) * amp * 1.4];
-    }, { g: -11, sala: 0.3 });
-  }
-
-  // --- ding-dong del ascensor
-  poner(A, 1.45, 2.5, campana(midi(88)), { g: -9, sala: 0.5 });
-  poner(A, 1.85, 2.8, campana(midi(84)), { g: -9, sala: 0.5 });
 
   // --- puertas que se cierran
   {
@@ -755,25 +716,37 @@ module.exports = { renderizar, poner, paneo, suave, db, midi, ruidoEstereo, camp
 
 if (require.main === module) (async () => {
   const t0 = Date.now();
-  const audio = renderizar();
+  // el prologo delante y el ascensor detras, en un solo archivo
+  const P = require('./prologo');
+  const ascensor = renderizar();
+  const pro = P.prologo();
+  const NT = Math.round(P.PRO * SR) + N;
+  const audio = [new Float32Array(NT), new Float32Array(NT)];
+  let pp = 0;
+  for (const v of pro) pp = Math.max(pp, Math.abs(v));
+  const gp = db(-4) / (pp || 1);
+  for (let i = 0; i < pro.length && i < NT; i++) { audio[0][i] += pro[i] * gp; audio[1][i] += pro[i] * gp; }
+  const i0 = Math.round(P.PRO * SR);
+  for (let i = 0; i < N; i++) { audio[0][i0 + i] += ascensor[0][i]; audio[1][i0 + i] += ascensor[1][i]; }
+  for (let i = 0; i < NT; i++) { audio[0][i] = Math.max(-1, Math.min(1, audio[0][i])); audio[1][i] = Math.max(-1, Math.min(1, audio[1][i])); }
   // volumen por tramos (para revisar la mezcla sin oirla)
-  for (let s = 0; s < DUR; s += 2.5) {
+  for (let s = 0; s < NT / SR; s += 2.5) {
     let e = 0;
     const a = Math.round(s * SR);
-    const b = Math.min(N, Math.round((s + 2.5) * SR));
+    const b = Math.min(NT, Math.round((s + 2.5) * SR));
     for (let i = a; i < b; i++) e += audio[0][i] * audio[0][i];
     const rms = 20 * Math.log10(Math.sqrt(e / (b - a)) + 1e-9);
     console.log(`  ${s.toFixed(1).padStart(5)} s  ${rms.toFixed(1).padStart(6)} dB  ${'#'.repeat(Math.max(0, Math.round((rms + 50) / 1.5)))}`);
   }
   const bytes = await D.guardarOgg(SALIDA, audio, 5);
-  console.log(`cinematica.ogg ${(N / SR).toFixed(1)} s, ${(bytes / 1024).toFixed(0)} KB (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
-  // lo de despues del viaje al Nivel 0 (Expedicion.RETRASO_VIAJE = 41 s)
-  const b2 = await D.guardarOgg(SALIDA.replace('cinematica.ogg', 'cinematica_despues.ogg'), D.desde(audio, 41.0), 5);
+  console.log(`cinematica.ogg ${(NT / SR).toFixed(1)} s, ${(bytes / 1024).toFixed(0)} KB (${((Date.now() - t0) / 1000).toFixed(1)} s)`);
+  // lo de despues del viaje al Nivel 0 (Expedicion.RETRASO_VIAJE = PRO + 41 s)
+  const b2 = await D.guardarOgg(SALIDA.replace('cinematica.ogg', 'cinematica_despues.ogg'), D.desde(audio, P.PRO + 41.0), 5);
   console.log(`cinematica_despues.ogg ${(b2 / 1024).toFixed(0)} KB`);
   const fs = require('fs');
   const f = path.join(path.dirname(SALIDA), '..', 'sounds.json');
   const j = JSON.parse(fs.readFileSync(f, 'utf8'));
-  j.cinematica = { sounds: [{ name: 'backrooms_evento:cinematica' }] };
+  j.cinematica = { sounds: [{ name: 'backrooms_evento:cinematica', stream: true }] };
   j['cinematica.despues'] = { sounds: [{ name: 'backrooms_evento:cinematica_despues' }] };
   fs.writeFileSync(f, JSON.stringify(j, null, 2) + '\n');
 })();

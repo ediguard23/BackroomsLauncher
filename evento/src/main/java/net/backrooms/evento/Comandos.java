@@ -286,7 +286,7 @@ public final class Comandos {
 			c.getSource().sendFailure(Component.literal("Nadie que mandar (los de creativo y espectador se quedan)."));
 			return 0;
 		}
-		int segundos = (int) Math.ceil(n / 3.0 * 0.5) + 26 + 55;
+		int segundos = (int) Math.ceil(n / 3.0 * 0.5) + 37 + 55;
 		c.getSource().sendSuccess(() -> Component.literal("Empieza la expedicion: " + n + " jugadores, todos dentro en unos " + segundos + " s."), true);
 		return n;
 	}

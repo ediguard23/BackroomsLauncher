@@ -1,7 +1,37 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-15 (hora de Honduras). Mod `backrooms_evento` 0.16.0, launcher 1.0.0
+Última actualización: 2026-10-15 (hora de Honduras). Mod `backrooms_evento` 0.17.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.17.0: la cinemática del /start en 3D y de un solo plano (2026-10-15; Bruno)
+
+Bruno pidió fundir el prólogo 2D con el ascensor (el corte quedaba raro), hacerlo en 3D y con más
+calidad, que la hoja tarde **12 s** desde que se abre hasta la firma y un bolígrafo de verdad.
+- **Todo es una sola toma** dentro del shader del ascensor (`cinematica.fsh`, guion 0), en primera
+  persona y con el HUD de la videocámara: sala de reuniones 3 (bloques de la recepción: zócalo de
+  andesita, franja cian, moqueta gris con borde cian, paneles de luz, pizarra con «FASE 1:
+  OBSERVACIÓN», reloj a las 8:59, placa, librería, macetas) → el investigador (modelo de Minecraft
+  con bata, corbata, acreditación y gafas que reflejan; anda, te mira, te acerca el papel y el
+  bolígrafo) → **la hoja** de cerca: de la fila de arriba a la línea de la firma en 12 s (6 → 18 s)
+  → tu mano coge el bolígrafo y **firma tu nick trazo a trazo** con rúbrica → se lleva el papel en
+  su tablilla, «Acompáñeme» → le sigues por el pasillo (puertas de ARCHIVO y LABORATORIO 2, banco,
+  extintor) → llama al ascensor, «Pase, por favor» → entras, **te das la vuelta y ves el pasillo
+  por el que viniste**, con él delante de las puertas: «Le veremos al otro lado» → se cierran y
+  sigue la bajada de siempre (misma cabina, sin corte).
+- **El contrato** lo pinta `LienzoCinematica` al empezar (Sampler1 del shader, 512x512): la hoja con
+  el nick, la fecha y el expediente, escrita con las imágenes de la fuente de Minecraft (con tildes),
+  la máscara y el recorrido de la firma, y los carteles. **El bolígrafo** es 3D (por distancias): bola
+  y punta de metal, cono, agarre de goma, cuerpo hexagonal con «UMBRAL» impreso, capuchón azul con
+  clip, todo pixelado (~110 px de largo).
+- Fuera `PantallaPrologo` y `cinematica_prologo.ogg`: el sonido del prólogo (`tools/sonidos/prologo.js`,
+  con los pasos donde caen en los recorridos del shader) va delante del ascensor en `cinematica.ogg`
+  (92 s). `CinematicaCliente.PRO` = 36.5 s; `Expedicion.RETRASO_VIAJE` = 36.5 s + 41 s.
+- Para comprobar el shader sin abrir Minecraft se puede compilar con el WebGL2 de Electron (GLSL ES;
+  ojo: `T` y `G` son macros del shader, no valen como nombres).
+**Probado** (capturas en el cliente de pruebas): toda la secuencia, la firma con el nick, el giro
+dentro del ascensor viendo el pasillo, la bajada y el `/start` real desde la recepción hasta caer en
+el Nivel 0. **Sin probar**: cómo suena en el juego (la mezcla solo se revisó por niveles), nicks
+muy largos (la firma se encoge), con varios jugadores a la vez.
 
 ## 0.16.0: recepción, prólogo de la firma y el vestíbulo como sala del final (2026-10-15; Bruno)
 

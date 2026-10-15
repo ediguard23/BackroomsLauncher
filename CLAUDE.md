@@ -42,7 +42,7 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
       piscinas/                  las Piscinas (Nivel 37): PlanoPiscinas (trazado, y donde van las valvulas,
                                  la salida y las tarjetas), su generador, sus bloques, la llegada y
                                  sus misiones (Valvulas, Tarjetas: las 3 tarjetas y la puerta)
-      expedicion/                el /start (prologo de la firma, cinemática del ascensor y viaje escalonado)
+      expedicion/                el /start (cinemática de la firma y el ascensor y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas
       entidad/                   Bacteria (caza, retirada, agarre), Smiler y quién aparece dónde (Acechadores);
