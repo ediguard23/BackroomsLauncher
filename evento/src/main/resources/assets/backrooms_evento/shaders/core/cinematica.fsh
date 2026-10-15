@@ -1284,9 +1284,10 @@ void partesInvestigador(inout Obj o, vec3 ro, vec3 rd, Pose q) {
   }
 }
 
-// marco de la mano (alrededor del boligrafo)
+// marco de la mano (alrededor del boligrafo): siempre hacia arriba y hacia ti, para
+// que la mano no cambie de lado al moverse por la hoja
 void marcoBoli(vec3 punta, vec3 eje, vec3 cam, out vec3 bx, out vec3 by) {
-  vec3 ac = normalize(cam - punta);
+  vec3 ac = normalize(vec3(-0.25, 1.0, 0.45));
   by = normalize(ac - dot(ac, eje) * eje);
   bx = cross(by, eje);
 }
@@ -1297,17 +1298,17 @@ void manoYBrazo(inout Obj o, vec3 ro, vec3 rd, vec3 punta, vec3 eje, float mano,
   marcoBoli(punta, eje, cam, bx, by);
   vec3 lejos = vec3(0.45, 0.3, 0.5) * (1.0 - mano);
   mat3 M = transpose(mat3(bx, by, eje));
-  vec3 c = punta + eje * 0.108 + bx * 0.03 - by * 0.004 + lejos;
+  vec3 c = punta + eje * 0.108 - bx * 0.03 - by * 0.004 + lejos;
   cajaGirada(o, ro, rd, c, M, vec3(0.03, 0.025, 0.045), O_MANO);
   // el indice, por encima del boligrafo, y el pulgar por el otro lado
-  cajaGirada(o, ro, rd, punta + eje * 0.082 + bx * 0.004 + by * 0.0125 + lejos, M, vec3(0.0105, 0.0065, 0.024), O_DEDO);
-  cajaGirada(o, ro, rd, punta + eje * 0.088 - bx * 0.013 - by * 0.004 + lejos, M, vec3(0.006, 0.008, 0.02), O_DEDO);
+  cajaGirada(o, ro, rd, punta + eje * 0.082 - bx * 0.004 + by * 0.0125 + lejos, M, vec3(0.0105, 0.0065, 0.024), O_DEDO);
+  cajaGirada(o, ro, rd, punta + eje * 0.088 + bx * 0.013 - by * 0.004 + lejos, M, vec3(0.006, 0.008, 0.02), O_DEDO);
   // el antebrazo, hacia ti y a la derecha
-  vec3 a0 = c + eje * 0.04 + bx * 0.005;
-  vec3 dir = normalize(vec3(0.86, 0.06, 0.5));
+  vec3 a0 = c + eje * 0.04 - bx * 0.005;
+  vec3 dir = normalize(vec3(0.86, -0.02, 0.5));
   vec3 ay = normalize(vec3(0.0, 1.0, 0.0) - dot(vec3(0.0, 1.0, 0.0), dir) * dir);
   vec3 ax = cross(ay, dir);
-  cajaGirada(o, ro, rd, a0 + dir * 0.3, transpose(mat3(ax, ay, dir)), vec3(0.034, 0.03, 0.3), O_BRAZO);
+  cajaGirada(o, ro, rd, a0 + dir * 0.3, transpose(mat3(ax, ay, dir)), vec3(0.029, 0.026, 0.3), O_BRAZO);
 }
 
 void objetos(inout Obj o, vec3 ro, vec3 rd, float tg, float te, vec3 cam) {
