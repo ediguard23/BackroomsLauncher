@@ -1,7 +1,25 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-15 (hora de Honduras). Mod `backrooms_evento` 0.17.0, launcher 1.0.0
+Última actualización: 2026-10-15 (hora de Honduras). Mod `backrooms_evento` 0.17.1, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## Beta #2 (2026-10-16; Bruno) y mod 0.17.1
+
+Hosting nuevo **66.51.99.171:25626** (lo pasó EdiGuard). Acceso con **códigos de la tienda**.
+- **0.17.1**: la banda de la cinemática vuelve a ir **sin "stream"** (en la 0.17.0 se le puso; ver
+  el traje morado de la beta #1). Probado: `/start` real → Nivel 0 con el traje y texturas bien y
+  sin ClosedByInterrupt en el log.
+- **pack-beta re-publicado** (2026.10.16-6ba46353) con la ficha `pack/.evento-beta.json`
+  (rehecha a partir del manifest de la beta #1: servidor nuevo, noticia «Beta #2», staff xgdier_ y
+  Bruno2524f, acceso de la tienda). El pack público (`pack`) no se tocó.
+- **Launcher de la beta** con `--nombre="BETA #2"` → `Downloads/Backrooms-Beta2-Setup.exe` (no se
+  publica). El de la beta #1 también sirve (baja el pack-beta solo). Sin abrirlo en este PC.
+- **Servidor**: `Downloads/Backrooms-servidor-beta2-0.17.1.zip` (rutas con «/», hecho con tar):
+  fabric-server.jar, el mismo jar del mod que el pack, Fabric API, Lithium, FerriteCore, Krypton y
+  Simple Voice Chat (voz por el mismo puerto, UDP), `server-port=25626`, sin eula y con
+  LEEME-HOSTING.txt. **Falta** pegar el `BACKROOMS_SERVIDOR_TOKEN` (lo tiene EdiGuard) en
+  `config/backrooms-acceso.json` y generar los códigos de beta en el panel de la tienda.
+**Sin probar**: el servidor en el hosting, el canje de códigos de esta beta y la voz por UDP allí.
 
 ## 0.17.0: la cinemática del /start en 3D y de un solo plano (2026-10-15; Bruno)
 

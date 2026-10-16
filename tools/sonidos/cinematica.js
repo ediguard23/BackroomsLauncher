@@ -746,7 +746,7 @@ if (require.main === module) (async () => {
   const fs = require('fs');
   const f = path.join(path.dirname(SALIDA), '..', 'sounds.json');
   const j = JSON.parse(fs.readFileSync(f, 'utf8'));
-  j.cinematica = { sounds: [{ name: 'backrooms_evento:cinematica', stream: true }] };
+  j.cinematica = { sounds: [{ name: 'backrooms_evento:cinematica' }] }; // sin stream: ver ESTADO.md (beta #1)
   j['cinematica.despues'] = { sounds: [{ name: 'backrooms_evento:cinematica_despues' }] };
   fs.writeFileSync(f, JSON.stringify(j, null, 2) + '\n');
 })();

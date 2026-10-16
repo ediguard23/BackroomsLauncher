@@ -9,8 +9,7 @@
   "cinematica": {
     "sounds": [
       {
-        "name": "backrooms_evento:cinematica",
-        "stream": true
+        "name": "backrooms_evento:cinematica"
       }
     ]
   },
