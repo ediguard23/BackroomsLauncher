@@ -142,6 +142,8 @@ servidor-ejemplo/                configuración del servidor del evento
 - Los textos y objetos flotantes (display entities) con giro 0 miran al sur; las paredes
   ocupan su bloque entero, así que un rótulo va 0,05 por delante de la cara.
 - Minecraft solo sitúa en 3D los sonidos MONO; los estéreo suenan "dentro de la cabeza".
+- Ningún sonido del mod lleva `"stream": true`: si suena en streaming al cambiar de mundo, Java
+  cierra el jar del mod y fallan las texturas y sonidos que se cargan después (el traje morado).
 - El mapa de luz es del mod (`assets/minecraft/shaders/core/lightmap.fsh`): igual que el de
   Minecraft salvo en las Piscinas, donde `LightTextureMixin` marca el color de ambiente (azul + 2)
   y la luz de los bloques sale blanca y fría. Si se toca, comprobar el Nivel 0 a la vista.
