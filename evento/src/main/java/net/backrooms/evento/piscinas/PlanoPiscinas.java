@@ -1185,6 +1185,24 @@ public final class PlanoPiscinas {
 			return Math.floorDiv(this.z, C);
 		}
 
+		/**
+		 * Donde cae (x, z) respecto a la salida: {a, d}, a lo largo de la pared (a, como en columna)
+		 * y hacia dentro de ella (d: 0 delante, 1 la pared de la puerta, 2..4 la cabina del ascensor).
+		 */
+		public double[] local(double x, double z) {
+			int ax = DX[(this.lado + 1) % 4];
+			int az = DZ[(this.lado + 1) % 4];
+			double rx = x - this.x;
+			double rz = z - this.z;
+			return new double[] {rx * ax + rz * az, rx * DX[this.lado] + rz * DZ[this.lado]};
+		}
+
+		/** Si (x, y, z) esta dentro de la cabina del ascensor de salida (detras de la puerta). */
+		public boolean enCabina(double x, double y, double z) {
+			double[] l = this.local(x, z);
+			return l[0] >= 1.0 && l[0] < 3.0 && l[1] >= 2.0 && l[1] < 5.0 && y >= PISO - 0.5 && y < PISO + 3;
+		}
+
 		/** El lector de ese color: {x, y, z}. */
 		public int[] lector(int color) {
 			int[] c = this.columna(3 + color);
@@ -1228,6 +1246,39 @@ public final class PlanoPiscinas {
 			}
 		}
 		return new Salida(0, 0, NORTE);
+	}
+
+	/** Lo que hay en la cabina del ascensor de salida (detras de la puerta) en ese bloque. */
+	public static final int CAB_FUERA = -1;
+	public static final int CAB_AIRE = 0;
+	public static final int CAB_ACERO = 1;
+	public static final int CAB_SUELO = 2;
+	public static final int CAB_LUZ = 3;
+
+	/**
+	 * La cabina del ascensor de salida: detras de la puerta (2 de ancho) un hueco de 2 x 3 y 3 de
+	 * alto, con paredes de acero, suelo de ascensor y luz en el techo, como el ascensor de salida
+	 * del Nivel 0. Se excava en lo que haya detras de la pared (GeneradorPiscinas).
+	 */
+	public int cabina(int x, int y, int z) {
+		Salida s = this.salida();
+		double[] l = s.local(x, z);
+		int a = (int) l[0];
+		int d = (int) l[1];
+		if (a < 0 || a > 3 || d < 2 || d > 5 || y < PISO - 1 || y > PISO + 3) {
+			return CAB_FUERA;
+		}
+		boolean dentro = a >= 1 && a <= 2 && d <= 4;
+		if (!dentro) {
+			return CAB_ACERO;
+		}
+		if (y == PISO - 1) {
+			return CAB_SUELO;
+		}
+		if (y == PISO + 3) {
+			return d == 3 ? CAB_LUZ : CAB_ACERO;
+		}
+		return CAB_AIRE;
 	}
 
 	/** Las seis columnas en la celda, secas y altas, con pared maciza detras de 4 de alto. */
@@ -1492,7 +1543,7 @@ public final class PlanoPiscinas {
 
 	/**
 	 * La comida tirada en la celda: {x, z, tipo} en un sitio seco, o null. Con la misma
-	 * densidad que en el Nivel 0 (unas 0,17 cosas por cada 24x24): galletas o pizza. El agua
+	 * densidad que en el Nivel 0 (unas 0,19 cosas por cada 24x24): galletas o pizza. El agua
 	 * de almendras no sale de aqui: la reparte Comida alrededor de donde llega cada uno.
 	 */
 	public int[] comidaEnCelda(int cx, int cz) {
@@ -1501,7 +1552,8 @@ public final class PlanoPiscinas {
 		if (c == null) {
 			c = SIN_COMIDA;
 			double r = this.azar(cx, cz, 95);
-			int tipo = r < 0.11 ? C_GALLETAS : r < 0.17 ? C_PIZZA : 0;
+			// un 10 % mas que en la beta #1 (galletas 0.11 -> 0.121, pizza 0.06 -> 0.066)
+			int tipo = r < 0.121 ? C_GALLETAS : r < 0.187 ? C_PIZZA : 0;
 			if (tipo != 0) {
 				java.util.List<Detalle> sitio = new java.util.ArrayList<>();
 				this.suelo(sitio, cx, cz, 9, D_MANCHA, 0);

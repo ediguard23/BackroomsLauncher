@@ -283,26 +283,32 @@ public final class PlanoVestibulo {
 	/**
 	 * La recepcion del Proyecto Umbral: donde se espera al /start (Vestibulo#recepcion). Otro
 	 * edificio, al este del vestibulo, con el mismo suelo (y = SUELO): una sala de espera de
-	 * oficina de 33 x 29 y 5 de alto. Al norte, el mostrador con la pantalla del proyecto
-	 * detras y dos puertas (la sala de reuniones, donde se firma en la cinematica, y la de
-	 * personal); en medio, filas de sillas sobre moqueta; al oeste, las maquinas de agua y los
-	 * aseos; al este, el tablon con las instrucciones; al sur, la entrada.
+	 * oficina de 50 x 50 por dentro y 5 de alto, para que quepan 100 personas o mas. Al norte, el
+	 * mostrador con la pantalla del proyecto detras y dos puertas (la sala de reuniones, donde se
+	 * firma en la cinematica, y la de personal); en medio, catorce filas de sillas sobre moqueta
+	 * con un pasillo central; al oeste, las maquinas de agua y los aseos; al este, el rincon de
+	 * las instrucciones; al sur, la entrada; cuatro columnas y plantas por la sala.
 	 */
 	public static final int R_X0 = 100;
-	public static final int R_X1 = 134;
-	public static final int R_Z0 = -16;
-	public static final int R_Z1 = 14;
+	public static final int R_X1 = 151;
+	public static final int R_Z0 = -25;
+	public static final int R_Z1 = 26;
 	public static final int R_TECHO = SUELO + 6;
 	/** Donde aparece la gente: cerca de la entrada, mirando al mostrador. */
-	public static final double R_SPAWN_X = 117.5;
-	public static final double R_SPAWN_Z = 9.5;
+	public static final double R_SPAWN_X = 126.0;
+	public static final double R_SPAWN_Z = 21.5;
 	/** El centro del mostrador y de la pantalla (x) y la fila del mostrador (z). */
-	public static final int R_MOSTRADOR_X = 117;
+	public static final int R_MOSTRADOR_X = 125;
 	public static final int R_MOSTRADOR_Z = R_Z0 + 5;
 	/** Las puertas de la pared norte: sala de reuniones (oeste) y personal (este); y la de los aseos (z, pared oeste). */
-	public static final int R_PUERTA_REUNIONES = 104;
-	public static final int R_PUERTA_PERSONAL = 130;
-	public static final int R_PUERTA_ASEOS_Z = 8;
+	public static final int R_PUERTA_REUNIONES = 107;
+	public static final int R_PUERTA_PERSONAL = 144;
+	public static final int R_PUERTA_ASEOS_Z = 16;
+	/** La moqueta de la sala de espera (con su borde cian). */
+	private static final int R_MOQ_X0 = 106;
+	private static final int R_MOQ_X1 = 145;
+	private static final int R_MOQ_Z0 = -14;
+	private static final int R_MOQ_Z1 = 18;
 
 	/** true si el punto esta dentro de la recepcion. */
 	public static boolean enRecepcion(double x, double y, double z) {
@@ -326,10 +332,10 @@ public final class PlanoVestibulo {
 		// casco: piedra lisa, hueco de la sala
 		caja(R_X0, Y0, R_Z0, R_X1, R_TECHO + 1, R_Z1, b(Blocks.SMOOTH_STONE));
 		caja(R_X0 + 1, s + 1, R_Z0 + 1, R_X1 - 1, R_TECHO - 1, R_Z1 - 1, aire);
-		// suelo: baldosa clara junto al mostrador y la entrada, moqueta gris (borde cian) en la sala de espera
+		// suelo: baldosa clara junto al mostrador, en los pasillos y la entrada; moqueta gris (borde cian) en la sala de espera
 		caja(R_X0 + 1, s, R_Z0 + 1, R_X1 - 1, s, R_Z1 - 1, (x, y, z) -> {
-			if (x >= 104 && x <= 130 && z >= -5 && z <= 11) {
-				return (x == 104 || x == 130 || z == -5 || z == 11) ? b(Blocks.CYAN_WOOL) : b(Blocks.GRAY_WOOL);
+			if (x >= R_MOQ_X0 && x <= R_MOQ_X1 && z >= R_MOQ_Z0 && z <= R_MOQ_Z1) {
+				return (x == R_MOQ_X0 || x == R_MOQ_X1 || z == R_MOQ_Z0 || z == R_MOQ_Z1) ? b(Blocks.CYAN_WOOL) : b(Blocks.GRAY_WOOL);
 			}
 			return ((x + z) & 1) == 0 ? b(Blocks.SMOOTH_QUARTZ) : b(Blocks.POLISHED_DIORITE);
 		});
@@ -353,48 +359,57 @@ public final class PlanoVestibulo {
 		caja(R_X0, s + 1, R_Z1, R_X1, R_TECHO - 1, R_Z1, paredOficina);
 		caja(R_X0, s + 1, R_Z0, R_X0, R_TECHO - 1, R_Z1, paredOficina);
 		caja(R_X1, s + 1, R_Z0, R_X1, R_TECHO - 1, R_Z1, paredOficina);
+		// cuatro columnas que sujetan el techo (fuera de la moqueta)
+		for (int[] c : new int[][] {{113, -19}, {138, -19}, {113, 22}, {138, 22}}) {
+			caja(c[0], s + 1, c[1], c[0] + 1, R_TECHO - 1, c[1] + 1, b(Blocks.QUARTZ_PILLAR));
+			caja(c[0], s + 1, c[1], c[0] + 1, s + 1, c[1] + 1, b(Blocks.POLISHED_ANDESITE));
+		}
 
 		// ---- norte: la pantalla del proyecto, el mostrador y las dos puertas
-		caja(R_MOSTRADOR_X - 5, s + 2, R_Z0, R_MOSTRADOR_X + 5, s + 5, R_Z0, b(Blocks.BLACK_CONCRETE));
-		caja(R_MOSTRADOR_X - 6, s + 2, R_Z0, R_MOSTRADOR_X - 6, s + 5, R_Z0, b(Blocks.POLISHED_BLACKSTONE));
-		caja(R_MOSTRADOR_X + 6, s + 2, R_Z0, R_MOSTRADOR_X + 6, s + 5, R_Z0, b(Blocks.POLISHED_BLACKSTONE));
+		caja(R_MOSTRADOR_X - 6, s + 2, R_Z0, R_MOSTRADOR_X + 7, s + 5, R_Z0, b(Blocks.BLACK_CONCRETE));
+		caja(R_MOSTRADOR_X - 7, s + 2, R_Z0, R_MOSTRADOR_X - 7, s + 5, R_Z0, b(Blocks.POLISHED_BLACKSTONE));
+		caja(R_MOSTRADOR_X + 8, s + 2, R_Z0, R_MOSTRADOR_X + 8, s + 5, R_Z0, b(Blocks.POLISHED_BLACKSTONE));
 		// el mostrador: madera oscura y encimera de cuarzo, en U, con la entrada del personal por un lado
 		int mz = R_MOSTRADOR_Z;
-		caja(R_MOSTRADOR_X - 7, s + 1, mz, R_MOSTRADOR_X + 7, s + 1, mz, b(Blocks.DARK_OAK_PLANKS));
-		caja(R_MOSTRADOR_X - 7, s + 2, mz, R_MOSTRADOR_X + 7, s + 2, mz, b(Blocks.SMOOTH_QUARTZ));
-		caja(R_MOSTRADOR_X - 7, s + 1, mz - 2, R_MOSTRADOR_X - 7, s + 2, mz - 1, b(Blocks.DARK_OAK_PLANKS));
-		caja(R_MOSTRADOR_X + 7, s + 1, mz - 2, R_MOSTRADOR_X + 7, s + 1, mz - 1, b(Blocks.DARK_OAK_PLANKS));
-		punto(R_MOSTRADOR_X + 7, s + 2, mz - 1, b(Blocks.SMOOTH_QUARTZ));
-		// detras: dos sillas de recepcionista y los ordenadores (pantallas negras sobre la encimera)
-		punto(R_MOSTRADOR_X - 3, s + 1, mz - 1, mira(Bloques.SOFA, Direction.SOUTH));
-		punto(R_MOSTRADOR_X + 3, s + 1, mz - 1, mira(Bloques.SOFA, Direction.SOUTH));
-		punto(R_MOSTRADOR_X - 3, s + 3, mz, b(Blocks.BLACK_STAINED_GLASS_PANE));
-		punto(R_MOSTRADOR_X + 3, s + 3, mz, b(Blocks.BLACK_STAINED_GLASS_PANE));
-		punto(R_MOSTRADOR_X - 6, s + 3, mz, b(Blocks.POTTED_FERN));
-		punto(R_MOSTRADOR_X + 6, s + 3, mz, b(Blocks.POTTED_FERN));
-		punto(R_MOSTRADOR_X, s + 3, mz, b(Blocks.POTTED_WHITE_TULIP));
+		int m0 = R_MOSTRADOR_X - 8;
+		int m1 = R_MOSTRADOR_X + 9;
+		caja(m0, s + 1, mz, m1, s + 1, mz, b(Blocks.DARK_OAK_PLANKS));
+		caja(m0, s + 2, mz, m1, s + 2, mz, b(Blocks.SMOOTH_QUARTZ));
+		caja(m0, s + 1, mz - 2, m0, s + 2, mz - 1, b(Blocks.DARK_OAK_PLANKS));
+		caja(m1, s + 1, mz - 2, m1, s + 1, mz - 1, b(Blocks.DARK_OAK_PLANKS));
+		punto(m1, s + 2, mz - 1, b(Blocks.SMOOTH_QUARTZ));
+		// detras: tres sillas de recepcionista y los ordenadores (pantallas negras sobre la encimera)
+		for (int dx : new int[] {-4, 1, 6}) {
+			punto(R_MOSTRADOR_X + dx, s + 1, mz - 1, mira(Bloques.SOFA, Direction.SOUTH));
+			punto(R_MOSTRADOR_X + dx, s + 3, mz, b(Blocks.BLACK_STAINED_GLASS_PANE));
+		}
+		punto(m0 + 1, s + 3, mz, b(Blocks.POTTED_FERN));
+		punto(m1 - 1, s + 3, mz, b(Blocks.POTTED_FERN));
+		punto(R_MOSTRADOR_X - 1, s + 3, mz, b(Blocks.POTTED_WHITE_TULIP));
+		punto(R_MOSTRADOR_X + 4, s + 3, mz, b(Blocks.POTTED_WHITE_TULIP));
 		// las puertas (de hierro: no se abren) con su marco
 		for (int px : new int[] {R_PUERTA_REUNIONES, R_PUERTA_PERSONAL}) {
 			caja(px - 1, s + 1, R_Z0, px + 1, s + 3, R_Z0, b(Blocks.STRIPPED_DARK_OAK_LOG));
 			puertaPared(px, R_Z0, Direction.SOUTH);
 		}
 
-		// ---- en medio: la sala de espera, filas de sillas mirando al mostrador
-		for (int fila = 0; fila < 4; fila++) {
-			int z = -2 + fila * 3;
-			caja(106, s + 1, z, 112, s + 1, z, mira(Bloques.BUTACA, Direction.NORTH));
-			caja(122, s + 1, z, 128, s + 1, z, mira(Bloques.BUTACA, Direction.NORTH));
+		// ---- en medio: la sala de espera, catorce filas de sillas mirando al mostrador, con un
+		// pasillo en medio y otros dos a los lados (140 asientos)
+		for (int fila = 0; fila < 14; fila++) {
+			int z = -12 + fila * 2 + (fila >= 7 ? 2 : 0);
+			caja(110, s + 1, z, 119, s + 1, z, mira(Bloques.BUTACA, Direction.NORTH));
+			caja(132, s + 1, z, 141, s + 1, z, mira(Bloques.BUTACA, Direction.NORTH));
 		}
-		// mesitas con revistas al final de cada bloque de sillas
-		for (int z : new int[] {-2, 4}) {
-			for (int x : new int[] {105, 113, 121, 129}) {
+		// mesitas con revistas al final de algunas filas
+		for (int z : new int[] {-12, -2, 4, 14}) {
+			for (int x : new int[] {109, 120, 131, 142}) {
 				punto(x, s + 1, z, b(Blocks.SPRUCE_FENCE));
 				punto(x, s + 2, z, losa(Blocks.SPRUCE_SLAB));
 			}
 		}
 
 		// ---- oeste: agua de almendras y los aseos
-		for (int z = -3; z <= 0; z++) {
+		for (int z = -6; z <= -1; z++) {
 			punto(R_X0 + 1, s + 1, z, mira(Bloques.MAQUINA_ABAJO, Direction.EAST));
 			punto(R_X0 + 1, s + 2, z, mira(Bloques.MAQUINA_ARRIBA, Direction.EAST));
 		}
@@ -411,7 +426,8 @@ public final class PlanoVestibulo {
 		caja(R_MOSTRADOR_X - 1, s + 1, R_Z1, R_MOSTRADOR_X + 2, s + 3, R_Z1, b(Blocks.STRIPPED_DARK_OAK_LOG));
 		puertaPared(R_MOSTRADOR_X, R_Z1, Direction.NORTH);
 		puertaPared(R_MOSTRADOR_X + 1, R_Z1, Direction.NORTH);
-		for (int[] p : new int[][] {{R_X0 + 2, R_Z0 + 2}, {R_X1 - 2, R_Z0 + 2}, {R_X0 + 2, R_Z1 - 2}, {R_X1 - 2, R_Z1 - 2}}) {
+		for (int[] p : new int[][] {{R_X0 + 2, R_Z0 + 2}, {R_X1 - 2, R_Z0 + 2}, {R_X0 + 2, R_Z1 - 2}, {R_X1 - 2, R_Z1 - 2},
+			{R_X0 + 2, 8}, {R_X1 - 2, 12}, {R_X0 + 2, -15}, {R_X1 - 2, -15}, {R_MOSTRADOR_X - 4, R_Z1 - 2}, {R_MOSTRADOR_X + 5, R_Z1 - 2}}) {
 			macetaBaja(p[0], p[1]);
 		}
 	}

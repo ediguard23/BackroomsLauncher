@@ -259,6 +259,20 @@ public final class Misiones {
 		}
 	}
 
+	/** true si ya tiene hecha esa mision (si no la tiene asignada, false). */
+	public boolean hecha(ServerPlayer j, TipoMision tipo) {
+		Estado e = this.estado(j);
+		if (e == null) {
+			return false;
+		}
+		for (int i = 0; i < Math.min(e.actual, e.misiones.size()); i++) {
+			if (e.misiones.get(i) == tipo) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/** true si tiene hechas todas sus misiones (en las Piscinas: puede cruzar la salida). */
 	public boolean todasHechas(ServerPlayer j) {
 		Estado e = this.estado(j);

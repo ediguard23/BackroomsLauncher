@@ -41,7 +41,8 @@ public class InventarioBackrooms extends AbstractContainerScreen<InventoryMenu> 
 	protected void init() {
 		// la hoja tan grande como deje la pantalla (se lee mejor), centrada con el panel
 		float k = Math.min(Math.min(0.6F, (this.height - 16) / (float) HojaMisiones.ALTO), (this.width - PANEL - SEPARACION - 8) / (float) HojaMisiones.ANCHO);
-		this.hojaEscala = k >= 0.25F ? k : 0;
+		// las misiones ya no van aqui: estan en la esquina de la pantalla (PapelMisiones, tecla M)
+		this.hojaEscala = 0 * k;
 		this.imageWidth = PANEL + (this.hojaEscala > 0 ? SEPARACION + (int) Math.ceil(HojaMisiones.ANCHO * this.hojaEscala) : 0);
 		super.init();
 	}

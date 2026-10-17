@@ -29,8 +29,9 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 /**
  * La puerta de la salida de emergencia de las Piscinas: dos hojas de metal de 3 de alto
  * metidas en la pared (PARTE = columna * 3 + fila, PlanoPiscinas#detallesSalida). Cerrada
- * es pared; con las tres tarjetas metidas se abre (ABIERTA, la abre Tarjetas): detras solo
- * hay oscuridad, y quien entra en ella cruza la salida si ha hecho sus misiones (Tarjetas#cruzar).
+ * es pared; con las tres tarjetas metidas se abre (ABIERTA, la abre Tarjetas): deja de verse y
+ * detras queda la cabina del ascensor de salida (PlanoPiscinas#cabina). Pasa quien ha hecho sus
+ * misiones; los demas se topan con ella. Quien se queda en la cabina sube (Tarjetas#cabina).
  */
 public class PuertaSalida extends HorizontalDirectionalBlock {
 	public static final MapCodec<PuertaSalida> CODEC = simpleCodec(PuertaSalida::new);
@@ -79,11 +80,15 @@ public class PuertaSalida extends HorizontalDirectionalBlock {
 		return InteractionResult.SUCCESS;
 	}
 
+	/** Abierta no se ve: por el hueco se ve la cabina. */
 	@Override
-	protected void entityInside(BlockState estado, Level nivel, BlockPos pos, Entity entidad, InsideBlockEffectApplier efectos, boolean b) {
-		if (estado.getValue(ABIERTA) && entidad instanceof ServerPlayer j) {
-			Tarjetas.get().cruzar(j, pos, estado.getValue(FACING));
-		}
+	protected net.minecraft.world.level.block.RenderShape getRenderShape(BlockState estado) {
+		return estado.getValue(ABIERTA) ? net.minecraft.world.level.block.RenderShape.INVISIBLE : net.minecraft.world.level.block.RenderShape.MODEL;
+	}
+
+	@Override
+	protected VoxelShape getOcclusionShape(BlockState estado) {
+		return estado.getValue(ABIERTA) ? Shapes.empty() : Shapes.block();
 	}
 
 	@Override

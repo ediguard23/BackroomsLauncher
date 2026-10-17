@@ -154,6 +154,7 @@ final class OrdenesPrueba {
 			case "inventario" -> mc.setScreen(new InventoryScreen(mc.player));
 			case "pausa" -> mc.setScreen(new PauseScreen(true));
 			case "cerrar" -> mc.setScreen(null);
+			case "misiones" -> PapelMisiones.alternar(mc);
 			case "cinematica" -> net.backrooms.evento.cliente.cinematica.CinematicaCliente.empezar();
 			case "linterna" -> HerramientasCliente.pulsar(net.backrooms.evento.red.AccionJugador.LINTERNA);
 			case "camara" -> HerramientasCliente.pulsar(net.backrooms.evento.red.AccionJugador.CAMARA);

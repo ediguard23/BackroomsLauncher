@@ -17,7 +17,7 @@ import net.minecraft.world.level.GameType;
  * La lista del TAB del evento (sustituye a la de Minecraft, ver
  * TablaJugadoresMixin): el logo arriba, todos los jugadores en orden
  * alfabetico como «[+] nick» (corchetes grises, el + amarillo palido y el
- * nick blanco) y abajo el Discord, la tienda y el credito de
+ * nick blanco, o del color de la tarjeta de las Piscinas que lleve) y abajo el Discord, la tienda y el credito de
  * PeakMC Studio. Los eliminados (en espectador) salen apagados.
  *
  * Con 200 jugadores no caben en una columna: se reparten en tantas como
@@ -58,7 +58,8 @@ public final class TablaJugadores {
 	/** Solo para pruebas (orden "tab <n>"): anade n jugadores ficticios para ver la lista llena. */
 	public static int ficticios;
 
-	private record Fila(String nombre, boolean fuera) {
+	/** color: el de la tarjeta que lleva (equipo del marcador, ver Tarjetas#equipos) o -1. */
+	private record Fila(String nombre, boolean fuera, int color) {
 	}
 
 	private static int cacheClave;
@@ -83,7 +84,9 @@ public final class TablaJugadores {
 		ClientPacketListener red = Minecraft.getInstance().getConnection();
 		if (red != null) {
 			for (PlayerInfo p : red.getListedOnlinePlayers()) {
-				l.add(new Fila(p.getProfile().name(), p.getGameMode() == GameType.SPECTATOR));
+				net.minecraft.world.scores.PlayerTeam equipo = p.getTeam();
+				Integer color = equipo == null ? null : equipo.getColor().getColor();
+				l.add(new Fila(p.getProfile().name(), p.getGameMode() == GameType.SPECTATOR, color == null ? -1 : color));
 			}
 		}
 		if (ficticios > 0) {
@@ -95,7 +98,7 @@ public final class TablaJugadores {
 					b.append(trozos[r.nextInt(trozos.length)]);
 				}
 				String n = b.length() > 16 ? b.substring(0, 16) : b.toString();
-				l.add(new Fila(n, r.nextInt(5) == 0));
+				l.add(new Fila(n, r.nextInt(5) == 0, i < 3 ? new int[] {0xFF5555, 0xFFFF55, 0x55FF55}[i] : -1));
 			}
 		}
 		l.sort(Comparator.comparing(f -> f.nombre().toLowerCase(Locale.ROOT)));
@@ -135,7 +138,7 @@ public final class TablaJugadores {
 		int visibles = n;
 		boolean cabe = false;
 		for (; tam >= 5.0F; tam -= 0.5F) {
-			fila = (int) Math.ceil(tam * 1.12F) + 1;
+			fila = (int) Math.ceil(tam * 0.9F) + 1;
 			float marca = Texto.anchoHud(MARCA, tam, 0.0F);
 			columna = (int) Math.ceil(marca + base * tam / 12.0F + tam * 1.4F);
 			int maxColumnas = Math.max(1, libreAncho / columna);
@@ -154,7 +157,7 @@ public final class TablaJugadores {
 		if (!cabe) {
 			// ni con la letra minima: los que quepan y un "+N mas"
 			tam = 5.0F;
-			fila = (int) Math.ceil(tam * 1.12F) + 1;
+			fila = (int) Math.ceil(tam * 0.9F) + 1;
 			columna = (int) Math.ceil(Texto.anchoHud(MARCA, tam, 0.0F) + base * tam / 12.0F + tam * 1.4F);
 			columnas = Math.max(1, libreAncho / columna);
 			filas = Math.max(1, libreAlto / fila);
@@ -190,7 +193,7 @@ public final class TablaJugadores {
 			x += Texto.hud(g, "[", x, cy, tam, 0.0F, alfa(GRIS, a));
 			x += Texto.hud(g, "+", x, cy, tam, 0.0F, alfa(AMARILLO, a));
 			Texto.hud(g, "]", x, cy, tam, 0.0F, alfa(GRIS, a));
-			Texto.hud(g, f.nombre(), cx + anchoMarca, cy, tam, 0.0F, alfa(BLANCO, a));
+			Texto.hud(g, f.nombre(), cx + anchoMarca, cy, tam, 0.0F, alfa(f.color() >= 0 ? f.color() : BLANCO, a));
 		}
 		if (visibles < n) {
 			int i = visibles;

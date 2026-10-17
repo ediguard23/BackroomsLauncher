@@ -36,7 +36,10 @@ import net.minecraft.server.level.ServerPlayer;
  *  misiones olvidar <jugador>    le quita las misiones
  *  cinematica [jugador]      le pone la cinematica del ascensor, sin viaje
  *  cinematica piscinas [jugador]  la de la bajada a las Piscinas, sin viaje
- *  apagon|alarma [segundos]  fuerza un apagon o una alarma en la fase donde estas
+ *  apagon|alarma [segundos]  fuerza un apagon o una alarma en la fase donde estas (en las
+ *                            Piscinas, solo alarma)
+ *  inundacion [segundos|parar] la inundacion de las Piscinas: empieza ya (el agua sube en esos
+ *                            segundos, 80 por defecto) o se para; sin nada, como va
  *  luz                       vuelve la luz normal
  *  ambiente [auto on|off]    como esta la luz y si los sucesos van solos
  *  fase <n> [jugador]        lo manda ya a la fase n con misiones nuevas (solo queda la 1)
@@ -112,6 +115,23 @@ public final class Comandos {
 				.executes(c -> suceso(c, false, 45))
 				.then(Commands.argument("segundos", IntegerArgumentType.integer(5, 600))
 					.executes(c -> suceso(c, false, IntegerArgumentType.getInteger(c, "segundos")))))
+			.then(Commands.literal("inundacion")
+				.executes(c -> {
+					String r = net.backrooms.evento.piscinas.Inundacion.get().resumen();
+					c.getSource().sendSuccess(() -> Component.literal(r), false);
+					return 1;
+				})
+				.then(Commands.literal("parar").executes(c -> {
+					net.backrooms.evento.piscinas.Inundacion.get().parar();
+					c.getSource().sendSuccess(() -> Component.literal("Inundacion parada: el agua se va."), true);
+					return 1;
+				}))
+				.then(Commands.argument("segundos", IntegerArgumentType.integer(10, 600)).executes(c -> {
+					int s = IntegerArgumentType.getInteger(c, "segundos");
+					net.backrooms.evento.piscinas.Inundacion.get().empezar(s);
+					c.getSource().sendSuccess(() -> Component.literal("Inundacion: el agua sube en " + s + " s."), true);
+					return 1;
+				})))
 			.then(Commands.literal("invocar")
 				.then(Commands.literal("bacteria").executes(c -> {
 					ServerPlayer j = c.getSource().getPlayerOrException();
@@ -254,8 +274,9 @@ public final class Comandos {
 
 	private static int suceso(CommandContext<CommandSourceStack> c, boolean apagon, int segundos) {
 		ServerLevel nivel = c.getSource().getLevel();
-		if (Fase.de(nivel) == null) {
-			c.getSource().sendFailure(Component.literal("Aqui no hay fase del Nivel 0."));
+		boolean piscinas = net.backrooms.evento.piscinas.Piscinas.es(nivel);
+		if (Fase.de(nivel) == null && !(piscinas && !apagon)) {
+			c.getSource().sendFailure(Component.literal(piscinas ? "En las Piscinas no hay apagones (solo alarmas)." : "Aqui no hay fase del Nivel 0 ni Piscinas."));
 			return 0;
 		}
 		if (apagon) {

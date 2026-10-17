@@ -29,11 +29,17 @@ import net.minecraft.world.level.Level;
  *
  * Nunca coinciden. La frecuencia y la duracion salen de la Fase. El staff los
  * fuerza con /backrooms apagon|alarma|luz.
+ *
+ * En las Piscinas (Nivel 37) solo hay alarmas (PISCINAS_ALARMA_*): sirena y luz roja, y la
+ * Serpiente va mas rapida (Serpiente.Movimiento).
  */
 public final class Ambiente {
 	private static final Ambiente INSTANCIA = new Ambiente();
 	/** Minimo entre el final de un suceso y el principio del otro. */
 	private static final int RESPIRO = 20 * 60;
+	/** Las Piscinas: minutos entre alarmas y segundos que dura cada una (como en la fase 1). */
+	private static final int[] PISCINAS_ALARMA_CADA = {7, 12};
+	private static final int[] PISCINAS_ALARMA_DURA = {35, 55};
 
 	public static Ambiente get() {
 		return INSTANCIA;
@@ -96,6 +102,10 @@ public final class Ambiente {
 		}
 		this.ticks++;
 		for (ServerLevel nivel : this.servidor.getAllLevels()) {
+			if (net.backrooms.evento.piscinas.Piscinas.es(nivel)) {
+				this.tickPiscinas(nivel);
+				continue;
+			}
 			Fase f = Fase.de(nivel);
 			if (f == null) {
 				continue;
@@ -127,6 +137,36 @@ public final class Ambiente {
 			} else if (this.ticks >= e.proximaAlarma) {
 				this.alarma(nivel, segundos(f.alarmaDura()));
 			}
+		}
+	}
+
+	/** Las Piscinas: sin apagones, solo alarmas cada PISCINAS_ALARMA_CADA minutos. */
+	private void tickPiscinas(ServerLevel nivel) {
+		Estado e = this.estado(nivel.dimension());
+		if (nivel.players().isEmpty()) {
+			e.alarma = false;
+			e.proximaAlarma = -1;
+			return;
+		}
+		if (e.alarma) {
+			if (this.ticks >= e.fin) {
+				this.terminar(nivel);
+			}
+			return;
+		}
+		if (!this.automatico) {
+			return;
+		}
+		if (e.proximaAlarma < 0) {
+			e.proximaAlarma = this.ticks + minutos(PISCINAS_ALARMA_CADA);
+		}
+		if (net.backrooms.evento.piscinas.Inundacion.get().activa()) {
+			// nunca a la vez que la inundacion
+			e.proximaAlarma = Math.max(e.proximaAlarma, this.ticks + RESPIRO);
+			return;
+		}
+		if (this.ticks >= e.proximaAlarma) {
+			this.alarma(nivel, segundos(PISCINAS_ALARMA_DURA));
 		}
 	}
 
@@ -201,6 +241,8 @@ public final class Ambiente {
 			this.programar(e, f);
 			e.proximoApagon = Math.max(e.proximoApagon, this.ticks + RESPIRO);
 			e.proximaAlarma = Math.max(e.proximaAlarma, this.ticks + RESPIRO);
+		} else if (net.backrooms.evento.piscinas.Piscinas.es(nivel)) {
+			e.proximaAlarma = this.ticks + Math.max(minutos(PISCINAS_ALARMA_CADA), RESPIRO);
 		}
 		if (habia) {
 			this.enviarATodos(nivel);
@@ -230,7 +272,8 @@ public final class Ambiente {
 
 	public void enviar(ServerPlayer j) {
 		Estado e = this.estados.get(j.level().dimension());
-		EstadoAmbiente p = e == null || Fase.de(j.level()) == null ? EstadoAmbiente.NORMAL : new EstadoAmbiente(e.apagon, e.alarma);
+		boolean conLuz = Fase.de(j.level()) != null || net.backrooms.evento.piscinas.Piscinas.es(j.level());
+		EstadoAmbiente p = e == null || !conLuz ? EstadoAmbiente.NORMAL : new EstadoAmbiente(e.apagon, e.alarma);
 		if (ServerPlayNetworking.canSend(j, EstadoAmbiente.TYPE)) {
 			ServerPlayNetworking.send(j, p);
 		}

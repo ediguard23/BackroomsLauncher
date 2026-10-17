@@ -80,10 +80,14 @@ public final class Vestibulo {
 			// uno empieza solo (en la beta #1 se quito a mano)
 			INSTANCIA.comando(s.overworld(), "gamerule locator_bar false");
 		});
-		ServerPlayConnectionEvents.JOIN.register((h, e, s) -> INSTANCIA.alEntrar(h.player));
+		// al entrar no se le mueve en el mismo tick: teletransportar a otra dimension mientras el
+		// servidor aun lo esta metiendo en el mundo puede dejarlo mal apuntado (en la beta #2 se veia
+		// a gente quieta o invisible); se hace un segundo despues
+		ServerPlayConnectionEvents.JOIN.register((h, e, s) -> INSTANCIA.entrando.put(h.player.getUUID(), INSTANCIA.ticks + 20));
 		net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents.END_SERVER_TICK.register(s -> {
 			INSTANCIA.megafonia();
 			INSTANCIA.tickDecorar();
+			INSTANCIA.tickEntrando();
 		});
 		ServerLivingEntityEvents.AFTER_DEATH.register((entidad, fuente) -> {
 			if (entidad instanceof ServerPlayer j) {
@@ -179,6 +183,27 @@ public final class Vestibulo {
 	 * Al entrar: quien aun no ha jugado espera en la recepcion; quien ya cayo o escapo, en el
 	 * vestibulo; quien esta jugando sigue en su nivel.
 	 */
+	/** Los que acaban de entrar y cuando toca llevarlos a su sitio (alEntrar). */
+	private final java.util.Map<java.util.UUID, Long> entrando = new java.util.HashMap<>();
+
+	private void tickEntrando() {
+		if (this.entrando.isEmpty() || this.servidor == null) {
+			return;
+		}
+		var it = this.entrando.entrySet().iterator();
+		while (it.hasNext()) {
+			var e = it.next();
+			if (this.ticks < e.getValue()) {
+				continue;
+			}
+			it.remove();
+			ServerPlayer j = this.servidor.getPlayerList().getPlayer(e.getKey());
+			if (j != null) {
+				this.alEntrar(j);
+			}
+		}
+	}
+
 	private void alEntrar(ServerPlayer j) {
 		if (j.isCreative() || j.isSpectator()) {
 			return;
@@ -363,15 +388,15 @@ public final class Vestibulo {
 		texto(v, PlanoVestibulo.R_PUERTA_REUNIONES + 0.5, y + 3.55, pared, 0, "SALA DE REUNIONES", "#2E3A3C", 0.9F, true);
 		texto(v, PlanoVestibulo.R_PUERTA_PERSONAL + 0.5, y + 3.55, pared, 0, "SOLO PERSONAL AUTORIZADO", "#7A2A22", 0.9F, true);
 		texto(v, PlanoVestibulo.R_X0 + 1.06, y + 3.55, PlanoVestibulo.R_PUERTA_ASEOS_Z + 0.5, 270, "ASEOS", "#2E3A3C", 0.9F, true);
-		texto(v, PlanoVestibulo.R_X0 + 1.06, y + 3.55, -1.0, 270, "AGUA DE ALMENDRAS", "#2E3A3C", 0.9F, true);
+		texto(v, PlanoVestibulo.R_X0 + 1.06, y + 3.55, -3.0, 270, "AGUA DE ALMENDRAS", "#2E3A3C", 0.9F, true);
 		texto(v, PlanoVestibulo.R_MOSTRADOR_X + 1.0, y + 3.55, PlanoVestibulo.R_Z1 - 0.06, 180, "ENTRADA", "#2E3A3C", 0.9F, true);
 		// el rincon de las instrucciones, en el corcho de la pared este
 		double este = PlanoVestibulo.R_X1 - 0.06;
 		texto(v, este, y + 4.55, -1.5, 90, "INFORMACIÓN PARA PARTICIPANTES", "#2E3A3C", 1.0F, true);
 		tablonPequeno(v, este, y + 2.15, -4.5, 90, "NORMAS DEL ESTUDIO",
-			"Cumpla los objetivos de cada fase.\nEl radar (E) le indica hacia dónde ir.\n\nSi cae, queda fuera del estudio.\nNo mire a un Smiler a los ojos.\nCuando suene la alarma, corra.");
+			"Cumpla los objetivos de cada fase.\nEl radar de sus misiones (M) le guía.\n\nSi cae, queda fuera del estudio.\nNo mire a un Smiler a los ojos.\nCuando suene la alarma, corra.");
 		tablonPequeno(v, este, y + 2.15, 1.5, 90, "CONTROLES",
-			"F   linterna\nC   cámara (graba las misiones)\nE   inventario y misiones\nShift   levantarse del asiento\n\nLas teclas se cambian en\nOpciones › Controles › Backrooms.");
+			"F   linterna\nC   cámara (graba las misiones)\nM   misiones   E   inventario\nShift   levantarse del asiento\n\nLas teclas se cambian en\nOpciones › Controles › Backrooms.");
 	}
 
 	private CommandSourceStack fuente(ServerLevel v) {

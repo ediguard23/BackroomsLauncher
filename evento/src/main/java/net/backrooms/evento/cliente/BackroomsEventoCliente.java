@@ -73,6 +73,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(SyncMisiones.TYPE, (s, ctx) -> MisionesCliente.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(IniciarCinematica.TYPE, (s, ctx) -> CinematicaCliente.empezar());
 		ClientPlayNetworking.registerGlobalReceiver(EstadoAmbiente.TYPE, (s, ctx) -> AmbienteCliente.recibir(s));
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.EstadoInundacion.TYPE, (s, ctx) -> InundacionCliente.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(ViajeAscensor.TYPE, (s, ctx) -> AscensorCliente.empezar(s));
 		ClientPlayNetworking.registerGlobalReceiver(EstadoJugador.TYPE, (s, ctx) -> SupervivenciaCliente.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(Susto.TYPE, (s, ctx) -> SupervivenciaCliente.susto(s));
@@ -88,6 +89,9 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		AccesoCliente.registrar();
 
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+			PapelMisiones.tick(mc);
+			MusicaRecepcion.tick(mc);
+			InundacionCliente.tick(mc);
 			AmbienteCliente.tick();
 			Cordura.tick();
 			SupervivenciaCliente.tick(mc);
@@ -100,6 +104,14 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		});
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("supervivencia"), SupervivenciaCliente::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("camara"), CamaraHud::render);
+		PapelMisiones.registrar();
+		// la acreditacion del pecho del traje (en lugar del nombre flotante)
+		net.fabricmc.fabric.api.client.rendering.v1.LivingEntityFeatureRendererRegistrationCallback.EVENT.register((tipo, render, ayuda, ctx) -> {
+			if (render instanceof net.minecraft.client.renderer.entity.player.AvatarRenderer<?> avatar) {
+				ayuda.register(new TarjetaPecho(avatar));
+			}
+		});
+		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("misiones"), PapelMisiones::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("hueco"), HuecoCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("agarre"), AgarreCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("mordisco"), net.backrooms.evento.cliente.piscinas.MordiscoCliente::render);
@@ -119,6 +131,8 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 
 		ClientPlayConnectionEvents.DISCONNECT.register((h, c) -> {
 			MisionesCliente.olvidar();
+			PapelMisiones.olvidar();
+			InundacionCliente.olvidar();
 			CinematicaCliente.olvidar();
 			AmbienteCliente.olvidar();
 			HerramientasCliente.olvidar();

@@ -18,6 +18,9 @@
     "client": [
       "net.backrooms.menu.BackroomsMenu",
       "net.backrooms.evento.cliente.BackroomsEventoCliente"
+    ],
+    "voicechat": [
+      "net.backrooms.evento.expedicion.VozCinematica"
     ]
   },
   "depends": {

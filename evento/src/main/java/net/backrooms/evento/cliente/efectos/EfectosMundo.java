@@ -22,6 +22,7 @@ import java.util.OptionalInt;
 import net.backrooms.evento.BackroomsEvento;
 import net.backrooms.evento.cliente.AmbienteCliente;
 import net.backrooms.evento.cliente.HerramientasCliente;
+import net.backrooms.evento.cliente.InundacionCliente;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MappableRingBuffer;
@@ -47,6 +48,7 @@ import org.joml.Vector3f;
  *  - Cordura baja: la imagen ondula, se separa en colores y se cierra.
  *  - Miedo (una Bacteria cazandote cerca): los bordes se cierran y laten con
  *    el corazon (Miedo).
+ *  - Inundacion de las Piscinas: el agua subiendo (InundacionCliente).
  *
  * Despues de la mano, otra pasada (MANO) la oscurece igual que el mundo:
  * si no, en pleno apagon la mano se veria iluminada.
@@ -54,7 +56,7 @@ import org.joml.Vector3f;
 public final class EfectosMundo {
 	private static final int MAX_LUCES = 16;
 	private static final int MAX_BRILLOS = 8;
-	private static final int TAMANO_UBO = 64 + 16 * 4 + 16 * MAX_LUCES * 2 + 16 * MAX_BRILLOS;
+	private static final int TAMANO_UBO = 64 + 16 * 5 + 16 * MAX_LUCES * 2 + 16 * MAX_BRILLOS;
 
 	private static final RenderPipeline MUNDO = RenderPipelines.register(
 		RenderPipeline.builder(RenderPipelines.POST_PROCESSING_SNIPPET)
@@ -99,7 +101,7 @@ public final class EfectosMundo {
 		Minecraft mc = Minecraft.getInstance();
 		return mc.player != null && (AmbienteCliente.oscuridad() > 0.001F || AmbienteCliente.rojo() > 0.001F
 			|| HerramientasCliente.subida(1.0F) > 0.01F || Cordura.efecto() > 0.001F || Flash.blanco() > 0.001F
-			|| Miedo.valor(1.0F) > 0.001F);
+			|| Miedo.valor(1.0F) > 0.001F || InundacionCliente.activa() && mc.level != null && net.backrooms.evento.piscinas.Piscinas.es(mc.level));
 	}
 
 	/** Despues del mundo, antes de la mano. */
@@ -211,6 +213,9 @@ public final class EfectosMundo {
 			b.putVec4(camaraSubida, HerramientasCliente.linterna() ? 1.0F : 0.0F, Flash.blanco(), luces.size());
 			b.putVec4(brillos.size(), (float) w / h, Cordura.susto(), 0.0F);
 			b.putVec4(Miedo.valor(parcial), Miedo.latido(), 0.0F, 0.0F);
+			boolean piscinas = mc.level != null && net.backrooms.evento.piscinas.Piscinas.es(mc.level);
+			b.putVec4((float) (InundacionCliente.nivel() - cam.y), piscinas ? InundacionCliente.fuerza() : 0.0F,
+				(float) (cam.x - Math.floor(cam.x / 512.0) * 512.0), (float) (cam.z - Math.floor(cam.z / 512.0) * 512.0));
 			for (int i = 0; i < MAX_LUCES; i++) {
 				float[] l = i < luces.size() ? luces.get(i) : new float[8];
 				b.putVec4(l[0], l[1], l[2], l[3]);

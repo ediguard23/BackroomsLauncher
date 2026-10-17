@@ -51,6 +51,8 @@ public final class Expedicion {
 	 * negro tras el golpe.
 	 */
 	public static final int RETRASO_VIAJE = 730 + 820;
+	/** Lo que dura la cinematica entera en el cliente (CinematicaCliente.FIN): sin voz ni chat. */
+	public static final double DURA_CINEMATICA = 36.5 + 55.0;
 	private static final int LOTE = 3;
 	private static final int CADA = 10;
 
@@ -127,6 +129,7 @@ public final class Expedicion {
 	/** Solo la cinematica, sin viaje (para verla). */
 	public void verCinematica(ServerPlayer j) {
 		ServerPlayNetworking.send(j, IniciarCinematica.INSTANCIA);
+		EnCinematica.poner(j, DURA_CINEMATICA);
 	}
 
 	public int pendientes() {
@@ -147,6 +150,7 @@ public final class Expedicion {
 					continue;
 				}
 				ServerPlayNetworking.send(j, IniciarCinematica.INSTANCIA);
+				EnCinematica.poner(j, DURA_CINEMATICA);
 				this.viajes.put(id, this.ticks + RETRASO_VIAJE);
 			}
 		}

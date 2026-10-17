@@ -52,6 +52,7 @@ public class BackroomsEvento implements ModInitializer {
 		PayloadTypeRegistry.playS2C().register(SyncMisiones.TYPE, SyncMisiones.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.IniciarCinematica.TYPE, net.backrooms.evento.red.IniciarCinematica.CODEC);
 		PayloadTypeRegistry.playS2C().register(EstadoAmbiente.TYPE, EstadoAmbiente.CODEC);
+		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.EstadoInundacion.TYPE, net.backrooms.evento.red.EstadoInundacion.CODEC);
 		PayloadTypeRegistry.playS2C().register(Herramientas.TYPE, Herramientas.CODEC);
 		PayloadTypeRegistry.playS2C().register(ViajeAscensor.TYPE, ViajeAscensor.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.EstadoJugador.TYPE, net.backrooms.evento.red.EstadoJugador.CODEC);
@@ -65,6 +66,7 @@ public class BackroomsEvento implements ModInitializer {
 		Misiones.registrar();
 		net.backrooms.evento.expedicion.Expedicion.registrar();
 		net.backrooms.evento.expedicion.Eliminacion.registrar();
+		net.backrooms.evento.expedicion.EnCinematica.registrar();
 		Ambiente.registrar();
 		HerramientasServidor.registrar();
 		Fases.registrar();
@@ -73,8 +75,10 @@ public class BackroomsEvento implements ModInitializer {
 		net.backrooms.evento.piscinas.Habitantes.registrar();
 		net.backrooms.evento.piscinas.Valvulas.registrar();
 		net.backrooms.evento.piscinas.Tarjetas.registrar();
+		net.backrooms.evento.piscinas.Inundacion.registrar();
 		net.backrooms.evento.piscinas.Cadaveres.registrar();
 		net.backrooms.evento.supervivencia.Supervivencia.registrar();
+		net.backrooms.evento.supervivencia.SinPvp.registrar();
 		net.backrooms.evento.supervivencia.Comida.registrar();
 		net.backrooms.evento.entidad.Acechadores.registrar();
 		net.backrooms.evento.entidad.Bacteria.registrar();

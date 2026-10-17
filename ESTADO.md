@@ -1,7 +1,54 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-15 (hora de Honduras). Mod `backrooms_evento` 0.17.1, launcher 1.0.0
+Última actualización: 2026-10-15 (hora de Honduras). Mod `backrooms_evento` 0.18.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta.
+
+## 0.18.0: lo que pidió Bruno tras la beta #2 (2026-10-17; Bruno)
+
+- **Jugadores invisibles o quietos** (en la recepción, tras reconectar o al entrar gente): fuera
+  **EntityCulling** (deja de dibujar y de animar lo que cree que no se ve) y **Krypton** (toca cómo
+  el servidor manda los jugadores a cada cliente), del pack (fichas beta y local) y del servidor.
+  Y al entrar ya no se teletransporta en el mismo tick del login: un segundo después
+  (`Vestibulo#tickEntrando`). Sin poder comprobarlo aquí (hace falta dos clientes).
+- **Sin PvP en todo el evento** (`SinPvp`): ni golpes ni daño de otro jugador.
+- **Cinemática del /start**: la cámara va quieta (sin temblor de mano ni rayas de la cinta) hasta
+  que el ascensor falla; el investigador sale por el centro de la puerta (ruta nueva de 8 puntos)
+  y la hoja de la puerta abre hacia el pasillo.
+- **Comida +10 %** en el Nivel 0 y en las Piscinas (galletas y pizza; el agua de almendras igual).
+- **Traje**: visor transparente (se ve la cara de quien lo lleva; hueco recortado con marco y un
+  reflejo) y **acreditación en el pecho** con el nick (`TarjetaPecho`); a quien lleva la chaqueta
+  no se le ve el nombre encima (`NombreTrajeMixin`). En la recepción, sin traje, nombre normal.
+- **Alarma roja en las Piscinas** (cada 7-12 min, 35-55 s; `/backrooms alarma` también allí):
+  la Serpiente va a la base en el azulejo y +35 % en el agua (lo que dijo Bruno: «agua 35 %, suelo
+  normal»). Nunca a la vez que la inundación.
+- **Papel de misiones** (`PapelMisiones`, tecla **M**): bollito de papel arriba a la izquierda; con
+  la M se estira y muestra la hoja (con el detector) mientras te mueves. Ya no está en el
+  inventario. Orden de pruebas `misiones`.
+- **Tarjetas**: se ven para todos, pero solo las coge quien cerró sus válvulas y grabó a la
+  Serpiente (si no, aviso). Quien lleva una sale en el **TAB con su color** (equipos del marcador
+  `br_tarjeta_*`). El TAB va más junto (filas a la mitad de hueco).
+- **Inundación de las Piscinas** (`Inundacion`, `InundacionCliente`, `efectos.fsh`): aviso por
+  megafonía y el agua sube por la planta baja en 80 s hasta y = 46,5 (por encima de la cabeza en el
+  suelo), se queda 50 s y baja en 40. Solo se salva quien sube a una planta alta (caracoles y
+  terrazas, se pisa en 49). Cada 14-22 min; `/backrooms inundacion [segundos|parar]`. El agua NO son
+  bloques: es una altura que el servidor manda y el cliente dibuja (superficie con olas y espuma,
+  y azul verdoso por debajo); el aire y el ahogo los lleva el servidor. Sonido
+  `tools/sonidos/inundacion.js`.
+- **Sin chat ni voz en las cinemáticas** (`EnCinematica`, `VozCinematica`: plugin de Simple Voice
+  Chat con su API, solo para compilar): quien la ve ni habla ni oye; moverse ya no podía.
+- **Salida de las Piscinas = ascensor**: detrás de la puerta (que abierta deja de verse) hay una
+  cabina de acero (`PlanoPiscinas#cabina`); quien tiene sus misiones entra y a los 1,5 s sube y
+  escapa. **Arreglado** en las pruebas: escapar desde la cabina tumbaba el servidor
+  (ConcurrentModificationException al recorrer `nivel.players()`).
+- **Recepción de 50 x 50** (140 butacas, columnas, pasillos) y **música tenue** en bucle dentro
+  (`tools/sonidos/recepcion.js`, `MusicaRecepcion`).
+**Probado** (capturas en el cliente de pruebas): TAB, papel con la M, visor y acreditación,
+recepción nueva, inundación (desde arriba, a ras y por debajo), alarma roja en las Piscinas,
+cabina y escapar (dos veces, sin caída), la cinemática arranca y el investigador por la puerta.
+**Sin probar**: con dos jugadores (invisibles, PvP, voz y chat en la cinemática, color del TAB al
+coger tarjeta de verdad), ahogarse en la inundación sin ser creativo, el aviso de las tarjetas sin
+misiones, la velocidad de la Serpiente con alarma, la música y el agua sonando.
+**Para el servidor**: mundo nuevo (cambió la recepción y las Piscinas); quitar `krypton` de `mods/`.
 
 ## Beta #2 (2026-10-16; Bruno) y mod 0.17.1
 

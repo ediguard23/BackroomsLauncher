@@ -1,8 +1,9 @@
 #version 330
 
 // Efectos del Nivel 0 sobre la imagen del mundo (ver EfectosMundo.java):
-// apagon con linternas, alarma roja, camara (y su vision nocturna), cordura y
-// miedo (una Bacteria cazandote cerca, ver Miedo.java).
+// apagon con linternas, alarma roja, camara (y su vision nocturna), cordura,
+// miedo (una Bacteria cazandote cerca, ver Miedo.java) y la inundacion de las
+// Piscinas (el agua es una altura: se dibuja aqui, ver Inundacion.java).
 
 uniform sampler2D ColorSampler;
 uniform sampler2D DepthSampler;
@@ -13,6 +14,7 @@ layout(std140) uniform Efectos {
     vec4 Estado2;  // camara levantada 0-1, linterna propia, flash blanco, numero de luces
     vec4 Estado3;  // numero de brillos, aspecto, susto, -
     vec4 Estado4;  // miedo 0-1, golpe del latido 0-1, -, -
+    vec4 Estado5;  // inundacion: altura del agua respecto a la camara, fuerza 0-1, camara x y z (modulo 512)
     vec4 Luces[32];  // por luz: (pos relativa, intensidad) y (direccion, coseno del cono)
     vec4 Brillos[8]; // (pos relativa, radio)
 };
@@ -123,6 +125,57 @@ void main() {
         // grano en lo negro: los ojos buscando algo
         oscuro += (hash(uv * 911.0 + t) - 0.5) * 0.012;
         col = mix(col, max(oscuro, 0.0), oscuridad);
+    }
+
+    // ---- inundacion de las Piscinas: el agua llega hasta Estado5.x por encima de la camara
+    float inund = Estado5.y;
+    if (inund > 0.0) {
+        float h = Estado5.x;
+        vec3 rd = normalize(posicion(texCoord, 0.5));
+        bool cielo = profundidad >= 1.0;
+        float escena = cielo ? 1.0e4 : dist;
+        vec2 cxz = Estado5.zw;
+        vec3 agua = vec3(0.09, 0.33, 0.38);
+        if (h < 0.0) {
+            // desde fuera: lo que queda bajo el agua se tine y se pierde con la distancia...
+            if (!cielo && pos.y < h) {
+                float tp = rd.y < -1.0e-4 ? h / rd.y : 0.0;
+                float bajo = max(dist - tp, 0.0);
+                vec3 dentro = mix(col * vec3(0.5, 0.82, 0.88), agua, 1.0 - exp(-bajo * 0.32));
+                col = mix(col, dentro, inund);
+            }
+            // ...y encima, la superficie con olas, reflejos y espuma contra las paredes
+            if (rd.y < -1.0e-4) {
+                float tp = h / rd.y;
+                if (tp < escena) {
+                    vec2 w = (rd * tp).xz + cxz;
+                    vec3 n = normalize(vec3(cos(w.x * 1.3 + t * 1.7) * 0.07 + cos(w.y * 2.9 - t * 2.3) * 0.03, 1.0,
+                        cos(w.y * 1.1 - t * 1.3) * 0.07 + cos(w.x * 2.4 + t * 2.0) * 0.03));
+                    float fres = 0.04 + 0.96 * pow(1.0 - max(dot(-rd, n), 0.0), 5.0);
+                    vec3 reflejo = vec3(0.62, 0.76, 0.8) * (0.55 + 0.6 * luma(col));
+                    vec3 sup = mix(col * 0.85 + agua * 0.2, reflejo, clamp(fres * 0.85 + 0.12, 0.0, 1.0));
+                    float ola = sin(w.x * 1.3 + t * 1.7) * sin(w.y * 1.1 - t * 1.3) + 0.5 * sin((w.x + w.y) * 2.7 + t * 2.9);
+                    sup += vec3(0.85, 0.95, 1.0) * pow(max(0.0, ola), 24.0) * 0.07 * (1.0 - smoothstep(4.0, 18.0, tp));
+                    float espuma = smoothstep(0.7, 0.0, escena - tp) * (0.6 + 0.4 * sin(w.x * 7.0 + w.y * 5.0 + t * 4.0));
+                    sup = mix(sup, vec3(0.86, 0.92, 0.92), clamp(espuma, 0.0, 1.0) * 0.55);
+                    col = mix(col, sup, inund);
+                }
+            }
+        } else {
+            // con la cabeza debajo: todo azul verdoso, se ve poco y la superficie brilla arriba
+            float niebla = 1.0 - exp(-dist * 0.2);
+            vec3 dentro = mix(col * vec3(0.42, 0.78, 0.84), agua * 0.75, niebla);
+            if (rd.y > 1.0e-4) {
+                float tp = h / rd.y;
+                if (tp < escena) {
+                    vec2 w = (rd * tp).xz + cxz;
+                    float brillo = 0.5 + 0.5 * sin(w.x * 1.7 + t * 2.0) * sin(w.y * 1.4 - t * 1.6);
+                    dentro = mix(dentro, vec3(0.5, 0.78, 0.84), 0.3 + 0.3 * brillo);
+                }
+            }
+            dentro += vec3(0.08, 0.18, 0.18) * pow(max(0.0, sin((pos.x + cxz.x) * 2.1 + t * 1.5) * sin((pos.z + cxz.y) * 1.9 - t * 1.2)), 3.0) * (1.0 - niebla);
+            col = mix(col, dentro, inund);
+        }
     }
 
     // ---- alarma: luz roja que late

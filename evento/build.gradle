@@ -9,11 +9,17 @@ base {
 	archivesName = 'backrooms-evento'
 }
 
+repositories {
+	// la API de Simple Voice Chat (solo para compilar: el mod de voz va aparte, como externo del pack)
+	maven { url = "https://maven.maxhenkel.de/repository/public" }
+}
+
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.officialMojangMappings()
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	compileOnly "de.maxhenkel.voicechat:voicechat-api:2.6.0"
 }
 
 processResources {

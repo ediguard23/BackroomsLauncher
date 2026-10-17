@@ -902,13 +902,14 @@ const vec3 DE_PIE = vec3(-0.55, 1.62, -15.0);
 const float MESA_Y = 0.75;
 const float PX_INV = 0.05625; // un pixel del investigador (mide 32: 1.8 bloques)
 
-const int NI = 7;
-const vec2 RUTA_I[7] = vec2[](vec2(0.0, -18.05), vec2(1.75, -17.85), vec2(1.75, -15.2), vec2(0.55, -14.0),
-  vec2(0.12, -12.9), vec2(0.5, -4.0), vec2(1.25, -2.35));
+// el investigador rodea la mesa y sale por el centro de la puerta (sin rozar el marco ni la hoja)
+const int NI = 8;
+const vec2 RUTA_I[8] = vec2[](vec2(0.0, -18.05), vec2(1.75, -17.85), vec2(1.75, -15.2), vec2(0.6, -14.6),
+  vec2(0.0, -14.1), vec2(0.0, -12.6), vec2(0.5, -4.0), vec2(1.25, -2.35));
 const vec2 PUESTO_I = vec2(0.35, -3.8); // donde se queda, delante de las puertas
 const int NJ = 6;
-const vec2 RUTA_J[7] = vec2[](vec2(-0.55, -15.0), vec2(-0.35, -14.3), vec2(0.0, -13.7), vec2(0.0, -13.0),
-  vec2(0.0, -2.5), vec2(0.0, 0.9), vec2(0.0, 0.9));
+const vec2 RUTA_J[8] = vec2[](vec2(-0.55, -15.0), vec2(-0.35, -14.3), vec2(0.0, -13.7), vec2(0.0, -13.0),
+  vec2(0.0, -2.5), vec2(0.0, 0.9), vec2(0.0, 0.9), vec2(0.0, 0.9));
 
 /* ------------------------------------------------------ utiles */
 
@@ -936,15 +937,15 @@ float rumbo(vec2 d) {
   return y < 0.0 ? y + 6.2831853 : y;
 }
 
-float largoRuta(vec2 r[7], int n) {
+float largoRuta(vec2 r[8], int n) {
   float l = 0.0;
-  for (int i = 1; i < 7; i++) if (i < n) l += length(r[i] - r[i - 1]);
+  for (int i = 1; i < 8; i++) if (i < n) l += length(r[i] - r[i - 1]);
   return l;
 }
 
-vec2 enRuta(vec2 r[7], int n, float s) {
+vec2 enRuta(vec2 r[8], int n, float s) {
   s = max(s, 0.0);
-  for (int i = 1; i < 7; i++) {
+  for (int i = 1; i < 8; i++) {
     if (i >= n) break;
     float l = length(r[i] - r[i - 1]);
     if (s <= l || i == n - 1) return mix(r[i - 1], r[i], clamp(s / max(l, 1e-4), 0.0, 1.0));
@@ -956,11 +957,6 @@ vec2 enRuta(vec2 r[7], int n, float s) {
 vec3 rotF(vec3 v, float a) { float c = cos(a), s = sin(a); return vec3(v.x, c * v.y + s * v.z, -s * v.y + c * v.z); } // -Y hacia +Z
 vec3 rotL(vec3 v, float b) { float c = cos(b), s = sin(b); return vec3(c * v.x - s * v.y, s * v.x + c * v.y, v.z); } // -Y hacia +X
 vec3 rotY(vec3 v, float a) { float c = cos(a), s = sin(a); return vec3(c * v.x + s * v.z, v.y, -s * v.x + c * v.z); } // +Z hacia +X
-
-// la temblequeo de la camara en mano (el mismo que en la cabina)
-vec3 temblor(float te, float sac) {
-  return (vec3(ruido(vec2(te * 13.0, 1.0)), ruido(vec2(te * 11.0, 5.0)), ruido(vec2(te * 9.0, 9.0))) - 0.5) * 2.0 * sac;
-}
 
 /* ------------------------------------------------------ el lienzo */
 
@@ -1325,13 +1321,13 @@ void objetos(inout Obj o, vec3 ro, vec3 rd, float tg, float te, vec3 cam) {
     caja(o, ro, rd, vec3(3.5, 0.0, -21.5), vec3(4.5, 2.0, -19.5), O_LIBRERIA);
     caja(o, ro, rd, vec3(-4.2, 0.0, -21.2), vec3(-3.8, 0.375, -20.8), O_MACETA);
     caja(o, ro, rd, vec3(-4.4, 0.375, -21.4), vec3(-3.6, 1.15, -20.6), O_HOJAS);
-    caja(o, ro, rd, vec3(0.5, 0.0, -14.5), vec3(0.6875, 2.0, -13.5), O_HOJA_PUERTA);
     if (tg < P_RECOGE1 - 0.05) {
       vec3 c = papelCentro(tg);
       caja(o, ro, rd, c - vec3(0.25, 0.0, 0.35625), c + vec3(0.25, 0.0025, 0.35625), O_PAPEL);
     }
   }
-  // el pasillo
+  // el pasillo: la puerta de la sala, abierta hacia fuera contra la pared
+  caja(o, ro, rd, vec3(0.5, 0.0, -13.5), vec3(0.6875, 2.0, -12.5), O_HOJA_PUERTA);
   caja(o, ro, rd, vec3(-2.1, 0.0, -2.6), vec3(-1.7, 0.375, -2.2), O_MACETA);
   caja(o, ro, rd, vec3(-2.2, 0.375, -2.7), vec3(-1.6, 0.95, -2.1), O_HOJAS);
   caja(o, ro, rd, vec3(1.95, 0.42, -11.4), vec3(2.5, 0.5, -9.4), O_BANCO);
@@ -1592,7 +1588,7 @@ vec3 colorObjeto(Obj o, vec3 ro, vec3 rd, float tg) {
     alb = cara(LANA_GRIS, uv * 2.0).rgb;
   } else if (o.id == O_HOJA_PUERTA) {
     // la puerta abierta: se ve de canto o de cara
-    vec2 u = vec2(p.z + 14.5, p.y);
+    vec2 u = vec2(p.z + 13.5, p.y);
     alb = abs(n.x) > 0.5 ? (p.y < 1.0 ? cara(PUERTA_OSCURA_ABAJO, u).rgb : cara(PUERTA_OSCURA_ARRIBA, u).rgb) : cara(TRONCO_OSCURO, uv * 4.0).rgb;
   } else if (o.id == O_LIBRERIA) {
     alb = n.y > 0.5 ? cara(56, p.xz + 0.5).rgb : cara(LIBRERIA, uv + 0.5).rgb;
@@ -1881,7 +1877,8 @@ Camara montar(vec3 ro, float yaw, float pitch, float roll) {
 
 Camara camaraPrologo(float t) {
   float te = t - PRO;
-  vec3 sh = temblor(te, 0.004);
+  // la camara va quieta (sin temblor de mano) hasta que el ascensor empieza a fallar
+  vec3 sh = vec3(0.0);
   // sentado a la mesa: le miras, miras el papel que te acerca, otra vez a el
   vec3 ro = SENTADO + vec3(0.0, 0.006 * sin(t * 1.6), 0.0);
   float pitch = 0.17;
@@ -1927,9 +1924,8 @@ Camara camaraPrologo(float t) {
   // el paso: la camara sube y baja y se mece un poco
   float fase = s * 3.14159 / 1.2;
   vec3 der = vec3(cos(yaw), 0.0, sin(yaw));
-  ro += der * 0.018 * sin(fase) * anda;
-  ro.y += 0.035 * (abs(cos(fase)) - 0.64) * anda;
-  float roll = 0.008 * sin(fase) * anda;
+  ro.y += 0.016 * (abs(cos(fase)) - 0.64) * anda;
+  float roll = 0.0;
   // dentro de la cabina te das la vuelta hacia las puertas
   yaw += 3.14159265 * smoothstep(P_GIRA0, P_GIRA1, t);
   pitch = mix(pitch, -0.08, smoothstep(P_GIRA0, P_GIRA1, t));
@@ -2000,8 +1996,8 @@ vec3 escenaF(vec2 uv, float t) {
 
 // la camara del ascensor del /start (t: segundos desde que estas dentro mirando a las puertas)
 Camara camaraAscensor(float t) {
-  // un jugador de pie en la cabina, con la videocamara en la mano
-  float sac = 0.004;
+  // un jugador de pie en la cabina, con la videocamara en la mano: quieta hasta que se parte el cable
+  float sac = 0.0;
   if (t > T_ROTURA) sac = mix(0.03, 0.085, smoothstep(T_ROTURA, T_IMPACTO, t));
   vec3 sh = (vec3(ruido(vec2(t * 13.0, 1.0)), ruido(vec2(t * 11.0, 5.0)), ruido(vec2(t * 9.0, 9.0))) - 0.5) * 2.0 * sac;
   vec3 ro = vec3(0.0, 1.62, 0.9) + sh;
@@ -2086,7 +2082,8 @@ void main() {
     glitch = 0.12 + abs(golpe(t, A_FRENO, 0.6) + golpe(t, A_GOLPE3, 0.3) + golpe(t, A_FRENA, 0.9)) + 0.6 * smoothstep(A_FIN - 1.0, A_FIN, t);
   } else {
     float te = t - PRO;
-    glitch = 0.12 + abs(golpe(te, T_ATASCO, 0.6) + golpe(te, T_ROTURA, 0.9) + golpe(te, T_PUERTAS, 0.6));
+    // las rayas de la cinta solo cuando el ascensor falla (antes la imagen va limpia)
+    glitch = 0.12 * smoothstep(T_ATASCO - 0.5, T_ATASCO, te) + abs(golpe(te, T_ATASCO, 0.6) + golpe(te, T_ROTURA, 0.9) + golpe(te, T_PUERTAS, 0.6));
     glitch += 0.3 * smoothstep(T_ROTURA, T_IMPACTO, te);
   }
   float banda = fract(t * 0.21 + h1(floor(t * 2.0)) * 0.3);

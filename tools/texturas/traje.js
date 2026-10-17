@@ -44,8 +44,12 @@ console.log('Traje antirradiacion');
     return null;
   });
   l.rect(8, 9, 15, 9, escala(AMARILLO, 0.75));          // borde de la capucha
-  l.rect(9, 10, 14, 12, VISOR);                         // visor
-  l.rect(9, 10, 10, 10, [120, 150, 170]);               // brillo del visor
+  // visor de cristal: hueco transparente (se ve la cara de quien lo lleva) con su marco de goma
+  // y un reflejo en la esquina (el traje se dibuja recortado: o se ve o no, sin medio cristal)
+  l.rect(8, 10, 8, 12, [58, 58, 60]);
+  l.rect(15, 10, 15, 12, [58, 58, 60]);
+  for (let y = 10; y <= 12; y++) for (let x = 9; x <= 14; x++) l.data[(y * l.width + x) * 4 + 3] = 0;
+  l.rect(14, 10, 14, 10, [190, 215, 230]);               // reflejo del cristal
   l.rect(10, 13, 13, 15, NEGRO);                        // respirador
   l.rect(8, 14, 9, 15, [70, 70, 72]);                   // filtro izquierdo
   l.rect(14, 14, 15, 15, [70, 70, 72]);                 // filtro derecho

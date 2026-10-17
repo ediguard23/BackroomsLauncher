@@ -770,5 +770,19 @@
         "attenuation_distance": 32
       }
     ]
+  },
+  "recepcion.musica": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:recepcion_musica"
+      }
+    ]
+  },
+  "piscinas.inundacion": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:piscinas_inundacion"
+      }
+    ]
   }
 }

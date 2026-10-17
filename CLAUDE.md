@@ -91,7 +91,7 @@ servidor-ejemplo/                configuración del servidor del evento
   `node tools/acceso/tienda-prueba.js <carpeta-del-servidor>`.
 - Probar sin tocar la ventana del juego (solo con `BACKROOMS_PRUEBAS=1`): escribir en
   `%TEMP%/backrooms-ordenes.txt` una orden: `inventario | pausa | cerrar | cinematica |
-  linterna | camara | tab [n] | andar [s] | correr [s] | usar [s] | captura <nombre> | cursor`. `captura` guarda
+  linterna | camara | misiones | tab [n] | andar [s] | correr [s] | usar [s] | captura <nombre> | cursor` (una orden cada medio segundo como mucho: si se escriben dos juntas, se pierden). `captura` guarda
   la imagen en `%APPDATA%/.backrooms-event/screenshots` (vale aunque la ventana esté a
   pantalla completa). El cursor del sistema no sale en las capturas: `cursor` escribe en el
   log si se ve, está oculto o capturado. `node tools/rcon.js "<comando>"` manda comandos al servidor.
@@ -142,6 +142,10 @@ servidor-ejemplo/                configuración del servidor del evento
 - Los textos y objetos flotantes (display entities) con giro 0 miran al sur; las paredes
   ocupan su bloque entero, así que un rótulo va 0,05 por delante de la cara.
 - Minecraft solo sitúa en 3D los sonidos MONO; los estéreo suenan "dentro de la cabeza".
+- Quien se teletransporta o cambia de dimension sale de `nivel.players()`: si se hace mientras se
+  recorre esa lista, ConcurrentModificationException y el servidor se cae. Recorre una copia.
+- En pruebas, `node tools/rcon.js "tp ..."` teletransporta al overworld (la consola esta alli): para
+  otra dimension, `execute in backrooms_evento:<dim> run tp ...`.
 - Ningún sonido del mod lleva `"stream": true`: si suena en streaming al cambiar de mundo, Java
   cierra el jar del mod y fallan las texturas y sonidos que se cargan después (el traje morado).
 - El mapa de luz es del mod (`assets/minecraft/shaders/core/lightmap.fsh`): igual que el de

@@ -127,6 +127,23 @@ public class GeneradorPiscinas extends ChunkGenerator {
 					fondo.update(x, y, z, e);
 					superficie.update(x, y, z, e);
 				}
+				// la cabina del ascensor de salida, excavada detras de la puerta
+				for (int y = PlanoPiscinas.PISO - 1; y <= PlanoPiscinas.PISO + 3; y++) {
+					int cab = p.cabina(wx, y, wz);
+					if (cab == PlanoPiscinas.CAB_FUERA) {
+						break;
+					}
+					BlockState e = switch (cab) {
+						case PlanoPiscinas.CAB_ACERO -> net.backrooms.evento.bloques.Bloques.ACERO.defaultBlockState();
+						case PlanoPiscinas.CAB_SUELO -> net.backrooms.evento.bloques.Bloques.ASCENSOR_SUELO.defaultBlockState();
+						case PlanoPiscinas.CAB_LUZ -> net.backrooms.evento.bloques.Bloques.LUZ_ASCENSOR.defaultBlockState();
+						default -> net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+					};
+					pos.set(x, y, z);
+					chunk.setBlockState(pos, e);
+					fondo.update(x, y, z, e);
+					superficie.update(x, y, z, e);
+				}
 				for (PlanoPiscinas.Detalle d : p.detallesEn(wx, wz)) {
 					BlockState e = detalle(d);
 					pos.set(x, d.y(), z);

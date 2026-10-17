@@ -55,6 +55,7 @@
   "entity.backrooms_evento.serpiente": "The Serpent",
   "key.backrooms_evento.linterna": "Flashlight",
   "key.backrooms_evento.camara": "Camcorder",
+  "key.backrooms_evento.misiones": "Missions (paper)",
   "key.category.backrooms_evento.backrooms": "Backrooms",
   "death.attack.backrooms_evento.cordura": "%1$s lost their mind",
   "death.attack.backrooms_evento.cordura.player": "%1$s lost their mind while fleeing %2$s",

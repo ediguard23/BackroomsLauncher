@@ -238,11 +238,38 @@ public final class Tarjetas {
 			}
 		}
 		if (this.ticks % 20 == 0) {
+			this.equipos();
 			this.ajustarPuerta(nivel, p.salida());
 			this.guardiana(nivel, p.tarjeta(PlanoPiscinas.T_ROJA));
 		}
+		this.cabina(nivel, p.salida());
 		this.cruzando.values().removeIf(t -> this.ticks - t > 40);
 		this.muertes.values().removeIf(t -> this.ticks - t > 400);
+	}
+
+	/**
+	 * Quien lleva una tarjeta sale en el TAB (y en el chat) con el color de esa tarjeta: va en un
+	 * equipo del marcador de Minecraft por color (TablaJugadores lo lee del equipo).
+	 */
+	private void equipos() {
+		net.minecraft.server.ServerScoreboard marcador = this.servidor.getScoreboard();
+		for (int c = 0; c < 3; c++) {
+			String nombre = "br_tarjeta_" + NOMBRES[c];
+			net.minecraft.world.scores.PlayerTeam equipo = marcador.getPlayerTeam(nombre);
+			if (equipo == null) {
+				equipo = marcador.addPlayerTeam(nombre);
+				equipo.setColor(TINTAS[c]);
+			}
+			String lleva = this.e.estado[c] == LLEVADA ? this.e.nombre[c] : null;
+			for (String n : new java.util.ArrayList<>(equipo.getPlayers())) {
+				if (!n.equals(lleva)) {
+					marcador.removePlayerFromTeam(n, equipo);
+				}
+			}
+			if (lleva != null && !equipo.getPlayers().contains(lleva)) {
+				marcador.addPlayerToTeam(lleva, equipo);
+			}
+		}
 	}
 
 	/** La tarjeta en el suelo, solo con alguien cerca y su chunk cargado. */
@@ -352,6 +379,12 @@ public final class Tarjetas {
 	public void coger(ServerPlayer j, TarjetaEntidad t) {
 		int c = t.color();
 		if (t.isRemoved() || j.isSpectator() || !Misiones.get().enExpedicion(j) || this.e.estado[c] == LLEVADA || this.e.estado[c] == METIDA) {
+			return;
+		}
+		// las tarjetas se ven para todos, pero solo las coge quien ya cerro sus valvulas y grabo a la Serpiente
+		if (!Misiones.get().hecha(j, TipoMision.VALVULAS) || !Misiones.get().hecha(j, TipoMision.SERPIENTE)) {
+			j.displayClientMessage(Component.literal("Primero completa tus misiones anteriores: cierra tus válvulas y graba a la Serpiente.").withStyle(ChatFormatting.GOLD), true);
+			j.level().playSound(null, t.getX(), t.getY(), t.getZ(), net.minecraft.sounds.SoundEvents.VILLAGER_NO, SoundSource.PLAYERS, 0.6F, 0.8F);
 			return;
 		}
 		if (!j.getInventory().add(new ItemStack(Objetos.TARJETAS[c]))) {
@@ -470,6 +503,38 @@ public final class Tarjetas {
 	/* -------------------------------------------------------------- cruzar */
 
 	/** Alguien entra en la puerta abierta. */
+	/** Ticks (de 10 en 10) que lleva cada uno dentro de la cabina del ascensor de salida. */
+	private final Map<UUID, Integer> enCabina = new HashMap<>();
+
+	/**
+	 * El ascensor de salida: quien ha hecho sus misiones y se queda un momento dentro de la
+	 * cabina (con la puerta abierta) sube: cruza la salida (cruzar).
+	 */
+	private void cabina(ServerLevel nivel, PlanoPiscinas.Salida s) {
+		if (!this.abierta()) {
+			this.enCabina.clear();
+			return;
+		}
+		java.util.Set<UUID> vistos = new java.util.HashSet<>();
+		// sobre una copia: quien sube cambia de dimension y sale de la lista (si no, el servidor se cae)
+		for (ServerPlayer j : new java.util.ArrayList<>(nivel.players())) {
+			if (j.isSpectator() || !s.enCabina(j.getX(), j.getY(), j.getZ())) {
+				continue;
+			}
+			vistos.add(j.getUUID());
+			int n = this.enCabina.merge(j.getUUID(), 10, Integer::sum);
+			if (n == 10) {
+				nivel.playSound(null, j.blockPosition(), Sonidos.ASCENSOR_PANEL, SoundSource.BLOCKS, 1.0F, 1.0F);
+			}
+			if (n >= 30) {
+				this.enCabina.remove(j.getUUID());
+				vistos.remove(j.getUUID());
+				this.cruzar(j, j.blockPosition(), Direction.from2DDataValue(0));
+			}
+		}
+		this.enCabina.keySet().retainAll(vistos);
+	}
+
 	public void cruzar(ServerPlayer j, BlockPos pos, Direction mira) {
 		if (this.cruzando.containsKey(j.getUUID()) || j.isSpectator()) {
 			return;

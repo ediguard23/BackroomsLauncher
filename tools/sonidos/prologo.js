@@ -34,7 +34,7 @@ const CIERRA1 = PRO + 3.4;
 const suave = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
 
 // los recorridos del shader, para poner los pasos donde caen
-const RUTA_I = [[0.0, -18.05], [1.75, -17.85], [1.75, -15.2], [0.55, -14.0], [0.12, -12.9], [0.5, -4.0], [1.25, -2.35]];
+const RUTA_I = [[0.0, -18.05], [1.75, -17.85], [1.75, -15.2], [0.6, -14.6], [0.0, -14.1], [0.0, -12.6], [0.5, -4.0], [1.25, -2.35]];
 const RUTA_J = [[-0.55, -15.0], [-0.35, -14.3], [0.0, -13.7], [0.0, -13.0], [0.0, -2.5], [0.0, 0.9]];
 
 function avance (u, a) {

@@ -142,6 +142,8 @@ public final class Fases {
 		ServerPlayNetworking.send(j, sig == null ? new ViajeAscensor(ViajeAscensor.PISCINAS, Piscinas.NOMBRE, Piscinas.SUBTITULO)
 			: new ViajeAscensor(sig.numero(), sig.nombre(), sig.dificultad()));
 		j.level().playSound(null, panel, net.backrooms.evento.Sonidos.ASCENSOR_PANEL, SoundSource.BLOCKS, 1.0F, 1.0F);
+		// la cinematica de la bajada (CinematicaCliente.fin del guion 2, 33 s): sin voz ni chat
+		net.backrooms.evento.expedicion.EnCinematica.poner(j, 33.0);
 		int bajada = bajada(sig == null ? ViajeAscensor.PISCINAS : sig.numero());
 		// mientras ve la cinematica sigue de pie en el ascensor: ni se mueve ni le hacen dano
 		// (y la Bacteria y los Smilers no van a por el: viajando)
