@@ -9,9 +9,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 
 /**
- * La linterna y la camara. Se encienden con su tecla (F y C por defecto, se
- * cambian en Controles) desde cualquier hueco del inventario, o con clic
- * derecho si se tienen en la mano.
+ * La linterna y la camara. Se encienden solo con su tecla (F y C por defecto, se
+ * cambian en Controles) desde cualquier hueco del inventario: el clic derecho no hace nada
+ * (se encendian sin querer al abrir puertas o coger cosas).
  */
 public class Herramienta extends Item {
 	private final int accion;
@@ -23,11 +23,10 @@ public class Herramienta extends Item {
 
 	@Override
 	public InteractionResult use(Level nivel, Player jugador, InteractionHand mano) {
-		if (jugador instanceof ServerPlayer sp) {
-			HerramientasServidor h = HerramientasServidor.get();
-			boolean ahora = this.accion == AccionJugador.LINTERNA ? h.linterna(sp) : h.camara(sp);
-			h.accion(sp, this.accion, !ahora);
-		}
-		return InteractionResult.SUCCESS;
+		return InteractionResult.PASS;
+	}
+
+	public int accion() {
+		return this.accion;
 	}
 }

@@ -63,8 +63,8 @@ public final class Misiones {
 	/** Estado guardado de un jugador. */
 	public static final class Estado {
 		/**
-		 * Se hacen en cualquier orden: al completar una se pasa delante de las pendientes,
-		 * asi [0, actual) son las hechas y la de `actual` es la que sale "en curso".
+		 * Se hacen en orden: [0, actual) son las hechas y la de `actual` es la que esta "en
+		 * curso" (la unica que avanza: grabar algo de una mision posterior no cuenta).
 		 */
 		public List<TipoMision> misiones = new ArrayList<>();
 		public int actual;
@@ -218,10 +218,7 @@ public final class Misiones {
 		e.valvulas.addAll(net.backrooms.evento.piscinas.Valvulas.get().elegir(jugador.level(), origen));
 		this.estados.put(jugador.getUUID(), e);
 		this.sucio = true;
-		if (net.backrooms.evento.piscinas.Tarjetas.get().abierta()) {
-			java.util.Collections.swap(e.misiones, 2, 0);
-			e.actual = 1;
-		}
+		// en orden: valvulas, Serpiente y la salida (si ya esta abierta, se da hecha al llegar a ella)
 		this.sincronizar(jugador);
 	}
 
@@ -240,12 +237,15 @@ public final class Misiones {
 		return true;
 	}
 
-	/** Esa mision hecha para todos los que la tengan pendiente (la salida de emergencia). */
+	/**
+	 * Esa mision hecha para todos los que la tengan en curso (la salida de emergencia); quien
+	 * aun va por las anteriores la tendra hecha al llegar a ella (completar).
+	 */
 	public void completarParaTodos(TipoMision tipo) {
 		for (Map.Entry<UUID, Estado> en : this.estados.entrySet()) {
 			Estado e = en.getValue();
 			int k = pendiente(e, tipo);
-			if (k < 0) {
+			if (k < 0 || k != e.actual) {
 				continue;
 			}
 			ServerPlayer j = this.servidor == null ? null : this.servidor.getPlayerList().getPlayer(en.getKey());
@@ -333,28 +333,19 @@ public final class Misiones {
 		return -1;
 	}
 
-	/** Las misiones de grabar que le quedan (en cualquier orden). */
+	/** La mision de grabar que puede avanzar: solo la que esta en curso (se hacen en orden). */
 	public List<TipoMision> grabacionesPendientes(ServerPlayer j) {
-		Estado e = this.estado(j);
-		List<TipoMision> l = new ArrayList<>();
-		if (e != null) {
-			for (int i = e.actual; i < e.misiones.size(); i++) {
-				if (segundosGrabar(e.misiones.get(i)) > 0) {
-					l.add(e.misiones.get(i));
-				}
-			}
-		}
-		return l;
+		TipoMision m = this.grabacionEnCurso(j);
+		return m == null ? List.of() : List.of(m);
 	}
 
 	/**
-	 * Marca hecha esa mision si la tiene pendiente, sea cual sea (no hace falta ir en orden):
-	 * se pasa delante de las pendientes. Devuelve true si avanzo.
+	 * Marca hecha esa mision si es la que esta en curso (van en orden). Devuelve true si avanzo.
 	 */
 	public boolean completar(ServerPlayer jugador, TipoMision tipo) {
 		Estado e = this.estado(jugador);
 		int k = e == null ? -1 : pendiente(e, tipo);
-		if (k < 0) {
+		if (k < 0 || k != e.actual) {
 			return false;
 		}
 		java.util.Collections.swap(e.misiones, k, e.actual);
@@ -370,6 +361,11 @@ public final class Misiones {
 			jugador.displayClientMessage(Component.literal("Misiones completadas. El radar ya marca " + donde + ".").withStyle(ChatFormatting.GOLD), false);
 		} else {
 			TipoMision sig = e.misiones.get(e.actual);
+			if (sig == TipoMision.SALIDA && net.backrooms.evento.piscinas.Tarjetas.get().abierta()) {
+				// la salida ya la abrieron otros: hecha
+				this.completar(jugador, sig);
+				return true;
+			}
 			jugador.displayClientMessage(Component.literal("Misión completada. Siguiente: " + sig.titulo).withStyle(ChatFormatting.YELLOW), false);
 		}
 		this.sincronizar(jugador);
@@ -547,6 +543,12 @@ public final class Misiones {
 				ServerPlayNetworking.send(j, new net.backrooms.evento.red.Evidencia());
 			}
 		}
+	}
+
+	/** La mision en curso, o null si no tiene o ya las hizo todas. */
+	public TipoMision enCurso(ServerPlayer j) {
+		Estado e = this.estado(j);
+		return e == null || e.actual >= e.misiones.size() ? null : e.misiones.get(e.actual);
 	}
 
 	/** La mision de grabar en curso, o null. */

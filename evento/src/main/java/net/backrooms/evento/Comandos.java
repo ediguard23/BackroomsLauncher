@@ -38,8 +38,9 @@ import net.minecraft.server.level.ServerPlayer;
  *  cinematica piscinas [jugador]  la de la bajada a las Piscinas, sin viaje
  *  apagon|alarma [segundos]  fuerza un apagon o una alarma en la fase donde estas (en las
  *                            Piscinas, solo alarma)
- *  inundacion [segundos|parar] la inundacion de las Piscinas: empieza ya (el agua sube en esos
- *                            segundos, 80 por defecto) o se para; sin nada, como va
+ *  inundacion [segundos|parar] la inundacion de las Piscinas: empieza ya (20 s de alarma y el
+ *                            agua sube en esos segundos, 40 en las automaticas) o se quita; sin
+ *                            nada, como va
  *  luz                       vuelve la luz normal
  *  ambiente [auto on|off]    como esta la luz y si los sucesos van solos
  *  fase <n> [jugador]        lo manda ya a la fase n con misiones nuevas (solo queda la 1)
@@ -54,8 +55,10 @@ import net.minecraft.server.level.ServerPlayer;
  *  piscinas oir <sonido> <jugador>  que oiga ya uno de los sonidos sueltos de las Piscinas
  *                            (gota, agua, orilla, chapoteo, tuberia, grave, grunido, voz, susurro)
  *  recepcion [jugador]       lo lleva a la recepcion (donde se espera el /start)
+ *  megafono                  enciende/apaga tu voz para todos (chat de voz sin distancia)
  *  vestibulo [jugador]       lo lleva al vestibulo (la sala del final); "vestibulo rehacer" repone los rotulos
  *  muerte eliminar|reaparecer  morir saca de la expedicion (por defecto) o reaparece en la fase
+ *  reparar [radio]            deja los chunks de alrededor como los hizo el generador
  *  perdonar                   quita el ban a todos los que cayeron (al acabar el evento o tras una prueba)
  *  escapados [olvidar]       quienes han escapado y en que puesto
  *  invocar bacteria|smiler|serpiente  la pone delante
@@ -201,6 +204,11 @@ public final class Comandos {
 				.then(Commands.argument("jugador", EntityArgument.player())
 					.executes(c -> net.backrooms.evento.piscinas.Piscinas.llegar(EntityArgument.getPlayer(c, "jugador")) ? 1 : 0)))
 			.then(tarjetas())
+			.then(Commands.literal("megafono")
+				.executes(c -> {
+					net.backrooms.evento.expedicion.MegafonoStaff.alternar(c.getSource().getPlayerOrException());
+					return 1;
+				}))
 			.then(Commands.literal("recepcion")
 				.executes(c -> {
 					Vestibulo.get().recepcion(c.getSource().getPlayerOrException());
@@ -227,6 +235,9 @@ public final class Comandos {
 			.then(Commands.literal("muerte")
 				.then(Commands.literal("eliminar").executes(c -> muerte(c, true)))
 				.then(Commands.literal("reaparecer").executes(c -> muerte(c, false))))
+			.then(Commands.literal("reparar")
+				.executes(c -> reparar(c, 1))
+				.then(Commands.argument("radio", IntegerArgumentType.integer(0, 4)).executes(c -> reparar(c, IntegerArgumentType.getInteger(c, "radio")))))
 			.then(Commands.literal("perdonar").executes(c -> {
 				int n = net.backrooms.evento.expedicion.Eliminacion.get().perdonar();
 				c.getSource().sendSuccess(() -> Component.literal("Ban quitado a " + n + " eliminado" + (n == 1 ? "" : "s") + "."), true);
@@ -293,6 +304,42 @@ public final class Comandos {
 		Fases.get().mandar(j, f);
 		c.getSource().sendSuccess(() -> Component.literal(j.getGameProfile().name() + " a la fase " + f.numero() + " (" + f.nombre() + ")"), true);
 		return 1;
+	}
+
+	/**
+	 * Deja los chunks de alrededor (radio en chunks) como los hizo el generador: paredes rotas,
+	 * bloques puestos o quitados a mano... Solo la franja del nivel (y de 30 a 64).
+	 */
+	private static int reparar(CommandContext<CommandSourceStack> c, int radio) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		ServerPlayer j = c.getSource().getPlayerOrException();
+		ServerLevel n = j.level();
+		net.minecraft.world.level.chunk.ChunkGenerator gen = n.getChunkSource().getGenerator();
+		net.minecraft.world.level.ChunkPos centro = j.chunkPosition();
+		int cambiados = 0;
+		for (int dx = -radio; dx <= radio; dx++) {
+			for (int dz = -radio; dz <= radio; dz++) {
+				net.minecraft.world.level.ChunkPos cp = new net.minecraft.world.level.ChunkPos(centro.x + dx, centro.z + dz);
+				net.minecraft.world.level.chunk.ProtoChunk p = new net.minecraft.world.level.chunk.ProtoChunk(cp,
+					net.minecraft.world.level.chunk.UpgradeData.EMPTY, n, n.palettedContainerFactory(), null);
+				gen.fillFromNoise(net.minecraft.world.level.levelgen.blending.Blender.empty(), n.getChunkSource().randomState(), n.structureManager(), p).join();
+				net.minecraft.core.BlockPos.MutableBlockPos pos = new net.minecraft.core.BlockPos.MutableBlockPos();
+				for (int x = cp.getMinBlockX(); x <= cp.getMaxBlockX(); x++) {
+					for (int z = cp.getMinBlockZ(); z <= cp.getMaxBlockZ(); z++) {
+						for (int y = 30; y <= 64; y++) {
+							pos.set(x, y, z);
+							net.minecraft.world.level.block.state.BlockState quiero = p.getBlockState(pos);
+							if (!n.getBlockState(pos).equals(quiero)) {
+								n.setBlock(pos, quiero, net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+								cambiados++;
+							}
+						}
+					}
+				}
+			}
+		}
+		int total = cambiados;
+		c.getSource().sendSuccess(() -> Component.literal("Reparados " + total + " bloques (" + (2 * radio + 1) + "x" + (2 * radio + 1) + " chunks)."), true);
+		return total;
 	}
 
 	private static int muerte(CommandContext<CommandSourceStack> c, boolean elimina) {

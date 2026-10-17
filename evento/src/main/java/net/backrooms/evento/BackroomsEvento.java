@@ -85,6 +85,8 @@ public class BackroomsEvento implements ModInitializer {
 		net.backrooms.evento.escondite.Escondites.registrar();
 		net.backrooms.evento.mision.Grabacion.registrar();
 		net.backrooms.evento.acceso.Acceso.registrar();
+		net.backrooms.evento.acceso.ColaEntrada.registrar();
+		net.backrooms.evento.expedicion.MegafonoStaff.registrar();
 		Comandos.registrar();
 		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("nivel_0"), GeneradorNivel0.CODEC);
 		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("vestibulo"), GeneradorVestibulo.CODEC);

@@ -31,7 +31,9 @@ import org.jspecify.annotations.Nullable;
  *
  * Bacterias: en cada fase hay unas cuantas por cada 10 jugadores
  * (Fase.bacterias, minimo 1). Aparecen lejos de todos (45-75 bloques de
- * alguien) y se quitan si se quedan sin nadie a menos de 140.
+ * alguien) y se quitan si se quedan sin nadie a menos de 140. Ademas, mientras haya alguien
+ * jugando en la fase, cada REFUERZO (3 min) aparece una mas, hasta una mas por jugador (y
+ * MAX_BACTERIAS): cuanto mas se tarda, mas Bacterias rondan.
  *
  * Smilers: al irse la luz, a cada jugador le puede tocar uno (Fase.smiler)
  * unos segundos despues, a 12-20 bloques y casi siempre a su espalda. Se
@@ -40,6 +42,10 @@ import org.jspecify.annotations.Nullable;
 public final class Acechadores {
 	private static final Acechadores INSTANCIA = new Acechadores();
 	private static final int MAX_BACTERIAS = 40;
+	/** Ticks entre refuerzos (una Bacteria mas). */
+	public static final int REFUERZO = 20 * 180;
+	/** Por fase: cuantos refuerzos lleva y el tick del siguiente (sin nadie, se reinicia). */
+	private final Map<ResourceKey<Level>, long[]> refuerzos = new HashMap<>();
 
 	public static Acechadores get() {
 		return INSTANCIA;
@@ -131,9 +137,11 @@ public final class Acechadores {
 		vivas.removeIf(b -> b.isRemoved());
 		List<ServerPlayer> jugando = this.jugando(nivel);
 		if (!this.activos || jugando.isEmpty()) {
+			this.refuerzos.remove(nivel.dimension());
 			return;
 		}
-		int quiero = Math.min(MAX_BACTERIAS, Math.max(1, (int) Math.round(jugando.size() / 10.0 * f.bacterias())));
+		int base = Math.max(1, (int) Math.round(jugando.size() / 10.0 * f.bacterias()));
+		int quiero = Math.min(MAX_BACTERIAS, base + refuerzos(this.refuerzos, nivel, this.ticks, jugando.size()));
 		if (vivas.size() >= quiero) {
 			return;
 		}
@@ -142,6 +150,19 @@ public final class Acechadores {
 		if (p != null) {
 			this.poner(nivel, p);
 		}
+	}
+
+	/**
+	 * Cuantas entidades de refuerzo tocan ya en ese nivel: una cada REFUERZO ticks desde que
+	 * hay alguien jugando, como mucho una por jugador. Lo usan tambien las Serpientes (Habitantes).
+	 */
+	public static int refuerzos(Map<ResourceKey<Level>, long[]> tabla, ServerLevel nivel, long ahora, int jugadores) {
+		long[] r = tabla.computeIfAbsent(nivel.dimension(), k -> new long[] {0, ahora + REFUERZO});
+		if (ahora >= r[1]) {
+			r[0] = Math.min(r[0] + 1, jugadores);
+			r[1] = ahora + REFUERZO;
+		}
+		return (int) Math.min(r[0], jugadores);
 	}
 
 	public @Nullable Bacteria poner(ServerLevel nivel, BlockPos p) {

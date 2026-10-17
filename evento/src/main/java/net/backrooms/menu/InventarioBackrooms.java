@@ -68,9 +68,9 @@ public class InventarioBackrooms extends AbstractContainerScreen<InventoryMenu> 
 		return super.hasClickedOutside(mx, my, izq, arriba);
 	}
 
-	/** Los huecos del crafteo (resultado y 2x2) no existen en este inventario. */
+	/** Los huecos del crafteo (resultado y 2x2) y el de la mano izquierda no existen en este inventario. */
 	private static boolean oculto(Slot s) {
-		return s.index >= InventoryMenu.RESULT_SLOT && s.index < InventoryMenu.CRAFT_SLOT_END;
+		return s.index >= InventoryMenu.RESULT_SLOT && s.index < InventoryMenu.CRAFT_SLOT_END || s.index == InventoryMenu.SHIELD_SLOT;
 	}
 
 	@Override

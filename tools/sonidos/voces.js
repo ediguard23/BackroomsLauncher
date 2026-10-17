@@ -10,6 +10,12 @@
  *  megafonia_*   campanilla "ding-dong" y la voz por un altavoz de techo viejo
  *                (sin graves ni agudos, algo saturada) rebotando en el vestibulo
  *  megafonia_alerta  la de la alarma: tonos de aviso, mas rota y muy lejana
+ *  megafonia_inundacion / megafonia_drenaje  las de la inundacion de las Piscinas
+ *                (fallo del drenaje / averia contenida), con los tonos de aviso
+ *  megafonia_recepcion_*  los avisos de la recepcion (cada 2 min, a todos a la vez)
+ *
+ * Si falta el wav de una voz (aun sin generar), esa megafonia sale solo con su
+ * campanilla o sus tonos, y la recepcion se queda con las que haya.
  *  susurro_*     mas grave y lenta, con aliento por encima (ruido que sigue a
  *                la voz), muy cerca y con eco: para las alucinaciones (mono)
  *
@@ -36,8 +42,13 @@ function ffmpeg () {
   return 'ffmpeg';
 }
 
+function hay (nombre) {
+  return fs.existsSync(path.join(ORIGEN, `${nombre}.wav`));
+}
+
 /** Lee un wav como mono float a 44,1 kHz; `velocidad` < 1 lo hace mas lento y grave. */
 function leer (nombre, velocidad = 1) {
+  if (!hay(nombre)) return silencio(0.5);
   const filtros = velocidad === 1 ? 'aresample=44100' : `asetrate=24000*${velocidad},aresample=44100`;
   const buf = execFileSync(ffmpeg(), ['-v', 'error', '-i', path.join(ORIGEN, `${nombre}.wav`), '-af', filtros, '-ac', '1', '-f', 'f32le', '-'],
     { maxBuffer: 1 << 28 });
@@ -109,8 +120,8 @@ function megafonia (nombre) {
   return D.fundidos(D.masterizar(aEstereo(todo, 0.92, 0.55, { predelayMs: 35 }), { rmsDb: -19, picoDb: -1 }));
 }
 
-function alerta () {
-  const voz = altavoz(leer('megafonia_alerta'), { bajo: 450, alto: 2900, saturacion: 3.2 });
+function alerta (nombre = 'megafonia_alerta') {
+  const voz = altavoz(leer(nombre), { bajo: 450, alto: 2900, saturacion: 3.2 });
   const todo = concatenar(silencio(0.1), altavoz(tonosAviso(), { saturacion: 2 }), voz, silencio(2.5));
   return D.fundidos(D.masterizar(aEstereo(todo, 0.97, 1.1, { predelayMs: 70 }), { rmsDb: -20, picoDb: -1 }));
 }
@@ -159,16 +170,28 @@ async function guardarEst (nombre, est) {
 
 (async () => {
   console.log('Voces');
-  await guardarEst('megafonia_auditorio', megafonia('megafonia_auditorio'));
   await guardarEst('megafonia_linterna', megafonia('megafonia_linterna'));
   await guardarEst('megafonia_alerta', alerta());
+  await guardarEst('megafonia_inundacion', alerta('megafonia_inundacion'));
+  await guardarEst('megafonia_drenaje', megafonia('megafonia_drenaje'));
+  const recepcion = ['megafonia_recepcion_1', 'megafonia_recepcion_2', 'megafonia_recepcion_3'].filter(hay);
+  for (const r of recepcion) await guardarEst(r, megafonia(r));
   await guardarMono('susurro_detras', susurro('susurro_detras'));
   await guardarMono('susurro_atras', susurro('susurro_atras'));
 
   const f = path.join(SALIDA, '..', 'sounds.json');
   const j = JSON.parse(fs.readFileSync(f, 'utf8'));
-  j['megafonia.vestibulo'] = { sounds: [{ name: 'backrooms_evento:megafonia_auditorio' }, { name: 'backrooms_evento:megafonia_linterna' }] };
+  // la recepcion ya no manda a nadie al auditorio: la linterna y los avisos de espera, uno por
+  // evento para que el servidor elija cual (y todos oigan el mismo a la vez: Vestibulo#megafonia);
+  // un aviso sin grabar aun suena como el de la linterna
+  j['megafonia.vestibulo'] = { sounds: [{ name: 'backrooms_evento:megafonia_linterna' }] };
+  for (let i = 1; i <= 3; i++) {
+    const n = `megafonia_recepcion_${i}`;
+    j[`megafonia.recepcion_${i}`] = { sounds: [{ name: `backrooms_evento:${recepcion.includes(n) ? n : 'megafonia_linterna'}` }] };
+  }
   j['megafonia.alerta'] = { sounds: [{ name: 'backrooms_evento:megafonia_alerta' }] };
+  j['megafonia.inundacion'] = { sounds: [{ name: 'backrooms_evento:megafonia_inundacion' }] };
+  j['megafonia.drenaje'] = { sounds: [{ name: 'backrooms_evento:megafonia_drenaje' }] };
   j.susurros = {
     sounds: [
       { name: 'backrooms_evento:susurros', weight: 1 },

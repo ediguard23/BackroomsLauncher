@@ -208,13 +208,15 @@ public class PantallaCinematica extends Screen {
 			s = "—Gracias por venir. Solo necesitamos su firma.";
 		} else if (t > 5.0F && t < 8.6F) {
 			s = "—Es un estudio sencillo. Léalo con calma.";
-		} else if (t > 16.4F && t < 19.4F) {
+		} else if (t > 15.0F && t < 18.2F) {
+			s = "—Tómese su tiempo. No hay prisa.";
+		} else if (t > 24.4F && t < 27.4F) {
 			s = "—Aquí abajo, por favor.";
-		} else if (t > 24.7F && t < 28.4F) {
+		} else if (t > 32.7F && t < 36.4F) {
 			s = "—Perfecto. Acompáñeme: el ascensor le espera.";
-		} else if (t > 32.6F && t < 35.0F) {
+		} else if (t > 40.6F && t < 43.0F) {
 			s = "—Pase, por favor.";
-		} else if (t > 36.7F && t < 39.6F) {
+		} else if (t > 44.7F && t < 47.6F) {
 			s = "—Le veremos al otro lado.";
 		}
 		if (s == null) {

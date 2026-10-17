@@ -59,6 +59,10 @@ public final class Tarjetas {
 	/** A esta distancia de alguien aparece la tarjeta tirada (y a QUITAR se quita). */
 	private static final double VER = 48.0;
 	private static final double QUITAR = 64.0;
+	/** Hasta donde se ve el brillo de una tarjeta (para quien tiene en curso la mision SALIDA). */
+	private static final double BRILLO = 160.0;
+	/** El color de cada tarjeta, para su brillo. */
+	private static final int[] COLORES = {0xFF2A1E, 0xFFD21E, 0x2EE84A};
 	/** Con alguien a esta distancia de la roja en su sitio, aparece su guardiana. */
 	private static final double GUARDIANA = 90.0;
 
@@ -232,8 +236,12 @@ public final class Tarjetas {
 				case EN_SITIO -> {
 					int[] t = p.tarjeta(c);
 					this.mostrar(nivel, c, t[0] + 0.5, t[1], t[2] + 0.5);
+					this.brillo(nivel, c, t[0] + 0.5, t[1], t[2] + 0.5);
 				}
-				case SUELTA -> this.mostrar(nivel, c, this.e.suelta[c][0], this.e.suelta[c][1], this.e.suelta[c][2]);
+				case SUELTA -> {
+					this.mostrar(nivel, c, this.e.suelta[c][0], this.e.suelta[c][1], this.e.suelta[c][2]);
+					this.brillo(nivel, c, this.e.suelta[c][0], this.e.suelta[c][1], this.e.suelta[c][2]);
+				}
 				default -> this.quitar(c);
 			}
 		}
@@ -269,6 +277,24 @@ public final class Tarjetas {
 			if (lleva != null && !equipo.getPlayers().contains(lleva)) {
 				marcador.addPlayerToTeam(lleva, equipo);
 			}
+		}
+	}
+
+	/**
+	 * El brillo de una tarjeta que esta por ahi (en su escondite o tirada): un halo de su color y
+	 * una columna de luz que sube, que se ven de lejos (por encima de los bordes de las piscinas).
+	 * Solo lo ve quien esta buscandolas (la mision SALIDA en curso): son particulas mandadas a
+	 * cada uno, no un efecto de la entidad.
+	 */
+	private void brillo(ServerLevel nivel, int c, double x, double y, double z) {
+		net.minecraft.core.particles.DustParticleOptions halo = new net.minecraft.core.particles.DustParticleOptions(COLORES[c], 2.6F);
+		net.minecraft.core.particles.DustParticleOptions haz = new net.minecraft.core.particles.DustParticleOptions(COLORES[c], 1.6F);
+		for (ServerPlayer j : nivel.players()) {
+			if (j.distanceToSqr(x, y, z) > BRILLO * BRILLO || Misiones.get().enCurso(j) != TipoMision.SALIDA) {
+				continue;
+			}
+			nivel.sendParticles(j, halo, true, true, x, y + 0.35, z, 6, 0.35, 0.2, 0.35, 0.0);
+			nivel.sendParticles(j, haz, true, true, x, y + 2.5, z, 6, 0.08, 2.0, 0.08, 0.0);
 		}
 	}
 

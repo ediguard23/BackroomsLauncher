@@ -72,6 +72,30 @@ public final class Comida {
 		});
 		ServerLifecycleEvents.SERVER_STOPPING.register(s -> INSTANCIA.guardar());
 		ServerTickEvents.END_SERVER_TICK.register(s -> INSTANCIA.tick());
+		net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.AFTER_DEATH.register((ent, fuente) -> {
+			if (ent instanceof ServerPlayer j) {
+				soltarComida(j);
+			}
+		});
+	}
+
+	/**
+	 * El evento juega con keep_inventory (el traje, la linterna y la camara no se pierden), pero la
+	 * comida y el agua de almendras se caen donde murio: otro puede aprovecharlas. La tarjeta la
+	 * suelta Tarjetas#alMorir.
+	 */
+	private static void soltarComida(ServerPlayer j) {
+		if (!net.backrooms.evento.piscinas.Piscinas.delEvento(j.level())) {
+			return;
+		}
+		net.minecraft.world.entity.player.Inventory inv = j.getInventory();
+		for (int i = 0; i < inv.getContainerSize(); i++) {
+			net.minecraft.world.item.ItemStack s = inv.getItem(i);
+			if (!s.isEmpty() && s.has(net.minecraft.core.component.DataComponents.FOOD)) {
+				inv.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
+				j.drop(s, true, false);
+			}
+		}
 	}
 
 	private Path archivo() {

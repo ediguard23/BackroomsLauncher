@@ -21,13 +21,16 @@ import org.jspecify.annotations.Nullable;
  * Quien vive en las Piscinas: las Serpientes. Una por cada 10 jugadores de la expedicion
  * que esten alli (minimo una, como la Bacteria en la fase 1). Aparecen lejos de todos (a
  * 45-75 bloques de alguien y a mas de 30 de cualquiera) y se van si se quedan sin nadie a
- * menos de 140. Con /backrooms acechadores false no aparece ninguna (como las del Nivel 0).
+ * menos de 140. Y cada 3 min con gente aparece una mas, hasta una mas por jugador
+ * (Acechadores#refuerzos). Mientras dura la inundacion no aparecen nuevas. Con /backrooms
+ * acechadores false no aparece ninguna (como las del Nivel 0).
  */
 public final class Habitantes {
 	private static final int MAX = 20;
 	private static MinecraftServer servidor;
 	private static long ticks;
 	private static final Random azar = new Random();
+	private static final java.util.Map<net.minecraft.resources.ResourceKey<net.minecraft.world.level.Level>, long[]> refuerzos = new java.util.HashMap<>();
 
 	private Habitantes() {
 	}
@@ -65,9 +68,14 @@ public final class Habitantes {
 			}
 		}
 		if (!Acechadores.get().activos() || jugando.isEmpty()) {
+			refuerzos.clear();
 			return;
 		}
-		int quiero = Math.min(MAX, Math.max(1, (int) Math.round(jugando.size() / 10.0)));
+		int quiero = Math.min(MAX, Math.max(1, (int) Math.round(jugando.size() / 10.0))
+			+ Acechadores.refuerzos(refuerzos, nivel, ticks, jugando.size()));
+		if (Inundacion.get().activa()) {
+			return;
+		}
 		if (vivas.size() >= quiero) {
 			return;
 		}

@@ -3,7 +3,7 @@
 /**
  * Banda sonora de la cinematica del /start, sincronizada con
  * evento/.../shaders/core/cinematica.fsh y CinematicaCliente.java. Delante va el
- * prologo (prologo.js: la sala de reuniones, la firma y el pasillo, PRO = 36.5 s); lo
+ * prologo (prologo.js: la sala de reuniones, la firma y el pasillo, PRO = 44.5 s); lo
  * de abajo es el ascensor, en segundos desde que acaba el prologo:
  *
  *   2.0  se cierran las puertas (rodillos y golpe metalico)

@@ -47,8 +47,8 @@ public final class HerramientasCliente {
 			linternasCerca = p.linternasCerca();
 		});
 		ClientTickEvents.START_CLIENT_TICK.register(mc -> {
-			// antes de que el juego mire sus teclas: la F de la linterna no cambia de mano
-			if (mc.player != null && LINTERNA.same(mc.options.keySwapOffhand)) {
+			// antes de que el juego mire sus teclas: no hay mano izquierda (la F es la linterna)
+			if (mc.player != null && !mc.player.hasInfiniteMaterials()) {
 				while (mc.options.keySwapOffhand.consumeClick()) {
 					// nada
 				}

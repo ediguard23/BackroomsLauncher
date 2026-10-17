@@ -1,16 +1,13 @@
 package net.backrooms.evento.piscinas;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 import net.backrooms.evento.BackroomsEvento;
 import net.backrooms.evento.Sonidos;
 import net.backrooms.evento.ambiente.Ambiente;
 import net.backrooms.evento.red.EstadoInundacion;
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
@@ -18,37 +15,42 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.Level;
 
 /**
- * La inundacion de las Piscinas: suena la alarma de la megafonia y el agua empieza a subir
- * por toda la planta baja hasta casi el techo de las salas bajas (MAXIMO, por encima de la
- * cabeza de quien este en el suelo); se queda un rato y luego baja. Solo se salva quien sube
- * a una planta alta (los caracoles y las terrazas: se pisa en PlanoPiscinas.PLANTA + 1) o a
- * lo alto de una escalera. Quien se queda debajo se queda sin aire y se ahoga.
+ * La inundacion de las Piscinas, cada CADA minutos (o cuando el staff quiera):
  *
- * No se llena el mapa de bloques de agua (serian millones con todos repartidos): el agua es
- * una altura que el servidor lleva y manda (EstadoInundacion) y el cliente dibuja
- * (InundacionCliente, efectos.fsh). El aire y el ahogo los lleva esta clase.
+ *   0 s      alarma roja (las luces en rojo y la sirena, Ambiente) y la megafonia: fallo en el
+ *            sistema de drenaje, busquen refugio en las plantas altas
+ *   20 s     el agua empieza a subir por toda la planta baja; en SUBE segundos esta a MAXIMO
+ *            (7 bloques sobre el suelo: tapa a quien se quede abajo; la planta alta, que se
+ *            pisa en PlanoPiscinas.PLANTA + 1, queda seca)
+ *   +40 s    lleno; la megafonia avisa de que la averia esta contenida, se apaga la alarma
+ *            y el agua baja en BAJA segundos
  *
- * Sale sola cada CADA minutos (nunca con la alarma) mientras hay alguien en las Piscinas;
- * el staff la fuerza o la para con /backrooms inundacion.
+ * El agua no son bloques (serian millones): es una altura que el servidor lleva y manda
+ * (EstadoInundacion) y que cuenta como agua de Minecraft para los jugadores
+ * (InundacionAguaMixin: nadan, se ahogan, no se hacen dano al caer; InundacionCamaraMixin:
+ * la niebla de debajo del agua). El cliente dibuja la superficie (efectos.fsh). Mientras
+ * dura, las Serpientes no cazan (Serpiente): nadie puede correr dentro del agua.
+ *
+ * `/backrooms inundacion [segundos|parar]` la fuerza o la para.
  */
 public final class Inundacion {
 	private static final Inundacion INSTANCIA = new Inundacion();
-	/** Altura del agua: desde el suelo seco hasta por encima de la cabeza en la planta baja. */
+	/** Altura del agua: desde el suelo seco hasta 7 bloques por encima. */
 	public static final float BAJO = PlanoPiscinas.PISO - 0.05F;
-	public static final float MAXIMO = PlanoPiscinas.PISO + 5.5F;
+	public static final float MAXIMO = PlanoPiscinas.PISO + 7.0F;
 	/** Minutos entre inundaciones. */
-	private static final int[] CADA = {14, 22};
-	/** Segundos: aviso (la megafonia, sin agua aun), subida, lleno y bajada. */
-	private static final float AVISO = 8.0F;
-	private static final float SUBE = 80.0F;
-	private static final float LLENO = 50.0F;
+	private static final int[] CADA = {10, 15};
+	/** Segundos: alarma (sin agua aun), subida, lleno y bajada. */
+	private static final float AVISO = 20.0F;
+	private static final float SUBE = 40.0F;
+	private static final float LLENO = 40.0F;
 	private static final float BAJA = 40.0F;
-	/** Aire como el de Minecraft (300 ticks, 15 s) y lo que se recupera fuera del agua. */
-	private static final int AIRE = 300;
+
+	/** En el cliente, la altura del agua que dibuja (la pone InundacionCliente); -1 sin agua. */
+	public static java.util.function.DoubleSupplier nivelCliente = () -> -1.0;
 
 	public static Inundacion get() {
 		return INSTANCIA;
@@ -59,10 +61,9 @@ public final class Inundacion {
 	private long ticks;
 	/** Ticks desde que empezo (-1 sin inundacion). */
 	private long desde = -1;
-	private float duracion = SUBE + LLENO + BAJA;
+	private float sube = SUBE;
 	private long proxima = -1;
-	private final Map<UUID, Integer> aire = new HashMap<>();
-	private boolean habia;
+	private boolean avisoFin;
 
 	private Inundacion() {
 	}
@@ -74,56 +75,80 @@ public final class Inundacion {
 		ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register((j, de, a) -> INSTANCIA.enviar(j));
 	}
 
+	/**
+	 * La altura del agua de la inundacion en ese nivel, o -1 si no hay (fuera de las Piscinas,
+	 * sin inundacion o aun sonando la alarma). En el cliente, la que se dibuja.
+	 */
+	public static double nivelPara(Level nivel) {
+		if (!Piscinas.es(nivel)) {
+			return -1.0;
+		}
+		if (nivel.isClientSide()) {
+			return nivelCliente.getAsDouble();
+		}
+		return INSTANCIA.activa() ? INSTANCIA.nivel() : -1.0;
+	}
+
 	public boolean activa() {
 		return this.desde >= 0;
 	}
 
-	/** La altura del agua ahora (o un valor bajo el suelo si no hay). */
+	private float segundos() {
+		return (this.ticks - this.desde) / 20.0F;
+	}
+
+	private float duracion() {
+		return AVISO + this.sube + LLENO + BAJA;
+	}
+
+	/** La altura del agua ahora (BAJO durante la alarma). */
 	public float nivel() {
 		if (this.desde < 0) {
 			return -1.0F;
 		}
-		float t = (this.ticks - this.desde) / 20.0F - AVISO;
-		float sube = this.duracion - LLENO - BAJA;
+		return nivelEn(this.segundos());
+	}
+
+	private float nivelEn(float s) {
+		float t = s - AVISO;
 		if (t < 0) {
 			return BAJO;
 		}
-		if (t < sube) {
-			// sube deprisa al principio y despacio al final (como un deposito que se llena)
-			float k = t / sube;
+		if (t < this.sube) {
+			// sube deprisa al principio y mas despacio al final (como un deposito que se llena)
+			float k = t / this.sube;
 			return BAJO + (MAXIMO - BAJO) * (1.0F - (1.0F - k) * (1.0F - k) * 0.6F - (1.0F - k) * 0.4F);
 		}
-		if (t < sube + LLENO) {
+		if (t < this.sube + LLENO) {
 			return MAXIMO;
 		}
-		float k = Math.min(1.0F, (t - sube - LLENO) / BAJA);
+		float k = Math.min(1.0F, (t - this.sube - LLENO) / BAJA);
 		return MAXIMO - (MAXIMO - BAJO) * k;
 	}
 
+	/** Bloques por segundo a los que sube (o baja) ahora: el cliente lo sigue moviendo entre paquetes. */
 	private float velocidad() {
 		if (this.desde < 0) {
 			return 0.0F;
 		}
-		float t = (this.ticks - this.desde) / 20.0F;
-		float n0 = this.nivel();
-		this.ticks += 10;
-		float n1 = this.nivel();
-		this.ticks -= 10;
-		return t < AVISO ? 0.0F : (n1 - n0) * 2.0F;
+		float s = this.segundos();
+		return (nivelEn(s + 0.5F) - nivelEn(s)) * 2.0F;
 	}
 
-	/** Empieza ya (staff o sola); `segundos`: lo que tarda en subir. */
+	/** Empieza ya: la alarma y, en AVISO segundos, el agua (que sube en `segundos`). */
 	public void empezar(float segundos) {
 		ServerLevel nivel = this.nivelPiscinas();
 		if (nivel == null) {
 			return;
 		}
 		this.desde = this.ticks;
-		this.duracion = Math.max(10.0F, segundos) + LLENO + BAJA;
-		this.aire.clear();
+		this.sube = Math.max(10.0F, segundos);
+		this.avisoFin = false;
+		// la alarma roja dura hasta que el agua empieza a bajar
+		Ambiente.get().alarma(nivel, Math.round(AVISO + this.sube + LLENO));
 		for (ServerPlayer j : nivel.players()) {
-			Sonidos.aJugador(j, Sonidos.MEGAFONIA_ALERTA, 1.0F);
-			j.displayClientMessage(Component.literal("¡INUNDACIÓN! Sube a una planta alta.").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), true);
+			Sonidos.aJugador(j, Sonidos.MEGAFONIA_INUNDACION, 1.0F);
+			j.displayClientMessage(Component.literal("¡INUNDACIÓN! Busca una planta alta.").withStyle(ChatFormatting.AQUA, ChatFormatting.BOLD), true);
 		}
 		this.enviarATodos();
 		BackroomsEvento.LOG.info("Inundacion en las Piscinas (sube en {} s)", segundos);
@@ -135,17 +160,17 @@ public final class Inundacion {
 		}
 		this.desde = -1;
 		this.proxima = this.ticks + minutos();
-		this.enviarATodos();
-		for (ServerPlayer j : this.jugadores()) {
-			j.setAirSupply(j.getMaxAirSupply());
+		ServerLevel nivel = this.nivelPiscinas();
+		if (nivel != null && Ambiente.get().alarma(nivel)) {
+			Ambiente.get().terminar(nivel);
 		}
-		this.aire.clear();
+		this.enviarATodos();
 	}
 
 	public String resumen() {
 		if (this.desde >= 0) {
 			return String.format(java.util.Locale.ROOT, "inundacion: agua a y=%.1f (%d s de %d)", this.nivel(), (this.ticks - this.desde) / 20,
-				(int) (AVISO + this.duracion));
+				(int) this.duracion());
 		}
 		return this.proxima < 0 ? "sin inundacion" : "proxima inundacion en " + Math.max(0, this.proxima - this.ticks) / 20 + " s";
 	}
@@ -158,7 +183,7 @@ public final class Inundacion {
 		return this.servidor == null ? null : this.servidor.getLevel(Piscinas.DIMENSION);
 	}
 
-	private Iterable<ServerPlayer> jugadores() {
+	private java.util.List<ServerPlayer> jugadores() {
 		ServerLevel n = this.nivelPiscinas();
 		return n == null ? java.util.List.of() : new java.util.ArrayList<>(n.players());
 	}
@@ -171,9 +196,7 @@ public final class Inundacion {
 		ServerLevel nivel = this.nivelPiscinas();
 		if (nivel == null || nivel.players().isEmpty()) {
 			// sin nadie no corre el reloj
-			if (this.desde >= 0) {
-				this.desde = -1;
-			}
+			this.desde = -1;
 			this.proxima = -1;
 			return;
 		}
@@ -182,51 +205,27 @@ public final class Inundacion {
 				this.proxima = this.ticks + minutos();
 			}
 			if (Ambiente.get().automatico() && this.ticks >= this.proxima) {
-				if (Ambiente.get().alarma(nivel)) {
-					this.proxima = this.ticks + 20 * 60;
-				} else {
-					this.empezar(SUBE);
-				}
+				this.empezar(SUBE);
 			}
 			return;
 		}
-		if ((this.ticks - this.desde) / 20.0F > AVISO + this.duracion) {
+		float s = this.segundos();
+		if (!this.avisoFin && s >= AVISO + this.sube + LLENO) {
+			// averia contenida: se va la alarma y el agua empieza a bajar
+			this.avisoFin = true;
+			for (ServerPlayer j : this.jugadores()) {
+				Sonidos.aJugador(j, Sonidos.MEGAFONIA_DRENAJE, 1.0F);
+			}
+			if (Ambiente.get().alarma(nivel)) {
+				Ambiente.get().terminar(nivel);
+			}
+		}
+		if (s > this.duracion()) {
 			this.parar();
 			return;
 		}
 		if (this.ticks % 10 == 0) {
 			this.enviarATodos();
-		}
-		this.ahogar(nivel);
-	}
-
-	/** Quien tiene la cabeza bajo el agua se queda sin aire y, sin aire, se ahoga. */
-	private void ahogar(ServerLevel nivel) {
-		float agua = this.nivel();
-		// sobre una copia: el que se ahoga puede salir de la lista
-		for (ServerPlayer j : new java.util.ArrayList<>(nivel.players())) {
-			if (j.isSpectator() || j.isCreative() || !j.isAlive()) {
-				continue;
-			}
-			boolean cabeza = j.getEyeY() < agua;
-			if (j.getY() < agua - 0.4F) {
-				// andar con el agua por la cintura cuesta
-				j.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 25, 0, false, false, false));
-			}
-			int a = this.aire.getOrDefault(j.getUUID(), AIRE);
-			if (cabeza) {
-				a--;
-				if (a <= -20) {
-					a = 0;
-					j.hurtServer(nivel, nivel.damageSources().drown(), 2.0F);
-				}
-			} else {
-				a = Math.min(AIRE, a + 4);
-			}
-			this.aire.put(j.getUUID(), a);
-			if (cabeza || a < AIRE) {
-				j.setAirSupply(Math.max(a, 0));
-			}
 		}
 	}
 
@@ -234,7 +233,6 @@ public final class Inundacion {
 		for (ServerPlayer j : this.jugadores()) {
 			this.enviar(j);
 		}
-		this.habia = this.desde >= 0;
 	}
 
 	public void enviar(ServerPlayer j) {

@@ -54,6 +54,11 @@ public final class InundacionCliente {
 		return Mth.clamp(nivel + velocidad * Math.min(s, 1.0F), Inundacion.BAJO, Inundacion.MAXIMO);
 	}
 
+	/** La altura del agua que cuenta como agua de verdad (Inundacion.nivelCliente), o -1 sin inundacion. */
+	public static double agua() {
+		return nivel < 0 ? -1.0 : nivel();
+	}
+
 	public static float fuerza() {
 		return fuerza;
 	}
@@ -89,7 +94,9 @@ public final class InundacionCliente {
 			// mientras sube, fuerte; lleno, un rumor; debajo del agua, apagado y grave
 			float sube = Mth.clamp(Math.abs(velocidad) * 6.0F, 0.25F, 1.0F);
 			boolean dentro = mc.player.getEyeY() < nivel();
-			float quiero = dentro ? 0.35F : 0.8F * sube;
+			// durante la alarma (antes de que entre el agua) aun no suena
+			boolean seco = nivel() < Inundacion.BAJO + 0.02F && velocidad <= 0.0F;
+			float quiero = seco ? 0.0F : dentro ? 0.35F : 0.8F * sube;
 			this.volume += (quiero - this.volume) * 0.05F;
 			this.pitch = dentro ? 0.6F : 1.0F;
 		}

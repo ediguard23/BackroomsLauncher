@@ -30,16 +30,13 @@ import net.minecraft.world.level.Level;
  * Nunca coinciden. La frecuencia y la duracion salen de la Fase. El staff los
  * fuerza con /backrooms apagon|alarma|luz.
  *
- * En las Piscinas (Nivel 37) solo hay alarmas (PISCINAS_ALARMA_*): sirena y luz roja, y la
- * Serpiente va mas rapida (Serpiente.Movimiento).
+ * En las Piscinas (Nivel 37) la alarma solo llega con la inundacion (Inundacion la pone y la
+ * quita): sirena y luz roja, con su propia megafonia (fallo del drenaje).
  */
 public final class Ambiente {
 	private static final Ambiente INSTANCIA = new Ambiente();
 	/** Minimo entre el final de un suceso y el principio del otro. */
 	private static final int RESPIRO = 20 * 60;
-	/** Las Piscinas: minutos entre alarmas y segundos que dura cada una (como en la fase 1). */
-	private static final int[] PISCINAS_ALARMA_CADA = {7, 12};
-	private static final int[] PISCINAS_ALARMA_DURA = {35, 55};
 
 	public static Ambiente get() {
 		return INSTANCIA;
@@ -140,33 +137,18 @@ public final class Ambiente {
 		}
 	}
 
-	/** Las Piscinas: sin apagones, solo alarmas cada PISCINAS_ALARMA_CADA minutos. */
+	/**
+	 * Las Piscinas: sin apagones ni alarmas sueltas (luz roja sin nada que pasara); la alarma la
+	 * pone la inundacion. Aqui solo se quita cuando se acaba su tiempo.
+	 */
 	private void tickPiscinas(ServerLevel nivel) {
 		Estado e = this.estado(nivel.dimension());
 		if (nivel.players().isEmpty()) {
 			e.alarma = false;
-			e.proximaAlarma = -1;
 			return;
 		}
-		if (e.alarma) {
-			if (this.ticks >= e.fin) {
-				this.terminar(nivel);
-			}
-			return;
-		}
-		if (!this.automatico) {
-			return;
-		}
-		if (e.proximaAlarma < 0) {
-			e.proximaAlarma = this.ticks + minutos(PISCINAS_ALARMA_CADA);
-		}
-		if (net.backrooms.evento.piscinas.Inundacion.get().activa()) {
-			// nunca a la vez que la inundacion
-			e.proximaAlarma = Math.max(e.proximaAlarma, this.ticks + RESPIRO);
-			return;
-		}
-		if (this.ticks >= e.proximaAlarma) {
-			this.alarma(nivel, segundos(PISCINAS_ALARMA_DURA));
+		if (e.alarma && this.ticks >= e.fin) {
+			this.terminar(nivel);
 		}
 	}
 
@@ -206,8 +188,9 @@ public final class Ambiente {
 		e.apagon = false;
 		e.fin = this.ticks + segundos * 20L;
 		this.enviarATodos(nivel);
-		// y la megafonia: "brecha de contencion, busquen refugio"
-		for (ServerPlayer j : nivel.players()) {
+		// y la megafonia: "brecha de contencion, busquen refugio" (en las Piscinas no: alli la
+		// alarma es la de la inundacion, que lleva su propio aviso)
+		for (ServerPlayer j : net.backrooms.evento.piscinas.Piscinas.es(nivel) ? java.util.List.<ServerPlayer>of() : nivel.players()) {
 			net.backrooms.evento.Sonidos.aJugador(j, net.backrooms.evento.Sonidos.MEGAFONIA_ALERTA, 0.9F);
 		}
 		BackroomsEvento.LOG.info("Alarma en {} ({} s)", nivel.dimension().identifier(), segundos);
@@ -241,8 +224,6 @@ public final class Ambiente {
 			this.programar(e, f);
 			e.proximoApagon = Math.max(e.proximoApagon, this.ticks + RESPIRO);
 			e.proximaAlarma = Math.max(e.proximaAlarma, this.ticks + RESPIRO);
-		} else if (net.backrooms.evento.piscinas.Piscinas.es(nivel)) {
-			e.proximaAlarma = this.ticks + Math.max(minutos(PISCINAS_ALARMA_CADA), RESPIRO);
 		}
 		if (habia) {
 			this.enviarATodos(nivel);

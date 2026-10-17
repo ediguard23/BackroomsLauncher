@@ -44,8 +44,7 @@ public final class Grabacion {
 			if (!HerramientasServidor.get().camara(j) || Fase.de(j.level()) == null && !net.backrooms.evento.piscinas.Piscinas.es(j.level())) {
 				continue;
 			}
-			// cualquier mision de grabar que le quede cuenta, no solo la "en curso" (en la beta #1
-			// la primera era siempre la de los casetes y grabar antes no servia de nada)
+			// solo cuenta la mision de grabar en curso: van en orden
 			for (TipoMision m : Misiones.get().grabacionesPendientes(j)) {
 				boolean bien = switch (m) {
 					case LUCES_ROJAS -> Ambiente.get().alarma(j.level());

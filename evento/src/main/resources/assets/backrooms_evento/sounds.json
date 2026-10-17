@@ -137,9 +137,6 @@
   "megafonia.vestibulo": {
     "sounds": [
       {
-        "name": "backrooms_evento:megafonia_auditorio"
-      },
-      {
         "name": "backrooms_evento:megafonia_linterna"
       }
     ]
@@ -782,6 +779,41 @@
     "sounds": [
       {
         "name": "backrooms_evento:piscinas_inundacion"
+      }
+    ]
+  },
+  "megafonia.inundacion": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:megafonia_inundacion"
+      }
+    ]
+  },
+  "megafonia.drenaje": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:megafonia_drenaje"
+      }
+    ]
+  },
+  "megafonia.recepcion_1": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:megafonia_recepcion_1"
+      }
+    ]
+  },
+  "megafonia.recepcion_2": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:megafonia_recepcion_2"
+      }
+    ]
+  },
+  "megafonia.recepcion_3": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:megafonia_recepcion_3"
       }
     ]
   }

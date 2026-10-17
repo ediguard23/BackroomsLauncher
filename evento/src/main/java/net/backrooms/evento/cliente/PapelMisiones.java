@@ -82,7 +82,8 @@ public final class PapelMisiones {
 		// la hoja ocupa algo menos de la mitad de alto de la pantalla
 		float escala = Math.min(0.62F, alto * 0.48F / HojaMisiones.ALTO);
 		float anchoHoja = HojaMisiones.ANCHO * escala;
-		float altoHoja = HojaMisiones.ALTO * escala;
+		int altoDiseno = HojaMisiones.alto();
+		float altoHoja = altoDiseno * escala;
 		if (k < 0.02F) {
 			bollito(g, tema, MARGEN + BOLA, MARGEN + BOLA, 1.0F);
 			String m = "[" + TECLA.getTranslatedKeyMessage().getString().toUpperCase(java.util.Locale.ROOT) + "]";
@@ -98,10 +99,10 @@ public final class PapelMisiones {
 		p.pushMatrix();
 		p.translate(MARGEN, MARGEN);
 		p.rotateAbout((float) Math.toRadians((1.0F - k) * -9.0F), w / 2.0F, h / 2.0F);
-		p.scale(w / HojaMisiones.ANCHO, h / HojaMisiones.ALTO);
+		p.scale(w / HojaMisiones.ANCHO, h / altoDiseno);
 		HojaMisiones.dibujar(g, tema, mc.player.getYRot());
 		// las arrugas: se borran conforme se estira (y quedan unas pocas marcas del doblez)
-		pliegues(g, Math.max(1.0F - k, 0.12F));
+		pliegues(g, Math.max(1.0F - k, 0.12F), altoDiseno);
 		p.popMatrix();
 		if (k < 0.5F) {
 			bollito(g, tema, MARGEN + BOLA, MARGEN + BOLA, 1.0F - k * 2.0F);
@@ -109,7 +110,7 @@ public final class PapelMisiones {
 	}
 
 	/** Marcas de arrugas sobre la hoja (en pixeles de diseno de HojaMisiones). */
-	private static void pliegues(GuiGraphics g, float fuerza) {
+	private static void pliegues(GuiGraphics g, float fuerza, int alto) {
 		int a = Math.round(fuerza * 70);
 		if (a <= 2) {
 			return;
@@ -121,16 +122,16 @@ public final class PapelMisiones {
 			float x = 20 + h(i * 3.1F) * (HojaMisiones.ANCHO - 40);
 			float y = 0;
 			float dx = (h(i * 7.7F) - 0.5F) * 6.0F;
-			while (y < HojaMisiones.ALTO) {
+			while (y < alto) {
 				float largo = 18 + h(i * 13.3F + y) * 30;
 				float nx = Mth.clamp(x + dx * largo / 10.0F + (h(y * 0.37F + i) - 0.5F) * 14, 4, HojaMisiones.ANCHO - 6);
-				linea(g, x, y, nx, y + largo, oscuro, claro);
+				linea(g, x, y, nx, Math.min(y + largo, alto - 1), oscuro, claro);
 				x = nx;
 				y += largo;
 			}
 		}
 		for (int i = 0; i < 5; i++) {
-			float y = 30 + h(i * 5.3F + 9) * (HojaMisiones.ALTO - 60);
+			float y = 30 + h(i * 5.3F + 9) * Math.max(0, alto - 60);
 			float x = 0;
 			while (x < HojaMisiones.ANCHO) {
 				float largo = 22 + h(i * 11.1F + x) * 40;

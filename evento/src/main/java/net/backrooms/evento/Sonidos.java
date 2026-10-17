@@ -59,7 +59,13 @@ public final class Sonidos {
 	public static final SoundEvent SUSURROS = registrar("susurros");
 	public static final SoundEvent LATIDO = registrar("latido");
 	public static final SoundEvent MEGAFONIA_VESTIBULO = registrar("megafonia.vestibulo");
+	/** Los avisos de la recepcion, por turnos (Vestibulo#megafonia): el de la linterna y los de espera. */
+	public static final SoundEvent[] MEGAFONIA_RECEPCION = {MEGAFONIA_VESTIBULO, registrar("megafonia.recepcion_1"),
+		registrar("megafonia.recepcion_2"), registrar("megafonia.recepcion_3")};
 	public static final SoundEvent MEGAFONIA_ALERTA = registrar("megafonia.alerta");
+	// la inundacion de las Piscinas: "fallo en el sistema de drenaje" y "averia contenida"
+	public static final SoundEvent MEGAFONIA_INUNDACION = registrar("megafonia.inundacion");
+	public static final SoundEvent MEGAFONIA_DRENAJE = registrar("megafonia.drenaje");
 	// acciones del jugador (tools/sonidos/acciones.js): ninguna con el sonido generico de Minecraft
 	public static final SoundEvent CASETE_COGER = registrar("casete.coger");
 	public static final SoundEvent AGUA_COGER = registrar("agua.coger");

@@ -10,7 +10,9 @@
     "AguanteConexionMixin",
     "KeepAliveMixin",
     "PiscinasJugadorMixin",
-    "AguaPiscinasMixin"
+    "AguaPiscinasMixin",
+    "ColaLoginMixin",
+    "InundacionAguaMixin"
   ],
   "client": [
     "cliente.CinematicaBlurMixin",
@@ -24,7 +26,9 @@
     "cliente.BalanceoMixin",
     "cliente.AgarradoPoseMixin",
     "cliente.RuedaCamaraMixin",
-    "cliente.NombreTrajeMixin"
+    "cliente.NombreTrajeMixin",
+    "cliente.ColaConexionMixin",
+    "cliente.InundacionCamaraMixin"
   ],
   "injectors": {
     "defaultRequire": 1

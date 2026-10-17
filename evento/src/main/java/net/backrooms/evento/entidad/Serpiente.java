@@ -52,9 +52,10 @@ import org.jspecify.annotations.Nullable;
  *
  * Velocidad: la base es la de la Bacteria cazando en la fase 1 (5,5 bloques/s); por el
  * azulejo, un 15 % menos (4,7: corriendo se le escapa uno) y en el agua un 25 % mas (6,9:
- * en el agua no hay quien se le escape). Las cuentas, en ATRIBUTO y AGUA_MOD. Con la alarma
- * roja de las Piscinas va mas rapida: en el azulejo a la base (5,5) y en el agua un 35 % mas
- * (7,4): ALARMA_TIERRA y ALARMA_AGUA.
+ * en el agua no hay quien se le escape). Las cuentas, en ATRIBUTO y AGUA_MOD.
+ *
+ * Mientras dura la inundacion (Inundacion) no caza: con el agua por encima de la cabeza nadie
+ * podria escaparse, asi que se queda rondando hasta que el agua se va.
  *
  * Se mueve como la Bacteria: gira de golpe hacia donde va (Movimiento), sin las curvas
  * abiertas de antes, y en el agua frena enseguida (ARRASTRE), sin patinar.
@@ -68,9 +69,6 @@ public class Serpiente extends Monster {
 	private static final double BASE_BPS = 5.5;
 	private static final double TIERRA = 0.85;
 	private static final double AGUA = 1.25;
-	/** Con la alarma roja (Ambiente#alarma): en el azulejo 1,0 de la base y en el agua 1,35. */
-	private static final double ALARMA_TIERRA = 1.0;
-	private static final double ALARMA_AGUA = 1.35;
 	/** En el agua conserva esto de la velocidad cada tick (el ajolote, 0,9: patinaba). */
 	private static final double ARRASTRE = 0.75;
 	/** Grados por tick que gira nadando (en seco, 90 como cualquier mob). */
@@ -193,14 +191,9 @@ public class Serpiente extends Monster {
 
 		@Override
 		public void tick() {
-			boolean alarma = net.backrooms.evento.ambiente.Ambiente.get().alarma(this.s.level());
 			if (!this.s.isInWater()) {
 				this.s.setYya(0.0F);
 				super.tick();
-				if (alarma && this.operation == Operation.MOVE_TO) {
-					// en seco la velocidad va con el cuadrado de lo que se le pone (Bacteria#atributo)
-					this.s.setSpeed(this.s.getSpeed() * (float) Math.sqrt(ALARMA_TIERRA / TIERRA));
-				}
 				return;
 			}
 			if (this.operation != Operation.MOVE_TO || this.s.getNavigation().isDone()) {
@@ -227,7 +220,7 @@ public class Serpiente extends Monster {
 			float desvio = Math.abs(Mth.wrapDegrees(giro - this.s.getYRot()));
 			float avance = desvio > 60.0F ? 0.25F : 1.0F;
 			// nadando va lineal con lo que se le pone (ver AGUA_MOD)
-			this.s.setSpeed(v * (float) (AGUA_MOD * (alarma ? ALARMA_AGUA / AGUA : 1.0)));
+			this.s.setSpeed(v * (float) AGUA_MOD);
 			float cabeceo = (float) Mth.clamp(Mth.atan2(dy, Math.max(h, 0.5)), -1.1, 1.1);
 			this.s.setXRot(this.rotlerp(this.s.getXRot(), -cabeceo * Mth.RAD_TO_DEG, 15.0F));
 			this.s.setZza(Mth.cos(cabeceo) * v * avance);
@@ -326,7 +319,7 @@ public class Serpiente extends Monster {
 
 	/** El mas cercano de los que detecta; con cambio de presa solo si el nuevo esta claramente mas cerca. */
 	private void elegirPresa(ServerLevel nivel) {
-		if (this.tickCount < this.descanso) {
+		if (this.tickCount < this.descanso || net.backrooms.evento.piscinas.Inundacion.get().activa()) {
 			this.setTarget(null);
 			return;
 		}

@@ -2,7 +2,7 @@
 /**
  * Texturas y modelos de la expedicion (mod evento/): el ascensor de salida,
  * el vestibulo (butacas, sofas, maquinas de agua de almendras, taquillas,
- * puertas de los ascensores), la linterna, la camara, la comida y los logos
+ * puertas de los ascensores), la comida y los logos
  * de la pantalla del auditorio.
  *
  *   npm run texturas
@@ -256,64 +256,7 @@ for (const [n, e] of Object.entries(estados)) {
 
 /* ============================================================ objetos */
 
-// linterna amarilla (como la de las grabaciones de la expedicion), apagada y encendida
-function linterna (encendida) {
-  const l = new Lienzo(16);
-  const pon = (x, y, c) => l.punto(x, y, c);
-  // cuerpo en diagonal, de 2 pixeles de grueso, con luz arriba y sombra abajo
-  for (let i = 0; i < 7; i++) {
-    const x = 3 + i;
-    const y = 12 - i;
-    pon(x, y, [255, 214, 70]);
-    pon(x + 1, y, [236, 188, 36]);
-    pon(x, y + 1, [190, 146, 20]);
-    pon(x + 1, y + 1, [214, 166, 28]);
-  }
-  pon(5, 10, [40, 40, 44]); pon(6, 10, [40, 40, 44]);       // boton
-  pon(2, 13, [44, 44, 48]); pon(3, 13, [60, 60, 64]); pon(2, 14, [30, 30, 34]); pon(3, 14, [44, 44, 48]); // tapa
-  // cabeza: un cuadrado oscuro girado y la lente
-  for (const [x, y] of [[10, 5], [11, 5], [10, 6], [11, 4], [12, 4], [12, 5], [11, 6], [12, 3], [13, 3], [13, 4], [10, 4], [11, 3]]) pon(x, y, [52, 52, 58]);
-  for (const [x, y] of [[9, 6], [10, 7], [13, 2], [14, 3], [14, 2]]) pon(x, y, [34, 34, 38]);
-  const lente = encendida ? [255, 250, 214] : [148, 160, 174];
-  for (const [x, y] of [[12, 2], [13, 1], [14, 1], [15, 2], [14, 3], [13, 2], [14, 2]]) pon(x, y, lente);
-  pon(13, 2, encendida ? [255, 255, 255] : [210, 222, 236]);
-  if (encendida) {
-    pon(15, 0, [255, 240, 170]); pon(12, 0, [255, 240, 170]); pon(15, 4, [255, 240, 170]);
-  }
-  return l;
-}
-guardar(TEX_ITEM, 'linterna', linterna(false));
-guardar(TEX_ITEM, 'linterna_encendida', linterna(true));
-
-// videocamara: cuerpo negro, objetivo, correa y el piloto rojo de REC
-{
-  const l = new Lienzo(16);
-  l.rect(3, 5, 12, 11, [36, 36, 40]);
-  l.rect(4, 4, 11, 4, [56, 56, 60]);
-  l.rect(12, 6, 14, 10, [24, 24, 28]);                     // objetivo
-  l.rect(13, 7, 14, 9, [70, 90, 120]);
-  l.punto(14, 7, [170, 200, 230]);
-  l.rect(1, 6, 3, 9, [50, 50, 54]);                        // visor
-  l.rect(4, 12, 11, 12, [90, 70, 50]);                     // correa
-  l.punto(10, 5, [230, 40, 30]);                            // REC
-  l.rect(5, 7, 9, 9, [48, 48, 52]);
-  l.rect(5, 8, 8, 8, [150, 150, 150]);                     // marca
-  guardar(TEX_ITEM, 'camara', l);
-}
-
-// agua de almendras: botella con el liquido blanquecino, tapon azul y etiqueta
-{
-  const l = new Lienzo(16);
-  l.rect(6, 1, 9, 2, [60, 110, 200]);                      // tapon
-  l.rect(6, 3, 9, 4, [210, 220, 225], 0.8);                // cuello
-  l.rect(4, 5, 11, 14, [238, 230, 205]);                   // liquido
-  l.rect(4, 5, 4, 14, [255, 252, 240]);                    // brillo
-  l.rect(11, 5, 11, 14, [200, 190, 165]);
-  l.rect(4, 8, 11, 11, [196, 150, 96]);                    // etiqueta de almendra
-  l.rect(6, 9, 9, 10, [120, 76, 40]);
-  l.rect(5, 15, 10, 15, [180, 172, 150]);
-  guardar(TEX_ITEM, 'agua_almendras', l);
-}
+// la linterna, la camara y el agua de almendras son modelos 3D: objetos3d.js
 
 // galletas: paquete azul abierto con galletas asomando
 {
@@ -340,16 +283,7 @@ guardar(TEX_ITEM, 'linterna_encendida', linterna(true));
 }
 
 const generado = (tex, padre = 'minecraft:item/generated') => ({ parent: padre, textures: { layer0: ti(tex) } });
-json('models/item/linterna.json', generado('linterna', 'minecraft:item/handheld'));
-json('models/item/linterna_encendida.json', generado('linterna_encendida', 'minecraft:item/handheld'));
-json('items/linterna.json', {
-  model: {
-    type: 'minecraft:condition', property: 'minecraft:custom_model_data', index: 0,
-    on_true: { type: 'minecraft:model', model: `${NS}:item/linterna_encendida` },
-    on_false: { type: 'minecraft:model', model: `${NS}:item/linterna` }
-  }
-});
-for (const n of ['camara', 'agua_almendras', 'galletas', 'pizza']) {
+for (const n of ['galletas', 'pizza']) {
   json(`models/item/${n}.json`, generado(n));
   json(`items/${n}.json`, { model: { type: 'minecraft:model', model: `${NS}:item/${n}` } });
 }

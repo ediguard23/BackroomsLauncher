@@ -11,8 +11,8 @@ Se actualiza solo.
 
 - Arranca como una cinta VHS: ▶ PLAY y la firma «PeakMC Studio presenta»
   (un clic o una tecla la saltan).
-- Pasillo del Nivel 0 en tiempo real (de vez en cuando la cinta salta a las
-  Piscinas, el próximo evento, con su rótulo de avance), el logo del evento con glitch de cinta,
+- Los niveles de las Backrooms en tiempo real (el pasillo del Nivel 0 y las Piscinas,
+  40 s cada uno, con un salto de cinta entre ellos), el logo del evento con glitch de cinta,
   pase de explorador (nick o premium), JUGAR, cuenta atrás, estado del
   servidor, noticias y «Desarrollado por PeakMC Studio» en el pie.
 - MENU: memoria, volumen, efectos, ventana o pantalla completa para el juego y

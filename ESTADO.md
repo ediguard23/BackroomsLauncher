@@ -1,7 +1,71 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-15 (hora de Honduras). Mod `backrooms_evento` 0.18.0, launcher 1.0.0
-(con arreglos sin publicar) y un launcher aparte para la beta.
+Última actualización: 2026-10-17 (hora de Honduras). Mod `backrooms_evento` 0.19.0, launcher 1.0.0
+(con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
+pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+
+## 0.19.0: la lista larga de Bruno (2026-10-17; Bruno)
+
+- **Entrar**: todos (menos quien ya escapó) aparecen en la **recepción** (`Vestibulo#alEntrar`).
+  **Cola de entrada** (`ColaEntrada`, `ColaLoginMixin`, `ColaCliente`, `ColaConexionMixin`): entra
+  uno cada 3 s; mientras espera, la pantalla de conexión dice «SALA DE ESPERA · PUESTO N DE M · Entras
+  en unos X s» (y no le echa a los 30 s). El staff de `backrooms-acceso.json` y los OP se la saltan.
+- **Megafonía de la recepción**: cada 2 min, el mismo aviso a la vez para todos (lo elige el
+  servidor por turnos: `Sonidos.MEGAFONIA_RECEPCION`). Ya no manda al auditorio: la linterna y tres
+  avisos nuevos de espera (voz Marisol de Higgsfield, `tools/sonidos/voces/megafonia_recepcion_*.wav`).
+- **Megáfono del staff** (`/backrooms megafono`, `MegafonoStaff` + `VozCinematica`): lo que dice el
+  staff por el chat de voz lo oyen todos, sin distancia; se apaga con el mismo comando.
+- **Cinemática del /start**: se lee el contrato 20 s hasta la firma (antes 12): todo lo de después
+  va 8 s más tarde (`PRO` = 44,5 en `cinematica.fsh`, `CinematicaCliente`, `Expedicion.RETRASO_VIAJE`
+  = 890 + 820, subtítulos y `tools/sonidos/prologo.js`; nuevo «Tómese su tiempo»). El display del
+  ascensor marca **128** (la planta de la firma) y baja planta a planta; en la caída cuenta hasta **0**.
+  **Pasos** nuevos: talón y punta, ruido filtrado sin chasquido, cada pisada distinta.
+- **Misiones en orden** (`Misiones#completar`): solo avanza la que está en curso; grabar algo de una
+  posterior no cuenta, y el «OBJETIVO» del visor de la cámara solo sale si la misión en curso es de
+  grabar. Piscinas: válvulas → Serpiente → salida (si ya la abrieron otros, se da hecha al llegar).
+- **Papel de misiones** tan alto como lo que lleva (`HojaMisiones#alto`): sin hueco blanco.
+- **Linterna solo con F y cámara solo con C**: el clic derecho no hace nada. **Sin mano izquierda**: la
+  F de Minecraft no cambia de mano, el hueco no sale en el inventario y lo que acabe ahí vuelve a la
+  mochila (`HerramientasServidor#sinManoIzquierda`; el staff en creativo, sí).
+- **Modelos 3D** (`tools/texturas/objetos3d.js`, en `npm run texturas`): linterna de aluminio negro
+  (lente con reflector; encendida, blanca), videocámara (objetivo, pantalla abatible, visor, correa,
+  piloto REC) y botella de agua de almendras (etiqueta y tapón azul). Fuera los dibujos planos.
+- **Al morir**: la comida y el agua de almendras se caen donde mueres (`Comida#soltarComida`); el
+  traje, la linterna y la cámara se quedan (keep_inventory); la tarjeta ya se caía.
+- **Cadáveres**: ninguno con parte del cuerpo sobre el agua (parecía que flotaban), +17 % en las
+  Piscinas, los colgados con la cuerda a la mitad, y **cadáveres en el Nivel 0** (~1 de cada 8
+  cuadros de 24 x 24; tirados o sentados, alguno sin brazo o pierna; nunca colgados).
+- **Entidades**: cada 3 min con gente aparece una más por nivel (Bacteria en el Nivel 0, Serpiente
+  en las Piscinas), hasta una más por jugador (`Acechadores#refuerzos`).
+- **Tarjetas**: brillo de su color (halo y columna de luz, partículas) que se ve a 160 bloques, solo
+  para quien tiene en curso la misión de la salida.
+- **Inundación nueva** (`Inundacion`): cada 10-15 min. 20 s de alarma roja y sirena con la voz
+  «fallo en el sistema de drenaje, busquen refugio en las plantas superiores»; el agua sube 7 bloques
+  en 40 s (con la luz roja), se queda 40 s, la voz dice «avería contenida» y baja en 40 s mientras se
+  apaga la alarma. El agua **cuenta como agua de Minecraft** (`InundacionAguaMixin`: se nada, se hunde,
+  se ahoga con sus burbujas, sin daño de caída; `InundacionCamaraMixin`: la niebla de debajo del agua)
+  y la superficie es la **textura del agua de Minecraft**, pegada al mundo (antes se movía con la
+  cámara). Mientras dura, **las Serpientes no cazan** ni aparecen nuevas.
+- **Piscinas sin alarmas sueltas**: la luz roja solo llega con la inundación. **Arreglado**: la sirena
+  no sonaba a quien llegaba con la alarma ya puesta (Minecraft corta los sonidos al cambiar de mundo).
+- La megafonía de la alarma («brecha de contención», que nombra el Nivel 0) ya no suena en las Piscinas.
+- La Serpiente va 3 px más alta en el azulejo (las manos se metían en el suelo).
+- `/backrooms reparar [radio]`: deja los chunks de alrededor como los hizo el generador. Con él se
+  arregló la pared de -1014 33 -615 del mundo de pruebas (el bloque invisible de «escondido» ya no está).
+- **Launcher**: fuera el rótulo «próximo evento · Nivel 37»; el fondo va pasando por los niveles
+  (Nivel 0 y Piscinas), 40 s cada uno.
+- La comida +10 % ya iba en la 0.18.0.
+**Probado** (capturas en el cliente de pruebas): entrar sin OP (por la cola) y aparecer en la
+recepción, la inundación entera (alarma, subida, debajo del agua con burbujas y ahogándose, la
+superficie de agua desde arriba, la bajada), papel de misiones y su orden, misiones en orden
+(completar), brillo de las tarjetas, modelos 3D en la mano, en tercera persona y en el inventario,
+la cinemática (lectura de 20 s, firma, display 128 → 0) y `/backrooms reparar`.
+**Sin probar**: la pantalla de la cola con gente esperando (hace falta más de un cliente), el megáfono
+del staff (dos clientes con voz), los avisos de la recepción cada 2 min y las voces sonando, los
+pasos nuevos escuchados, morir y que caiga la comida, la mano izquierda con objetos, los refuerzos de
+entidades cada 3 min, los cadáveres del Nivel 0 y los de las Piscinas sin flotar vistos en el juego,
+la Serpiente más alta, el launcher con el fondo de 40 s.
+**Para el servidor**: el mismo jar 0.19.0 en el servidor y en el pack.
 
 ## 0.18.0: lo que pidió Bruno tras la beta #2 (2026-10-17; Bruno)
 

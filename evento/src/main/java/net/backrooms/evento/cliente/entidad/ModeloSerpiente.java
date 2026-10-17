@@ -95,6 +95,9 @@ public class ModeloSerpiente extends EntityModel<EstadoSerpiente> {
 		// en el agua flota un poco, arriba y abajo
 		if (s.agua) {
 			this.base.y += Mth.sin(t * 0.09F) * 0.8F;
+		} else {
+			// en el azulejo va un poco mas alta: al arrastrarse, las manos se metian en el suelo
+			this.base.y -= 3.0F;
 		}
 		if (s.ataque >= 0.0F) {
 			this.atacar(s.ataque);

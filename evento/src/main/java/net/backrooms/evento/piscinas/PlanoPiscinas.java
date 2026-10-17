@@ -1467,9 +1467,10 @@ public final class PlanoPiscinas {
 	private final java.util.concurrent.ConcurrentHashMap<Long, Cadaver> cadaveres = new java.util.concurrent.ConcurrentHashMap<>();
 
 	/**
-	 * El cuerpo de la celda, o null: en ~1 de cada 30. En salas de techo alto, a veces colgado
-	 * (de los pies o del cuello); si no, tirado boca arriba o boca abajo, o sentado contra la
-	 * pared; a algunos les falta un brazo o una pierna. Nunca en la celda de la salida.
+	 * El cuerpo de la celda, o null: en ~1 de cada 25. En salas de techo alto, a veces colgado
+	 * (de los pies o del cuello, con la cuerda a media altura); si no, tirado boca arriba o boca
+	 * abajo, o sentado contra la pared; a algunos les falta un brazo o una pierna. Nunca en la
+	 * celda de la salida, y nunca con parte del cuerpo encima del agua (parecia que flotaba).
 	 */
 	public Cadaver cadaverEnCelda(int cx, int cz) {
 		long k = ((long) cx << 32) ^ (cz & 0xFFFFFFFFL);
@@ -1485,7 +1486,7 @@ public final class PlanoPiscinas {
 	}
 
 	private Cadaver calcularCadaver(int cx, int cz) {
-		if (this.azar(cx, cz, 120) >= 0.034) {
+		if (this.azar(cx, cz, 120) >= 0.04) {
 			return null;
 		}
 		Salida s = this.salida();
@@ -1508,8 +1509,8 @@ public final class PlanoPiscinas {
 				int techo = techoSobre(col, PISO);
 				if (techo - PISO >= 6 && techo < Y0 + ALTO) {
 					int postura = (h >>> 4) % 3 == 0 ? COLGADO_CUELLO : COLGADO_PIES;
-					// la cuerda: que los pies (o la cabeza) queden a 1-2 bloques del suelo
-					float cuerda = (float) Math.max(0.6, techo - PISO - 2.0 - 1.2 - this.azar(cx, cz, 126));
+					// la cuerda: la mitad de lo que haria falta para llegar casi al suelo (cuelga alto)
+					float cuerda = (float) Math.max(0.6, (techo - PISO - 2.0 - 1.2 - this.azar(cx, cz, 126)) * 0.5);
 					return new Cadaver(cc[0] + 0.5, techo, cc[1] + 0.5, piel, postura, giro, 0, cuerda);
 				}
 			}
@@ -1520,17 +1521,42 @@ public final class PlanoPiscinas {
 			if (p != null) {
 				int mira = (p[2] + 2) % 4;
 				float g = new float[] {180.0F, 270.0F, 0.0F, 90.0F}[mira];
-				return new Cadaver(p[0] + 0.5 - DX[mira] * 0.25, PISO, p[1] + 0.5 - DZ[mira] * 0.25, piel, SENTADO, g, mutilado, 0);
+				if (this.secoEn(p[0] + 0.5 + DX[mira] * 0.6, p[1] + 0.5 + DZ[mira] * 0.6, col)) {
+					return new Cadaver(p[0] + 0.5 - DX[mira] * 0.25, PISO, p[1] + 0.5 - DZ[mira] * 0.25, piel, SENTADO, g, mutilado, 0);
+				}
 			}
 		}
 		for (int t = 0; t < 40; t++) {
 			int[] cc = this.candidata(cx, cz, 128, t);
 			this.columna(cc[0], cc[1], col);
-			if (this.pisable(cc[0], PISO, cc[1], col) && en(col, PISO - 1) != LOSA) {
+			if (this.pisable(cc[0], PISO, cc[1], col) && en(col, PISO - 1) != LOSA && this.cuerpoSeco(cc[0] + 0.5, cc[1] + 0.5, giro, col)) {
 				return new Cadaver(cc[0] + 0.5, PISO, cc[1] + 0.5, piel, (h >>> 6) % 2 == 0 ? BOCA_ARRIBA : BOCA_ABAJO, giro, mutilado, 0);
 			}
 		}
 		return null;
+	}
+
+	/** Si en (x, z) hay suelo seco a la altura de la planta (ni agua ni hueco). */
+	private boolean secoEn(double x, double z, byte[] col) {
+		int bx = (int) Math.floor(x);
+		int bz = (int) Math.floor(z);
+		this.columna(bx, bz, col);
+		return this.pisable(bx, PISO, bz, col) && en(col, PISO - 1) != LOSA;
+	}
+
+	/** Un cuerpo tirado mide unos 2 bloques: la cabeza, los pies y los lados, todo en seco. */
+	private boolean cuerpoSeco(double x, double z, float giro, byte[] col) {
+		double r = Math.toRadians(giro);
+		double fx = -Math.sin(r);
+		double fz = Math.cos(r);
+		for (double a = -1.2; a <= 1.21; a += 0.6) {
+			for (double b = -0.45; b <= 0.46; b += 0.9) {
+				if (!this.secoEn(x + fx * a - fz * b, z + fz * a + fx * b, col)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 
 	/* ----------------------------------------------------------- comida */

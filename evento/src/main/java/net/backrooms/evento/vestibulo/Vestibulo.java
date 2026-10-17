@@ -32,6 +32,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Display;
@@ -66,6 +67,7 @@ public final class Vestibulo {
 	private long ticks;
 	/** Proximo aviso por megafonia en el vestibulo. */
 	private long proximoAviso = 20 * 60;
+	private int turnoAviso;
 	private boolean decorarPendiente;
 	private long decorarLimite;
 
@@ -114,7 +116,8 @@ public final class Vestibulo {
 	}
 
 	/**
-	 * De vez en cuando (cada 3-5 min) un aviso por megafonia a quien este en el vestibulo.
+	 * Cada 2 min un aviso por megafonia a quien este en la recepcion, el mismo y a la vez para
+	 * todos (van por turnos: Sonidos.MEGAFONIA_RECEPCION).
 	 * Los avisos son de antes de empezar ("la expedicion empezara en breve"): con los
 	 * expedicion en marcha no suenan, y nunca a quien ya subio
 	 * (espera en el hueco, que tambien es el vestibulo).
@@ -123,14 +126,15 @@ public final class Vestibulo {
 		if (this.servidor == null || ++this.ticks < this.proximoAviso) {
 			return;
 		}
-		this.proximoAviso = this.ticks + 20L * (180 + new java.util.Random().nextInt(120));
+		this.proximoAviso = this.ticks + 20L * 120;
+		SoundEvent aviso = Sonidos.MEGAFONIA_RECEPCION[this.turnoAviso++ % Sonidos.MEGAFONIA_RECEPCION.length];
 		ServerLevel v = this.nivel();
 		if (v == null || Expedicion.get().enMarcha()) {
 			return;
 		}
 		for (ServerPlayer j : v.players()) {
 			if (j.getY() >= PlanoVestibulo.SUELO && !Expedicion.get().pendiente(j)) {
-				Sonidos.aJugador(j, Sonidos.MEGAFONIA_VESTIBULO, 0.8F);
+				Sonidos.aJugador(j, aviso, 0.8F);
 			}
 		}
 	}
@@ -211,9 +215,11 @@ public final class Vestibulo {
 		if (Piscinas.delEvento(j.level()) && Misiones.get().enExpedicion(j)) {
 			return; // sigue en su fase (o en las Piscinas)
 		}
-		boolean jugo = Misiones.get().estado(j) != null;
+		// se entra siempre a la recepcion; solo quien ya escapo va a la sala del final
+		Misiones.Estado e = Misiones.get().estado(j);
+		boolean escapo = e != null && e.escapado > 0;
 		boolean enRecepcion = j.level().dimension().equals(DIMENSION) && PlanoVestibulo.enRecepcion(j.getX(), j.getY(), j.getZ());
-		if (!jugo) {
+		if (!escapo) {
 			if (!enRecepcion) {
 				this.recepcion(j);
 			}

@@ -439,11 +439,11 @@
     if (on && !estado.jugando) pasillo.iniciar(); else pasillo.parar();
   }
 
-  /* -------------------------------------- Nivel 0 y avance de las Piscinas */
+  /* ------------------------------------------ los niveles de las Backrooms */
 
-  // El evento es en el Nivel 0; cada cierto tiempo la cinta salta a las
-  // Piscinas (Nivel 37), el proximo evento, con su rotulo de avance.
-  const DURACION = { 0: 42000, 37: 16000 };
+  // El fondo va pasando por los niveles de las Backrooms (el Nivel 0 y las
+  // Piscinas, Nivel 37), cada uno 40 s, con un salto de cinta entre ellos.
+  const DURACION = { 0: 40000, 37: 40000 };
   let cambiando = false;
 
   function ponerNivel (nivel) {

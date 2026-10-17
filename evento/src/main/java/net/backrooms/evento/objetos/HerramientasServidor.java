@@ -132,12 +132,28 @@ public final class HerramientasServidor {
 		}
 	}
 
+	/**
+	 * En el evento no hay mano izquierda: lo que acabe en ella (con la F de Minecraft, arrastrado
+	 * en el inventario...) vuelve a la mochila, o al suelo si no cabe. El staff en creativo, no.
+	 */
+	private static void sinManoIzquierda(ServerPlayer j) {
+		net.minecraft.world.item.ItemStack izq = j.getOffhandItem();
+		if (izq.isEmpty() || j.isCreative() || j.isSpectator()) {
+			return;
+		}
+		j.setItemInHand(net.minecraft.world.InteractionHand.OFF_HAND, net.minecraft.world.item.ItemStack.EMPTY);
+		if (!j.getInventory().add(izq)) {
+			j.drop(izq, false);
+		}
+	}
+
 	private void tick() {
 		if (this.servidor == null || ++this.ticks % 4 != 0) {
 			return;
 		}
 		List<ServerPlayer> todos = this.servidor.getPlayerList().getPlayers();
 		for (ServerPlayer j : todos) {
+			sinManoIzquierda(j);
 			boolean[] e = this.estado(j);
 			// si ha perdido el objeto (o esta de espectador) se apaga solo
 			for (int a = 0; a < 2; a++) {

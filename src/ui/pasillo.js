@@ -11,8 +11,8 @@
  * Se dibuja a media resolucion: mas barato y con el emborronado de una
  * camara de video.
  *
- * Tambien sabe dibujar las Piscinas (Nivel 37), el proximo evento: la
- * interfaz salta a ese pasillo de vez en cuando como avance (ponerNivel).
+ * Tambien sabe dibujar las Piscinas (Nivel 37), otro nivel de las Backrooms: la
+ * interfaz va alternando los niveles cada 40 s (ponerNivel).
  */
 
 (function () {
@@ -150,7 +150,7 @@ void main() {
   gl_FragColor = vec4(col, 1.0);
 }`;
 
-  // Las Piscinas (Nivel 37), el proximo evento: el mismo shader que el menu del
+  // Las Piscinas (Nivel 37): el mismo shader que el menu del
   // mod para ese nivel (mod/.../shaders/core/piscinas.fsh), pasado a WebGL.
   const FRAG_PISCINAS = `
 precision highp float;

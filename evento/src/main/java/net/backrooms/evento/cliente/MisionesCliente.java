@@ -80,12 +80,13 @@ public final class MisionesCliente {
 	}
 
 	/**
-	 * Lo que hay que grabar, para el visor de la camara: la primera de grabar que le quede (se
-	 * hacen en cualquier orden: en las Piscinas va detras de las valvulas); null si ninguna.
+	 * Lo que hay que grabar, para el visor de la camara: solo si la mision en curso es de grabar
+	 * (van en orden); null si no.
 	 */
 	public static String objetivoGrabacion() {
 		List<TipoMision> m = misiones();
-		for (int i = Math.max(0, actual()); i < m.size(); i++) {
+		int a = Math.max(0, actual());
+		for (int i = a; i < Math.min(a + 1, m.size()); i++) {
 			String o = switch (m.get(i)) {
 				case LUCES_ROJAS -> "OBJETIVO: ALARMAS";
 				case ENTIDAD -> "OBJETIVO: BACTERIA";

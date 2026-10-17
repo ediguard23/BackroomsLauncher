@@ -13,8 +13,8 @@ import org.joml.Matrix3x2fStack;
  * expedicion del menu): las tres misiones del jugador, la que va en curso con
  * su descripcion y, mientras busca casetes, el detector de senal.
  *
- * Se dibuja en pixeles de diseno, de (0, 0) a (ANCHO, ALTO); quien la usa
- * traslada y escala la pose. Va al lado del inventario (E).
+ * Se dibuja en pixeles de diseno, de (0, 0) a (ANCHO, alto()): la hoja es tan alta como lo que
+ * lleva (sin hueco en blanco al pie), como mucho ALTO. Quien la usa traslada y escala la pose.
  *
  * El detector es dificil a proposito: no da metros, solo la fuerza de la
  * senal, y la flecha tiembla mas cuanto mas lejos esta el casete. A mas de
@@ -29,9 +29,37 @@ public final class HojaMisiones {
 	}
 
 	/** `mirando`: yaw del jugador, para que la flecha apunte respecto a su vista. */
+	/** Lo alto que tiene que ser la hoja para lo que lleva ahora (en pixeles de diseno). */
+	public static int alto() {
+		int x1 = ANCHO;
+		List<TipoMision> lista = MisionesCliente.misiones();
+		if (lista.isEmpty()) {
+			return (int) Math.ceil(50 + Texto.altoParrafo("Todavía no hay expedición. Espera a que el staff dé la salida.", 13, x1 - 62, 1.45F) + 14);
+		}
+		int actual = MisionesCliente.actual();
+		float y = 46;
+		for (int i = 0; i < lista.size(); i++) {
+			TipoMision m = lista.get(i);
+			y += Texto.altoParrafo((i + 1) + ". " + m.titulo, 15, x1 - 62, 1.3F);
+			if (i == actual) {
+				y += Texto.altoParrafo(m.descripcion, 12.5F, x1 - 62, 1.45F) + 4;
+				if (cuenta(m) != null) {
+					y += 24;
+				}
+			}
+			y += 12;
+		}
+		if (actual >= lista.size()) {
+			y += Texto.altoParrafo("Has completado tus misiones. Sigue con vida.", 13, x1 - 62, 1.45F) + 6;
+		}
+		// el detector va al pie: le hace falta su sitio
+		y += MisionesCliente.distancia() != -1 ? 72 : 4;
+		return Math.min(ALTO, (int) Math.ceil(y));
+	}
+
 	public static void dibujar(GuiGraphics g, Tema tema, float mirando) {
 		int x1 = ANCHO;
-		int y1 = ALTO;
+		int y1 = alto();
 		Matrix3x2fStack p = g.pose();
 		p.pushMatrix();
 		p.rotateAbout((float) Math.toRadians(-0.6), ANCHO / 2.0F, 0);

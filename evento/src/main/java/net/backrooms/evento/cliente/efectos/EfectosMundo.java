@@ -56,7 +56,7 @@ import org.joml.Vector3f;
 public final class EfectosMundo {
 	private static final int MAX_LUCES = 16;
 	private static final int MAX_BRILLOS = 8;
-	private static final int TAMANO_UBO = 64 + 16 * 5 + 16 * MAX_LUCES * 2 + 16 * MAX_BRILLOS;
+	private static final int TAMANO_UBO = 64 + 16 * 6 + 16 * MAX_LUCES * 2 + 16 * MAX_BRILLOS;
 
 	private static final RenderPipeline MUNDO = RenderPipelines.register(
 		RenderPipeline.builder(RenderPipelines.POST_PROCESSING_SNIPPET)
@@ -65,6 +65,7 @@ public final class EfectosMundo {
 			.withFragmentShader(BackroomsEvento.id("core/efectos"))
 			.withSampler("ColorSampler")
 			.withSampler("DepthSampler")
+			.withSampler("AguaSampler")
 			.withUniform("Efectos", UniformType.UNIFORM_BUFFER)
 			.build());
 	private static final RenderPipeline MANO = RenderPipelines.register(
@@ -139,6 +140,9 @@ public final class EfectosMundo {
 			p.setUniform("Efectos", ubo.currentBuffer());
 			p.bindTexture("ColorSampler", copiaVista, RenderSystem.getSamplerCache().getClampToEdge(FilterMode.LINEAR));
 			p.bindTexture("DepthSampler", rt.getDepthTextureView(), RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
+			// la superficie de la inundacion: el agua de Minecraft, del atlas de bloques (animada)
+			p.bindTexture("AguaSampler", mc.getAtlasManager().getAtlasOrThrow(net.minecraft.data.AtlasIds.BLOCKS).getTextureView(),
+				RenderSystem.getSamplerCache().getClampToEdge(FilterMode.NEAREST));
 			p.draw(0, 3);
 		}
 		pendienteMano = true;
@@ -216,6 +220,8 @@ public final class EfectosMundo {
 			boolean piscinas = mc.level != null && net.backrooms.evento.piscinas.Piscinas.es(mc.level);
 			b.putVec4((float) (InundacionCliente.nivel() - cam.y), piscinas ? InundacionCliente.fuerza() : 0.0F,
 				(float) (cam.x - Math.floor(cam.x / 512.0) * 512.0), (float) (cam.z - Math.floor(cam.z / 512.0) * 512.0));
+			net.minecraft.client.renderer.texture.TextureAtlasSprite agua = mc.getAtlasManager().get(net.minecraft.client.resources.model.ModelBakery.WATER_STILL);
+			b.putVec4(agua.getU0(), agua.getV0(), agua.getU1() - agua.getU0(), agua.getV1() - agua.getV0());
 			for (int i = 0; i < MAX_LUCES; i++) {
 				float[] l = i < luces.size() ? luces.get(i) : new float[8];
 				b.putVec4(l[0], l[1], l[2], l[3]);

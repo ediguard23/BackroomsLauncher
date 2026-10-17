@@ -12,6 +12,7 @@ layout(std140) uniform Efectos {
     vec4 Estado3;
     vec4 Estado4;
     vec4 Estado5;
+    vec4 Estado6;
     vec4 Luces[32];
     vec4 Brillos[8];
 };

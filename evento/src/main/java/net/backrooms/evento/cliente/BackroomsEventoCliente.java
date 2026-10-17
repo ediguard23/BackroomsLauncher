@@ -74,6 +74,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(IniciarCinematica.TYPE, (s, ctx) -> CinematicaCliente.empezar());
 		ClientPlayNetworking.registerGlobalReceiver(EstadoAmbiente.TYPE, (s, ctx) -> AmbienteCliente.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.EstadoInundacion.TYPE, (s, ctx) -> InundacionCliente.recibir(s));
+		net.backrooms.evento.piscinas.Inundacion.nivelCliente = InundacionCliente::agua;
 		ClientPlayNetworking.registerGlobalReceiver(ViajeAscensor.TYPE, (s, ctx) -> AscensorCliente.empezar(s));
 		ClientPlayNetworking.registerGlobalReceiver(EstadoJugador.TYPE, (s, ctx) -> SupervivenciaCliente.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(Susto.TYPE, (s, ctx) -> SupervivenciaCliente.susto(s));
@@ -87,6 +88,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		HerramientasCliente.registrar();
 		HuecoCliente.registrar();
 		AccesoCliente.registrar();
+		ColaCliente.registrar();
 
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {
 			PapelMisiones.tick(mc);

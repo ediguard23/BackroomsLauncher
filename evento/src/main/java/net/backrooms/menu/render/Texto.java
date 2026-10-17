@@ -77,6 +77,12 @@ public final class Texto {
 		return yy - y;
 	}
 
+	/** La altura que ocuparia ese parrafo (como parrafo), sin dibujarlo. */
+	public static float altoParrafo(String s, float tam, float ancho, float interlineado) {
+		float k = tam / TAM_MAQUINA;
+		return font().split(maquina(s), (int) (ancho / k)).size() * tam * interlineado;
+	}
+
 	private static float letras(GuiGraphics g, String s, float x, float y, float k, float extra, int color, boolean hud) {
 		Font f = font();
 		Matrix3x2fStack p = g.pose();

@@ -51,10 +51,12 @@ public final class AmbienteCliente {
 		if (e.alarma() != alarma) {
 			alarma = e.alarma();
 			cambioAlarma = ahora();
-			if (alarma && (sirena == null || sirena.isStopped())) {
-				sirena = new Sirena();
-				mc.getSoundManager().play(sirena);
-			}
+		}
+		// tambien si no ha cambiado: al cambiar de mundo Minecraft corta todos los sonidos, y quien
+		// llegaba con la alarma ya puesta (bajando a las Piscinas) veia la luz roja sin sirena
+		if (alarma && (sirena == null || sirena.isStopped() || !mc.getSoundManager().isActive(sirena))) {
+			sirena = new Sirena();
+			mc.getSoundManager().play(sirena);
 		}
 	}
 

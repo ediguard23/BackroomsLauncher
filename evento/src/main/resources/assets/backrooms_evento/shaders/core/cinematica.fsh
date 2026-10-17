@@ -65,22 +65,22 @@ const float A_FIN = 27.8;      // se acaba la cinta
 
 // guion 0: el prologo, antes del ascensor (en segundos desde el principio; el
 // ascensor va en te = t - PRO, ver main)
-const float PRO = 36.5;
+const float PRO = 44.5;
 const float P_DESLIZA0 = 2.4, P_DESLIZA1 = 4.0;   // te acerca el papel por la mesa
 const float P_BOLI0 = 4.1, P_BOLI1 = 4.8;         // y el boligrafo
-const float P_LEE0 = 6.0, P_LEE1 = 18.0;          // te inclinas a leer: 12 s hasta la linea de la firma
-const float P_COGE0 = 17.4, P_COGE1 = 18.7;       // coges el boligrafo
-const float P_FIRMA0 = 18.9, P_FIRMA_DUR = 3.4;   // firmas
-const float P_SUELTA0 = 22.7, P_SUELTA1 = 23.5;   // lo dejas en la mesa
-const float P_ALZA0 = 23.4, P_ALZA1 = 24.7;       // te incorporas
-const float P_RECOGE0 = 24.5, P_RECOGE1 = 25.6;   // se lleva el papel
-const float P_LEVANTA0 = 26.0, P_LEVANTA1 = 27.2; // te levantas
-const float P_ANDA0 = 28.0, P_ANDA1 = 35.2;       // le sigues hasta el ascensor
-const float P_GIRA0 = 34.8, P_GIRA1 = 36.3;       // dentro, te das la vuelta
-const float I_ANDA0 = 25.4, I_ANDA1 = 31.4;       // el investigador va delante
-const float I_LLAMA = 31.5;                       // llama al ascensor
-const float I_PUERTA0 = 34.0, I_PUERTA1 = 35.4;   // se pone delante de las puertas
-const float I_ADIOS = 36.7;                       // "le veremos al otro lado"
+const float P_LEE0 = 6.0, P_LEE1 = 26.0;          // te inclinas a leer: 20 s hasta la linea de la firma
+const float P_COGE0 = 25.4, P_COGE1 = 26.7;       // coges el boligrafo
+const float P_FIRMA0 = 26.9, P_FIRMA_DUR = 3.4;   // firmas
+const float P_SUELTA0 = 30.7, P_SUELTA1 = 31.5;   // lo dejas en la mesa
+const float P_ALZA0 = 31.4, P_ALZA1 = 32.7;       // te incorporas
+const float P_RECOGE0 = 32.5, P_RECOGE1 = 33.6;   // se lleva el papel
+const float P_LEVANTA0 = 34.0, P_LEVANTA1 = 35.2; // te levantas
+const float P_ANDA0 = 36.0, P_ANDA1 = 43.2;       // le sigues hasta el ascensor
+const float P_GIRA0 = 42.8, P_GIRA1 = 44.3;       // dentro, te das la vuelta
+const float I_ANDA0 = 33.4, I_ANDA1 = 39.4;       // el investigador va delante
+const float I_LLAMA = 39.5;                       // llama al ascensor
+const float I_PUERTA0 = 42.0, I_PUERTA1 = 43.4;   // se pone delante de las puertas
+const float I_ADIOS = 44.7;                       // "le veremos al otro lado"
 const float T_ABRE0 = I_LLAMA + 0.5 - PRO, T_ABRE1 = I_LLAMA + 1.7 - PRO; // se abren (tiempo del ascensor)
 
 // cuanto estan abiertas las puertas del ascensor del /start (medio ancho del hueco)
@@ -293,22 +293,28 @@ int glifo(int c) {
   return 0;
 }
 
+// la planta: se firma en la 128 y baja planta a planta; en la caida cuenta deprisa hasta 0
+const int PLANTA_FIRMA = 128;
+
+ivec4 numeroDisplay(int marca, int n) {
+  return ivec4(marca, n >= 100 ? n / 100 : 14, n >= 10 ? (n / 10) % 10 : 14, n % 10);
+}
+
 ivec4 textoDisplay(float t) {
   float s = bajada(t);
-  int n = int(floor((s + 0.5) / PLANTA)) + 1;
+  int n = max(PLANTA_FIRMA - int(floor((s + 0.5) / PLANTA)), 0);
   int flecha = (t > T_BAJA && t < T_ATASCO && fract(t * 1.4) < 0.6) ? 15 : 14;
-  if (t < T_BAJA + 0.4) return ivec4(14, 14, 14, 11);
-  if (t < T_ATASCO) return ivec4(flecha, n >= 10 ? 10 : 14, n >= 10 ? n / 10 : 10, n % 10);
+  if (t < T_ATASCO) return numeroDisplay(flecha, n);
   if (t < T_ROTURA) {
     if (t > 23.2 && fract(t * 1.5) < 0.5) return ivec4(14, 12, 13, 13);
-    return ivec4(14, n >= 10 ? 10 : 14, n >= 10 ? n / 10 : 10, n % 10);
+    return numeroDisplay(14, n);
   }
   if (t < T_ROTURA + 1.0) {
     float g = floor(t * 17.0);
     return ivec4(14, int(h1(g) * 10.0), int(h1(g + 1.0) * 10.0), int(h1(g + 2.0) * 10.0));
   }
-  if (n > 99 || h1(floor(t * 8.0)) > 0.85) return ivec4(14, 12, 13, 13);
-  return ivec4(15, 10, n / 10, n % 10);
+  if (n > 0 && h1(floor(t * 8.0)) > 0.9) return ivec4(14, 12, 13, 13);
+  return numeroDisplay(15, n);
 }
 
 // cara del bloque de hormigon negro sobre las puertas
@@ -1138,8 +1144,8 @@ Pose investigador(float tg, vec3 cam) {
   q.yaw = mix(yMira, yAnda, smoothstep(0.0, 0.4, anda));
   q.anda = anda;
   q.paso = paso;
-  q.inclina = 0.7 * tramo(2.1, 2.6, 3.4, 4.1, tg) + 0.45 * tramo(24.4, 24.8, 25.3, 25.8, tg) + 0.12 * tramo(3.9, 4.2, 4.6, 5.0, tg);
-  q.brazoD = 1.5 * tramo(2.1, 2.6, 3.5, 4.2, tg) + 1.1 * tramo(3.9, 4.2, 4.6, 5.0, tg) + 1.45 * tramo(24.4, 24.8, 25.4, 25.9, tg)
+  q.inclina = 0.7 * tramo(2.1, 2.6, 3.4, 4.1, tg) + 0.45 * tramo(P_RECOGE0 - 0.1, P_RECOGE0 + 0.3, P_RECOGE0 + 0.8, P_RECOGE0 + 1.3, tg) + 0.12 * tramo(3.9, 4.2, 4.6, 5.0, tg);
+  q.brazoD = 1.5 * tramo(2.1, 2.6, 3.5, 4.2, tg) + 1.1 * tramo(3.9, 4.2, 4.6, 5.0, tg) + 1.45 * tramo(P_RECOGE0 - 0.1, P_RECOGE0 + 0.3, P_RECOGE0 + 0.9, P_RECOGE0 + 1.4, tg)
     + 1.2 * tramo(I_LLAMA - 0.45, I_LLAMA - 0.15, I_LLAMA + 0.15, I_LLAMA + 0.5, tg)
     + 0.3 * tramo(I_ADIOS, I_ADIOS + 0.4, I_ADIOS + 1.3, I_ADIOS + 1.9, tg);
   q.ladoD = 0.25 * tramo(3.9, 4.2, 4.6, 5.0, tg) + 0.15 * tramo(I_LLAMA - 0.45, I_LLAMA - 0.15, I_LLAMA + 0.15, I_LLAMA + 0.5, tg);
@@ -1335,7 +1341,7 @@ void objetos(inout Obj o, vec3 ro, vec3 rd, float tg, float te, vec3 cam) {
   caja(o, ro, rd, vec3(2.0, 0.0, -9.6), vec3(2.45, 0.42, -9.5), O_BANCO);
   caja(o, ro, rd, vec3(-2.5, 0.85, -5.25), vec3(-2.32, 1.42, -5.0), O_EXTINTOR);
   partesInvestigador(o, ro, rd, investigador(tg, cam));
-  if (tg > P_BOLI0 && tg < 30.0) {
+  if (tg > P_BOLI0 && tg < P_SUELTA1 + 6.5) {
     vec3 punta, eje;
     float mano;
     boligrafo(tg, punta, eje, mano);

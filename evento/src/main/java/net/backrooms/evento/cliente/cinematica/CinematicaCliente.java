@@ -26,10 +26,10 @@ import net.minecraft.util.RandomSource;
  * Guion del /start (segundos), de un solo plano, todo en cinematica.fsh:
  *   0 - 6       la videocamara se enciende en la sala de reuniones 3: el investigador
  *               te acerca el consentimiento informado y un boligrafo
- *   6 - 18      te inclinas sobre la hoja y la lees de arriba abajo (12 s)
- *  17.4 - 23.5  coges el boligrafo, firmas con tu nombre y lo dejas
- *  23.4 - 27.2  te incorporas, se lleva el papel, te levantas
- *  28.0 - 36.5  le sigues por el pasillo, llama al ascensor, entras y te das la vuelta:
+ *   6 - 26      te inclinas sobre la hoja y la lees de arriba abajo (20 s)
+ *  25.4 - 31.5  coges el boligrafo, firmas con tu nombre y lo dejas
+ *  31.4 - 35.2  te incorporas, se lleva el papel, te levantas
+ *  36.0 - 44.5  le sigues por el pasillo, llama al ascensor, entras y te das la vuelta:
  *               ves el pasillo por el que has venido y a el delante de las puertas
  * y luego el ascensor (PRO + ...):
  *   0 - 3.6    se cierran las puertas
@@ -41,7 +41,7 @@ import net.minecraft.util.RandomSource;
  */
 public final class CinematicaCliente {
 	/** Lo que dura el prologo (la sala, la firma y el pasillo): ahi empieza el ascensor. */
-	public static final float PRO = 36.5F;
+	public static final float PRO = 44.5F;
 	public static final float FIN_CINTA = PRO + 39.4F;
 	public static final float DESPERTAR = PRO + 45.0F;
 	public static final float FIN = PRO + 55.0F;
@@ -95,7 +95,9 @@ public final class CinematicaCliente {
 		}
 		inicio = System.nanoTime();
 		// un aviso de la megafonia del vestibulo que estuviera sonando no sigue dentro del ascensor
-		mc.getSoundManager().stop(net.backrooms.evento.Sonidos.MEGAFONIA_VESTIBULO.location(), null);
+		for (net.minecraft.sounds.SoundEvent s : net.backrooms.evento.Sonidos.MEGAFONIA_RECEPCION) {
+			mc.getSoundManager().stop(s.location(), null);
+		}
 		guiAntes = mc.options.hideGui;
 		mc.options.hideGui = true;
 		banda = sonar(mc, bandaId());
