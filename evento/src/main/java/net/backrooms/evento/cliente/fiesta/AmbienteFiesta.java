@@ -110,7 +110,7 @@ public final class AmbienteFiesta {
 						if (p.distanceTo(ojo) > 70) {
 							p = ojo.add(p.subtract(ojo).normalize().scale(30));
 						}
-						sonar(mc, Sonidos.FIESTA_NINO, p, 1.0F, 1.0F);
+						sonar(mc, Sonidos.FIESTA_NINO, p, 1.0F, 0.92F + AZAR.nextFloat() * 0.14F);
 					}
 				}
 				case ANUNCIO -> {

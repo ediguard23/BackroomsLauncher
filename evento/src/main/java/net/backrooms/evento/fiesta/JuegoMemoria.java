@@ -26,7 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public final class JuegoMemoria {
 	private static final JuegoMemoria INSTANCIA = new JuegoMemoria();
-	/** Rondas que hay que superar: la ultima secuencia es de RONDAS + 2 colores. */
+	/** Rondas que hay que superar: la primera secuencia es de 3 colores y la ultima de RONDAS + 2. */
 	public static final int RONDAS = 5;
 	private static final int PASO = 14;
 	private static final int ENCENDIDA = 9;
@@ -54,6 +54,18 @@ public final class JuegoMemoria {
 
 	public static void registrar() {
 		ServerTickEvents.END_SERVER_TICK.register(INSTANCIA::tick);
+	}
+
+	/** Para el staff (/backrooms fiesta juegos): quien juega y la secuencia (R, A, Z, V). */
+	public String estado() {
+		if (this.jugador == null) {
+			return "memoria: libre";
+		}
+		StringBuilder s = new StringBuilder("memoria: ronda " + (this.ronda + 1) + ", secuencia ");
+		for (int c : this.secuencia) {
+			s.append("RAZV".charAt(c));
+		}
+		return s.append(this.mostrando >= 0 ? " (ensenando)" : " (lleva " + this.acertadas + ")").toString();
 	}
 
 	private static boolean enSala(ServerPlayer j) {
@@ -118,12 +130,12 @@ public final class JuegoMemoria {
 		this.nota(nivel, c);
 		this.acertadas++;
 		if (this.acertadas >= this.secuencia.size()) {
-			if (this.ronda >= RONDAS) {
+			if (this.ronda >= RONDAS - 1) {
 				this.ganar(nivel, j);
 			} else {
 				this.ronda++;
 				this.secuencia.add(this.azar.nextInt(4));
-				j.displayClientMessage(Component.literal("¡Bien! Ronda " + (this.ronda + 1) + " de " + (RONDAS + 1)).withStyle(ChatFormatting.GREEN), true);
+				j.displayClientMessage(Component.literal("¡Bien! Ronda " + (this.ronda + 1) + " de " + RONDAS).withStyle(ChatFormatting.GREEN), true);
 				this.mostrando = this.ticks + 30;
 			}
 		}

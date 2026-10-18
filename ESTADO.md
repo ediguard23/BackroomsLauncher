@@ -1,8 +1,23 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-18 (hora de Honduras). Mod `backrooms_evento` 0.21.0, launcher 1.0.0
+Última actualización: 2026-10-18 (hora de Honduras). Mod `backrooms_evento` 0.21.1, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+
+## 0.21.1: la Fiesta, voces y retoques (2026-10-18; Bruno)
+
+- **Voces nuevas** (Higgsfield): «¡Luz verde!» y «¡Luz roja!» de la niña en el semáforo, la niña que
+  habla desde otra sala («¿Quieres jugar conmigo?», con el tono un poco distinto cada vez) y el
+  Anfitrión («¿Dónde estás, amiguito?», mezclada con su risa y su respiración en `anfitrion.voz`).
+  Se acabaron los créditos: **faltan** 9 frases (niña: pillado, gana, otras 3 de la sala; Anfitrión:
+  2 frases y 2 risas). Mientras tanto suenan las sintéticas.
+- **Memoria**: ganaba a la 6.ª ronda (secuencia de 8) en vez de a la 5.ª (de 3 a 7 colores); arreglado.
+- **Parkour**: las plataformas suben como mucho a y = 35 (antes 36: al saltar se daba con el techo).
+- Staff: `/backrooms fiesta juegos <jugador>` dice la secuencia de la memoria y dónde están los regalos
+  que le faltan (para probar y para ayudar en el evento).
+**Probado** (con teletransportes y capturas): ganar la memoria (250 la primera vez, 100 después, las
+4 baldosas encendidas), ganar los regalos (200), leer una nota (sale el texto en el chat), el parche
+de la siesta cede y se cae a su parkour. **Sin probar**: las voces nuevas oídas en el juego.
 
 ## 0.21.0: la Fiesta, segunda entrega: suelos defectuosos, parkour y dos juegos más (2026-10-18; Bruno)
 
@@ -30,7 +45,7 @@ pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno
 la trampilla sube con su premio (150 tickets), el del laberinto cede; la memoria se enciende en orden,
 «¡Te toca!» y el fallo; los regalos empiezan, brillan y se acaban por tiempo; las notas se ven.
 **Sin probar**: recorrer los parkours saltando de verdad (solo con teletransportes: puede haber algún
-salto difícil), ganar la memoria y los regalos, leer las notas en el juego, el parche de la siesta.
+salto difícil). (Lo demás, probado en la 0.21.1.)
 
 ## 0.20.0: la Fiesta (Nivel Fun, las Feeding Rooms), primera entrega (2026-10-18; Bruno)
 
@@ -86,7 +101,7 @@ escapar, y todas las salas a la vista.
 **Sin probar**: con varios jugadores, el semáforo andando de verdad (solo con teletransportes), los
 sonidos escuchados, las apariciones vistas (se va al mirarle: no salió en la captura), el laberinto
 recorrido entero.
-**Falta** (tras la 0.21.0): las voces de la niña y el Anfitrión (créditos de Higgsfield) y el siguiente
+**Falta** (tras la 0.21.1): 9 voces de la niña y el Anfitrión (créditos de Higgsfield) y el siguiente
 tramo tras el regalo.
 
 ## 0.19.0: la lista larga de Bruno (2026-10-17; Bruno)

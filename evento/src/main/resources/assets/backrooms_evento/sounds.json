@@ -1088,7 +1088,7 @@
   "fiesta.nino": {
     "sounds": [
       {
-        "name": "backrooms_evento:fiesta_juguete2",
+        "name": "backrooms_evento:fiesta_nino_1",
         "attenuation_distance": 40
       }
     ]
@@ -1096,11 +1096,15 @@
   "anfitrion.voz": {
     "sounds": [
       {
-        "name": "backrooms_evento:anfitrion_respira1",
+        "name": "backrooms_evento:anfitrion_voz_1",
         "attenuation_distance": 32
       },
       {
-        "name": "backrooms_evento:anfitrion_respira2",
+        "name": "backrooms_evento:anfitrion_risa_sint1",
+        "attenuation_distance": 32
+      },
+      {
+        "name": "backrooms_evento:anfitrion_respira1",
         "attenuation_distance": 32
       }
     ]

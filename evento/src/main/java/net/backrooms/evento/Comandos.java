@@ -248,6 +248,13 @@ public final class Comandos {
 				.then(Commands.literal("ver")
 					.executes(c -> fiestaVer(c, c.getSource().getPlayerOrException()))
 					.then(Commands.argument("jugador", EntityArgument.player()).executes(c -> fiestaVer(c, EntityArgument.getPlayer(c, "jugador")))))
+				.then(Commands.literal("juegos").then(Commands.argument("jugador", EntityArgument.player()).executes(c -> {
+					ServerPlayer j = EntityArgument.getPlayer(c, "jugador");
+					String m = net.backrooms.evento.fiesta.JuegoMemoria.get().estado();
+					String r = net.backrooms.evento.fiesta.JuegoRegalos.get().estado(j);
+					c.getSource().sendSuccess(() -> Component.literal(m + " | " + r), false);
+					return 1;
+				})))
 				.then(Commands.literal("recargar").executes(c -> {
 					net.backrooms.evento.fiesta.ConfigFiesta.cargar();
 					c.getSource().sendSuccess(() -> Component.literal("Config de la Fiesta releida (objetivo: "

@@ -105,7 +105,7 @@ servidor-ejemplo/                configuración del servidor del evento
   ambiente, fase, piscinas [ir <sala>|ir detalle|ir corre|ir valvula|ir salida|ir tarjeta_<color>|ir cadaver [colgado]|
   oir <sonido> <jugador>], tarjetas [reponer|abrir], recepcion, vestibulo,
   muerte, escapados, invocar bacteria|smiler|serpiente, megafono (tu voz para todos), reparar [radio],
-  inundacion [segundos|parar], fiesta [jugador|ir <sala>|apagon|aparicion|tickets|monedas|ver|recargar],
+  inundacion [segundos|parar], fiesta [jugador|ir <sala>|apagon|aparicion|tickets|monedas|ver|juegos|recargar],
   acechadores, cordura, comida reponer, misiones...). Ver `Comandos.java`. La lista del evento (quién puede
   entrar): `/brwhitelist agregar|quitar|ver|lista|recargar` (`acceso/Whitelist.java`; la lista vive
   en la tienda, ver `VENTA.md`).

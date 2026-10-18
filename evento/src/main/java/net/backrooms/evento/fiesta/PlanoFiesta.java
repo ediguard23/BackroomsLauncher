@@ -742,7 +742,8 @@ public final class PlanoFiesta {
 			if (azar.nextInt(4) == 0) {
 				bloque(x, y, z + 1, s(BloquesFiesta.ACOLCHADOS[Math.floorMod(x + z + 1, BloquesFiesta.ACOLCHADOS.length)]));
 			}
-			int alto = Math.max(SUB + 1, Math.min(SUB + 4, y + (azar.nextInt(3) - (y >= SUB + 3 ? 1 : 0))));
+			// como mucho SUB + 3: mas alto, al saltar la cabeza da contra el techo (el suelo de arriba)
+			int alto = Math.max(SUB + 1, Math.min(SUB + 3, y + (azar.nextInt(3) - (y >= SUB + 3 ? 1 : 0))));
 			int salto = alto > y ? 2 : 2 + azar.nextInt(2);
 			x += dir * salto;
 			z = Math.max(z0 + 1, Math.min(z1 - 1, z + azar.nextInt(3) - 1));

@@ -315,7 +315,8 @@ async function guardarMonoV (nombre, buf) {
   j['semaforo.pillado'] = ev(['semaforo_pillado'], 24);
   j['semaforo.gana'] = ev(['semaforo_gana'], 24);
   j['fiesta.nino'] = ev(ninos.length ? ninos : ['fiesta_juguete2'], 40);
-  j['anfitrion.voz'] = ev(vocesAnf.length ? vocesAnf : ['anfitrion_respira1', 'anfitrion_respira2'], 32);
+  // con pocas frases grabadas, se mezclan con la risa sintetica para que no se repita siempre lo mismo
+  j['anfitrion.voz'] = ev(vocesAnf.length >= 3 ? vocesAnf : [...vocesAnf, 'anfitrion_risa_sint1', 'anfitrion_respira1'], 32);
   j['anfitrion.risa'] = ev(risas.length ? risas : ['anfitrion_risa_sint1', 'anfitrion_risa_sint2'], 64);
   j.susurros = {
     sounds: [

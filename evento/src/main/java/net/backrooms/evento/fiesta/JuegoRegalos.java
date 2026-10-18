@@ -60,6 +60,21 @@ public final class JuegoRegalos {
 		ServerTickEvents.END_SERVER_TICK.register(INSTANCIA::tick);
 	}
 
+	/** Para el staff (/backrooms fiesta juegos): los regalos que le faltan a `j`, o null sin partida. */
+	public String estado(ServerPlayer j) {
+		Partida p = this.partidas.get(j.getUUID());
+		if (p == null) {
+			return "regalos: sin partida";
+		}
+		StringBuilder s = new StringBuilder("regalos que faltan:");
+		for (int i = 0; i < p.regalos.size(); i++) {
+			if (!p.cogidos.get(i)) {
+				s.append(String.format(java.util.Locale.ROOT, " %.1f,%.1f", p.regalos.get(i)[0], p.regalos.get(i)[2]));
+			}
+		}
+		return s.toString();
+	}
+
 	private static boolean enSala(ServerPlayer j) {
 		int[] s = PlanoFiesta.REGALOS_SALA;
 		return Fiesta.es(j.level()) && j.getX() >= s[0] && j.getX() < s[2] + 1 && j.getZ() >= s[1] && j.getZ() < s[3] + 1;
