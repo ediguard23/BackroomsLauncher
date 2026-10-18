@@ -1,8 +1,36 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-18 (hora de Honduras). Mod `backrooms_evento` 0.20.0, launcher 1.0.0
+Última actualización: 2026-10-18 (hora de Honduras). Mod `backrooms_evento` 0.21.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+
+## 0.21.0: la Fiesta, segunda entrega: suelos defectuosos, parkour y dos juegos más (2026-10-18; Bruno)
+
+- **Suelos defectuosos** (`SueloDefectuoso`): tres parches de 2x2 que parecen el suelo de alrededor
+  (moqueta en el salón, goma en el laberinto y en la siesta) pero su textura tiembla y se corrompe a
+  ratos (animada), zumba muy bajo y suelta alguna chispa. Si te quedas encima cruje y cede: caes a
+  una **zona de parkour** escondida debajo (`PlanoFiesta.PARKOURS`, suelo en y = 32), con piscina de
+  bolas en el fondo (amortigua la caída; si caes en ella lejos de la llegada, vuelves al principio)
+  y plataformas acolchadas hasta una **trampilla** que sube (2 s encima). Premio la primera vez
+  (100 tickets + la tira de 50 del final). La del salón sube al salón; la del laberinto, **a la sala
+  secreta** (sin pagar sus 3 monedas); la de la siesta, a la siesta. El parche se rehace al rato.
+- **Sala de juegos** (torno de 1 moneda, en la pared este del salón, sur del semáforo):
+  - **Memoria de colores** (`JuegoMemoria`): pisa la estrella; las 4 baldosas (roja, amarilla, azul,
+    verde, sobre alfombra oscura) se encienden en orden con su nota y hay que pisarlas igual; cada
+    ronda una más (de 3 a 7). Fallar, tardar 8 s o salir acaba. Premio 250 (100 repetido). Juega uno.
+  - **Busca los regalos** (`JuegoRegalos`), detrás del tabique, casi a oscuras: pisa la estrella y
+    tienes 60 s para encontrar 8 regalos que solo tú ves brillar (y que tintinean de vez en cuando);
+    reloj los últimos 10 s. Premio 200 (80 repetido); si se acaba el tiempo, 10 por regalo. Cada
+    jugador juega su partida.
+- **Notas** (`NotaFiesta`): 8 repartidas (cocina, informe del Proyecto Umbral, siesta, laberinto, junto
+  al parche del salón, llegada, semáforo, sala del premio) que cuentan a trozos para qué es la Fiesta.
+- Sonidos nuevos en `tools/sonidos/fiesta.js` (zumbido, crujido, caída, bolas, trampilla, notas de la
+  memoria, error, regalos, reloj) y texturas en `tools/texturas/fiesta.js`. Premios en `ConfigFiesta`.
+**Probado** (capturas): el suelo del salón cede y se cae al parkour, la piscina devuelve al principio,
+la trampilla sube con su premio (150 tickets), el del laberinto cede; la memoria se enciende en orden,
+«¡Te toca!» y el fallo; los regalos empiezan, brillan y se acaban por tiempo; las notas se ven.
+**Sin probar**: recorrer los parkours saltando de verdad (solo con teletransportes: puede haber algún
+salto difícil), ganar la memoria y los regalos, leer las notas en el juego, el parche de la siesta.
 
 ## 0.20.0: la Fiesta (Nivel Fun, las Feeding Rooms), primera entrega (2026-10-18; Bruno)
 
@@ -58,8 +86,8 @@ escapar, y todas las salas a la vista.
 **Sin probar**: con varios jugadores, el semáforo andando de verdad (solo con teletransportes), los
 sonidos escuchados, las apariciones vistas (se va al mirarle: no salió en la captura), el laberinto
 recorrido entero.
-**Siguiente entrega** (lo que pidió y falta): los otros dos minijuegos, los suelos defectuosos con
-sus zonas de parkour, más secretos y notas, las voces que faltan y el siguiente tramo tras el regalo.
+**Falta** (tras la 0.21.0): las voces de la niña y el Anfitrión (créditos de Higgsfield) y el siguiente
+tramo tras el regalo.
 
 ## 0.19.0: la lista larga de Bruno (2026-10-17; Bruno)
 

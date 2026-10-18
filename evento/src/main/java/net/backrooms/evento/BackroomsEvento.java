@@ -86,6 +86,8 @@ public class BackroomsEvento implements ModInitializer {
 		net.backrooms.evento.fiesta.JuegoFiesta.registrar();
 		net.backrooms.evento.fiesta.JuegoSemaforo.registrar();
 		net.backrooms.evento.fiesta.AnfitrionFiesta.registrar();
+		net.backrooms.evento.fiesta.JuegoMemoria.registrar();
+		net.backrooms.evento.fiesta.JuegoRegalos.registrar();
 		net.backrooms.evento.supervivencia.Supervivencia.registrar();
 		net.backrooms.evento.supervivencia.SinPvp.registrar();
 		net.backrooms.evento.supervivencia.Comida.registrar();

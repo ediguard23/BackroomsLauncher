@@ -44,7 +44,8 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
                                  sus misiones (Valvulas, Tarjetas: las 3 tarjetas y la puerta)
       fiesta/                    la Fiesta (Nivel Fun, las Feeding Rooms), despues de las Piscinas: PlanoFiesta
                                  (mapa hecho a mano), JuegoFiesta (monedas, tickets, tornos, Gran Premio),
-                                 JuegoSemaforo, el Anfitrion y sus apagones (AnfitrionFiesta), ConfigFiesta
+                                 JuegoSemaforo, JuegoMemoria, JuegoRegalos, los suelos defectuosos y el parkour,
+                                 el Anfitrion y sus apagones (AnfitrionFiesta), ConfigFiesta
       expedicion/                el /start (cinemática de la firma y el ascensor y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas

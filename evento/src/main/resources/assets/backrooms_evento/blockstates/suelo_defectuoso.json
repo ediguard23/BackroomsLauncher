@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "roto=false,variante=0": {
+      "model": "backrooms_evento:block/suelo_defectuoso_0"
+    },
+    "roto=false,variante=1": {
+      "model": "backrooms_evento:block/suelo_defectuoso_1"
+    },
+    "roto=true,variante=0": {
+      "model": "backrooms_evento:block/suelo_defectuoso_0"
+    },
+    "roto=true,variante=1": {
+      "model": "backrooms_evento:block/suelo_defectuoso_1"
+    }
+  }
+}

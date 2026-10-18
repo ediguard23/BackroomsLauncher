@@ -131,5 +131,10 @@
   "entity.backrooms_evento.ficha": "Token",
   "entity.backrooms_evento.anfitrion": "The Host",
   "death.attack.backrooms_evento.fiesta": "%1$s stayed at the party forever",
-  "death.attack.backrooms_evento.fiesta.player": "%2$s hugged %1$s and never let go"
+  "death.attack.backrooms_evento.fiesta.player": "%2$s hugged %1$s and never let go",
+  "block.backrooms_evento.suelo_defectuoso": "Faulty floor",
+  "block.backrooms_evento.piscina_bolas": "Ball pit",
+  "block.backrooms_evento.trampilla_fiesta": "Hatch",
+  "block.backrooms_evento.nota_fiesta": "Note",
+  "block.backrooms_evento.baldosa_juego": "Game tile"
 }

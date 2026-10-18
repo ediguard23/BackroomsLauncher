@@ -25,6 +25,20 @@
  *   semaforo_silbato       te han pillado: silbato y un tobogan de nota que baja
  *   semaforo_fanfarria     meta: fanfarria de matasuegras
  *   semaforo_luz_verde/roja  la senal de cada luz (debajo de la voz que la canta, en voces.js)
+ *  Suelos defectuosos, parkour y juegos
+ *   suelo_zumbido          el zumbido electrico, muy bajo, de un suelo que falla (la pista)
+ *   suelo_cruje            alguien se ha quedado encima: chasquido y crujido de tablero
+ *   suelo_cae              cede: un fallo digital (como un salto de imagen) y el aire de la caida
+ *   parkour_bolas          caer en la piscina de bolas
+ *   parkour_fallo          a la piscina fuera de sitio: un "boing" y vuelta al principio
+ *   parkour_sube           la trampilla que sube: motor y un soplo hacia arriba
+ *   memoria_nota_*         las cuatro notas de las baldosas (xilofono: do, mi, sol, do)
+ *   memoria_turno          te toca: dos campanillas
+ *   memoria_error          fallo: un acorde desafinado que se cae
+ *   regalos_ping           un regalo que tintinea (para orientarse)
+ *   regalos_coger          coger un regalo: papel y una campanilla
+ *   regalos_reloj          el tic del reloj de los ultimos segundos
+ *   regalos_fin            se acabo el tiempo: timbre
  *  El Anfitrion
  *   anfitrion_paso1-4      zapatones de goma: un golpe blando y el chirrido de la suela
  *   anfitrion_detecta      te ha visto: un matasuegras desafinado y algo grave debajo
@@ -374,6 +388,126 @@ function abrazo () {
   return pico(sala(buf, 0.35, 0.6), -1);
 }
 
+/* ============================================================== suelos, parkour y juegos */
+
+function sueloZumbido () {
+  const rnd = D.azar(801);
+  const buf = mono(1.2);
+  poner(buf, 0, 1.1, (t) => (Math.sin(TAU * 120 * t) * 0.5 + Math.sin(TAU * 240 * t) * 0.3 + (rnd() - 0.5) * 0.2 * (Math.sin(TAU * 7 * t) > 0.6 ? 1 : 0))
+    * Math.sin(Math.PI * t / 1.1) * 0.5);
+  return pico(buf, -10);
+}
+
+function sueloCruje () {
+  const rnd = D.azar(811);
+  const buf = mono(0.9);
+  for (let k = 0; k < 9; k++) {
+    const bp = new D.Biquad('bp', 700 + rnd() * 900, 4);
+    poner(buf, 0.02 + rnd() * 0.6, 0.05, (t) => bp.paso(rnd() * 2 - 1) * Math.exp(-t * 80) * 2);
+  }
+  const lp = new D.Biquad('lp', 400, 0.8);
+  poner(buf, 0, 0.7, (t) => lp.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 0.7) * 0.5);
+  return pico(sala(buf, 0.2, 0.4), -3);
+}
+
+function sueloCae () {
+  const rnd = D.azar(821);
+  const buf = mono(1.6);
+  // el fallo digital: tramos de onda cuadrada que saltan de tono, entrecortados
+  let t0 = 0;
+  while (t0 < 0.45) {
+    const f = 200 + rnd() * 1800;
+    const d = 0.02 + rnd() * 0.05;
+    poner(buf, t0, d, (t) => Math.sign(Math.sin(TAU * f * t)) * 0.4);
+    t0 += d + rnd() * 0.02;
+  }
+  const bp = new D.Biquad('bp', 600, 0.8);
+  poner(buf, 0.3, 1.2, (t) => bp.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 1.2) * 0.9);
+  return pico(sala(buf, 0.3, 0.6), -2);
+}
+
+function bolas () {
+  const rnd = D.azar(831);
+  const buf = mono(1.0);
+  for (let k = 0; k < 26; k++) {
+    const f = 900 + rnd() * 1500;
+    poner(buf, rnd() * 0.5, 0.06, (t) => Math.sin(TAU * f * t) * Math.exp(-t * 70) * (0.3 + rnd() * 0.3));
+  }
+  return pico(sala(buf, 0.25, 0.5), -3);
+}
+
+function parkourFallo () {
+  const buf = mono(1.0);
+  let fase = 0;
+  poner(buf, 0, 0.6, (t) => {
+    fase += (220 + Math.sin(TAU * 9 * t) * 80 * Math.exp(-t * 3)) / SR;
+    return Math.sin(TAU * fase) * Math.exp(-t * 4) * 0.8;
+  });
+  return pico(sala(buf, 0.25, 0.5), -3);
+}
+
+function parkourSube () {
+  const rnd = D.azar(841);
+  const buf = mono(2.0);
+  const lp = new D.Biquad('lp', 300, 0.8);
+  poner(buf, 0, 1.6, (t) => lp.paso(D.sierra((t * (60 + t * 40)) % 1, 80 / SR)) * Math.sin(Math.PI * t / 1.6) * 0.8);
+  const hp = new D.Biquad('bp', 1500, 0.7);
+  poner(buf, 0.5, 1.4, (t) => hp.paso(rnd() * 2 - 1) * Math.pow(Math.sin(Math.PI * t / 1.4), 2) * 0.6);
+  return pico(sala(buf, 0.3, 0.5), -2);
+}
+
+function memoriaNota (n) {
+  const buf = mono(1.0);
+  const f = nota(n);
+  poner(buf, 0, 1.0, (t) => (Math.sin(TAU * f * t) + Math.sin(TAU * f * 3.93 * t) * 0.3 * Math.exp(-t * 20)) * Math.exp(-t * 5) * 0.8);
+  return pico(sala(buf, 0.3, 0.5), -2);
+}
+
+function memoriaTurno () {
+  const buf = mono(1.0);
+  [[0, 88], [0.12, 93]].forEach(([t0, n]) => poner(buf, t0, 0.8, (t) => Math.sin(TAU * nota(n) * t) * Math.exp(-t * 6) * 0.5));
+  return pico(sala(buf, 0.25, 0.5), -3);
+}
+
+function memoriaError () {
+  const buf = mono(1.4);
+  for (const n of [59, 60, 66]) {
+    poner(buf, 0, 1.2, (t) => Math.sign(Math.sin(TAU * nota(n) * (1 - t * 0.15) * t)) * Math.exp(-t * 2.5) * 0.25);
+  }
+  const lp = new D.Biquad('lp', 1800, 0.7);
+  for (let i = 0; i < buf.length; i++) buf[i] = lp.paso(buf[i]);
+  return pico(sala(buf, 0.25, 0.5), -2);
+}
+
+function regalosPing () {
+  const buf = mono(1.4);
+  [[0, 96], [0.09, 100], [0.18, 103]].forEach(([t0, n]) => poner(buf, t0, 1.0, (t) => Math.sin(TAU * nota(n) * t) * Math.exp(-t * 7) * 0.4));
+  return pico(sala(buf, 0.35, 0.6), -6);
+}
+
+function regalosCoger () {
+  const rnd = D.azar(851);
+  const buf = mono(1.0);
+  const bp = new D.Biquad('bp', 3000, 0.9);
+  poner(buf, 0, 0.3, (t) => bp.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 0.3) * 0.7);
+  poner(buf, 0.18, 0.8, (t) => Math.sin(TAU * nota(91) * t) * Math.exp(-t * 6) * 0.5);
+  return pico(sala(buf, 0.25, 0.5), -2);
+}
+
+function regalosReloj () {
+  const rnd = D.azar(861);
+  const buf = mono(0.3);
+  const bp = new D.Biquad('bp', 2500, 9);
+  poner(buf, 0, 0.05, (t) => bp.paso(rnd() * 2 - 1) * Math.exp(-t * 160) * 3);
+  return pico(buf, -4);
+}
+
+function regalosFin () {
+  const buf = mono(1.4);
+  poner(buf, 0, 1.0, (t) => Math.sign(Math.sin(TAU * 440 * t)) * Math.sin(TAU * 18 * t) * Math.min(1, (1 - t) * 6) * 0.3);
+  return pico(sala(buf, 0.25, 0.5), -2);
+}
+
 /* ============================================================== todo */
 
 const SONIDOS = [
@@ -387,7 +521,13 @@ const SONIDOS = [
   ['anfitrion_paso1', () => paso(1)], ['anfitrion_paso2', () => paso(2)], ['anfitrion_paso3', () => paso(3)], ['anfitrion_paso4', () => paso(4)],
   ['anfitrion_detecta', detecta],
   ['anfitrion_respira1', () => respira(1)], ['anfitrion_respira2', () => respira(2)], ['anfitrion_respira3', () => respira(3)],
-  ['anfitrion_pierde', pierde], ['anfitrion_abrazo', abrazo]
+  ['anfitrion_pierde', pierde], ['anfitrion_abrazo', abrazo],
+  ['suelo_zumbido', sueloZumbido], ['suelo_cruje', sueloCruje], ['suelo_cae', sueloCae],
+  ['parkour_bolas', bolas], ['parkour_fallo', parkourFallo], ['parkour_sube', parkourSube],
+  ['memoria_nota_roja', () => memoriaNota(72)], ['memoria_nota_amarilla', () => memoriaNota(76)],
+  ['memoria_nota_azul', () => memoriaNota(79)], ['memoria_nota_verde', () => memoriaNota(84)],
+  ['memoria_turno', memoriaTurno], ['memoria_error', memoriaError],
+  ['regalos_ping', regalosPing], ['regalos_coger', regalosCoger], ['regalos_reloj', regalosReloj], ['regalos_fin', regalosFin]
 ];
 
 /** Entradas de sounds.json: evento -> [archivos, distancia de atenuacion]. Las de voz van en voces.js. */
@@ -407,7 +547,23 @@ const EVENTOS = {
   'anfitrion.detecta': [['anfitrion_detecta'], 64],
   'anfitrion.respira': [['anfitrion_respira1', 'anfitrion_respira2', 'anfitrion_respira3'], 20],
   'anfitrion.pierde': [['anfitrion_pierde'], 40],
-  'anfitrion.abrazo': [['anfitrion_abrazo'], 32]
+  'anfitrion.abrazo': [['anfitrion_abrazo'], 32],
+  'suelo.zumbido': [['suelo_zumbido'], 6],
+  'suelo.cruje': [['suelo_cruje'], 12],
+  'suelo.cae': [['suelo_cae'], 20],
+  'parkour.bolas': [['parkour_bolas'], 16],
+  'parkour.fallo': [['parkour_fallo'], 16],
+  'parkour.sube': [['parkour_sube'], 16],
+  'memoria.nota_roja': [['memoria_nota_roja'], 32],
+  'memoria.nota_amarilla': [['memoria_nota_amarilla'], 32],
+  'memoria.nota_azul': [['memoria_nota_azul'], 32],
+  'memoria.nota_verde': [['memoria_nota_verde'], 32],
+  'memoria.turno': [['memoria_turno'], 24],
+  'memoria.error': [['memoria_error'], 24],
+  'regalos.ping': [['regalos_ping'], 24],
+  'regalos.coger': [['regalos_coger'], 12],
+  'regalos.reloj': [['regalos_reloj'], 8],
+  'regalos.fin': [['regalos_fin'], 12]
 };
 
 if (require.main === module) (async () => {

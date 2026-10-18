@@ -128,6 +128,23 @@ public final class Sonidos {
 	public static final SoundEvent ANFITRION_ABRAZO = registrar("anfitrion.abrazo");
 	public static final SoundEvent ANFITRION_VOZ = registrar("anfitrion.voz");
 	public static final SoundEvent ANFITRION_RISA = registrar("anfitrion.risa");
+	// los suelos defectuosos y el parkour
+	public static final SoundEvent SUELO_ZUMBIDO = registrar("suelo.zumbido");
+	public static final SoundEvent SUELO_CRUJE = registrar("suelo.cruje");
+	public static final SoundEvent SUELO_CAE = registrar("suelo.cae");
+	public static final SoundEvent PARKOUR_BOLAS = registrar("parkour.bolas");
+	public static final SoundEvent PARKOUR_FALLO = registrar("parkour.fallo");
+	public static final SoundEvent PARKOUR_SUBE = registrar("parkour.sube");
+	// la memoria de colores: una nota por baldosa (roja, amarilla, azul, verde)
+	public static final SoundEvent[] MEMORIA_NOTA = {registrar("memoria.nota_roja"), registrar("memoria.nota_amarilla"),
+		registrar("memoria.nota_azul"), registrar("memoria.nota_verde")};
+	public static final SoundEvent MEMORIA_TURNO = registrar("memoria.turno");
+	public static final SoundEvent MEMORIA_ERROR = registrar("memoria.error");
+	// los regalos a contrarreloj
+	public static final SoundEvent REGALOS_PING = registrar("regalos.ping");
+	public static final SoundEvent REGALOS_COGER = registrar("regalos.coger");
+	public static final SoundEvent REGALOS_RELOJ = registrar("regalos.reloj");
+	public static final SoundEvent REGALOS_FIN = registrar("regalos.fin");
 
 	private static SoundEvent registrar(String ruta) {
 		Identifier id = BackroomsEvento.id(ruta);

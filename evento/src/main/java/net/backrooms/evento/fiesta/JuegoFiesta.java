@@ -72,6 +72,10 @@ public final class JuegoFiesta {
 		public Set<Integer> cogidas = new HashSet<>();
 		public Set<Integer> pagados = new HashSet<>();
 		public int semaforo;
+		public int memoria;
+		public int regalos;
+		/** Los parkours ya completados (su premio es solo la primera vez). */
+		public Set<Integer> parkours = new HashSet<>();
 		public boolean premio;
 	}
 
@@ -83,6 +87,8 @@ public final class JuegoFiesta {
 	private final Map<Integer, FichaEntidad> vivas = new HashMap<>();
 	private final Map<UUID, Integer> enRegalo = new HashMap<>();
 	private final Map<UUID, Long> ultimoTorno = new HashMap<>();
+	/** Ticks (de 4 en 4) que lleva cada uno en la trampilla del final de un parkour. */
+	private final Map<UUID, Integer> enTrampilla = new HashMap<>();
 
 	private JuegoFiesta() {
 	}
@@ -239,6 +245,7 @@ public final class JuegoFiesta {
 			}
 			this.coger(j);
 			this.regalo(nivel, j);
+			this.parkour(nivel, j);
 		}
 		if (this.ticks % 20 == 0) {
 			this.fichas(nivel);
@@ -372,6 +379,45 @@ public final class JuegoFiesta {
 		double z = pos.getZ() + 0.5 + d.getStepZ() * 1.3;
 		j.teleportTo(j.level(), x, pos.getY(), z, Set.of(), j.getYRot(), j.getXRot(), true);
 		j.level().playSound(null, pos, Sonidos.FIESTA_TORNO, SoundSource.BLOCKS, 0.9F, 0.95F + j.getRandom().nextFloat() * 0.1F);
+	}
+
+	/* ------------------------------------------------------------ parkour */
+
+	/**
+	 * En una zona de parkour: quien cae a la piscina de bolas lejos de donde se llega vuelve al
+	 * principio; quien se queda en la trampilla del final sube (y la primera vez se lleva su premio).
+	 */
+	private void parkour(ServerLevel nivel, ServerPlayer j) {
+		for (PlanoFiesta.Parkour p : PlanoFiesta.PARKOURS) {
+			if (!p.dentro(j.getX(), j.getY(), j.getZ())) {
+				continue;
+			}
+			double dl = Math.hypot(j.getX() - p.llegadaX(), j.getZ() - p.llegadaZ());
+			if (j.getY() < PlanoFiesta.SUB + 1.9 && dl > 1.8 && j.onGround()) {
+				nivel.playSound(null, j.blockPosition(), Sonidos.PARKOUR_FALLO, SoundSource.PLAYERS, 1.0F, 1.0F);
+				j.teleportTo(nivel, p.llegadaX(), PlanoFiesta.SUB + 2, p.llegadaZ(), Set.of(), j.getYRot(), 0.0F, true);
+				j.displayClientMessage(Component.literal("¡Al agua de bolas! Otra vez desde el principio.").withStyle(ChatFormatting.GRAY), true);
+				return;
+			}
+			if (p.enFin(j.getX(), j.getZ()) && j.getY() >= PlanoFiesta.SUB + 3.9) {
+				int n = this.enTrampilla.merge(j.getUUID(), 4, Integer::sum);
+				if (n == 4) {
+					j.displayClientMessage(Component.literal("La trampilla vibra...").withStyle(ChatFormatting.YELLOW), true);
+				}
+				if (n >= 24) {
+					this.enTrampilla.remove(j.getUUID());
+					nivel.playSound(null, j.blockPosition(), Sonidos.PARKOUR_SUBE, SoundSource.PLAYERS, 1.2F, 1.0F);
+					j.teleportTo(nivel, p.salidaX(), PlanoFiesta.SUELO + 1, p.salidaZ(), Set.of(), p.salidaGiro(), 0.0F, true);
+					Datos d = this.datos(j);
+					if (d.parkours.add(p.id())) {
+						this.sumarTickets(j, p.premio(), "¡atajo secreto!");
+					}
+				}
+			} else {
+				this.enTrampilla.remove(j.getUUID());
+			}
+			return;
+		}
 	}
 
 	/* --------------------------------------------------------- el regalo */

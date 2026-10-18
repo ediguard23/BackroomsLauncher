@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "color=0,luz=false": {
+      "model": "backrooms_evento:block/baldosa_juego_0"
+    },
+    "color=0,luz=true": {
+      "model": "backrooms_evento:block/baldosa_juego_0_luz"
+    },
+    "color=1,luz=false": {
+      "model": "backrooms_evento:block/baldosa_juego_1"
+    },
+    "color=1,luz=true": {
+      "model": "backrooms_evento:block/baldosa_juego_1_luz"
+    },
+    "color=2,luz=false": {
+      "model": "backrooms_evento:block/baldosa_juego_2"
+    },
+    "color=2,luz=true": {
+      "model": "backrooms_evento:block/baldosa_juego_2_luz"
+    },
+    "color=3,luz=false": {
+      "model": "backrooms_evento:block/baldosa_juego_3"
+    },
+    "color=3,luz=true": {
+      "model": "backrooms_evento:block/baldosa_juego_3_luz"
+    },
+    "color=4,luz=false": {
+      "model": "backrooms_evento:block/baldosa_juego_4"
+    },
+    "color=4,luz=true": {
+      "model": "backrooms_evento:block/baldosa_juego_4_luz"
+    }
+  }
+}

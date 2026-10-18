@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "n": "backrooms_evento:block/nota_fiesta",
+    "particle": "backrooms_evento:block/nota_fiesta"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0.1,
+        0
+      ],
+      "to": [
+        16,
+        0.1,
+        16
+      ],
+      "faces": {
+        "up": {
+          "texture": "#n",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      }
+    }
+  ]
+}

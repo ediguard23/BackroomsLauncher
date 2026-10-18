@@ -131,5 +131,10 @@
   "entity.backrooms_evento.ficha": "Ficha",
   "entity.backrooms_evento.anfitrion": "El Anfitrión",
   "death.attack.backrooms_evento.fiesta": "%1$s se quedó en la fiesta para siempre",
-  "death.attack.backrooms_evento.fiesta.player": "%2$s abrazó a %1$s y no lo soltó"
+  "death.attack.backrooms_evento.fiesta.player": "%2$s abrazó a %1$s y no lo soltó",
+  "block.backrooms_evento.suelo_defectuoso": "Suelo defectuoso",
+  "block.backrooms_evento.piscina_bolas": "Piscina de bolas",
+  "block.backrooms_evento.trampilla_fiesta": "Trampilla",
+  "block.backrooms_evento.nota_fiesta": "Nota",
+  "block.backrooms_evento.baldosa_juego": "Baldosa de juego"
 }

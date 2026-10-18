@@ -73,6 +73,22 @@ public final class BloquesFiesta {
 	/** Las lineas del semaforo pintadas en el suelo: variante 0 la salida, 1 la meta. */
 	public static final Block LINEA = suelo("linea_fiesta", MapColor.SNOW, SoundType.WOOL, Block.box(0, 0, 0, 16, 0.5, 16), Shapes.empty());
 
+	/* ---------------------------------------- suelos defectuosos, parkour y juegos */
+
+	/** Cede si te quedas encima (SueloDefectuoso); se ve como el suelo de alrededor. Indestructible. */
+	public static final Block SUELO_DEFECTUOSO = conObjeto(Blocks.register(clave("suelo_defectuoso"), SueloDefectuoso::new,
+		propiedades(MapColor.COLOR_YELLOW, GOMA, -1.0F).explosionResistance(3600000.0F).noOcclusion()));
+	public static final Block PISCINA_BOLAS = conObjeto(Blocks.register(clave("piscina_bolas"), PiscinaBolas::new,
+		propiedades(MapColor.COLOR_RED, GOMA, 0.5F).noOcclusion()));
+	/** La trampilla del final de cada parkour: brilla y sube (JuegoFiesta). */
+	public static final Block TRAMPILLA = registrar("trampilla_fiesta", propiedades(MapColor.GOLD, SoundType.METAL, -1.0F)
+		.explosionResistance(3600000.0F).lightLevel(e -> 10));
+	public static final Block NOTA = conObjeto(Blocks.register(clave("nota_fiesta"), NotaFiesta::new,
+		propiedades(MapColor.SNOW, SoundType.WOOL, 0.2F).noCollision().noOcclusion()));
+	public static final Block BALDOSA_JUEGO = conObjeto(Blocks.register(clave("baldosa_juego"), BaldosaJuego::new,
+		propiedades(MapColor.COLOR_RED, SoundType.GLASS, -1.0F).explosionResistance(3600000.0F)
+			.lightLevel(e -> e.getValue(BaldosaJuego.LUZ) ? 13 : (e.getValue(BaldosaJuego.COLOR) == 4 ? 5 : 1))));
+
 	private BloquesFiesta() {
 	}
 

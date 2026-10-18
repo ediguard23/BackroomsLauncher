@@ -108,6 +108,42 @@ public final class PlanoFiesta {
 
 	public static final List<Sala> SALAS = new ArrayList<>();
 
+	/* ------------------------------------------------ suelos defectuosos y parkour */
+
+	/** El suelo de las zonas de parkour (debajo del de la Fiesta): se pisa en SUB + 1. */
+	public static final int SUB = SUELO - 8;
+
+	/**
+	 * Una zona de parkour escondida bajo un parche de suelo defectuoso: la caja de dentro, donde
+	 * se cae (debajo del parche), la trampilla del final y adonde sube; `premio` son los tickets
+	 * de la primera vez.
+	 */
+	public record Parkour(int id, String nombre, int x0, int z0, int x1, int z1, double llegadaX, double llegadaZ,
+		int finX0, int finZ0, int finX1, int finZ1, double salidaX, double salidaZ, float salidaGiro, int premio) {
+		public boolean dentro(double x, double y, double z) {
+			return x >= this.x0 && x < this.x1 + 1 && z >= this.z0 && z < this.z1 + 1 && y < SUELO && y > SUB - 2;
+		}
+
+		public boolean enFin(double x, double z) {
+			return x >= this.finX0 && x < this.finX1 + 1 && z >= this.finZ0 && z < this.finZ1 + 1;
+		}
+	}
+
+	public static final List<Parkour> PARKOURS = new ArrayList<>();
+	/** Los parches de suelo defectuoso: x0, z0, x1, z1 y la variante (0 goma, 1 moqueta). */
+	private static final List<int[]> PARCHES = new ArrayList<>();
+
+	/* ------------------------------------------------------- la sala de juegos */
+
+	/** Las baldosas de la memoria (x0, z0 de cada una, de 2x2): roja, amarilla, azul y verde. */
+	public static final int[][] MEMORIA = {{28, 12}, {32, 12}, {28, 16}, {32, 16}};
+	/** El boton de empezar la memoria (x0, z0, de 2x1) y el de los regalos. */
+	public static final int[] MEMORIA_BOTON = {30, 20};
+	public static final int[] REGALOS_BOTON = {39, 25};
+	/** La sala de los regalos (interior) y los sitios donde puede salir un regalo. */
+	public static final int[] REGALOS_SALA = {38, 9, 46, 27};
+	public static final List<double[]> REGALOS_SITIOS = new ArrayList<>();
+
 	private static int siguienteId;
 
 	private PlanoFiesta() {
@@ -217,6 +253,7 @@ public final class PlanoFiesta {
 	/* ----------------------------------------------------------- el plano */
 
 	static {
+		parkours();
 		llegada();
 		salon();
 		laberinto();
@@ -224,7 +261,9 @@ public final class PlanoFiesta {
 		cocina();
 		siesta();
 		premio();
+		juegos();
 		conexiones();
+		notas();
 	}
 
 	/** La llegada: el ascensor de las Piscinas se abre a un vestibulo de fiesta. */
@@ -660,6 +699,126 @@ public final class PlanoFiesta {
 	}
 
 	/**
+	 * Las tres zonas de parkour, debajo del suelo de la Fiesta (lo primero: las salas de encima
+	 * ponen su suelo, que es el techo de estas). Paredes de papel despegado, una piscina de bolas
+	 * en el fondo y plataformas acolchadas hasta la trampilla del final.
+	 */
+	private static void parkours() {
+		// bajo el salon (parche de moqueta), hacia el este; sube al salon
+		parkour("salon", 16, 18, 41, 24, 18, 20, 1, 1, 38, 21, 20.5, 17.5, 0.0F, 100, 11);
+		// bajo un callejon del laberinto, hacia el oeste; sube a la sala secreta (sin pagar)
+		parkour("laberinto", -63, 15, -34, 21, -36, 17, -1, 0, -61, 18, -62.5, -32.5, 180.0F, 100, 12);
+		// bajo la sala de la siesta, hacia el oeste; sube a la siesta
+		parkour("siesta", 19, -51, 43, -45, 40, -48, -1, 0, 21, -48, 24.5, -44.5, 180.0F, 100, 13);
+	}
+
+	/**
+	 * Una zona de parkour de x0..x1, z0..z1 (interior) con el parche en (px, pz) (2x2), hacia
+	 * `dir` (1 este, -1 oeste) y la trampilla en (fx, fz) (2x2).
+	 */
+	private static void parkour(String nombre, int x0, int z0, int x1, int z1, int px, int pz, int dir, int variante,
+		int fx, int fz, double sx, double sz, float giro, int premio, long semilla) {
+		SALAS.add(new Sala("parkour_" + nombre, x0, z0, x1, z1));
+		caja(x0 - 1, SUB, z0 - 1, x1 + 1, SUB, z1 + 1, s(Blocks.GRAY_CONCRETE));
+		Patron pared = (x, y, z) -> y == SUB + 1 ? s(BloquesFiesta.ZOCALO) : s(BloquesFiesta.PAPEL_SUCIO);
+		caja(x0 - 1, SUB + 1, z0 - 1, x1 + 1, SUELO - 1, z0 - 1, pared);
+		caja(x0 - 1, SUB + 1, z1 + 1, x1 + 1, SUELO - 1, z1 + 1, pared);
+		caja(x0 - 1, SUB + 1, z0, x0 - 1, SUELO - 1, z1, pared);
+		caja(x1 + 1, SUB + 1, z0, x1 + 1, SUELO - 1, z1, pared);
+		caja(x0 - 1, SUELO, z0 - 1, x1 + 1, SUELO, z1 + 1, s(BloquesFiesta.TECHO));
+		caja(x0, SUB + 1, z0, x1, SUB + 1, z1, s(BloquesFiesta.PISCINA_BOLAS));
+		// alguna luz colgando, que falla
+		for (int x = x0 + 3; x <= x1 - 3; x += 7) {
+			bloque(x, SUELO - 1, (z0 + z1) / 2, s(BloquesFiesta.LUZ_PARPADEO));
+		}
+		// las plataformas: de la llegada a la trampilla, a saltos de 2-3, subiendo poco a poco
+		Random azar = new Random(semilla);
+		int x = px + (dir > 0 ? 2 : -1);
+		int z = pz;
+		int y = SUB + 1;
+		int fin = dir > 0 ? fx - 2 : fx + 3;
+		while (dir > 0 ? x < fin : x > fin) {
+			bloque(x, y, z, s(BloquesFiesta.ACOLCHADOS[Math.floorMod(x + z, BloquesFiesta.ACOLCHADOS.length)]));
+			if (azar.nextInt(4) == 0) {
+				bloque(x, y, z + 1, s(BloquesFiesta.ACOLCHADOS[Math.floorMod(x + z + 1, BloquesFiesta.ACOLCHADOS.length)]));
+			}
+			int alto = Math.max(SUB + 1, Math.min(SUB + 4, y + (azar.nextInt(3) - (y >= SUB + 3 ? 1 : 0))));
+			int salto = alto > y ? 2 : 2 + azar.nextInt(2);
+			x += dir * salto;
+			z = Math.max(z0 + 1, Math.min(z1 - 1, z + azar.nextInt(3) - 1));
+			y = alto;
+		}
+		// la plataforma del final con la trampilla y su premio
+		caja(fx - 1, SUB + 1, fz - 1, fx + 2, SUB + 3, fz + 2, s(BloquesFiesta.ACOLCHADO_AMARILLO));
+		caja(fx, SUB + 3, fz, fx + 1, SUB + 3, fz + 1, s(BloquesFiesta.TRAMPILLA));
+		tickets(fx + (dir > 0 ? -0.5 : 2.5), SUB + 4, fz + 1.0, 50);
+		PARKOURS.add(new Parkour(PARKOURS.size(), nombre, x0, z0, x1, z1, px + 1.0, pz + 1.0, fx, fz, fx + 1, fz + 1,
+			sx, sz, giro, premio));
+		PARCHES.add(new int[] {px, pz, px + 1, pz + 1, variante});
+	}
+
+	/**
+	 * La sala de juegos, al este del salon (1 moneda): la memoria de colores (cuatro baldosas que
+	 * se encienden en orden y hay que pisar igual) y, detras de un tabique, la sala de los regalos,
+	 * casi a oscuras, para buscarlos a contrarreloj.
+	 */
+	private static void juegos() {
+		sala("juegos", 26, 9, 46, 27, TECHO + 1, BloquesFiesta.SUELO_GOMA, BloquesFiesta.PAPEL_ESTRELLAS, 5);
+		// las baldosas de colores y el boton, sobre una alfombra oscura para que se distingan
+		caja(27, SUELO, 11, 35, SUELO, 21, s(BloquesFiesta.MOQUETA_CONFETI));
+		for (int c = 0; c < 4; c++) {
+			int[] b = MEMORIA[c];
+			BlockState e = BloquesFiesta.BALDOSA_JUEGO.defaultBlockState().setValue(BaldosaJuego.COLOR, c);
+			caja(b[0], SUELO, b[1], b[0] + 1, SUELO, b[1] + 1, e);
+		}
+		caja(MEMORIA_BOTON[0], SUELO, MEMORIA_BOTON[1], MEMORIA_BOTON[0] + 1, SUELO, MEMORIA_BOTON[1],
+			BloquesFiesta.BALDOSA_JUEGO.defaultBlockState().setValue(BaldosaJuego.COLOR, 4));
+		bloque(31, SUELO + 4, 9, variante(BloquesFiesta.CARTEL, Direction.SOUTH, 3));
+		bloque(26, SUELO + 3, 14, variante(BloquesFiesta.DIBUJO, Direction.EAST, 3));
+		racimo(35, 25, SUELO + 1, 2);
+		// el tabique de la sala de los regalos, con su puerta al sur
+		caja(37, SUELO + 1, 9, 37, TECHO, 27, (x, y, z) -> y == SUELO + 1 ? s(BloquesFiesta.ZOCALO) : s(BloquesFiesta.PAPEL_SUCIO));
+		aire(37, SUELO + 1, 24, 37, SUELO + 3, 26);
+		// dentro, casi a oscuras: el techo sin luces salvo dos que fallan, y cosas apiladas
+		caja(38, TECHO + 1, 9, 46, TECHO + 1, 27, (x, y, z) -> (x == 42 && (z == 13 || z == 22)) ? s(BloquesFiesta.LUZ_PARPADEO) : s(BloquesFiesta.TECHO));
+		int[][] montones = {{40, 11}, {44, 11}, {42, 15}, {39, 18}, {45, 18}, {42, 21}, {40, 23}};
+		for (int i = 0; i < montones.length; i++) {
+			int[] m = montones[i];
+			bloque(m[0], SUELO + 1, m[1], variante(BloquesFiesta.REGALO, Direction.from2DDataValue(i % 4), i % 4));
+			bloque(m[0], SUELO + 2, m[1], variante(BloquesFiesta.REGALO, Direction.from2DDataValue((i + 1) % 4), (i + 2) % 4));
+			bloque(m[0] + 1, SUELO + 1, m[1], variante(BloquesFiesta.PELUCHE, Direction.from2DDataValue(i % 4), i % 4));
+		}
+		caja(REGALOS_BOTON[0], SUELO, REGALOS_BOTON[1], REGALOS_BOTON[0], SUELO, REGALOS_BOTON[1],
+			BloquesFiesta.BALDOSA_JUEGO.defaultBlockState().setValue(BaldosaJuego.COLOR, 4));
+		bloque(38, SUELO + 3, 27, variante(BloquesFiesta.CARTEL, Direction.NORTH, 2));
+		// los sitios de los regalos: suelo libre de la sala, lejos de la puerta
+		for (int gx = 38; gx <= 46; gx += 2) {
+			for (int gz = 9; gz <= 23; gz += 2) {
+				boolean ocupado = false;
+				for (int[] m : montones) {
+					ocupado |= Math.abs(m[0] - gx) <= 1 && Math.abs(m[1] - gz) <= 0;
+				}
+				if (!ocupado) {
+					REGALOS_SITIOS.add(new double[] {gx + 0.5, SUELO + 1, gz + 0.5});
+				}
+			}
+		}
+		bloque(46, SUELO + 3, 18, variante(BloquesFiesta.ALTAVOZ, Direction.WEST, 0));
+		ALTAVOCES.add(new int[] {45, SUELO + 3, 18});
+		RONDA.add(new int[] {31, 24});
+		RONDA.add(new int[] {42, 25});
+	}
+
+	/** Las notas, cada una donde dice algo (NotaFiesta). */
+	private static void notas() {
+		int[][] n = {{-20, -60, 0}, {28, 3, 1}, {-48, 10, 2}, {16, 22, 3}, {-38, -44, 4}, {30, -60, 5}, {5, 42, 6}, {-4, -30, 7}};
+		for (int[] a : n) {
+			bloque(a[0], SUELO + 1, a[1], BloquesFiesta.NOTA.defaultBlockState().setValue(NotaFiesta.FACING, Direction.from2DDataValue(a[2] % 4))
+				.setValue(NotaFiesta.VARIANTE, a[2]));
+		}
+	}
+
+	/**
 	 * Los pasos entre salas, al final: cada sala pone sus muros enteros y los de la de al lado
 	 * los pisarian. Huecos abiertos (la llegada, el laberinto, los pasillos) y los tornos.
 	 */
@@ -673,6 +832,11 @@ public final class PlanoFiesta {
 		torno(12, -25, Direction.SOUTH, 2, "la sala de la siesta");
 		torno(0, -25, Direction.SOUTH, 0, "el Gran Premio");
 		torno(LAB_X + 2 * CELDA + 2, LAB_Z + 3 * CELDA, Direction.SOUTH, 3, "la sala secreta");
+		torno(25, 18, Direction.WEST, 1, "la sala de juegos");
+		// los parches de suelo defectuoso, encima de cada parkour
+		for (int[] p : PARCHES) {
+			caja(p[0], SUELO, p[1], p[2], SUELO, p[3], BloquesFiesta.SUELO_DEFECTUOSO.defaultBlockState().setValue(SueloDefectuoso.VARIANTE, p[4]));
+		}
 	}
 
 	/** La sala (por nombre) donde esta ese punto, o null. */

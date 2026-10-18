@@ -27,6 +27,14 @@ public final class ConfigFiesta {
 	/** Segundos que tienes para pararte al ponerse en rojo. */
 	public float semaforoMargen = 0.45F;
 
+	/* la memoria de colores y los regalos */
+	public int memoriaPremio = 250;
+	public int memoriaPremioRepetido = 100;
+	public int regalosPremio = 200;
+	public int regalosPremioRepetido = 80;
+	/** Si se acaba el tiempo de los regalos: tickets por cada uno encontrado. */
+	public int regalosPorRegalo = 10;
+
 	/* los apagones y el Anfitrion */
 	/** Minutos entre apagones (con alguien en la Fiesta). */
 	public float[] apagonCada = {5.0F, 9.0F};

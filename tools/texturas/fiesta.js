@@ -539,6 +539,122 @@ for (const [i, n] of [[0, 'linea_salida'], [1, 'linea_meta']]) {
 estados('linea_fiesta', 4, (i) => `linea_fiesta_${i % 2}`, true);
 console.log('  para jugar: tornos, puerta del Gran Premio, semaforo y lineas');
 
+/* ============================================================ suelos defectuosos y juegos */
+
+// el suelo defectuoso: la misma goma (o moqueta) que alrededor, animada. Casi siempre igual;
+// a ratos un parpadeo, una franja desplazada o los colores que se corrompen un instante
+{
+  const base = [(x, y) => goma(x, y, false), null];
+  const moqueta = (x, y) => {
+    let c = escala([46, 52, 120], 0.86 + fbm(x, y, 141, 32) * 0.2 + hash(x, y, 142) * 0.06);
+    const h = hash(Math.floor(x / 3), Math.floor(y / 3), 143);
+    if (h > 0.86 && x % 3 !== 2 && y % 3 === 1) c = escala(COLORES[Math.floor(h * 97) % 4], 0.95);
+    return c;
+  };
+  base[1] = moqueta;
+  base.forEach((f, v) => {
+    const cuadros = [];
+    for (let k = 0; k < 6; k++) {
+      cuadros.push(new Lienzo(32).pintar((x, y) => {
+        if (k === 0) return f(x, y);
+        if (k === 1) return escala(f(x, y), 0.82);                                   // parpadeo
+        if (k === 2) { const d = (y >= 10 && y < 16) ? 4 : 0; return f((x + d) % 32, y); } // franja corrida
+        if (k === 3) { const c = f(x, y); return [c[2], c[0], c[1]]; }              // colores cambiados
+        if (k === 4) return (y % 3 === 0) ? escala(f(x, y), 0.6) : f(x, y);         // lineas
+        return mezcla(f(x, y), [255, 255, 255], (x + y) % 7 === 0 ? 0.25 : 0);      // ruido
+      }));
+    }
+    const nombre = `suelo_defectuoso_${v}`;
+    guardar(TEX, nombre, Lienzo.tira(cuadros));
+    // casi todo el rato el cuadro normal; los otros, muy de vez en cuando y muy cortos
+    const frames = [{ index: 0, time: 70 }, { index: 1, time: 2 }, { index: 0, time: 40 }, { index: 2, time: 2 }, { index: 0, time: 3 },
+      { index: 4, time: 2 }, { index: 0, time: 90 }, { index: 3, time: 1 }, { index: 5, time: 2 }, { index: 0, time: 55 }];
+    fs.writeFileSync(path.join(TEX, `${nombre}.png.mcmeta`), JSON.stringify({ animation: { frametime: 1, frames } }, null, 2) + '\n');
+    json(`models/block/${nombre}.json`, { parent: 'minecraft:block/cube_all', textures: { all: t(nombre) } });
+  });
+  const v = {};
+  for (const roto of [false, true]) for (let i = 0; i < 2; i++) v[`roto=${roto},variante=${i}`] = { model: t(`suelo_defectuoso_${i}`) };
+  json('blockstates/suelo_defectuoso.json', { variants: v });
+  json('items/suelo_defectuoso.json', { model: { type: 'minecraft:model', model: t('suelo_defectuoso_0') } });
+}
+
+// la piscina de bolas: bolas de colores amontonadas
+guardar(TEX, 'piscina_bolas', new Lienzo(32).pintar((x, y) => {
+  const cx = Math.floor(x / 5);
+  const cy = Math.floor(y / 5);
+  const ox = (x % 5) - 2 + (hash(cx, cy, 341) - 0.5);
+  const oy = (y % 5) - 2 + (hash(cx, cy, 342) - 0.5);
+  const col = COLORES[Math.floor(hash(cx, cy, 343) * 4)];
+  const d = Math.hypot(ox, oy);
+  if (d > 2.6) return [40, 36, 44];
+  return escala(col, 1.15 - d * 0.18 + (ox < 0 && oy < 0 ? 0.1 : 0));
+}));
+json('models/block/piscina_bolas.json', { parent: 'minecraft:block/block', textures: { b: t('piscina_bolas'), particle: t('piscina_bolas') },
+  elements: [caja([0, 0, 0], [16, 6, 16], '#b')] });
+json('blockstates/piscina_bolas.json', { variants: { '': { model: t('piscina_bolas') } } });
+json('items/piscina_bolas.json', { model: { type: 'minecraft:model', model: t('piscina_bolas') } });
+
+// la trampilla del final del parkour: placa dorada con una flecha hacia arriba que brilla
+{
+  const l = new Lienzo(32).pintar((x, y) => {
+    let c = escala([222, 182, 60], 0.9 + hash(x, y, 351) * 0.1);
+    if (x < 2 || y < 2 || x > 29 || y > 29) c = [150, 110, 30];
+    return c;
+  });
+  l.poligono([[16, 5], [26, 16], [20, 16], [20, 27], [12, 27], [12, 16], [6, 16]], [255, 250, 220]);
+  guardar(TEX, 'trampilla_fiesta', l);
+  json('models/block/trampilla_fiesta.json', { parent: 'minecraft:block/cube_all', textures: { all: t('trampilla_fiesta') } });
+  json('blockstates/trampilla_fiesta.json', { variants: { '': { model: t('trampilla_fiesta') } } });
+  json('items/trampilla_fiesta.json', { model: { type: 'minecraft:model', model: t('trampilla_fiesta') } });
+}
+
+// la nota de la fiesta: papel de colores doblado con letra de cera
+guardar(TEX, 'nota_fiesta', new Lienzo(16).pintar((x, y) => {
+  if (x < 3 || y < 3 || x > 12 || y > 12) return null;
+  let c = escala([250, 232, 196], 0.94 + hash(x, y, 361) * 0.06);
+  if (y % 2 === 1 && x > 4 && x < 11 && hash(x, y, 362) > 0.3) c = [70, 60, 120];
+  if (x === 8) c = escala(c, 0.88);
+  return c;
+}));
+json('models/block/nota_fiesta.json', mod({ n: t('nota_fiesta'), particle: t('nota_fiesta') }, [{
+  from: [0, 0.1, 0], to: [16, 0.1, 16], faces: { up: { texture: '#n', uv: [0, 0, 16, 16] } } }]));
+{
+  const v = {};
+  for (const [f, y] of Object.entries(FACINGS)) for (let i = 0; i < 8; i++) v[`facing=${f},variante=${i}`] = { model: t('nota_fiesta'), ...(y ? { y } : {}) };
+  json('blockstates/nota_fiesta.json', { variants: v });
+  json('items/nota_fiesta.json', { model: { type: 'minecraft:model', model: t('nota_fiesta') } });
+}
+
+// las baldosas de los juegos: de color (apagada, mate; encendida, brillante con el centro casi
+// blanco) y la estrella de empezar
+{
+  const v = {};
+  const COLS = [...COLORES, [240, 240, 236]];
+  COLS.forEach((col, c) => {
+    for (const luz of [false, true]) {
+      const n = `baldosa_juego_${c}${luz ? '_luz' : ''}`;
+      guardar(TEX, n, new Lienzo(16).pintar((x, y) => {
+        if (x === 0 || y === 0 || x === 15 || y === 15) return [40, 40, 44];
+        const d = Math.hypot(x - 7.5, y - 7.5) / 8;
+        let k = luz ? mezcla([255, 255, 250], col, Math.min(1, d * 1.4)) : escala(col, 0.45 + (1 - d) * 0.1);
+        if (c === 4) {
+          // la estrella: amarilla sobre blanco
+          const a = Math.atan2(y - 7.5, x - 7.5);
+          const r = Math.hypot(x - 7.5, y - 7.5);
+          const pico = 3 + 3.5 * Math.pow(Math.abs(Math.cos(a * 2.5)), 2);
+          k = r < pico ? (luz ? [255, 236, 120] : [230, 190, 60]) : escala([236, 232, 220], 0.9);
+        }
+        return k;
+      }));
+      json(`models/block/${n}.json`, { parent: 'minecraft:block/cube_all', textures: { all: t(n) } });
+      v[`color=${c},luz=${luz}`] = { model: t(n) };
+    }
+  });
+  json('blockstates/baldosa_juego.json', { variants: v });
+  json('items/baldosa_juego.json', { model: { type: 'minecraft:model', model: t('baldosa_juego_4_luz') } });
+}
+console.log('  suelos defectuosos, piscina de bolas, trampilla, notas y baldosas de juego');
+
 /* ============================================================ bloques simples */
 
 const SIMPLES = ['papel_fiesta', 'papel_estrellas', 'papel_fiesta_sucio', 'zocalo_fiesta', 'suelo_goma', 'suelo_goma_sucio', 'moqueta_confeti',
@@ -615,7 +731,12 @@ const NOMBRES = {
   camita: ['Camita', 'Nap bed'],
   torno_fiesta: ['Torno de monedas', 'Coin turnstile'],
   luz_semaforo: ['Semáforo', 'Traffic light'],
-  linea_fiesta: ['Línea de carrera', 'Race line']
+  linea_fiesta: ['Línea de carrera', 'Race line'],
+  suelo_defectuoso: ['Suelo defectuoso', 'Faulty floor'],
+  piscina_bolas: ['Piscina de bolas', 'Ball pit'],
+  trampilla_fiesta: ['Trampilla', 'Hatch'],
+  nota_fiesta: ['Nota', 'Note'],
+  baldosa_juego: ['Baldosa de juego', 'Game tile']
 };
 const OTROS = {
   'item.backrooms_evento.moneda_fiesta': ['Moneda de la fiesta', 'Party coin'],

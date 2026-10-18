@@ -1116,5 +1116,133 @@
         "attenuation_distance": 64
       }
     ]
+  },
+  "suelo.zumbido": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:suelo_zumbido",
+        "attenuation_distance": 6
+      }
+    ]
+  },
+  "suelo.cruje": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:suelo_cruje",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "suelo.cae": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:suelo_cae",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "parkour.bolas": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:parkour_bolas",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "parkour.fallo": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:parkour_fallo",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "parkour.sube": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:parkour_sube",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "memoria.nota_roja": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:memoria_nota_roja",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "memoria.nota_amarilla": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:memoria_nota_amarilla",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "memoria.nota_azul": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:memoria_nota_azul",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "memoria.nota_verde": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:memoria_nota_verde",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "memoria.turno": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:memoria_turno",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "memoria.error": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:memoria_error",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "regalos.ping": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:regalos_ping",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "regalos.coger": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:regalos_coger",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "regalos.reloj": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:regalos_reloj",
+        "attenuation_distance": 8
+      }
+    ]
+  },
+  "regalos.fin": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:regalos_fin",
+        "attenuation_distance": 12
+      }
+    ]
   }
 }

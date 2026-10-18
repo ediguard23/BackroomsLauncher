@@ -54,7 +54,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			net.backrooms.evento.fiesta.BloquesFiesta.GUIRNALDA, net.backrooms.evento.fiesta.BloquesFiesta.CARTEL,
 			net.backrooms.evento.fiesta.BloquesFiesta.DIBUJO, net.backrooms.evento.fiesta.BloquesFiesta.ALTAVOZ,
 			net.backrooms.evento.fiesta.BloquesFiesta.CONFETI, net.backrooms.evento.fiesta.BloquesFiesta.LINEA,
-			net.backrooms.evento.fiesta.BloquesFiesta.GLOBO);
+			net.backrooms.evento.fiesta.BloquesFiesta.GLOBO, net.backrooms.evento.fiesta.BloquesFiesta.NOTA);
 		EntityRenderers.register(Entidades.CASETE, CaseteRenderer::new);
 		net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(net.backrooms.evento.piscinas.BloquesPiscinas.VALVULA_ENTIDAD,
 			net.backrooms.evento.cliente.piscinas.ValvulaRenderer::new);
