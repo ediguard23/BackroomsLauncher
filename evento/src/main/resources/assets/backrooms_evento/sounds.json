@@ -1090,6 +1090,18 @@
       {
         "name": "backrooms_evento:fiesta_nino_1",
         "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:fiesta_nino_2",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:fiesta_nino_3",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:fiesta_nino_4",
+        "attenuation_distance": 40
       }
     ]
   },
@@ -1100,11 +1112,11 @@
         "attenuation_distance": 32
       },
       {
-        "name": "backrooms_evento:anfitrion_risa_sint1",
+        "name": "backrooms_evento:anfitrion_voz_2",
         "attenuation_distance": 32
       },
       {
-        "name": "backrooms_evento:anfitrion_respira1",
+        "name": "backrooms_evento:anfitrion_voz_3",
         "attenuation_distance": 32
       }
     ]
@@ -1112,11 +1124,11 @@
   "anfitrion.risa": {
     "sounds": [
       {
-        "name": "backrooms_evento:anfitrion_risa_sint1",
+        "name": "backrooms_evento:anfitrion_risa_1",
         "attenuation_distance": 64
       },
       {
-        "name": "backrooms_evento:anfitrion_risa_sint2",
+        "name": "backrooms_evento:anfitrion_risa_2",
         "attenuation_distance": 64
       }
     ]
