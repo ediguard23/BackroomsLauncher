@@ -117,13 +117,19 @@ public final class HojaMisiones {
 			case CASETES -> "CASETES";
 			case VALVULAS -> "VÁLVULAS";
 			case SALIDA -> "TARJETAS";
+			case TICKETS -> "TICKETS";
 			default -> null;
 		};
 	}
 
 	/** En las Piscinas el radar marca lejos (valvulas, la salida): da los metros y apenas tiembla. */
 	private static boolean piscinas() {
-		return MisionesCliente.misiones().contains(TipoMision.VALVULAS);
+		return MisionesCliente.misiones().contains(TipoMision.VALVULAS) || fiesta();
+	}
+
+	/** En la Fiesta: el radar marca la ficha mas cercana o el Gran Premio. */
+	private static boolean fiesta() {
+		return MisionesCliente.misiones().contains(TipoMision.TICKETS);
 	}
 
 	private static void casilla(GuiGraphics g, int cx, int cy, int tinta, boolean hecha, boolean enCurso) {
@@ -150,7 +156,8 @@ public final class HojaMisiones {
 		}
 		int cx = 70;
 		int cy = y1 - 46;
-		String que = MisionesCliente.salida() ? "SEÑAL DE SALIDA" : piscinas() ? "SEÑAL DE VÁLVULA" : "SEÑAL DE CASETE";
+		String que = fiesta() ? (MisionesCliente.salida() ? "SEÑAL DEL PREMIO" : "SEÑAL DE FICHA")
+			: MisionesCliente.salida() ? "SEÑAL DE SALIDA" : piscinas() ? "SEÑAL DE VÁLVULA" : "SEÑAL DE CASETE";
 		Texto.maquina(g, que, 106, y1 - 64, 12, 0.14F, tema.papelTexto);
 		g.renderOutline(cx - 22, cy - 22, 44, 44, MenuBackrooms.alfa(tema.papelTinta, 0.4F));
 		float t = Fondo.segundos();

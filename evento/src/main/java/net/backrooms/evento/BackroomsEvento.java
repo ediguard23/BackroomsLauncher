@@ -28,7 +28,8 @@ import org.slf4j.LoggerFactory;
  * Mod del evento Backrooms (cliente y servidor): el vestibulo, las fases del
  * Nivel 0 (cada una su dimension), sus bloques, entidades, apagones y
  * alarmas, las misiones, la linterna y la camara, la supervivencia y, debajo
- * del Nivel 0, las Piscinas (Nivel 37, su propia dimension: piscinas/).
+ * del Nivel 0, las Piscinas (Nivel 37, su propia dimension: piscinas/) y, al subir
+ * de las Piscinas, la Fiesta (Nivel Fun, las Feeding Rooms: fiesta/).
  *
  * El servidor del evento usa el tipo de mundo backrooms_evento:nivel_0
  * (level-type en server.properties): el mundo principal ES el Nivel 0.
@@ -45,6 +46,8 @@ public class BackroomsEvento implements ModInitializer {
 	public void onInitialize() {
 		Bloques.iniciar();
 		net.backrooms.evento.piscinas.BloquesPiscinas.iniciar();
+		net.backrooms.evento.fiesta.BloquesFiesta.iniciar();
+		net.backrooms.evento.fiesta.FichaEntidad.iniciar();
 		Sonidos.iniciar();
 		Objetos.iniciar();
 		Equipo.registrar();
@@ -62,6 +65,8 @@ public class BackroomsEvento implements ModInitializer {
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.SonidoPiscinas.TYPE, net.backrooms.evento.red.SonidoPiscinas.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Mordisco.TYPE, net.backrooms.evento.red.Mordisco.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Evidencia.TYPE, net.backrooms.evento.red.Evidencia.CODEC);
+		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.EstadoFiesta.TYPE, net.backrooms.evento.red.EstadoFiesta.CODEC);
+		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Semaforo.TYPE, net.backrooms.evento.red.Semaforo.CODEC);
 		PayloadTypeRegistry.playC2S().register(AccionJugador.TYPE, AccionJugador.CODEC);
 		Misiones.registrar();
 		net.backrooms.evento.expedicion.Expedicion.registrar();
@@ -77,6 +82,10 @@ public class BackroomsEvento implements ModInitializer {
 		net.backrooms.evento.piscinas.Tarjetas.registrar();
 		net.backrooms.evento.piscinas.Inundacion.registrar();
 		net.backrooms.evento.piscinas.Cadaveres.registrar();
+		net.backrooms.evento.fiesta.Fiesta.registrar();
+		net.backrooms.evento.fiesta.JuegoFiesta.registrar();
+		net.backrooms.evento.fiesta.JuegoSemaforo.registrar();
+		net.backrooms.evento.fiesta.AnfitrionFiesta.registrar();
 		net.backrooms.evento.supervivencia.Supervivencia.registrar();
 		net.backrooms.evento.supervivencia.SinPvp.registrar();
 		net.backrooms.evento.supervivencia.Comida.registrar();
@@ -91,5 +100,6 @@ public class BackroomsEvento implements ModInitializer {
 		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("nivel_0"), GeneradorNivel0.CODEC);
 		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("vestibulo"), GeneradorVestibulo.CODEC);
 		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("piscinas"), net.backrooms.evento.piscinas.GeneradorPiscinas.CODEC);
+		Registry.register(BuiltInRegistries.CHUNK_GENERATOR, id("fiesta"), net.backrooms.evento.fiesta.GeneradorFiesta.CODEC);
 	}
 }

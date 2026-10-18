@@ -254,6 +254,11 @@ public final class Vestibulo {
 			j.displayClientMessage(Component.literal("Has caído en los Backrooms. Quedas fuera de la expedición.").withStyle(ChatFormatting.RED), false);
 			return;
 		}
+		if (net.backrooms.evento.fiesta.Fiesta.es(donde)) {
+			// en la Fiesta: vuelve a la llegada (con sus tickets y monedas)
+			net.backrooms.evento.fiesta.Fiesta.llegar(j, false);
+			return;
+		}
 		Fase f = Fase.de(donde);
 		if (f == null) {
 			// en las Piscinas: vuelve a otro sitio de las Piscinas

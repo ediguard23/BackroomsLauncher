@@ -166,7 +166,8 @@ public final class Supervivencia {
 		ServerLevel nivel = j.level();
 		Fase f = Fase.de(nivel);
 		if (f == null) {
-			if (Piscinas.es(nivel)) {
+			if (Piscinas.es(nivel) || net.backrooms.evento.fiesta.Fiesta.es(nivel)) {
+				// la Fiesta baja la cordura como las Piscinas (y con el apagon, mas: ver locuraPiscinas)
 				this.locuraPiscinas(j, nivel);
 			}
 			return;
@@ -202,6 +203,16 @@ public final class Supervivencia {
 		}
 		for (Serpiente s : nivel.getEntitiesOfClass(Serpiente.class, j.getBoundingBox().inflate(28))) {
 			if (s.getTarget() == j) {
+				ritmo *= 4.0F;
+				break;
+			}
+		}
+		// la Fiesta: a oscuras cuesta mas, y con el Anfitrion detras mucho mas
+		if (Ambiente.get().apagon(nivel)) {
+			ritmo *= 2.0F;
+		}
+		for (net.backrooms.evento.fiesta.Anfitrion a : nivel.getEntitiesOfClass(net.backrooms.evento.fiesta.Anfitrion.class, j.getBoundingBox().inflate(24))) {
+			if (a.getTarget() == j) {
 				ritmo *= 4.0F;
 				break;
 			}

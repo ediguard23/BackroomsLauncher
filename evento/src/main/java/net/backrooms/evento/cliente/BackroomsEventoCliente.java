@@ -50,7 +50,11 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			Bloques.SENAL_ALTO, Bloques.SENAL_PELIGRO, Bloques.SENAL_SIGA, Bloques.SENAL_ALTO_REVES, Bloques.SENAL_SIGA_REVES,
 			Bloques.PANEL_ASCENSOR, Bloques.HUECO,
 			net.backrooms.evento.piscinas.BloquesPiscinas.MARCA, net.backrooms.evento.piscinas.BloquesPiscinas.MANCHA,
-			net.backrooms.evento.piscinas.BloquesPiscinas.LECTOR, net.backrooms.evento.piscinas.BloquesPiscinas.CARTEL_SALIDA);
+			net.backrooms.evento.piscinas.BloquesPiscinas.LECTOR, net.backrooms.evento.piscinas.BloquesPiscinas.CARTEL_SALIDA,
+			net.backrooms.evento.fiesta.BloquesFiesta.GUIRNALDA, net.backrooms.evento.fiesta.BloquesFiesta.CARTEL,
+			net.backrooms.evento.fiesta.BloquesFiesta.DIBUJO, net.backrooms.evento.fiesta.BloquesFiesta.ALTAVOZ,
+			net.backrooms.evento.fiesta.BloquesFiesta.CONFETI, net.backrooms.evento.fiesta.BloquesFiesta.LINEA,
+			net.backrooms.evento.fiesta.BloquesFiesta.GLOBO);
 		EntityRenderers.register(Entidades.CASETE, CaseteRenderer::new);
 		net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(net.backrooms.evento.piscinas.BloquesPiscinas.VALVULA_ENTIDAD,
 			net.backrooms.evento.cliente.piscinas.ValvulaRenderer::new);
@@ -66,6 +70,12 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		EntityModelLayerRegistry.registerModelLayer(BacteriaRenderer.CAPA, MallaBacteria::crear);
 		EntityModelLayerRegistry.registerModelLayer(SmilerRenderer.CAPA, MallaSmiler::crear);
 		EntityModelLayerRegistry.registerModelLayer(SerpienteRenderer.CAPA, MallaSerpiente::crear);
+		// la Fiesta
+		EntityRenderers.register(Entidades.ANFITRION, net.backrooms.evento.cliente.entidad.AnfitrionRenderer::new);
+		EntityModelLayerRegistry.registerModelLayer(net.backrooms.evento.cliente.entidad.AnfitrionRenderer.CAPA, net.backrooms.evento.cliente.entidad.MallaAnfitrion::crear);
+		EntityRenderers.register(Entidades.FICHA, net.backrooms.evento.cliente.fiesta.FichaRenderer::new);
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.EstadoFiesta.TYPE, (s, ctx) -> net.backrooms.evento.cliente.fiesta.FiestaCliente.recibir(s));
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Semaforo.TYPE, (s, ctx) -> net.backrooms.evento.cliente.fiesta.SemaforoCliente.recibir(s));
 		// los tubos encendidos se tinen: grises en el apagon, rojos con la alarma
 		ColorProviderRegistry.BLOCK.register((estado, mundo, pos, tinte) -> AmbienteCliente.colorTubos(),
 			Bloques.FLUORESCENTE, Bloques.FLUORESCENTE_PARPADEO);
@@ -102,6 +112,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			Miedo.tick(mc);
 			net.backrooms.evento.cliente.cinematica.CinematicaCliente.tick(mc);
 			net.backrooms.evento.cliente.piscinas.AmbientePiscinas.tick(mc);
+			net.backrooms.evento.cliente.fiesta.AmbienteFiesta.tick(mc);
 			net.backrooms.evento.cliente.piscinas.MordiscoCliente.tick(mc);
 		});
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("supervivencia"), SupervivenciaCliente::render);
@@ -115,6 +126,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		});
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("misiones"), PapelMisiones::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("hueco"), HuecoCliente::render);
+		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("fiesta"), net.backrooms.evento.cliente.fiesta.FiestaCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("agarre"), AgarreCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("mordisco"), net.backrooms.evento.cliente.piscinas.MordiscoCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("ascensor"), AscensorCliente::render);
@@ -146,6 +158,8 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			AgarreCliente.olvidar();
 			net.backrooms.evento.cliente.piscinas.MordiscoCliente.olvidar();
 			HuecoCliente.olvidar();
+			net.backrooms.evento.cliente.fiesta.FiestaCliente.olvidar();
+			net.backrooms.evento.cliente.fiesta.SemaforoCliente.olvidar();
 		});
 		PantallaCinematica.cargar();
 		EfectosMundo.cargar();

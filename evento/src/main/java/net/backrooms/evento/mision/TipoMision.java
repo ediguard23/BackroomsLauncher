@@ -19,7 +19,11 @@ public enum TipoMision {
 	/* las de las Piscinas (Nivel 37): las dos primeras de cada uno; la tercera, de todos */
 	VALVULAS("Cierra tus válvulas", "Tres válvulas de las Piscinas son tuyas: el radar marca la más cercana. Mantén pulsado el clic derecho para cerrarlas."),
 	SERPIENTE("Graba a la Serpiente", "Grábala con la cámara (C) unos segundos sin perderla del encuadre. Que no te vea primero."),
-	SALIDA("Abre la salida de emergencia", "Solo hay tres tarjetas en todo el nivel: roja, amarilla y verde. Entre todos hay que encontrarlas y meterlas en los lectores de la puerta.");
+	SALIDA("Abre la salida de emergencia", "Solo hay tres tarjetas en todo el nivel: roja, amarilla y verde. Entre todos hay que encontrarlas y meterlas en los lectores de la puerta."),
+
+	/* las de la Fiesta (Nivel Fun): juntar los tickets y canjear el Gran Premio */
+	TICKETS("Consigue los tickets", "Busca monedas para abrir las puertas, recoge los tickets que hay por las salas y gana los juegos. El radar marca la ficha más cercana."),
+	PREMIO("Canjea el Gran Premio", "Ve al mostrador de premios, al norte del salón: con tus tickets, la puerta del Gran Premio se abre. Quédate dentro del regalo.");
 
 	public final String titulo;
 	public final String descripcion;

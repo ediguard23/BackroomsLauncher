@@ -1,8 +1,65 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-17 (hora de Honduras). Mod `backrooms_evento` 0.19.0, launcher 1.0.0
+Última actualización: 2026-10-18 (hora de Honduras). Mod `backrooms_evento` 0.20.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+
+## 0.20.0: la Fiesta (Nivel Fun, las Feeding Rooms), primera entrega (2026-10-18; Bruno)
+
+El nivel de después de las Piscinas (paquete `fiesta/`; lore en `LORE.md`, «Nivel Fun»):
+- **Transición**: la cabina de la salida de las Piscinas ya no «escapa»: sube a la Fiesta
+  (`Tarjetas#cruzar` → `Fiesta#llegar`). Se llega dentro de un ascensor, con el título
+  «NIVEL FUN / FEEDING ROOMS» y la bienvenida del animador; se conserva el inventario, la cordura
+  y el equipo, y se dan las misiones nuevas: **Consigue los tickets** y **Canjea el Gran Premio**.
+- **El mapa** (`PlanoFiesta` + `GeneradorFiesta`, dimensión `backrooms_evento:fiesta`, cajas como
+  el vestíbulo): llegada con arco de globos y taquilla, salón de fiesta (mesas con mantel, tartas,
+  sillitas, regalos, escenario con telón, globos en el techo), laberinto acolchado de 11x17 celdas
+  (semilla fija, con atajos) con su **sala secreta** (3 monedas), el **pasillo del semáforo**, la
+  **cocina** (1 moneda: ollas, bandejas con nombres), la **sala de la siesta** (2 monedas: camitas)
+  y la **sala del Gran Premio** con el regalo gigante.
+- **Monedas y tickets** (`JuegoFiesta`, guardado en `<mundo>/backrooms/fiesta.json`): 15 monedas y
+  unos 975 tickets repartidos (cada uno coge cada ficha una vez, al pasar; quien ya la cogió no la
+  ve). Los **tornos** (`Torno`) se pagan una vez y se cruza al otro lado; desde detrás siempre se
+  vuelve. La puerta del **Gran Premio** pide `objetivoTickets` (1500) y el regalo, quedarse 2 s
+  dentro: de momento eso es **escapar** (no hay siguiente tramo todavía). HUD arriba a la derecha
+  (`FiestaCliente`: monedas, tickets/objetivo y barra) y la hoja de misiones con el radar (ficha más
+  cercana o la puerta del premio).
+- **Semáforo** (`JuegoSemaforo`): luz verde/roja con tiempos al azar, voz y musiquilla; si te mueves
+  en rojo pierdes 25 tickets y vuelves a la salida; meta: 300 tickets (150 las siguientes veces).
+- **El Anfitrión** (`Anfitrion`, `AnfitrionFiesta`; modelo en `tools/texturas/entidades.js`): mascota
+  de fieltro alta y flaca, ojos de botón que brillan a oscuras. **Apagones** cada 5-9 min (35-50 s):
+  sale a cazar (vista 22, oído 12, te olvida a los 4 s) y si te alcanza te **abraza** y mueres
+  («se quedó en la fiesta para siempre»). Con luz, **apariciones**: te mira de lejos y se va al
+  mirarle. La cordura baja como en las Piscinas (x2 en el apagón, x4 si te caza).
+- **Configurable** sin recompilar: `config/backrooms-fiesta.json` (`ConfigFiesta`; `/backrooms fiesta
+  recargar`). Comandos: `/backrooms fiesta [jugador] | ir <sala> | apagon [s] | aparicion | tickets|monedas
+  <n> [jugador] | ver [jugador] | recargar`.
+- **Recursos**: texturas y modelos en `tools/texturas/fiesta.js` (papel de globos y de estrellas, zócalo
+  de rayas, goma de puzle, moqueta de confeti, acolchados, baldosa, 8 carteles, 8 dibujos de niños
+  —los últimos, inquietantes—, globos, guirnaldas, mesas, tartas, regalos, sillitas, peluches,
+  ollas, bandejas, camitas, tornos con su precio, semáforo, líneas, moneda y tickets). Sonidos en
+  `tools/sonidos/fiesta.js` (aire, música de cajita lejana y desafinada, globos, juguetes, moneda,
+  tickets, tornos, semáforo, el Anfitrión...) y ambiente en el cliente (`AmbienteFiesta`: cada cosa
+  suena suelta, en 3D y a su aire; la música se calla en el apagón).
+- **Voces**: las 9 del animador (bienvenida, 5 anuncios —uno se corta—, apagón, vuelve la luz y
+  premio) con Higgsfield (voz Juan). **Se acabaron los créditos de Higgsfield** antes de las de la
+  niña y el Anfitrión: `voces.js` ya sabe montarlas en cuanto estén los wav (nombres abajo); mientras,
+  suenan los efectos sintetizados (señal del semáforo, silbato, fanfarria, risa sintética).
+  Faltan, en `tools/sonidos/voces/`: `semaforo_verde` («¡Luz verde!»), `semaforo_roja` («¡Luz roja!»),
+  `semaforo_pillado` («¡Te he visto! Vuelve a empezar.»), `semaforo_gana` («¡Has ganado! ¡Toma tus
+  tickets!»), `fiesta_nino_1..4` («¿Quieres jugar conmigo?», «Jijiji... ¡te encontré!», «No te vayas
+  todavía... la fiesta acaba de empezar.», «Mi mamá también vino a la fiesta. Todavía no ha salido.»)
+  con voz de niña (Pixie), y `anfitrion_voz_1..3` («¿Dónde estás, amiguito?», «No te pierdas la
+  fiesta...», «Ven... te guardé un trozo de tarta.») y `anfitrion_risa_1..2` con voz grave (Juan).
+**Probado** (capturas): de las Piscinas a la Fiesta por la cabina, la llegada y el título, HUD y hoja,
+coger moneda y tickets, pagar un torno, el semáforo (castigo en rojo y premio en la meta), el apagón
+(oscuridad), el Anfitrión cazando y abrazando (mató al jugador de pruebas), canjear el Gran Premio y
+escapar, y todas las salas a la vista.
+**Sin probar**: con varios jugadores, el semáforo andando de verdad (solo con teletransportes), los
+sonidos escuchados, las apariciones vistas (se va al mirarle: no salió en la captura), el laberinto
+recorrido entero.
+**Siguiente entrega** (lo que pidió y falta): los otros dos minijuegos, los suelos defectuosos con
+sus zonas de parkour, más secretos y notas, las voces que faltan y el siguiente tramo tras el regalo.
 
 ## 0.19.0: la lista larga de Bruno (2026-10-17; Bruno)
 

@@ -97,6 +97,38 @@ public final class Sonidos {
 	private Sonidos() {
 	}
 
+	/* la Fiesta (Nivel Fun): tools/sonidos/fiesta.js y las voces de tools/sonidos/voces.js */
+	public static final SoundEvent FIESTA_BIENVENIDA = registrar("fiesta.bienvenida");
+	public static final SoundEvent FIESTA_APAGON = registrar("fiesta.apagon");
+	public static final SoundEvent FIESTA_LUZ = registrar("fiesta.luz");
+	public static final SoundEvent FIESTA_PREMIO = registrar("fiesta.premio");
+	/** Los anuncios sueltos de la megafonia de la Fiesta (AmbienteFiesta, por turnos). */
+	public static final SoundEvent[] FIESTA_ANUNCIOS = {registrar("fiesta.anuncio_tickets"), registrar("fiesta.anuncio_semaforo"),
+		registrar("fiesta.anuncio_comida"), registrar("fiesta.anuncio_sonrian"), registrar("fiesta.anuncio_cortado")};
+	public static final SoundEvent FIESTA_MONEDA = registrar("fiesta.moneda");
+	public static final SoundEvent FIESTA_TICKETS = registrar("fiesta.tickets");
+	public static final SoundEvent FIESTA_TORNO = registrar("fiesta.torno");
+	public static final SoundEvent FIESTA_TORNO_NO = registrar("fiesta.torno_no");
+	public static final SoundEvent FIESTA_OBJETIVO = registrar("fiesta.objetivo");
+	public static final SoundEvent FIESTA_REGALO = registrar("fiesta.regalo");
+	public static final SoundEvent FIESTA_AMBIENTE = registrar("fiesta.ambiente");
+	public static final SoundEvent FIESTA_MUSICA = registrar("fiesta.musica");
+	public static final SoundEvent FIESTA_GLOBO = registrar("fiesta.globo");
+	public static final SoundEvent FIESTA_JUGUETE = registrar("fiesta.juguete");
+	public static final SoundEvent FIESTA_NINO = registrar("fiesta.nino");
+	public static final SoundEvent SEMAFORO_VERDE = registrar("semaforo.verde");
+	public static final SoundEvent SEMAFORO_ROJA = registrar("semaforo.roja");
+	public static final SoundEvent SEMAFORO_PILLADO = registrar("semaforo.pillado");
+	public static final SoundEvent SEMAFORO_GANA = registrar("semaforo.gana");
+	public static final SoundEvent SEMAFORO_MUSICA = registrar("semaforo.musica");
+	public static final SoundEvent ANFITRION_PASO = registrar("anfitrion.paso");
+	public static final SoundEvent ANFITRION_DETECTA = registrar("anfitrion.detecta");
+	public static final SoundEvent ANFITRION_RESPIRA = registrar("anfitrion.respira");
+	public static final SoundEvent ANFITRION_PIERDE = registrar("anfitrion.pierde");
+	public static final SoundEvent ANFITRION_ABRAZO = registrar("anfitrion.abrazo");
+	public static final SoundEvent ANFITRION_VOZ = registrar("anfitrion.voz");
+	public static final SoundEvent ANFITRION_RISA = registrar("anfitrion.risa");
+
 	private static SoundEvent registrar(String ruta) {
 		Identifier id = BackroomsEvento.id(ruta);
 		return Registry.register(BuiltInRegistries.SOUND_EVENT, id, SoundEvent.createVariableRangeEvent(id));

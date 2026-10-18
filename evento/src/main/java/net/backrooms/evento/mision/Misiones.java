@@ -91,6 +91,8 @@ public final class Misiones {
 
 	/** El "numero de fase" de quien esta en las Piscinas (no es una Fase). */
 	public static final int FASE_PISCINAS = 37;
+	/** La Fiesta (Nivel Fun): no tiene numero de nivel; este solo la distingue. */
+	public static final int FASE_FIESTA = 100;
 
 	/** Segundos de grabacion que pide cada mision de grabar. */
 	public static float segundosGrabar(TipoMision m) {
@@ -219,6 +221,21 @@ public final class Misiones {
 		this.estados.put(jugador.getUUID(), e);
 		this.sucio = true;
 		// en orden: valvulas, Serpiente y la salida (si ya esta abierta, se da hecha al llegar a ella)
+		this.sincronizar(jugador);
+	}
+
+	/**
+	 * Las misiones de la Fiesta: juntar los tickets del objetivo (los cuenta JuegoFiesta) y
+	 * canjear el Gran Premio. Las da Fiesta#llegar; sustituyen a las de las Piscinas.
+	 */
+	public void asignarFiesta(ServerPlayer jugador) {
+		this.quitarCasetes(jugador.getUUID());
+		Estado e = new Estado();
+		e.fase = FASE_FIESTA;
+		e.misiones.add(TipoMision.TICKETS);
+		e.misiones.add(TipoMision.PREMIO);
+		this.estados.put(jugador.getUUID(), e);
+		this.sucio = true;
 		this.sincronizar(jugador);
 	}
 
@@ -357,7 +374,7 @@ public final class Misiones {
 		this.sucio = true;
 		net.backrooms.evento.Sonidos.aJugador(jugador, net.backrooms.evento.Sonidos.MISION_COMPLETA, 0.9F);
 		if (e.actual >= e.misiones.size()) {
-			String donde = e.fase == FASE_PISCINAS ? "la salida de emergencia: crúzala" : "el ascensor de salida: síguelo";
+			String donde = e.fase == FASE_PISCINAS ? "la salida de emergencia: crúzala" : e.fase == FASE_FIESTA ? "el regalo del Gran Premio: entra" : "el ascensor de salida: síguelo";
 			jugador.displayClientMessage(Component.literal("Misiones completadas. El radar ya marca " + donde + ".").withStyle(ChatFormatting.GOLD), false);
 		} else {
 			TipoMision sig = e.misiones.get(e.actual);
@@ -471,6 +488,18 @@ public final class Misiones {
 			} else {
 				hechos = e.valvulasHechas.size();
 				total = e.valvulas.size();
+			}
+		}
+		if (e.fase == FASE_FIESTA && net.backrooms.evento.fiesta.Fiesta.es(j.level()) && !e.eliminado && e.escapado == 0) {
+			// la hoja cuenta los tickets; el radar, la ficha mas cercana sin coger o, ya con los
+			// tickets, la puerta del Gran Premio
+			hechos = net.backrooms.evento.fiesta.JuegoFiesta.get().tickets(j);
+			total = net.backrooms.evento.fiesta.ConfigFiesta.get().objetivoTickets;
+			if (pendiente(e, TipoMision.TICKETS) >= 0) {
+				objetivo = net.backrooms.evento.fiesta.JuegoFiesta.get().fichaCercana(j);
+			} else {
+				objetivo = net.backrooms.evento.fiesta.JuegoFiesta.get().puertaPremio();
+				salida = true;
 			}
 		}
 		if (objetivo != null) {

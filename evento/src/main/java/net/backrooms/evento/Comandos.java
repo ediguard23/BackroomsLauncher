@@ -56,6 +56,12 @@ import net.minecraft.server.level.ServerPlayer;
  *                            (gota, agua, orilla, chapoteo, tuberia, grave, grunido, voz, susurro)
  *  recepcion [jugador]       lo lleva a la recepcion (donde se espera el /start)
  *  megafono                  enciende/apaga tu voz para todos (chat de voz sin distancia)
+ *  fiesta [jugador]          lo manda a la Fiesta (Nivel Fun) como si subiera de las Piscinas
+ *  fiesta ir <sala>          a esa sala de la Fiesta (llegada, salon, laberinto, semaforo, cocina,
+ *                            siesta, premio, secreta)
+ *  fiesta apagon [segundos]|aparicion  fuerza un apagon (con su caza) o que aparezca el Anfitrion
+ *  fiesta tickets|monedas <n> [jugador]  le suma (o resta) tickets o monedas
+ *  fiesta ver [jugador]      sus monedas, tickets y puertas pagadas; fiesta recargar: relee la config
  *  vestibulo [jugador]       lo lleva al vestibulo (la sala del final); "vestibulo rehacer" repone los rotulos
  *  muerte eliminar|reaparecer  morir saca de la expedicion (por defecto) o reaparece en la fase
  *  reparar [radio]            deja los chunks de alrededor como los hizo el generador
@@ -204,6 +210,50 @@ public final class Comandos {
 				.then(Commands.argument("jugador", EntityArgument.player())
 					.executes(c -> net.backrooms.evento.piscinas.Piscinas.llegar(EntityArgument.getPlayer(c, "jugador")) ? 1 : 0)))
 			.then(tarjetas())
+			.then(Commands.literal("fiesta")
+				.executes(c -> fiestaLlevar(c.getSource().getPlayerOrException()))
+				.then(Commands.argument("jugador", EntityArgument.player()).executes(c -> fiestaLlevar(EntityArgument.getPlayer(c, "jugador"))))
+				.then(Commands.literal("ir").then(Commands.argument("sala", StringArgumentType.word())
+					.suggests((c, b) -> SharedSuggestionProvider.suggest(net.backrooms.evento.fiesta.PlanoFiesta.SALAS.stream().map(s -> s.nombre()), b))
+					.executes(c -> {
+						ServerPlayer j = c.getSource().getPlayerOrException();
+						String n = StringArgumentType.getString(c, "sala");
+						ServerLevel f = net.backrooms.evento.fiesta.Fiesta.nivel();
+						for (net.backrooms.evento.fiesta.PlanoFiesta.Sala s : net.backrooms.evento.fiesta.PlanoFiesta.SALAS) {
+							if (s.nombre().equals(n) && f != null) {
+								j.teleportTo(f, (s.x0() + s.x1()) / 2.0 + 0.5, net.backrooms.evento.fiesta.PlanoFiesta.SUELO + 1, (s.z0() + s.z1()) / 2.0 + 0.5,
+									java.util.Set.of(), j.getYRot(), 0.0F, true);
+								return 1;
+							}
+						}
+						c.getSource().sendFailure(Component.literal("No hay sala " + n));
+						return 0;
+					})))
+				.then(Commands.literal("apagon")
+					.executes(c -> fiestaApagon(c, 40))
+					.then(Commands.argument("segundos", IntegerArgumentType.integer(5, 600)).executes(c -> fiestaApagon(c, IntegerArgumentType.getInteger(c, "segundos")))))
+				.then(Commands.literal("aparicion").executes(c -> {
+					ServerPlayer j = c.getSource().getPlayerOrException();
+					if (net.backrooms.evento.fiesta.Fiesta.nivel() != null) {
+						net.backrooms.evento.fiesta.AnfitrionFiesta.get().aparicion(net.backrooms.evento.fiesta.Fiesta.nivel(), j);
+					}
+					return 1;
+				}))
+				.then(Commands.literal("tickets").then(Commands.argument("n", IntegerArgumentType.integer(-100000, 100000))
+					.executes(c -> fiestaSumar(c, c.getSource().getPlayerOrException(), true))
+					.then(Commands.argument("jugador", EntityArgument.player()).executes(c -> fiestaSumar(c, EntityArgument.getPlayer(c, "jugador"), true)))))
+				.then(Commands.literal("monedas").then(Commands.argument("n", IntegerArgumentType.integer(-1000, 1000))
+					.executes(c -> fiestaSumar(c, c.getSource().getPlayerOrException(), false))
+					.then(Commands.argument("jugador", EntityArgument.player()).executes(c -> fiestaSumar(c, EntityArgument.getPlayer(c, "jugador"), false)))))
+				.then(Commands.literal("ver")
+					.executes(c -> fiestaVer(c, c.getSource().getPlayerOrException()))
+					.then(Commands.argument("jugador", EntityArgument.player()).executes(c -> fiestaVer(c, EntityArgument.getPlayer(c, "jugador")))))
+				.then(Commands.literal("recargar").executes(c -> {
+					net.backrooms.evento.fiesta.ConfigFiesta.cargar();
+					c.getSource().sendSuccess(() -> Component.literal("Config de la Fiesta releida (objetivo: "
+						+ net.backrooms.evento.fiesta.ConfigFiesta.get().objetivoTickets + " tickets)."), true);
+					return 1;
+				})))
 			.then(Commands.literal("megafono")
 				.executes(c -> {
 					net.backrooms.evento.expedicion.MegafonoStaff.alternar(c.getSource().getPlayerOrException());
@@ -310,6 +360,39 @@ public final class Comandos {
 	 * Deja los chunks de alrededor (radio en chunks) como los hizo el generador: paredes rotas,
 	 * bloques puestos o quitados a mano... Solo la franja del nivel (y de 30 a 64).
 	 */
+	private static int fiestaLlevar(ServerPlayer j) {
+		return net.backrooms.evento.fiesta.Fiesta.llegar(j, true) ? 1 : 0;
+	}
+
+	private static int fiestaApagon(CommandContext<CommandSourceStack> c, int segundos) {
+		ServerLevel f = net.backrooms.evento.fiesta.Fiesta.nivel();
+		if (f == null) {
+			c.getSource().sendFailure(Component.literal("Este servidor no tiene la Fiesta."));
+			return 0;
+		}
+		net.backrooms.evento.fiesta.AnfitrionFiesta.get().apagon(f, segundos);
+		c.getSource().sendSuccess(() -> Component.literal("Apagon en la Fiesta (" + segundos + " s)."), true);
+		return 1;
+	}
+
+	private static int fiestaSumar(CommandContext<CommandSourceStack> c, ServerPlayer j, boolean tickets) {
+		int n = IntegerArgumentType.getInteger(c, "n");
+		if (tickets) {
+			net.backrooms.evento.fiesta.JuegoFiesta.get().sumarTickets(j, n, "staff");
+		} else {
+			net.backrooms.evento.fiesta.JuegoFiesta.get().sumarMonedas(j, n);
+		}
+		return fiestaVer(c, j);
+	}
+
+	private static int fiestaVer(CommandContext<CommandSourceStack> c, ServerPlayer j) {
+		net.backrooms.evento.fiesta.JuegoFiesta.Datos d = net.backrooms.evento.fiesta.JuegoFiesta.get().datos(j);
+		c.getSource().sendSuccess(() -> Component.literal(j.getGameProfile().name() + ": " + d.monedas + " monedas, " + d.tickets + "/"
+			+ net.backrooms.evento.fiesta.ConfigFiesta.get().objetivoTickets + " tickets, fichas cogidas " + d.cogidas.size()
+			+ ", tornos pagados " + d.pagados + ", semaforo ganado " + d.semaforo + " veces"), false);
+		return 1;
+	}
+
 	private static int reparar(CommandContext<CommandSourceStack> c, int radio) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
 		ServerPlayer j = c.getSource().getPlayerOrException();
 		ServerLevel n = j.level();

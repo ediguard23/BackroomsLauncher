@@ -816,5 +816,305 @@
         "name": "backrooms_evento:megafonia_recepcion_3"
       }
     ]
+  },
+  "fiesta.ambiente": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_ambiente",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "fiesta.musica": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_musica1",
+        "attenuation_distance": 40
+      },
+      {
+        "name": "backrooms_evento:fiesta_musica2",
+        "attenuation_distance": 40
+      }
+    ]
+  },
+  "fiesta.globo": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_globo1",
+        "attenuation_distance": 20
+      },
+      {
+        "name": "backrooms_evento:fiesta_globo2",
+        "attenuation_distance": 20
+      },
+      {
+        "name": "backrooms_evento:fiesta_globo3",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "fiesta.juguete": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_juguete1",
+        "attenuation_distance": 28
+      },
+      {
+        "name": "backrooms_evento:fiesta_juguete2",
+        "attenuation_distance": 28
+      },
+      {
+        "name": "backrooms_evento:fiesta_juguete3",
+        "attenuation_distance": 28
+      }
+    ]
+  },
+  "fiesta.moneda": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_moneda",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "fiesta.tickets": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_tickets",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "fiesta.torno": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_torno",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "fiesta.torno_no": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_torno_no",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "fiesta.objetivo": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_objetivo",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "fiesta.regalo": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_regalo",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "semaforo.musica": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:semaforo_musica",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "anfitrion.paso": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:anfitrion_paso1",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:anfitrion_paso2",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:anfitrion_paso3",
+        "attenuation_distance": 24
+      },
+      {
+        "name": "backrooms_evento:anfitrion_paso4",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "anfitrion.detecta": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:anfitrion_detecta",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "anfitrion.respira": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:anfitrion_respira1",
+        "attenuation_distance": 20
+      },
+      {
+        "name": "backrooms_evento:anfitrion_respira2",
+        "attenuation_distance": 20
+      },
+      {
+        "name": "backrooms_evento:anfitrion_respira3",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "anfitrion.pierde": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:anfitrion_pierde",
+        "attenuation_distance": 40
+      }
+    ]
+  },
+  "anfitrion.abrazo": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:anfitrion_abrazo",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "fiesta.bienvenida": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_bienvenida"
+      }
+    ]
+  },
+  "fiesta.apagon": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_apagon"
+      }
+    ]
+  },
+  "fiesta.luz": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_luz"
+      }
+    ]
+  },
+  "fiesta.premio": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_premio"
+      }
+    ]
+  },
+  "fiesta.anuncio_tickets": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_anuncio_tickets",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "fiesta.anuncio_semaforo": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_anuncio_semaforo",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "fiesta.anuncio_comida": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_anuncio_comida",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "fiesta.anuncio_sonrian": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_anuncio_sonrian",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "fiesta.anuncio_cortado": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_anuncio_cortado",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "semaforo.verde": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:semaforo_verde",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "semaforo.roja": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:semaforo_roja",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "semaforo.pillado": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:semaforo_pillado",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "semaforo.gana": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:semaforo_gana",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "fiesta.nino": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:fiesta_juguete2",
+        "attenuation_distance": 40
+      }
+    ]
+  },
+  "anfitrion.voz": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:anfitrion_respira1",
+        "attenuation_distance": 32
+      },
+      {
+        "name": "backrooms_evento:anfitrion_respira2",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "anfitrion.risa": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:anfitrion_risa_sint1",
+        "attenuation_distance": 64
+      },
+      {
+        "name": "backrooms_evento:anfitrion_risa_sint2",
+        "attenuation_distance": 64
+      }
+    ]
   }
 }

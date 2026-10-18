@@ -14,6 +14,14 @@
  *                (fallo del drenaje / averia contenida), con los tonos de aviso
  *  megafonia_recepcion_*  los avisos de la recepcion (cada 2 min, a todos a la vez)
  *
+ *  fiesta_*      la megafonia de la Fiesta (el animador, demasiado alegre): un jingle de
+ *                feria y la voz por un altavoz viejo, en mono (suena desde los altavoces);
+ *                el anuncio "cortado" se corta de golpe con un chasquido
+ *  semaforo_*, fiesta_nino_*  la nina (el semaforo y las voces de salas vacias)
+ *  anfitrion_*   el Anfitrion: grave y ahogado, como dentro de la cabezota de espuma
+ *  Lo que aun no tenga su wav sale con lo sintetizado de fiesta.js (la senal, el silbato...)
+ *  o, el Anfitrion, con una risa y un murmullo sinteticos.
+ *
  * Si falta el wav de una voz (aun sin generar), esa megafonia sale solo con su
  * campanilla o sus tonos, y la recepcion se queda con las que haya.
  *  susurro_*     mas grave y lenta, con aliento por encima (ruido que sigue a
@@ -168,6 +176,92 @@ async function guardarEst (nombre, est) {
   console.log(`  ${nombre}.ogg  ${(est[0].length / SR).toFixed(1)} s estereo`);
 }
 
+/* ------------------------------------------------------------- la Fiesta */
+
+const F = require('./fiesta');
+const nota = (n) => 440 * Math.pow(2, (n - 69) / 12);
+
+/** El jingle de feria antes de cada anuncio: arpegio de cajita y un toque de matasuegras. */
+function jingleFiesta () {
+  const out = silencio(1.3);
+  [72, 76, 79, 84].forEach((n, i) => {
+    const f = nota(n);
+    const i0 = Math.round(i * 0.12 * SR);
+    for (let k = 0; k < Math.round(0.9 * SR) && i0 + k < out.length; k++) {
+      const t = k / SR;
+      out[i0 + k] += (Math.sin(TAU * f * t) * Math.exp(-t * 4) + Math.sin(TAU * f * 3.01 * t) * 0.2 * Math.exp(-t * 10)) * 0.3;
+    }
+  });
+  return out;
+}
+
+function monoNorm (x, picoDb = -2) {
+  let m = 0;
+  for (const v of x) m = Math.max(m, Math.abs(v));
+  const g = Math.pow(10, picoDb / 20) / (m || 1);
+  const out = new Float32Array(x.length);
+  for (let i = 0; i < x.length; i++) out[i] = x[i] * g;
+  for (let i = 0; i < 400 && i < out.length; i++) { out[i] *= i / 400; out[out.length - 1 - i] *= i / 400; }
+  return out;
+}
+
+/** Anuncio de la Fiesta: jingle y voz por el altavoz viejo, con sala. `cortar`: se corta de golpe. */
+function megafoniaFiesta (nombre, cortar = false) {
+  let voz = altavoz(leer(nombre), { bajo: 350, alto: 3200, saturacion: 2.2 });
+  let fin = silencio(1.2);
+  if (cortar) {
+    // se corta en seco (un poco antes del final) con un chasquido y un pitido de acople
+    voz = voz.slice(0, Math.max(0, voz.length - Math.round(0.35 * SR)));
+    fin = silencio(1.4);
+    for (let i = 0; i < 60; i++) fin[i] = (Math.random() * 2 - 1) * (1 - i / 60);
+    for (let i = 0; i < Math.round(0.5 * SR); i++) fin[200 + i] += Math.sin(TAU * 2700 * i / SR) * 0.08 * Math.exp(-i / SR * 6);
+  }
+  const todo = concatenar(silencio(0.05), jingleFiesta(), voz, fin);
+  return monoNorm(F.sala(todo, 0.4, 0.7), -2);
+}
+
+/** Senal sintetizada y, si ya hay voz grabada, la voz de la nina encima. */
+function nina (nombre, base, retraso = 0.15) {
+  const s = base();
+  if (!hay(nombre)) return s;
+  const v = F.sala(leer(nombre), 0.3, 0.6);
+  const out = new Float32Array(Math.max(s.length, Math.round(retraso * SR) + v.length));
+  out.set(s);
+  for (let i = 0; i < v.length; i++) out[Math.round(retraso * SR) + i] += v[i] * 1.4;
+  return monoNorm(out, -1);
+}
+
+/** La voz del Anfitrion: mas grave, ahogada (sin agudos) y con la resonancia de la cabezota. */
+function anfitrionVoz (nombre) {
+  const v = leer(nombre, 0.9);
+  const lp = new D.Biquad('lp', 1100, 0.8);
+  const caja = new D.Biquad('pico', 420, 1.5, 6);
+  const out = new Float32Array(v.length);
+  for (let i = 0; i < v.length; i++) out[i] = caja.paso(lp.paso(v[i]));
+  return monoNorm(F.sala(out, 0.35, 0.65), -2);
+}
+
+/** Risa sintetica ahogada (jo, jo, jo) para cuando no hay voz grabada. */
+function risaSintetica (semilla) {
+  const rnd = D.azar(900 + semilla);
+  const out = silencio(2.0);
+  const lp = new D.Biquad('lp', 800, 0.7);
+  for (let k = 0; k < 5; k++) {
+    const t0 = 0.05 + k * (0.22 + rnd() * 0.05);
+    const f = 120 - k * 6 + rnd() * 8;
+    for (let i = 0; i < Math.round(0.16 * SR); i++) {
+      const t = i / SR;
+      const fase = (f * t) % 1;
+      out[Math.round(t0 * SR) + i] += lp.paso(D.sierra(fase, f / SR) + (rnd() - 0.5) * 0.3) * Math.sin(Math.PI * t / 0.16);
+    }
+  }
+  return monoNorm(F.sala(out, 0.4, 0.7), -3);
+}
+
+async function guardarMonoV (nombre, buf) {
+  await guardarMono(nombre, buf);
+}
+
 (async () => {
   console.log('Voces');
   await guardarEst('megafonia_linterna', megafonia('megafonia_linterna'));
@@ -175,6 +269,23 @@ async function guardarEst (nombre, est) {
   await guardarEst('megafonia_inundacion', alerta('megafonia_inundacion'));
   await guardarEst('megafonia_drenaje', megafonia('megafonia_drenaje'));
   const recepcion = ['megafonia_recepcion_1', 'megafonia_recepcion_2', 'megafonia_recepcion_3'].filter(hay);
+  // la Fiesta: la megafonia del animador
+  const FIESTA = ['fiesta_bienvenida', 'fiesta_apagon', 'fiesta_luz', 'fiesta_premio', 'fiesta_anuncio_tickets', 'fiesta_anuncio_semaforo',
+    'fiesta_anuncio_comida', 'fiesta_anuncio_sonrian', 'fiesta_anuncio_cortado'];
+  for (const n of FIESTA) await guardarMonoV(n, megafoniaFiesta(n, n === 'fiesta_anuncio_cortado'));
+  // la nina del semaforo (con su senal debajo) y las voces de salas vacias
+  await guardarMonoV('semaforo_verde', nina('semaforo_verde', () => F.senal(true)));
+  await guardarMonoV('semaforo_roja', nina('semaforo_roja', () => F.senal(false)));
+  await guardarMonoV('semaforo_pillado', nina('semaforo_pillado', F.silbato, 0.5));
+  await guardarMonoV('semaforo_gana', nina('semaforo_gana', F.fanfarria, 0.8));
+  const ninos = ['fiesta_nino_1', 'fiesta_nino_2', 'fiesta_nino_3', 'fiesta_nino_4'].filter(hay);
+  for (const n of ninos) await guardarMonoV(n, monoNorm(F.sala(leer(n), 0.5, 0.8), -4));
+  // el Anfitrion
+  const vocesAnf = ['anfitrion_voz_1', 'anfitrion_voz_2', 'anfitrion_voz_3'].filter(hay);
+  for (const n of vocesAnf) await guardarMonoV(n, anfitrionVoz(n));
+  const risas = ['anfitrion_risa_1', 'anfitrion_risa_2'].filter(hay);
+  for (const n of risas) await guardarMonoV(n, anfitrionVoz(n));
+  if (!risas.length) { await guardarMonoV('anfitrion_risa_sint1', risaSintetica(1)); await guardarMonoV('anfitrion_risa_sint2', risaSintetica(2)); }
   for (const r of recepcion) await guardarEst(r, megafonia(r));
   await guardarMono('susurro_detras', susurro('susurro_detras'));
   await guardarMono('susurro_atras', susurro('susurro_atras'));
@@ -192,6 +303,20 @@ async function guardarEst (nombre, est) {
   j['megafonia.alerta'] = { sounds: [{ name: 'backrooms_evento:megafonia_alerta' }] };
   j['megafonia.inundacion'] = { sounds: [{ name: 'backrooms_evento:megafonia_inundacion' }] };
   j['megafonia.drenaje'] = { sounds: [{ name: 'backrooms_evento:megafonia_drenaje' }] };
+  // la Fiesta: un evento por anuncio (cada cliente elige el suyo: AmbienteFiesta) y las voces
+  const ev = (nombres, dist) => ({ sounds: nombres.map((n) => ({ name: `backrooms_evento:${n}`, ...(dist ? { attenuation_distance: dist } : {}) })) });
+  j['fiesta.bienvenida'] = ev(['fiesta_bienvenida']);
+  j['fiesta.apagon'] = ev(['fiesta_apagon']);
+  j['fiesta.luz'] = ev(['fiesta_luz']);
+  j['fiesta.premio'] = ev(['fiesta_premio']);
+  for (const a of ['tickets', 'semaforo', 'comida', 'sonrian', 'cortado']) j[`fiesta.anuncio_${a}`] = ev([`fiesta_anuncio_${a}`], 48);
+  j['semaforo.verde'] = ev(['semaforo_verde'], 64);
+  j['semaforo.roja'] = ev(['semaforo_roja'], 64);
+  j['semaforo.pillado'] = ev(['semaforo_pillado'], 24);
+  j['semaforo.gana'] = ev(['semaforo_gana'], 24);
+  j['fiesta.nino'] = ev(ninos.length ? ninos : ['fiesta_juguete2'], 40);
+  j['anfitrion.voz'] = ev(vocesAnf.length ? vocesAnf : ['anfitrion_respira1', 'anfitrion_respira2'], 32);
+  j['anfitrion.risa'] = ev(risas.length ? risas : ['anfitrion_risa_sint1', 'anfitrion_risa_sint2'], 64);
   j.susurros = {
     sounds: [
       { name: 'backrooms_evento:susurros', weight: 1 },

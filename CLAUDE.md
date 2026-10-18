@@ -42,6 +42,9 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
       piscinas/                  las Piscinas (Nivel 37): PlanoPiscinas (trazado, y donde van las valvulas,
                                  la salida y las tarjetas), su generador, sus bloques, la llegada y
                                  sus misiones (Valvulas, Tarjetas: las 3 tarjetas y la puerta)
+      fiesta/                    la Fiesta (Nivel Fun, las Feeding Rooms), despues de las Piscinas: PlanoFiesta
+                                 (mapa hecho a mano), JuegoFiesta (monedas, tickets, tornos, Gran Premio),
+                                 JuegoSemaforo, el Anfitrion y sus apagones (AnfitrionFiesta), ConfigFiesta
       expedicion/                el /start (cinemática de la firma y el ascensor y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas
@@ -62,9 +65,10 @@ tools/
   texturas/piscinas.js           bloques de las Piscinas (azulejo, causticas animadas, luces, marcas y detalles...)
   texturas/cadaveres.js          las pieles de los cuerpos de las Piscinas (formato de piel de jugador)
   texturas/objetos3d.js          modelos 3D de la linterna, la camara y el agua de almendras
+  texturas/fiesta.js             bloques de la Fiesta (papeles, suelos, decoracion, tornos, semaforo)
   sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros);
                                  la Bacteria y el agarre en sonidos/bacteria.js; las Piscinas y la
-                                 Serpiente en sonidos/nivel37.js
+                                 Serpiente en sonidos/nivel37.js; la Fiesta y el Anfitrion en sonidos/fiesta.js
   sonidos/voces/                 las únicas grabaciones: voces generadas con Higgsfield
   video/                         tráiler 4K (npm run trailer)
   cartel/                        cartel animado para Yamipa (GIF 7x4 en colores de mapa)
@@ -100,7 +104,7 @@ servidor-ejemplo/                configuración del servidor del evento
   ambiente, fase, piscinas [ir <sala>|ir detalle|ir corre|ir valvula|ir salida|ir tarjeta_<color>|ir cadaver [colgado]|
   oir <sonido> <jugador>], tarjetas [reponer|abrir], recepcion, vestibulo,
   muerte, escapados, invocar bacteria|smiler|serpiente, megafono (tu voz para todos), reparar [radio],
-  inundacion [segundos|parar],
+  inundacion [segundos|parar], fiesta [jugador|ir <sala>|apagon|aparicion|tickets|monedas|ver|recargar],
   acechadores, cordura, comida reponer, misiones...). Ver `Comandos.java`. La lista del evento (quién puede
   entrar): `/brwhitelist agregar|quitar|ver|lista|recargar` (`acceso/Whitelist.java`; la lista vive
   en la tienda, ver `VENTA.md`).

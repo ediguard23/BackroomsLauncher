@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=true": {
+      "model": "backrooms_evento:block/luz_fiesta"
+    },
+    "lit=false": {
+      "model": "backrooms_evento:block/luz_fiesta_apagada"
+    }
+  }
+}

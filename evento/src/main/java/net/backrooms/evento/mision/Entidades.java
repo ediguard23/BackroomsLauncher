@@ -46,6 +46,15 @@ public final class Entidades {
 		EntityType.Builder.<net.backrooms.evento.piscinas.CadaverEntidad>of(net.backrooms.evento.piscinas.CadaverEntidad::new, MobCategory.MISC)
 			.sized(0.8F, 0.6F).noLootTable().noSave().noSummon().clientTrackingRange(8).updateInterval(100));
 
+	/** Una moneda o una tira de tickets de la Fiesta (JuegoFiesta). */
+	public static final EntityType<net.backrooms.evento.fiesta.FichaEntidad> FICHA = registrar("ficha",
+		EntityType.Builder.<net.backrooms.evento.fiesta.FichaEntidad>of(net.backrooms.evento.fiesta.FichaEntidad::new, MobCategory.MISC)
+			.sized(0.5F, 0.5F).noLootTable().noSave().noSummon().clientTrackingRange(6).updateInterval(100));
+	/** El Anfitrion de la Fiesta: alto, con su cabezota de mascota. */
+	public static final EntityType<net.backrooms.evento.fiesta.Anfitrion> ANFITRION = registrar("anfitrion",
+		EntityType.Builder.<net.backrooms.evento.fiesta.Anfitrion>of(net.backrooms.evento.fiesta.Anfitrion::new, MobCategory.MONSTER)
+			.sized(0.8F, 2.7F).eyeHeight(2.4F).clientTrackingRange(10));
+
 	private Entidades() {
 	}
 
@@ -58,6 +67,7 @@ public final class Entidades {
 		net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(BACTERIA, net.backrooms.evento.entidad.Bacteria.atributos());
 		net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(SMILER, net.backrooms.evento.entidad.Smiler.atributos());
 		net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(SERPIENTE, net.backrooms.evento.entidad.Serpiente.atributos());
+		net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(ANFITRION, net.backrooms.evento.fiesta.Anfitrion.atributos());
 		BackroomsEvento.LOG.info("Entidades registradas ({})", BuiltInRegistries.ENTITY_TYPE.getKey(CASETE));
 	}
 }

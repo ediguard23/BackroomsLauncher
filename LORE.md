@@ -368,6 +368,41 @@ El experimento dejó de ser completamente controlable.
 
 ---
 
+## Nivel Fun — las Feeding Rooms
+
+Quien escapa de las Piscinas sube en un ascensor que no debería llevar a ningún sitio.
+
+Cuando las puertas se abren, hay globos.
+
+Una fiesta infantil: guirnaldas, tartas con velas encendidas, juegos de colores, una
+mascota sonriente en los carteles, música que suena desde algún altavoz lejano. Una voz
+de animador da la bienvenida con demasiada alegría.
+
+El Proyecto Umbral no construyó este nivel. Lo encontró.
+
+Las Backrooms aprendieron, observando a los sujetos, que a un ser humano perdido se le
+atrae con lo que le hace sentirse a salvo. Y las entidades que antes fueron personas
+saben exactamente cómo hacerlo. El Anfitrión es una de ellas: un participante que se
+quedó en la fiesta y ahora la organiza.
+
+En los registros internos del proyecto, estas salas tienen otro nombre:
+
+**FEEDING ROOMS.**
+
+Lo que se descubre jugando, poco a poco y sin explicarlo nunca del todo:
+
+- la cocina, con ollas enormes y bandejas con nombres de participantes;
+- los carteles que insisten en que «nadie se va sin su premio» y en que «la comida se
+  sirve pronto»;
+- los dibujos de niños: una fila de pequeños durmiendo con una figura alta detrás, otros
+  entrando en una boca enorme, «NO ME DEJAN SALIR»;
+- la megafonía que se corta justo antes de decir qué es el plato principal;
+- los tickets: lo que cada sujeto le da al nivel. Mil quinientos, y el Gran Premio se abre.
+
+La salida es un regalo gigante. Nadie sabe si dentro está la salida... o la cocina.
+
+---
+
 # 10. LOS DOCUMENTOS
 
 A lo largo de los niveles, los jugadores comienzan a encontrar documentos.

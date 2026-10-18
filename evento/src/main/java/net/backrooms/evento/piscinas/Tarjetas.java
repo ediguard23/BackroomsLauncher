@@ -575,8 +575,10 @@ public final class Tarjetas {
 			return;
 		}
 		BackroomsEvento.LOG.info("{} cruza la salida de emergencia de las Piscinas", j.getGameProfile().name());
-		// aqui empezara el siguiente nivel; mientras no exista, cruzar es escapar
-		Fases.get().escapar(j);
+		// el ascensor sube a la Fiesta (si el servidor no la tiene, cruzar es escapar)
+		if (!net.backrooms.evento.fiesta.Fiesta.llegar(j, true)) {
+			Fases.get().escapar(j);
+		}
 	}
 
 	/* --------------------------------------------------------------- staff */

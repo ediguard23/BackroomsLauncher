@@ -7,7 +7,7 @@
  *
  * Cada modelo es una lista de piezas en el espacio de modelos de Minecraft
  * (y hacia abajo, 16 = un bloque, y=24 los pies, la cara mira a -z). De la
- * lista salen tres cosas, para que nunca se desincronicen:
+ * lista salen tres cosas, para que nunca se desincronicen (y el Anfitrion, el de la Fiesta):
  *  - la clase Java con la malla (cliente/entidad/Malla<Nombre>.java),
  *  - la textura (textures/entity/<nombre>.png), con cada cubo en su sitio
  *    del atlas (UV de caja de Minecraft) y pintado segun su material,
@@ -319,6 +319,50 @@ const SERPIENTE = {
  * Coloca cada cubo en el atlas (UV de caja: 2*(fondo+ancho) x (fondo+alto)). Con
  * `compartir`, los cubos de las mismas medidas y material usan el mismo sitio.
  */
+/* ============================================================ Anfitrion */
+
+// El Anfitrion de la Fiesta: un disfraz de mascota de fiesta infantil demasiado alto y
+// demasiado flaco. Cabezota redonda de fieltro (tres cajas cruzadas) con la sonrisa cosida, ojos
+// de boton y nariz roja; gorrito de fiesta ladeado; mono de lunares con pajarita; brazos largos
+// con guantes blancos; piernas de rayas y zapatones. Mide unos 2,8 bloques con el gorro.
+const brazoAnf = (lado) => [`brazo_${lado}`, 'cadera', [lado === 'izq' ? 5.8 : -5.8, -10, 0], [0, 0, lado === 'izq' ? -4 : 4], [
+  [-1.25, 0, -1.25, 2.5, 14, 2.5, 'disfraz'],
+  [-1.75, 14, -1.75, 3.5, 3.5, 3.5, 'guante'],
+  [-2, 13, -2, 4, 1, 4, 'guante']
+]];
+const piernaAnf = (lado) => [`pierna_${lado}`, 'cadera', [lado === 'izq' ? 2.2 : -2.2, 0, 0], [0, 0, 0], [
+  [-1.25, 0, -1.25, 2.5, 10, 2.5, 'pantalon'],
+  [-2, 10, -5, 4, 3, 7, 'zapato']
+]];
+const ANFITRION = {
+  nombre: 'anfitrion',
+  tex: [128, 128],
+  vista: { esc: 7.5 },
+  piezas: [
+    ['cadera', null, [0, 11, 0], [0, 0, 0], [
+      [-4.5, -12, -2.5, 9, 12, 5, 'disfraz'],
+      [-4, -9, -3.2, 8, 7, 1, 'disfraz'],
+      [-2.5, -12, -3.4, 5, 2.5, 1, 'pajarita'],
+      [-1, -12.25, -3.6, 2, 3, 1, 'nudo'],
+      [-1.5, -13, -1.5, 3, 1, 3, 'cuello']
+    ]],
+    ['cabeza', 'cadera', [0, -12, 0], [0, 0, 0], [
+      [-6, -12, -6, 12, 12, 12, 'fieltro'],
+      [-5, -13, -5, 10, 14, 10, 'fieltro'],
+      [-6.5, -10, -5, 13, 8, 10, 'fieltro'],
+      [-1.5, -6, -7.5, 3, 3, 1.5, 'nariz']
+    ]],
+    ['gorro', 'cabeza', [1.5, -12, -0.5], [0, 0, 14], [
+      [-2.5, -3, -2.5, 5, 3, 5, 'gorro'],
+      [-1.5, -6, -1.5, 3, 3, 3, 'gorro'],
+      [-0.5, -8.5, -0.5, 1, 2.5, 1, 'gorro'],
+      [-1, -10, -1, 2, 1.5, 2, 'pompon']
+    ]],
+    brazoAnf('izq'), brazoAnf('der'),
+    piernaAnf('izq'), piernaAnf('der')
+  ]
+};
+
 function empaquetar (modelo) {
   const [W, H] = modelo.tex;
   let x = 0; let y = 0; let fila = 0;
@@ -407,6 +451,30 @@ const MATERIAL = {
   },
   colmillo: (x, y, k) => ((x + y + k) % 2 === 0 ? [238, 232, 212] : [58, 50, 42]),
   diente: (x, y, k, lado, u0, v0) => escala([236, 228, 204], 1 - Math.max(0, (y - v0) - 1) * 0.12),
+  // el Anfitrion: lunares amarillos sobre morado gastado, fieltro beis, rayas, guantes y zapatos
+  disfraz: (x, y, k) => {
+    const lunar = ((Math.floor(x / 3) + Math.floor(y / 3)) % 2 === 0) && (x % 3 === 1) && (y % 3 === 1);
+    const base = escala([104, 52, 132], 0.82 + ruido(x, y, 6, 500 + k, 128) * 0.2 + hash(x, y, 501 + k) * 0.06);
+    return lunar ? escala([236, 202, 70], 0.9 + hash(x, y, 502) * 0.1) : base;
+  },
+  fieltro: (x, y, k) => {
+    let c = escala([222, 196, 160], 0.86 + ruido(x, y, 5, 510 + k, 128) * 0.16 + hash(x, y, 511 + k) * 0.05);
+    if (hash(x, y, 512 + k) > 0.97) c = escala(c, 0.8); // pelusas y manchas del fieltro viejo
+    return c;
+  },
+  nariz: (x, y, k) => escala([200, 30, 36], 0.86 + hash(x, y, 520 + k) * 0.18),
+  gorro: (x, y, k, lado, u0, v0) => ((Math.floor((y - v0 + x - u0) / 2)) % 2 === 0 ? [58, 132, 214] : [240, 206, 64]),
+  pompon: (x, y, k) => escala([246, 242, 236], 0.9 + hash(x, y, 530 + k) * 0.1),
+  pajarita: (x, y, k) => ((x + y) % 4 === 0 ? [240, 228, 210] : escala([196, 26, 40], 0.9 + hash(x, y, 540) * 0.1)),
+  nudo: () => [150, 18, 30],
+  cuello: () => [240, 230, 214],
+  pantalon: (x, y, k, lado, u0, v0) => ((y - v0) % 4 < 2 ? escala([236, 232, 220], 0.86 + hash(x, y, 550) * 0.1) : escala([58, 132, 214], 0.85 + hash(x, y, 551) * 0.12)),
+  guante: (x, y, k) => {
+    let c = escala([244, 242, 236], 0.88 + hash(x, y, 560 + k) * 0.1);
+    if (hash(x, y, 561 + k) > 0.9) c = escala(c, 0.78); // sucios de tanto agarrar
+    return c;
+  },
+  zapato: (x, y, k) => escala([190, 34, 40], 0.82 + ruido(x, y, 4, 570 + k, 128) * 0.2),
   falange: (x, y, k, lado, u0, v0) => {
     const b = 150 - (y - v0) * 14 + hash(x, y, 490 + k) * 12;
     return [b, b * 0.94, b * 0.82];
@@ -494,6 +562,32 @@ function caraSmiler (modelo, l, brillo) {
       else if (x % 2 === 1) col = [176, 170, 150];                 // separacion entre dientes
       pon(x, y, col);
     }
+  }
+}
+
+/**
+ * La cara del Anfitrion, en la frente de la cabeza (cara north del primer cubo, 12x12): dos
+ * botones negros de ojos con su brillo (que en el apagon se ve: tambien en `brillo`), las
+ * mejillas coloradas y la sonrisa enorme cosida con punto de cruz.
+ */
+function caraAnfitrion (modelo, l, brillo) {
+  const c = modelo.piezas.find((p) => p[0] === 'cabeza')[4][0];
+  const [u0, v0] = carasUV(c).north;
+  const pon = (x, y, col) => l.punto(u0 + x, v0 + y, col);
+  const luz = (x, y, col) => { pon(x, y, col); brillo.punto(u0 + x, v0 + y, col); };
+  for (const x0 of [2, 7]) {
+    for (let y = 3; y < 6; y++) for (let x = x0; x < x0 + 3; x++) pon(x, y, [14, 12, 14]);
+    luz(x0 + 1, 4, [230, 230, 220]);
+    pon(x0 + 1, 2, escala([222, 196, 160], 0.7)); // la ceja de hilo
+  }
+  pon(1, 7, [230, 120, 120]); pon(10, 7, [230, 120, 120]);
+  // la sonrisa: de lado a lado, curvada hacia arriba, con la boca oscura y puntadas encima
+  for (let x = 1; x < 11; x++) {
+    const k = Math.pow((x - 5.5) / 4.5, 2);
+    const y = 9 - Math.round(1.6 * k);
+    pon(x, y, [52, 10, 14]);
+    pon(x, y + 1, [52, 10, 14]);
+    if (x % 2 === 0) { pon(x, y - 1, [30, 24, 20]); pon(x, y + 2, [30, 24, 20]); }
   }
 }
 
@@ -631,12 +725,12 @@ function vista (modelo, tex, archivo, poses = {}) {
 /* =============================================================== todo */
 
 console.log('Entidades');
-for (const modelo of [BACTERIA, SMILER, SERPIENTE]) {
+for (const modelo of [BACTERIA, SMILER, SERPIENTE, ANFITRION]) {
   empaquetar(modelo);
   const tex = pintar(modelo);
-  if (modelo === SMILER || modelo === SERPIENTE) {
+  if (modelo === SMILER || modelo === SERPIENTE || modelo === ANFITRION) {
     const brillo = new Lienzo(...modelo.tex);
-    (modelo === SMILER ? caraSmiler : caraSerpiente)(modelo, tex, brillo);
+    ({ smiler: caraSmiler, serpiente: caraSerpiente, anfitrion: caraAnfitrion })[modelo.nombre](modelo, tex, brillo);
     guardar(path.join(ASSETS, 'textures', 'entity'), `${modelo.nombre}_brillo`, brillo);
   }
   guardar(path.join(ASSETS, 'textures', 'entity'), modelo.nombre, tex);

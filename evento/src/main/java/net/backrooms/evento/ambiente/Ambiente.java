@@ -103,6 +103,14 @@ public final class Ambiente {
 				this.tickPiscinas(nivel);
 				continue;
 			}
+			if (net.backrooms.evento.fiesta.Fiesta.es(nivel)) {
+				// la Fiesta: los apagones los pone AnfitrionFiesta; aqui solo se acaban
+				Estado e = this.estado(nivel.dimension());
+				if ((e.apagon || e.alarma) && (this.ticks >= e.fin || nivel.players().isEmpty())) {
+					this.terminar(nivel);
+				}
+				continue;
+			}
 			Fase f = Fase.de(nivel);
 			if (f == null) {
 				continue;
@@ -253,7 +261,7 @@ public final class Ambiente {
 
 	public void enviar(ServerPlayer j) {
 		Estado e = this.estados.get(j.level().dimension());
-		boolean conLuz = Fase.de(j.level()) != null || net.backrooms.evento.piscinas.Piscinas.es(j.level());
+		boolean conLuz = net.backrooms.evento.piscinas.Piscinas.delEvento(j.level());
 		EstadoAmbiente p = e == null || !conLuz ? EstadoAmbiente.NORMAL : new EstadoAmbiente(e.apagon, e.alarma);
 		if (ServerPlayNetworking.canSend(j, EstadoAmbiente.TYPE)) {
 			ServerPlayNetworking.send(j, p);
