@@ -20,19 +20,19 @@ import net.minecraft.world.level.Level;
 
 /**
  * La Fiesta (Nivel Fun, las Feeding Rooms): el nivel de despues de las Piscinas. Quien sube
- * en la cabina de la salida de emergencia de las Piscinas (Tarjetas#cruzar) llega aqui, en un
- * ascensor que se abre a una fiesta infantil: globos, tartas, juegos, premios.
+ * en la cabina de la salida de emergencia de las Piscinas (Tarjetas#cruzar) llega aqui: a un cuartito
+ * con una puerta, en un laberinto de fiesta infantil (globos, tartas, juegos, premios).
  *
  * Lo que es de verdad se va sabiendo poco a poco (carteles, dibujos, la cocina, la megafonia):
  * el Proyecto Umbral no construyo este nivel, lo encontro. Las Backrooms aprendieron que a los
  * humanos se les atrae con una fiesta, y las entidades que fueron personas (el Anfitrion)
  * saben como hacerlo. Aqui se "alimenta" al nivel: los tickets que se ganan son lo que cada
- * sujeto le ha dado, y el Gran Premio, la puerta por la que se sale... o se sirve.
+ * sujeto le ha dado, y la puerta del final, por la que se sale... o se sirve.
  *
- * Se juntan tickets (JuegoFiesta: monedas para abrir puertas, tickets por las salas y los
- * juegos, como el semaforo) hasta el objetivo de ConfigFiesta y se canjea el Gran Premio. En
- * los apagones sale el Anfitrion (AnfitrionFiesta). Quien muere aqui cuenta como en el resto
- * de la expedicion; si la muerte no elimina, vuelve a la llegada.
+ * Se dan vueltas (PlanoFiesta: laberinto, castillo, sala central) juntando tickets (JuegoFiesta)
+ * hasta el objetivo de ConfigFiesta, que abre la puerta del salon final y su tobogan. En los
+ * apagones sale el Anfitrion (AnfitrionFiesta). Quien muere aqui cuenta como en el resto de la
+ * expedicion; si la muerte no elimina, empieza otra vuelta en una habitacion de inicio.
  */
 public final class Fiesta {
 	public static final ResourceKey<Level> DIMENSION = ResourceKey.create(Registries.DIMENSION, BackroomsEvento.id("fiesta"));
@@ -61,9 +61,9 @@ public final class Fiesta {
 	}
 
 	/**
-	 * Lo deja en el ascensor de la llegada, mirando a la fiesta. `nueva`: llega de verdad
-	 * (sus misiones de aqui, el titulo y la bienvenida); si no, reaparece. False si no hay
-	 * dimension.
+	 * Lo deja en una habitacion de inicio al azar, mirando a su puerta, y empieza otra vuelta.
+	 * `nueva`: llega de verdad (sus misiones de aqui, el titulo y la bienvenida); si no, reaparece.
+	 * False si no hay dimension.
 	 */
 	public static boolean llegar(ServerPlayer j, boolean nueva) {
 		ServerLevel nivel = nivel();
@@ -71,23 +71,35 @@ public final class Fiesta {
 			BackroomsEvento.LOG.error("No existe la dimension de la Fiesta ({})", DIMENSION.identifier());
 			return false;
 		}
-		// unos pasos de lado a lado para que no aparezcan todos uno encima de otro
-		double dx = (j.getRandom().nextDouble() - 0.5) * 3.0;
-		j.teleportTo(nivel, PlanoFiesta.LLEGADA_X + dx, PlanoFiesta.LLEGADA_Y, PlanoFiesta.LLEGADA_Z, Set.of(), 180.0F, 0.0F, true);
-		j.resetFallDistance();
+		aUnInicio(j);
 		j.removeEffect(MobEffects.SLOWNESS);
 		j.removeEffect(MobEffects.RESISTANCE);
 		Equipo.vestir(j);
 		if (nueva) {
 			net.backrooms.evento.mision.Misiones.get().asignarFiesta(j);
 			JuegoFiesta.get().llega(j);
+			JuegoFiesta.get().nuevaVuelta(j);
 			j.connection.send(new ClientboundSetTitlesAnimationPacket(20, 80, 30));
 			j.connection.send(new ClientboundSetTitleTextPacket(Component.literal(NOMBRE).withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD)));
 			j.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(SUBTITULO).withStyle(ChatFormatting.YELLOW)));
 			Sonidos.aJugador(j, Sonidos.FIESTA_BIENVENIDA, 0.9F);
 		}
+		if (!nueva) {
+			JuegoFiesta.get().nuevaVuelta(j);
+		}
 		JuegoFiesta.get().enviar(j);
 		BackroomsEvento.LOG.info("{} {} a la Fiesta", j.getGameProfile().name(), nueva ? "llega" : "vuelve");
 		return true;
+	}
+
+	/** A una habitacion de inicio al azar (en el centro del cuartito, mirando a la puerta). */
+	public static void aUnInicio(ServerPlayer j) {
+		ServerLevel nivel = nivel();
+		if (nivel == null || PlanoFiesta.INICIOS.isEmpty()) {
+			return;
+		}
+		double[] p = PlanoFiesta.INICIOS.get(j.getRandom().nextInt(PlanoFiesta.INICIOS.size()));
+		j.teleportTo(nivel, p[0], PlanoFiesta.SUELO + 1, p[1], Set.of(), (float) p[2], 0.0F, true);
+		j.resetFallDistance();
 	}
 }

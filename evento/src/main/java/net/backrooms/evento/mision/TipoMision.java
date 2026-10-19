@@ -21,9 +21,9 @@ public enum TipoMision {
 	SERPIENTE("Graba a la Serpiente", "Grábala con la cámara (C) unos segundos sin perderla del encuadre. Que no te vea primero."),
 	SALIDA("Abre la salida de emergencia", "Solo hay tres tarjetas en todo el nivel: roja, amarilla y verde. Entre todos hay que encontrarlas y meterlas en los lectores de la puerta."),
 
-	/* las de la Fiesta (Nivel Fun): juntar los tickets y canjear el Gran Premio */
-	TICKETS("Consigue los tickets", "Busca monedas para abrir las puertas, recoge los tickets que hay por las salas y gana los juegos. El radar marca la ficha más cercana."),
-	PREMIO("Canjea el Gran Premio", "Ve al mostrador de premios, al norte del salón: con tus tickets, la puerta del Gran Premio se abre. Quédate dentro del regalo.");
+	/* las de la Fiesta (Nivel Fun): juntar los tickets dando vueltas y salir por el tobogan del final */
+	TICKETS("Consigue los tickets", "Sal del laberinto (las monedas de las mesas abren puertas; las flechas del techo y los localizadores te guían), cruza el castillo moviéndote solo en verde y baja por el tobogán: cada vuelta da su bote. Para otra vuelta, salta a un cuadrado de noclip."),
+	PREMIO("Sal de la fiesta", "Con tus tickets, la puerta del norte de la sala central se abre. Al fondo del salón, el tobogán: quédate en su boca.");
 
 	public final String titulo;
 	public final String descripcion;

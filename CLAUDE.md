@@ -42,10 +42,12 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
       piscinas/                  las Piscinas (Nivel 37): PlanoPiscinas (trazado, y donde van las valvulas,
                                  la salida y las tarjetas), su generador, sus bloques, la llegada y
                                  sus misiones (Valvulas, Tarjetas: las 3 tarjetas y la puerta)
-      fiesta/                    la Fiesta (Nivel Fun, las Feeding Rooms), despues de las Piscinas: PlanoFiesta
-                                 (mapa hecho a mano), JuegoFiesta (monedas, tickets, tornos, Gran Premio),
-                                 JuegoSemaforo, JuegoMemoria, JuegoRegalos, los suelos defectuosos y el parkour,
-                                 el Anfitrion y sus apagones (AnfitrionFiesta), ConfigFiesta
+      fiesta/                    la Fiesta (Nivel Fun, las Feeding Rooms), despues de las Piscinas, como en Backrooms:
+                                 Escape Together: PlanoFiesta (habitaciones de inicio, laberinto con puertas de monedas,
+                                 castillo de bolas, sala central y salon final), JuegoFiesta (vueltas, monedas, tickets,
+                                 bote, puertas, localizador, noclip, toboganes), JuegoSemaforo (el del castillo),
+                                 JuegoMemoria, JuegoRegalos, suelos defectuosos y parkour, el Anfitrion y sus apagones
+                                 (AnfitrionFiesta), ConfigFiesta
       expedicion/                el /start (cinemática de la firma y el ascensor y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas
@@ -66,7 +68,8 @@ tools/
   texturas/piscinas.js           bloques de las Piscinas (azulejo, causticas animadas, luces, marcas y detalles...)
   texturas/cadaveres.js          las pieles de los cuerpos de las Piscinas (formato de piel de jugador)
   texturas/objetos3d.js          modelos 3D de la linterna, la camara y el agua de almendras
-  texturas/fiesta.js             bloques de la Fiesta (papeles, suelos, decoracion, tornos, semaforo)
+  texturas/fiesta.js             bloques de la Fiesta (papeles, suelos, decoracion, juegos)
+  texturas/laberinto.js          los del laberinto, puertas, castillo, sala central y salon final (va despues de fiesta.js)
   sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros);
                                  la Bacteria y el agarre en sonidos/bacteria.js; las Piscinas y la
                                  Serpiente en sonidos/nivel37.js; la Fiesta y el Anfitrion en sonidos/fiesta.js

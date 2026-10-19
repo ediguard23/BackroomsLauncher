@@ -226,7 +226,7 @@ public final class Misiones {
 
 	/**
 	 * Las misiones de la Fiesta: juntar los tickets del objetivo (los cuenta JuegoFiesta) y
-	 * canjear el Gran Premio. Las da Fiesta#llegar; sustituyen a las de las Piscinas.
+	 * salir por el tobogan del salon final. Las da Fiesta#llegar; sustituyen a las de las Piscinas.
 	 */
 	public void asignarFiesta(ServerPlayer jugador) {
 		this.quitarCasetes(jugador.getUUID());
@@ -374,7 +374,7 @@ public final class Misiones {
 		this.sucio = true;
 		net.backrooms.evento.Sonidos.aJugador(jugador, net.backrooms.evento.Sonidos.MISION_COMPLETA, 0.9F);
 		if (e.actual >= e.misiones.size()) {
-			String donde = e.fase == FASE_PISCINAS ? "la salida de emergencia: crúzala" : e.fase == FASE_FIESTA ? "el regalo del Gran Premio: entra" : "el ascensor de salida: síguelo";
+			String donde = e.fase == FASE_PISCINAS ? "la salida de emergencia: crúzala" : e.fase == FASE_FIESTA ? "el tobogán del final: métete en su boca" : "el ascensor de salida: síguelo";
 			jugador.displayClientMessage(Component.literal("Misiones completadas. El radar ya marca " + donde + ".").withStyle(ChatFormatting.GOLD), false);
 		} else {
 			TipoMision sig = e.misiones.get(e.actual);
@@ -492,7 +492,7 @@ public final class Misiones {
 		}
 		if (e.fase == FASE_FIESTA && net.backrooms.evento.fiesta.Fiesta.es(j.level()) && !e.eliminado && e.escapado == 0) {
 			// la hoja cuenta los tickets; el radar, la ficha mas cercana sin coger o, ya con los
-			// tickets, la puerta del Gran Premio
+			// tickets, la puerta del final
 			hechos = net.backrooms.evento.fiesta.JuegoFiesta.get().tickets(j);
 			total = net.backrooms.evento.fiesta.ConfigFiesta.get().objetivoTickets;
 			if (pendiente(e, TipoMision.TICKETS) >= 0) {

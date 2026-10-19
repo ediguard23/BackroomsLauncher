@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "facing=north,variante=0": {
+      "model": "backrooms_evento:block/banderines_0"
+    },
+    "facing=north,variante=1": {
+      "model": "backrooms_evento:block/banderines_1"
+    },
+    "facing=north,variante=2": {
+      "model": "backrooms_evento:block/banderines_2"
+    },
+    "facing=north,variante=3": {
+      "model": "backrooms_evento:block/banderines_3"
+    },
+    "facing=east,variante=0": {
+      "model": "backrooms_evento:block/banderines_0",
+      "y": 90
+    },
+    "facing=east,variante=1": {
+      "model": "backrooms_evento:block/banderines_1",
+      "y": 90
+    },
+    "facing=east,variante=2": {
+      "model": "backrooms_evento:block/banderines_2",
+      "y": 90
+    },
+    "facing=east,variante=3": {
+      "model": "backrooms_evento:block/banderines_3",
+      "y": 90
+    },
+    "facing=south,variante=0": {
+      "model": "backrooms_evento:block/banderines_0",
+      "y": 180
+    },
+    "facing=south,variante=1": {
+      "model": "backrooms_evento:block/banderines_1",
+      "y": 180
+    },
+    "facing=south,variante=2": {
+      "model": "backrooms_evento:block/banderines_2",
+      "y": 180
+    },
+    "facing=south,variante=3": {
+      "model": "backrooms_evento:block/banderines_3",
+      "y": 180
+    },
+    "facing=west,variante=0": {
+      "model": "backrooms_evento:block/banderines_0",
+      "y": 270
+    },
+    "facing=west,variante=1": {
+      "model": "backrooms_evento:block/banderines_1",
+      "y": 270
+    },
+    "facing=west,variante=2": {
+      "model": "backrooms_evento:block/banderines_2",
+      "y": 270
+    },
+    "facing=west,variante=3": {
+      "model": "backrooms_evento:block/banderines_3",
+      "y": 270
+    }
+  }
+}

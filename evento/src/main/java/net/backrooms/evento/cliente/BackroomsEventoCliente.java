@@ -50,11 +50,8 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			Bloques.SENAL_ALTO, Bloques.SENAL_PELIGRO, Bloques.SENAL_SIGA, Bloques.SENAL_ALTO_REVES, Bloques.SENAL_SIGA_REVES,
 			Bloques.PANEL_ASCENSOR, Bloques.HUECO,
 			net.backrooms.evento.piscinas.BloquesPiscinas.MARCA, net.backrooms.evento.piscinas.BloquesPiscinas.MANCHA,
-			net.backrooms.evento.piscinas.BloquesPiscinas.LECTOR, net.backrooms.evento.piscinas.BloquesPiscinas.CARTEL_SALIDA,
-			net.backrooms.evento.fiesta.BloquesFiesta.GUIRNALDA, net.backrooms.evento.fiesta.BloquesFiesta.CARTEL,
-			net.backrooms.evento.fiesta.BloquesFiesta.DIBUJO, net.backrooms.evento.fiesta.BloquesFiesta.ALTAVOZ,
-			net.backrooms.evento.fiesta.BloquesFiesta.CONFETI, net.backrooms.evento.fiesta.BloquesFiesta.LINEA,
-			net.backrooms.evento.fiesta.BloquesFiesta.GLOBO, net.backrooms.evento.fiesta.BloquesFiesta.NOTA);
+			net.backrooms.evento.piscinas.BloquesPiscinas.LECTOR, net.backrooms.evento.piscinas.BloquesPiscinas.CARTEL_SALIDA);
+		BlockRenderLayerMap.putBlocks(ChunkSectionLayer.CUTOUT, net.backrooms.evento.fiesta.BloquesFiesta.recortados());
 		EntityRenderers.register(Entidades.CASETE, CaseteRenderer::new);
 		net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(net.backrooms.evento.piscinas.BloquesPiscinas.VALVULA_ENTIDAD,
 			net.backrooms.evento.cliente.piscinas.ValvulaRenderer::new);
@@ -74,6 +71,8 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		EntityRenderers.register(Entidades.ANFITRION, net.backrooms.evento.cliente.entidad.AnfitrionRenderer::new);
 		EntityModelLayerRegistry.registerModelLayer(net.backrooms.evento.cliente.entidad.AnfitrionRenderer.CAPA, net.backrooms.evento.cliente.entidad.MallaAnfitrion::crear);
 		EntityRenderers.register(Entidades.FICHA, net.backrooms.evento.cliente.fiesta.FichaRenderer::new);
+		net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(net.backrooms.evento.fiesta.BloquesFiesta.MARCADOR_ENTIDAD,
+			net.backrooms.evento.cliente.fiesta.MarcadorRenderer::new);
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.EstadoFiesta.TYPE, (s, ctx) -> net.backrooms.evento.cliente.fiesta.FiestaCliente.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Semaforo.TYPE, (s, ctx) -> net.backrooms.evento.cliente.fiesta.SemaforoCliente.recibir(s));
 		// los tubos encendidos se tinen: grises en el apagon, rojos con la alarma

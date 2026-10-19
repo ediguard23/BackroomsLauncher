@@ -1,8 +1,53 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-18 (hora de Honduras). Mod `backrooms_evento` 0.21.2, launcher 1.0.0
+Última actualización: 2026-10-18 (hora de Honduras). Mod `backrooms_evento` 0.22.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+
+## 0.22.0: el Nivel Fun rehecho como en Backrooms: Escape Together (2026-10-19; Bruno)
+
+Bruno vio que la Fiesta no seguía la idea y pasó el vídeo de referencia (Level Fun de *Backrooms:
+Escape Together*): se vio entero a capturas cada 4 s (con sus subtítulos) y la guía escrita que enlaza.
+El mapa (`PlanoFiesta`) es nuevo; se aprovecha casi todo lo demás. Una VUELTA:
+1. **Habitación de inicio**: se empieza en uno de 12 cuartitos con puerta verde (al azar; al llegar,
+   al reaparecer y al volver por el noclip).
+2. **Laberinto** (24x22 celdas, semilla fija): muros blancos con zócalo granate, columnas de colores,
+   damero azul/amarillo/blanco, banderines y **flechas de neón en el techo** que apuntan a la salida por
+   el camino más corto. **Mesas de fiesta** en los pasillos con monedas, comida (pizza y galletas, por
+   `Comida`) o tickets. **Puertas verdes de monedas** (1-3, se pagan una vez por vuelta) a 12
+   habitaciones: 4 **salas seguras** con el **localizador de salida** (2 monedas: la puerta roja suena
+   solo para ti y echa chispas), la memoria, los regalos, la cocina, la siesta, la secreta y la de las
+   mesas. La salida es una **puerta roja** con rótulo SALIDA (zumba cuando estás cerca).
+3. **Suelos glitcheados** (3, del color del damero): ceden → parkour debajo → la trampilla sube
+   **directa al castillo** (atajo; 100 tickets la primera vez).
+4. **Castillo de bolas** (dos pisos de 12x12 celdas): postes amarillos, redes, lona azul, escaleras de
+   arcoíris y **semáforos** en las redes. Luz verde/roja para todos los que están dentro: moverse en rojo
+   quita 25 tickets (una vez por luz roja), no te devuelve. Arriba al este, el **tobogán**.
+5. **Sala central**: el tobogán te deja aquí con el **bote** de la vuelta (600 menos 40 por minuto, mínimo
+   200; `ConfigFiesta.jackpot*`). Marcador de LEDs «TICKETS x/1500» (cada uno ve los suyos,
+   `MarcadorRenderer`) y el BOTE que va bajando. **Cuadrados de noclip**: caes y empiezas otra vuelta
+   (las monedas vuelven a las mesas, las puertas se vuelven a pagar). La **puerta del final** (morada)
+   pide 1500 tickets.
+6. **Salón final**: la fiesta grande (damero rojo/morado, mesas, piscina de bolas con valla, escenario) y
+   al fondo el **tobogán rojo con el cartel CERRAMOS**: quedarse 1,5 s en su boca = salir (escapar, como
+   antes el Gran Premio).
+Se quitó: el ascensor de llegada, el salón con el Gran Premio, el pasillo del semáforo, el torno (ahora
+`puerta_fiesta`, con TIPO) y la lámpara de semáforo de pared. Bloques nuevos en `tools/texturas/laberinto.js`;
+sonidos nuevos (puerta, localizador, zumbido de la salida, noclip, tobogán) en `tools/sonidos/fiesta.js`.
+Staff: `/backrooms fiesta ver` dice la vuelta y el bote; `fiesta ir <sala>` tiene las salas nuevas
+(inicio_N, segura_N, memoria, regalos, cocina, siesta, secreta, mesas, castillo, central, final...).
+**Probado** (con teletransportes y capturas, servidor y cliente de pruebas): aparecer en un inicio y
+abrir su puerta, el aspecto de laberinto, habitaciones, castillo, sala central y salón final; coger una
+moneda de una mesa; pagar una puerta de 1 moneda; el localizador (cobra y avisa); la puerta roja; el
+tobogán del castillo (+301 de bote); el noclip (vuelta 2, monedas y puertas repuestas); el semáforo
+(-75 en 15 s moviéndose sin parar); el suelo glitcheado → parkour → trampilla → castillo (+100); la puerta
+del final (avisa de lo que falta y con 1500 deja pasar) y el tobogán del final (escapa); un apagón en el
+laberinto (oscuridad, linterna, sale el Anfitrión). Las flechas apuntan bien (comprobada una).
+**Sin probar**: recorrer el laberinto y el castillo andando de verdad de principio a fin (cuánto se tarda
+y si el bote está bien de números), oír el localizador y el zumbido de la salida en el juego, el Anfitrión
+persiguiendo por los pasillos y por el castillo, la comida de las mesas al cogerla, varios jugadores a la vez.
+Nota: el jugador de pruebas Bruno2524f estaba en las Piscinas (de la partida de Bruno) y se le mandó a la
+Fiesta para probar; acabó escapado.
 
 ## 0.21.2: la Fiesta, todas las voces (2026-10-18; Bruno)
 
@@ -111,7 +156,7 @@ escapar, y todas las salas a la vista.
 **Sin probar**: con varios jugadores, el semáforo andando de verdad (solo con teletransportes), los
 sonidos escuchados, las apariciones vistas (se va al mirarle: no salió en la captura), el laberinto
 recorrido entero.
-**Falta** (tras la 0.21.2): el siguiente tramo tras el regalo.
+**Falta** (tras la 0.22.0): el siguiente tramo tras el tobogán del final.
 
 ## 0.19.0: la lista larga de Bruno (2026-10-17; Bruno)
 

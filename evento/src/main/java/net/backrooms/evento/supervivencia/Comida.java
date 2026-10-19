@@ -251,11 +251,11 @@ public final class Comida {
 			SoundSource.PLAYERS, 0.9F, 0.95F + nivel.getRandom().nextFloat() * 0.1F);
 	}
 
-	private void materializar(ServerLevel nivel, String dim, int x, int z, int tipo, int y) {
+	private void materializar(ServerLevel nivel, String dim, int x, int z, int tipo, double y) {
 		String k = dim + " " + x + " " + z;
 		// con su chunk sin cargar del todo (justo al llegar o reaparecer) no se pone: se quedaria
 		// fuera del mundo, sin verse ni quitarse, y esa comida ya no volvia
-		if (!nivel.isPositionEntityTicking(new net.minecraft.core.BlockPos(x, y, z))) {
+		if (!nivel.isPositionEntityTicking(new net.minecraft.core.BlockPos(x, (int) Math.floor(y), z))) {
 			return;
 		}
 		ComidaEntidad viva = this.vivas.get(k);
@@ -279,6 +279,10 @@ public final class Comida {
 		for (ServerLevel nivel : this.servidor.getAllLevels()) {
 			if (Piscinas.es(nivel) && nivel.getChunkSource().getGenerator() instanceof GeneradorPiscinas piscinas) {
 				this.piscinas(nivel, piscinas.plano(nivel.getChunkSource().randomState()));
+				continue;
+			}
+			if (net.backrooms.evento.fiesta.Fiesta.es(nivel)) {
+				this.fiesta(nivel);
 				continue;
 			}
 			if (Fase.de(nivel) == null || !(nivel.getChunkSource().getGenerator() instanceof GeneradorNivel0 gen)) {
@@ -328,6 +332,22 @@ public final class Comida {
 		}
 		if (this.ticks % 1200 == 0) {
 			this.guardar();
+		}
+	}
+
+	/** La Fiesta: la comida de las mesas y encimeras del plano (PlanoFiesta.COMIDA), a su altura. */
+	private void fiesta(ServerLevel nivel) {
+		Set<Long> cogidas = this.cogidas(nivel);
+		String dim = nivel.dimension().identifier().toString();
+		for (ServerPlayer j : nivel.players()) {
+			if (j.isSpectator()) {
+				continue;
+			}
+			for (net.backrooms.evento.fiesta.PlanoFiesta.Plato p : net.backrooms.evento.fiesta.PlanoFiesta.COMIDA) {
+				if (Math.abs(p.x() - j.getBlockX()) <= RADIO && Math.abs(p.z() - j.getBlockZ()) <= RADIO && !cogidas.contains(clave(p.x(), p.z()))) {
+					this.materializar(nivel, dim, p.x(), p.z(), p.tipo(), p.y());
+				}
+			}
 		}
 	}
 

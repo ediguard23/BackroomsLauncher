@@ -1,0 +1,48 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "f": "backrooms_evento:block/puerta_verde_arriba",
+    "l": "backrooms_evento:block/pared_laberinto",
+    "particle": "backrooms_evento:block/puerta_verde_arriba"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#f",
+          "cullface": "north"
+        },
+        "south": {
+          "texture": "#f",
+          "cullface": "south"
+        },
+        "east": {
+          "texture": "#l",
+          "cullface": "east"
+        },
+        "west": {
+          "texture": "#l",
+          "cullface": "west"
+        },
+        "up": {
+          "texture": "#l",
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#l",
+          "cullface": "down"
+        }
+      }
+    }
+  ]
+}

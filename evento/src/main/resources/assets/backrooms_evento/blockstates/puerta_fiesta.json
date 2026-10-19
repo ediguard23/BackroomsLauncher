@@ -1,0 +1,544 @@
+{
+  "variants": {
+    "coste=0,facing=north,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo"
+    },
+    "coste=0,facing=north,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba"
+    },
+    "coste=1,facing=north,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo"
+    },
+    "coste=1,facing=north,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_1"
+    },
+    "coste=2,facing=north,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo"
+    },
+    "coste=2,facing=north,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_2"
+    },
+    "coste=3,facing=north,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo"
+    },
+    "coste=3,facing=north,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_3"
+    },
+    "coste=4,facing=north,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo"
+    },
+    "coste=4,facing=north,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_4"
+    },
+    "coste=5,facing=north,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo"
+    },
+    "coste=5,facing=north,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_5"
+    },
+    "coste=0,facing=north,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo"
+    },
+    "coste=0,facing=north,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba"
+    },
+    "coste=1,facing=north,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo"
+    },
+    "coste=1,facing=north,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba"
+    },
+    "coste=2,facing=north,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo"
+    },
+    "coste=2,facing=north,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba"
+    },
+    "coste=3,facing=north,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo"
+    },
+    "coste=3,facing=north,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba"
+    },
+    "coste=4,facing=north,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo"
+    },
+    "coste=4,facing=north,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba"
+    },
+    "coste=5,facing=north,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo"
+    },
+    "coste=5,facing=north,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba"
+    },
+    "coste=0,facing=north,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo"
+    },
+    "coste=0,facing=north,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba"
+    },
+    "coste=1,facing=north,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo"
+    },
+    "coste=1,facing=north,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba"
+    },
+    "coste=2,facing=north,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo"
+    },
+    "coste=2,facing=north,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba"
+    },
+    "coste=3,facing=north,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo"
+    },
+    "coste=3,facing=north,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba"
+    },
+    "coste=4,facing=north,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo"
+    },
+    "coste=4,facing=north,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba"
+    },
+    "coste=5,facing=north,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo"
+    },
+    "coste=5,facing=north,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba"
+    },
+    "coste=0,facing=east,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 90
+    },
+    "coste=0,facing=east,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba",
+      "y": 90
+    },
+    "coste=1,facing=east,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 90
+    },
+    "coste=1,facing=east,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_1",
+      "y": 90
+    },
+    "coste=2,facing=east,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 90
+    },
+    "coste=2,facing=east,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_2",
+      "y": 90
+    },
+    "coste=3,facing=east,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 90
+    },
+    "coste=3,facing=east,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_3",
+      "y": 90
+    },
+    "coste=4,facing=east,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 90
+    },
+    "coste=4,facing=east,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_4",
+      "y": 90
+    },
+    "coste=5,facing=east,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 90
+    },
+    "coste=5,facing=east,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_5",
+      "y": 90
+    },
+    "coste=0,facing=east,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 90
+    },
+    "coste=0,facing=east,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 90
+    },
+    "coste=1,facing=east,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 90
+    },
+    "coste=1,facing=east,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 90
+    },
+    "coste=2,facing=east,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 90
+    },
+    "coste=2,facing=east,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 90
+    },
+    "coste=3,facing=east,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 90
+    },
+    "coste=3,facing=east,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 90
+    },
+    "coste=4,facing=east,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 90
+    },
+    "coste=4,facing=east,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 90
+    },
+    "coste=5,facing=east,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 90
+    },
+    "coste=5,facing=east,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 90
+    },
+    "coste=0,facing=east,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 90
+    },
+    "coste=0,facing=east,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 90
+    },
+    "coste=1,facing=east,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 90
+    },
+    "coste=1,facing=east,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 90
+    },
+    "coste=2,facing=east,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 90
+    },
+    "coste=2,facing=east,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 90
+    },
+    "coste=3,facing=east,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 90
+    },
+    "coste=3,facing=east,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 90
+    },
+    "coste=4,facing=east,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 90
+    },
+    "coste=4,facing=east,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 90
+    },
+    "coste=5,facing=east,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 90
+    },
+    "coste=5,facing=east,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 90
+    },
+    "coste=0,facing=south,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 180
+    },
+    "coste=0,facing=south,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba",
+      "y": 180
+    },
+    "coste=1,facing=south,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 180
+    },
+    "coste=1,facing=south,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_1",
+      "y": 180
+    },
+    "coste=2,facing=south,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 180
+    },
+    "coste=2,facing=south,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_2",
+      "y": 180
+    },
+    "coste=3,facing=south,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 180
+    },
+    "coste=3,facing=south,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_3",
+      "y": 180
+    },
+    "coste=4,facing=south,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 180
+    },
+    "coste=4,facing=south,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_4",
+      "y": 180
+    },
+    "coste=5,facing=south,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 180
+    },
+    "coste=5,facing=south,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_5",
+      "y": 180
+    },
+    "coste=0,facing=south,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 180
+    },
+    "coste=0,facing=south,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 180
+    },
+    "coste=1,facing=south,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 180
+    },
+    "coste=1,facing=south,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 180
+    },
+    "coste=2,facing=south,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 180
+    },
+    "coste=2,facing=south,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 180
+    },
+    "coste=3,facing=south,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 180
+    },
+    "coste=3,facing=south,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 180
+    },
+    "coste=4,facing=south,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 180
+    },
+    "coste=4,facing=south,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 180
+    },
+    "coste=5,facing=south,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 180
+    },
+    "coste=5,facing=south,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 180
+    },
+    "coste=0,facing=south,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 180
+    },
+    "coste=0,facing=south,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 180
+    },
+    "coste=1,facing=south,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 180
+    },
+    "coste=1,facing=south,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 180
+    },
+    "coste=2,facing=south,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 180
+    },
+    "coste=2,facing=south,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 180
+    },
+    "coste=3,facing=south,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 180
+    },
+    "coste=3,facing=south,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 180
+    },
+    "coste=4,facing=south,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 180
+    },
+    "coste=4,facing=south,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 180
+    },
+    "coste=5,facing=south,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 180
+    },
+    "coste=5,facing=south,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 180
+    },
+    "coste=0,facing=west,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 270
+    },
+    "coste=0,facing=west,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba",
+      "y": 270
+    },
+    "coste=1,facing=west,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 270
+    },
+    "coste=1,facing=west,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_1",
+      "y": 270
+    },
+    "coste=2,facing=west,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 270
+    },
+    "coste=2,facing=west,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_2",
+      "y": 270
+    },
+    "coste=3,facing=west,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 270
+    },
+    "coste=3,facing=west,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_3",
+      "y": 270
+    },
+    "coste=4,facing=west,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 270
+    },
+    "coste=4,facing=west,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_4",
+      "y": 270
+    },
+    "coste=5,facing=west,parte=0,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_abajo",
+      "y": 270
+    },
+    "coste=5,facing=west,parte=1,tipo=0": {
+      "model": "backrooms_evento:block/puerta_verde_arriba_5",
+      "y": 270
+    },
+    "coste=0,facing=west,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 270
+    },
+    "coste=0,facing=west,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 270
+    },
+    "coste=1,facing=west,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 270
+    },
+    "coste=1,facing=west,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 270
+    },
+    "coste=2,facing=west,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 270
+    },
+    "coste=2,facing=west,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 270
+    },
+    "coste=3,facing=west,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 270
+    },
+    "coste=3,facing=west,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 270
+    },
+    "coste=4,facing=west,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 270
+    },
+    "coste=4,facing=west,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 270
+    },
+    "coste=5,facing=west,parte=0,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_abajo",
+      "y": 270
+    },
+    "coste=5,facing=west,parte=1,tipo=1": {
+      "model": "backrooms_evento:block/puerta_roja_arriba",
+      "y": 270
+    },
+    "coste=0,facing=west,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 270
+    },
+    "coste=0,facing=west,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 270
+    },
+    "coste=1,facing=west,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 270
+    },
+    "coste=1,facing=west,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 270
+    },
+    "coste=2,facing=west,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 270
+    },
+    "coste=2,facing=west,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 270
+    },
+    "coste=3,facing=west,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 270
+    },
+    "coste=3,facing=west,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 270
+    },
+    "coste=4,facing=west,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 270
+    },
+    "coste=4,facing=west,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 270
+    },
+    "coste=5,facing=west,parte=0,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_abajo",
+      "y": 270
+    },
+    "coste=5,facing=west,parte=1,tipo=2": {
+      "model": "backrooms_evento:block/puerta_final_arriba",
+      "y": 270
+    }
+  }
+}

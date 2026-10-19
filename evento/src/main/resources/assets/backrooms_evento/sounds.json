@@ -888,7 +888,7 @@
   "fiesta.torno": {
     "sounds": [
       {
-        "name": "backrooms_evento:fiesta_torno",
+        "name": "backrooms_evento:laberinto_puerta",
         "attenuation_distance": 16
       }
     ]
@@ -1258,6 +1258,38 @@
       {
         "name": "backrooms_evento:regalos_fin",
         "attenuation_distance": 12
+      }
+    ]
+  },
+  "fiesta.localizador": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:laberinto_localizador",
+        "attenuation_distance": 24
+      }
+    ]
+  },
+  "fiesta.salida": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:laberinto_salida",
+        "attenuation_distance": 8
+      }
+    ]
+  },
+  "fiesta.noclip": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:laberinto_noclip",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "fiesta.tobogan": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:laberinto_tobogan",
+        "attenuation_distance": 20
       }
     ]
   }

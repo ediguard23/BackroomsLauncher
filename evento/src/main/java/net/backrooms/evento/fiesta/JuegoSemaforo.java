@@ -24,14 +24,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Luz verde, luz roja: el juego del pasillo del semaforo (PlanoFiesta.SEM_*). Con alguien en el
- * pasillo, el semaforo del fondo alterna verde y rojo (tiempos al azar de ConfigFiesta); en
- * verde suena la musiquilla y se puede avanzar, en rojo se corta y una voz de nina lo canta.
- *
- * Se juega desde la zona de salida: al cruzar la linea (x = SEM_SALIDA) empiezas la carrera.
- * Si te mueves (o saltas) en rojo, pasado el margen para frenar, te pilla: pierdes
- * ConfigFiesta.semaforoCastigo tickets y vuelves a la salida. Al cruzar la meta ganas tickets
- * (la primera vez mas) y puedes volver a jugar. Lo juegan a la vez todos los del pasillo.
+ * Luz verde, luz roja: el juego del castillo de bolas (PlanoFiesta.CAS_*). Con alguien dentro, todos
+ * sus semaforos (PlanoFiesta.SEMAFOROS) alternan verde y rojo a la vez (tiempos al azar de
+ * ConfigFiesta); en verde suena la musiquilla y se puede avanzar, en rojo se corta y una voz de nina
+ * lo canta. Quien se mueva (o salte) en rojo, pasado el margen para frenar, pierde
+ * ConfigFiesta.semaforoCastigo tickets (una vez por cada luz roja) y se queda donde esta. Se juega
+ * mientras se cruza el castillo hasta el tobogan; el premio es el bote de la vuelta (JuegoFiesta).
  */
 public final class JuegoSemaforo {
 	private static final JuegoSemaforo INSTANCIA = new JuegoSemaforo();
@@ -51,10 +49,10 @@ public final class JuegoSemaforo {
 	private int luz = PARADO;
 	private long cambio;
 	private long proximo;
-	/** En la zona de salida, listos para empezar. */
-	private final Set<UUID> listos = new HashSet<>();
-	/** Corriendo (ya cruzaron la salida). */
+	/** Dentro del castillo. */
 	private final Set<UUID> carrera = new HashSet<>();
+	/** Los que ya han perdido tickets en esta luz roja. */
+	private final Set<UUID> pillados = new HashSet<>();
 	/** Donde estaba cada uno cuando se acabo el margen de la roja. */
 	private final Map<UUID, Vec3> quietos = new HashMap<>();
 
@@ -72,9 +70,9 @@ public final class JuegoSemaforo {
 		return this.carrera.contains(j.getUUID());
 	}
 
-	private static boolean enPasillo(ServerPlayer j) {
-		return Fiesta.es(j.level()) && !j.isSpectator() && j.getX() >= PlanoFiesta.SEM_X0 && j.getX() < PlanoFiesta.SEM_X1 + 1
-			&& j.getZ() >= PlanoFiesta.SEM_Z0 && j.getZ() < PlanoFiesta.SEM_Z1 + 1;
+	private static boolean enCastillo(ServerPlayer j) {
+		return Fiesta.es(j.level()) && !j.isSpectator() && PlanoFiesta.enCastillo(j.getX(), j.getZ())
+			&& j.getY() > PlanoFiesta.SUELO && j.getY() < PlanoFiesta.CAS_TEJADO;
 	}
 
 	private void tick() {
@@ -85,14 +83,19 @@ public final class JuegoSemaforo {
 		}
 		List<ServerPlayer> dentro = new ArrayList<>();
 		for (ServerPlayer j : nivel.players()) {
-			if (enPasillo(j)) {
+			if (enCastillo(j)) {
 				dentro.add(j);
 			}
 		}
 		Set<UUID> ids = new HashSet<>();
 		dentro.forEach(j -> ids.add(j.getUUID()));
-		this.listos.retainAll(ids);
+		for (ServerPlayer j : nivel.players()) {
+			if (!ids.contains(j.getUUID()) && this.carrera.remove(j.getUUID())) {
+				JuegoFiesta.get().enviar(j);
+			}
+		}
 		this.carrera.retainAll(ids);
+		this.pillados.retainAll(ids);
 		this.quietos.keySet().retainAll(ids);
 		if (dentro.isEmpty()) {
 			if (this.luz != PARADO) {
@@ -109,24 +112,11 @@ public final class JuegoSemaforo {
 		boolean margen = this.ticks - this.cambio < Math.round(c.semaforoMargen * 20);
 		for (ServerPlayer j : new ArrayList<>(dentro)) {
 			UUID u = j.getUUID();
-			double x = j.getX();
-			if (x < PlanoFiesta.SEM_SALIDA) {
-				if (this.carrera.remove(u)) {
-					JuegoFiesta.get().enviar(j);
-				}
-				this.listos.add(u);
-				continue;
-			}
-			if (this.listos.remove(u)) {
-				this.carrera.add(u);
+			if (this.carrera.add(u)) {
 				JuegoFiesta.get().enviar(j);
-				j.displayClientMessage(Component.literal("¡A JUGAR! Avanza solo con la luz verde.").withStyle(ChatFormatting.GREEN), true);
+				j.displayClientMessage(Component.literal("¡SEMÁFORO! Busca el tobogán y avanza solo con la luz verde.").withStyle(ChatFormatting.GREEN), true);
 			}
-			if (!this.carrera.contains(u)) {
-				continue;
-			}
-			if (x >= PlanoFiesta.SEM_META) {
-				this.ganar(nivel, j);
+			if (j.isCreative() || this.pillados.contains(u)) {
 				continue;
 			}
 			if (this.luz == ROJA && !margen) {
@@ -144,25 +134,24 @@ public final class JuegoSemaforo {
 		}
 	}
 
-	/** Cambia la luz: las lamparas, la voz y la musica (los del pasillo, por EstadoSemaforo). */
+	/** Cambia la luz: las lamparas, la voz y la musica (los del castillo, por el paquete Semaforo). */
 	private void poner(ServerLevel nivel, int luz, List<ServerPlayer> dentro) {
 		this.luz = luz;
 		this.cambio = this.ticks;
 		this.quietos.clear();
+		this.pillados.clear();
 		ConfigFiesta c = ConfigFiesta.get();
 		float[] rango = luz == VERDE ? c.semaforoVerde : c.semaforoRoja;
 		this.proximo = this.ticks + Math.round((rango[0] + this.azar.nextFloat() * (rango[1] - rango[0])) * 20);
-		for (int[] p : PlanoFiesta.SEMAFORO_ROJO) {
-			encender(nivel, p, luz == ROJA);
-		}
-		for (int[] p : PlanoFiesta.SEMAFORO_VERDE) {
-			encender(nivel, p, luz == VERDE);
+		for (int[] p : PlanoFiesta.SEMAFOROS) {
+			encender(nivel, p, luz == ROJA ? 1 : luz == VERDE ? 2 : 0);
 		}
 		if (luz != PARADO) {
-			int[] f = PlanoFiesta.SEMAFORO_ROJO.isEmpty() ? new int[] {PlanoFiesta.SEM_X1, PlanoFiesta.SUELO + 6, -1} : PlanoFiesta.SEMAFORO_ROJO.get(0);
-			// la voz desde el semaforo, que se oiga en todo el pasillo
-			nivel.playSound(null, f[0] + 0.5, f[1], f[2] + 0.5, luz == VERDE ? Sonidos.SEMAFORO_VERDE : Sonidos.SEMAFORO_ROJA,
-				SoundSource.AMBIENT, 4.0F, 1.0F);
+			// la voz desde el medio del castillo, alto, que se oiga en todo el
+			double cx = PlanoFiesta.CAS_X + PlanoFiesta.CAS_LADO / 2.0;
+			double cz = PlanoFiesta.CAS_Z + PlanoFiesta.CAS_LADO / 2.0;
+			nivel.playSound(null, cx, PlanoFiesta.CAS_TEJADO + 2, cz, luz == VERDE ? Sonidos.SEMAFORO_VERDE : Sonidos.SEMAFORO_ROJA,
+				SoundSource.AMBIENT, 6.0F, 1.0F);
 		}
 		for (ServerPlayer j : dentro) {
 			if (ServerPlayNetworking.canSend(j, Semaforo.TYPE)) {
@@ -171,31 +160,19 @@ public final class JuegoSemaforo {
 		}
 	}
 
-	private static void encender(ServerLevel nivel, int[] p, boolean si) {
+	private static void encender(ServerLevel nivel, int[] p, int luz) {
 		BlockPos pos = new BlockPos(p[0], p[1], p[2]);
 		BlockState e = nivel.getBlockState(pos);
-		if (e.is(BloquesFiesta.LUZ_SEMAFORO) && e.getValue(LuzSemaforo.LUZ) != si) {
-			nivel.setBlock(pos, e.setValue(LuzSemaforo.LUZ, si), Block.UPDATE_CLIENTS);
+		if (e.is(BloquesFiesta.SEMAFORO) && e.getValue(SemaforoCastillo.LUZ) != luz) {
+			nivel.setBlock(pos, e.setValue(SemaforoCastillo.LUZ, luz), Block.UPDATE_CLIENTS);
 		}
 	}
 
-	/** Se ha movido en rojo: a la salida y sin unos tickets. */
+	/** Se ha movido en rojo: sin unos tickets (una vez por luz roja). */
 	private void pillar(ServerLevel nivel, ServerPlayer j) {
-		this.carrera.remove(j.getUUID());
+		this.pillados.add(j.getUUID());
 		this.quietos.remove(j.getUUID());
 		nivel.playSound(null, j.getX(), j.getEyeY(), j.getZ(), Sonidos.SEMAFORO_PILLADO, SoundSource.AMBIENT, 2.0F, 1.0F);
-		j.teleportTo(nivel, PlanoFiesta.SEM_X0 + 2.5, PlanoFiesta.SUELO + 1, j.getZ(), java.util.Set.of(), -90.0F, 0.0F, true);
 		JuegoFiesta.get().sumarTickets(j, -ConfigFiesta.get().semaforoCastigo, "¡te has movido en rojo!");
-	}
-
-	private void ganar(ServerLevel nivel, ServerPlayer j) {
-		this.carrera.remove(j.getUUID());
-		JuegoFiesta.Datos d = JuegoFiesta.get().datos(j);
-		ConfigFiesta c = ConfigFiesta.get();
-		int premio = d.semaforo == 0 ? c.semaforoPremio : c.semaforoPremioRepetido;
-		d.semaforo++;
-		nivel.playSound(null, j.getX(), j.getEyeY(), j.getZ(), Sonidos.SEMAFORO_GANA, SoundSource.AMBIENT, 2.0F, 1.0F);
-		nivel.sendParticles(net.minecraft.core.particles.ParticleTypes.TOTEM_OF_UNDYING, j.getX(), j.getY() + 1, j.getZ(), 30, 0.5, 0.8, 0.5, 0.3);
-		JuegoFiesta.get().sumarTickets(j, premio, "¡meta del semáforo!");
 	}
 }

@@ -125,6 +125,16 @@ guardar(TEX, 'baldosa_cocina', new Lienzo(32).pintar((x, y) => {
   return c;
 }));
 
+/** Una baldosa brillante del damero: el color, la junta oscura alrededor y un reflejo arriba a la izquierda. */
+function damero (col, x, y) {
+  if (x === 0 || y === 0) return escala(col, 0.62);
+  let c = escala(col, 0.95 + fbm(x, y, 181, 32) * 0.06 - (x + y) * 0.0018);
+  const d = Math.hypot(x - 9, y - 8);
+  if (d < 6) c = mezcla(c, [255, 255, 255], (6 - d) / 6 * 0.28);
+  if (hash(x, y, 182) > 0.985) c = escala(c, 0.85);
+  return c;
+}
+
 /* ============================================================ techo y luces */
 
 guardar(TEX, 'techo_fiesta', new Lienzo(32).pintar((x, y) => {
@@ -441,103 +451,6 @@ console.log('  decoracion: globos, guirnaldas, carteles, dibujos, mesas, tartas,
 
 /* ============================================================ para jugar */
 
-// el torno: una hoja de puerta naranja con ranura de monedas (abajo) y, arriba, el precio
-const MARCO = [196, 110, 40];
-const hojaAbajo = (oro) => new Lienzo(32).pintar((x, y) => {
-  const base = oro ? [222, 182, 60] : [236, 140, 60];
-  if (x < 2 || x > 29) return escala(MARCO, 0.85);
-  let c = escala(base, 0.92 + fbm(x, y, 301, 32) * 0.08);
-  if (x === 4 || x === 27 || y === 2 || y === 30) c = escala(base, 0.75);
-  if (x >= 20 && x <= 25 && y >= 4 && y <= 14) c = [40, 40, 44];          // la ranura
-  if (x >= 22 && x <= 23 && y >= 6 && y <= 12) c = [10, 10, 12];
-  if (x >= 6 && x <= 9 && y >= 14 && y <= 18) c = [70, 70, 76];          // el pomo
-  return c;
-});
-guardar(TEX, 'torno_abajo', hojaAbajo(false));
-guardar(TEX, 'premio_abajo', hojaAbajo(true));
-for (let n = 0; n <= 5; n++) {
-  const l = new Lienzo(32);
-  const oro = n === 0;
-  l.pintar((x, y) => {
-    if (x < 2 || x > 29) return escala(MARCO, 0.85);
-    return escala(oro ? [222, 182, 60] : [236, 140, 60], 0.92 + fbm(x, y, 311, 32) * 0.08);
-  });
-  l.rect(5, 4, 26, 27, [30, 26, 34]);
-  if (oro) {
-    l.rect(8, 7, 23, 14, ROJO); l.disco(8, 10.5, 2, [30, 26, 34]); l.disco(23, 10.5, 2, [30, 26, 34]);
-    l.texto('1500', 'centro', 17, AMARILLO, 1);
-  } else {
-    for (let k = 0; k < n; k++) {
-      const cx = 16 + (k - (n - 1) / 2) * 4.2;
-      l.disco(cx, 11, 1.6, [242, 197, 58]);
-      l.punto(Math.round(cx) - 1, 10, [255, 241, 168]);
-    }
-    l.texto(String(n), 'centro', 17, AMARILLO, 1);
-  }
-  guardar(TEX, `torno_arriba_${n}`, l);
-}
-const lado = t('zocalo_fiesta');
-const torno = (frente) => ({ parent: 'minecraft:block/block', textures: { f: t(frente), l: lado, particle: t(frente) },
-  elements: [{ from: [0, 0, 0], to: [16, 16, 16], faces: {
-    north: { texture: '#f', cullface: 'north' }, south: { texture: '#f', cullface: 'south' },
-    east: { texture: '#l', cullface: 'east' }, west: { texture: '#l', cullface: 'west' }, up: { texture: '#l', cullface: 'up' }, down: { texture: '#l', cullface: 'down' } } }] });
-json('models/block/torno_abajo.json', torno('torno_abajo'));
-json('models/block/premio_abajo.json', torno('premio_abajo'));
-for (let n = 0; n <= 5; n++) json(`models/block/torno_arriba_${n}.json`, torno(`torno_arriba_${n}`));
-{
-  const v = {};
-  for (const [f, y] of Object.entries(FACINGS)) {
-    for (let n = 0; n <= 5; n++) {
-      v[`coste=${n},facing=${f},parte=0`] = { model: t(n === 0 ? 'premio_abajo' : 'torno_abajo'), ...(y ? { y } : {}) };
-      v[`coste=${n},facing=${f},parte=1`] = { model: t(`torno_arriba_${n}`), ...(y ? { y } : {}) };
-    }
-  }
-  json('blockstates/torno_fiesta.json', { variants: v });
-  json('items/torno_fiesta.json', { model: { type: 'minecraft:model', model: t('torno_arriba_1') } });
-}
-
-// las lamparas del semaforo: carcasa negra y lamparas roja y verde (encendidas, brillan solas)
-guardar(TEX, 'semaforo_carcasa', new Lienzo(16).pintar((x, y) => escala([24, 24, 28], 0.9 + hash(x, y, 321) * 0.15)));
-for (const [n, col] of [['roja', [255, 58, 46]], ['verde', [72, 255, 110]]]) {
-  for (const on of [true, false]) {
-    guardar(TEX, `semaforo_${n}${on ? '' : '_apagada'}`, new Lienzo(16).pintar((x, y) => {
-      const d = Math.hypot(x - 7.5, y - 7.5);
-      if (d > 7.2) return escala([24, 24, 28], 0.95);
-      const c = on ? mezcla([255, 255, 240], col, Math.min(1, d / 5)) : escala(col, 0.22 + (d < 3 ? 0.05 : 0));
-      return c;
-    }));
-  }
-}
-const lampara = (tex, emision) => mod({ f: t(tex), c: t('semaforo_carcasa'), particle: t('semaforo_carcasa') }, [{
-  from: [0, 0, 13], to: [16, 16, 16], ...(emision ? { shade: false, light_emission: 15 } : {}),
-  faces: { north: { texture: '#f' }, east: { texture: '#c' }, west: { texture: '#c' }, up: { texture: '#c' }, down: { texture: '#c' } }
-}]);
-json('models/block/semaforo_carcasa.json', lampara('semaforo_carcasa', false));
-for (const n of ['roja', 'verde']) {
-  json(`models/block/semaforo_${n}.json`, lampara(`semaforo_${n}`, true));
-  json(`models/block/semaforo_${n}_apagada.json`, lampara(`semaforo_${n}_apagada`, false));
-}
-{
-  const v = {};
-  for (const [f, y] of Object.entries(FACINGS)) {
-    for (const luz of [true, false]) {
-      v[`color=0,facing=${f},luz=${luz}`] = { model: t('semaforo_carcasa'), ...(y ? { y } : {}) };
-      v[`color=1,facing=${f},luz=${luz}`] = { model: t(luz ? 'semaforo_roja' : 'semaforo_roja_apagada'), ...(y ? { y } : {}) };
-      v[`color=2,facing=${f},luz=${luz}`] = { model: t(luz ? 'semaforo_verde' : 'semaforo_verde_apagada'), ...(y ? { y } : {}) };
-    }
-  }
-  json('blockstates/luz_semaforo.json', { variants: v });
-  json('items/luz_semaforo.json', { model: { type: 'minecraft:model', model: t('semaforo_roja') } });
-}
-
-// las lineas del suelo: la de salida (blanca con rayas) y la meta (a cuadros)
-guardar(TEX, 'linea_salida', new Lienzo(16).pintar((x, y) => (x >= 5 && x <= 10 ? escala([250, 250, 244], 0.92 + hash(x, y, 331) * 0.08) : null)));
-guardar(TEX, 'linea_meta', new Lienzo(16).pintar((x, y) => ((Math.floor(x / 4) + Math.floor(y / 4)) % 2 === 0 ? [20, 20, 22] : [246, 246, 240])));
-for (const [i, n] of [[0, 'linea_salida'], [1, 'linea_meta']]) {
-  json(`models/block/linea_fiesta_${i}.json`, mod({ c: t(n), particle: t(n) }, [{ from: [0, 0.1, 0], to: [16, 0.1, 16], faces: { up: { texture: '#c', uv: [0, 0, 16, 16] } } }]));
-}
-estados('linea_fiesta', 4, (i) => `linea_fiesta_${i % 2}`, true);
-console.log('  para jugar: tornos, puerta del Gran Premio, semaforo y lineas');
 
 /* ============================================================ suelos defectuosos y juegos */
 
@@ -552,6 +465,8 @@ console.log('  para jugar: tornos, puerta del Gran Premio, semaforo y lineas');
     return c;
   };
   base[1] = moqueta;
+  // el damero del laberinto: un bloque por color (blanco, azul, amarillo), como PlanoFiesta#damero
+  for (const col of [[232, 232, 226], [52, 92, 196], [236, 196, 58]]) base.push((x, y) => damero(col, x, y));
   base.forEach((f, v) => {
     const cuadros = [];
     for (let k = 0; k < 6; k++) {
@@ -573,7 +488,7 @@ console.log('  para jugar: tornos, puerta del Gran Premio, semaforo y lineas');
     json(`models/block/${nombre}.json`, { parent: 'minecraft:block/cube_all', textures: { all: t(nombre) } });
   });
   const v = {};
-  for (const roto of [false, true]) for (let i = 0; i < 2; i++) v[`roto=${roto},variante=${i}`] = { model: t(`suelo_defectuoso_${i}`) };
+  for (const roto of [false, true]) for (let i = 0; i < 5; i++) v[`roto=${roto},variante=${i}`] = { model: t(`suelo_defectuoso_${i}`) };
   json('blockstates/suelo_defectuoso.json', { variants: v });
   json('items/suelo_defectuoso.json', { model: { type: 'minecraft:model', model: t('suelo_defectuoso_0') } });
 }
@@ -729,9 +644,6 @@ const NOMBRES = {
   olla: ['Olla', 'Pot'],
   bandeja: ['Bandeja', 'Tray'],
   camita: ['Camita', 'Nap bed'],
-  torno_fiesta: ['Torno de monedas', 'Coin turnstile'],
-  luz_semaforo: ['Semáforo', 'Traffic light'],
-  linea_fiesta: ['Línea de carrera', 'Race line'],
   suelo_defectuoso: ['Suelo defectuoso', 'Faulty floor'],
   piscina_bolas: ['Piscina de bolas', 'Ball pit'],
   trampilla_fiesta: ['Trampilla', 'Hatch'],

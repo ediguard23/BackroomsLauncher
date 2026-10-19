@@ -17,7 +17,7 @@
  *  Lo de jugar
  *   fiesta_moneda          coger una moneda: dos notas de campanilla
  *   fiesta_tickets         coger tickets: la maquina que los escupe y el papel que se rasga
- *   fiesta_torno           pasar un torno: el trinquete que gira y un "ding"
+ *   laberinto_puerta       cruzar una puerta: el picaporte, la bisagra que cruje y el golpe al cerrar
  *   fiesta_torno_no        sin monedas: zumbador
  *   fiesta_objetivo        ya tienes los tickets: arpegio de fiesta (un poco desafinado)
  *   fiesta_regalo          dentro del regalo del Gran Premio: papel, un soplo que sube y un petardo
@@ -223,17 +223,6 @@ function tickets () {
   const bp = new D.Biquad('bp', 2600, 0.9);
   poner(buf, 0.45, 0.22, (t) => bp.paso(rnd() * 2 - 1) * (0.6 + 0.4 * Math.sin(TAU * 60 * t)) * Math.sin(Math.PI * t / 0.22) * 1.1);
   return pico(sala(buf, 0.2, 0.4), -3);
-}
-
-function torno () {
-  const rnd = D.azar(611);
-  const buf = mono(1.2);
-  for (let k = 0; k < 6; k++) {
-    const bp = new D.Biquad('bp', 1900 - k * 60, 10);
-    poner(buf, 0.02 + k * 0.045, 0.04, (t) => bp.paso(rnd() * 2 - 1) * Math.exp(-t * 150) * 2.5);
-  }
-  poner(buf, 0.32, 0.8, (t) => Math.sin(TAU * nota(88) * t) * Math.exp(-t * 5) * 0.45);
-  return pico(sala(buf, 0.25, 0.5), -3);
 }
 
 function tornoNo () {
@@ -508,13 +497,95 @@ function regalosFin () {
   return pico(sala(buf, 0.25, 0.5), -2);
 }
 
+/* ============================================================== el laberinto */
+
+// la puerta: el picaporte, la bisagra que cruje (diente de sierra que sube y baja con temblor) y el golpe
+function puerta () {
+  const rnd = D.azar(901);
+  const buf = mono(1.3);
+  const bp = new D.Biquad('bp', 2400, 6);
+  poner(buf, 0, 0.05, (t) => bp.paso(rnd() * 2 - 1) * Math.exp(-t * 120) * 2.2);
+  const cr = new D.Biquad('bp', 900, 3);
+  let fase = 0;
+  poner(buf, 0.08, 0.6, (t) => {
+    fase += (180 + Math.sin(t * 9) * 60 + rnd() * 40) / SR;
+    return cr.paso(D.sierra(fase % 1, 200 / SR)) * Math.sin(Math.PI * t / 0.6) * 0.5;
+  });
+  const lp = new D.Biquad('lp', 180, 0.8);
+  poner(buf, 0.86, 0.35, (t) => lp.paso(rnd() * 2 - 1) * Math.exp(-t * 18) * 3.0);
+  return pico(sala(buf, 0.3, 0.5), -3);
+}
+
+// el localizador: una campana de feria, tres veces y cada vez mas alto (suena desde la puerta de la salida)
+function localizador () {
+  const buf = mono(3.0);
+  for (let k = 0; k < 3; k++) {
+    [[0, 84], [0.12, 88], [0.24, 91]].forEach(([t0, n]) => {
+      const f = nota(n + k * 2);
+      poner(buf, k * 0.85 + t0, 1.2, (t) => (Math.sin(TAU * f * t) + Math.sin(TAU * f * 2.76 * t) * 0.25 * Math.exp(-t * 9)) * Math.exp(-t * 3.2) * 0.42);
+    });
+  }
+  return pico(sala(buf, 0.3, 0.7), -1);
+}
+
+// el zumbido de la puerta de la salida: un fluorescente viejo, con algun chasquido
+function salidaZumbido () {
+  const rnd = D.azar(911);
+  const buf = mono(1.6);
+  const bp = new D.Biquad('bp', 2600, 5);
+  poner(buf, 0, 1.6, (t) => {
+    const h = Math.sin(TAU * 100 * t) * 0.5 + Math.sin(TAU * 200 * t) * 0.3 + Math.sin(TAU * 300 * t) * 0.15;
+    const chasquido = rnd() > 0.9993 ? 3 : 0;
+    return (h * (0.8 + Math.sin(TAU * 3 * t) * 0.2) + bp.paso((rnd() * 2 - 1) * chasquido)) * Math.min(1, t * 8, (1.6 - t) * 8) * 0.5;
+  });
+  return pico(buf, -8);
+}
+
+// el noclip: la imagen que se rompe (tramos de onda cuadrada que saltan) y caer hacia abajo
+function noclip () {
+  const rnd = D.azar(921);
+  const buf = mono(1.8);
+  let t0 = 0;
+  while (t0 < 0.6) {
+    const f = 120 + rnd() * 2400;
+    const d = 0.015 + rnd() * 0.05;
+    poner(buf, t0, d, (t) => Math.sign(Math.sin(TAU * f * t)) * 0.35);
+    t0 += d + rnd() * 0.03;
+  }
+  let fase = 0;
+  poner(buf, 0.3, 1.4, (t) => {
+    fase += (300 * Math.exp(-t * 2.2) + 40) / SR;
+    return Math.sin(TAU * fase) * Math.sin(Math.PI * t / 1.4) * 0.6;
+  });
+  const bp = new D.Biquad('bp', 500, 0.7);
+  poner(buf, 0.3, 1.4, (t) => bp.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 1.4) * 0.7);
+  return pico(sala(buf, 0.3, 0.6), -2);
+}
+
+// el tobogan: el roce del plastico que sube y baja, con los golpecitos de las juntas
+function tobogan () {
+  const rnd = D.azar(931);
+  const buf = mono(2.2);
+  const bp = new D.Biquad('bp', 700, 1.2);
+  poner(buf, 0, 2.0, (t) => {
+    bp.ajustar(500 + Math.sin(Math.PI * t / 2.0) * 900);
+    return bp.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 2.0) * 0.9;
+  });
+  const lp = new D.Biquad('lp', 160, 0.8);
+  for (let k = 0; k < 6; k++) {
+    poner(buf, 0.2 + k * 0.28, 0.12, (t) => lp.paso(rnd() * 2 - 1) * Math.exp(-t * 30) * 2.4);
+  }
+  return pico(sala(buf, 0.25, 0.6), -2);
+}
+
 /* ============================================================== todo */
 
 const SONIDOS = [
   ['fiesta_musica1', () => musica(1)], ['fiesta_musica2', () => musica(2)],
   ['fiesta_globo1', () => globo(1)], ['fiesta_globo2', () => globo(2)], ['fiesta_globo3', () => globo(3)],
   ['fiesta_juguete1', () => juguete(1)], ['fiesta_juguete2', () => juguete(2)], ['fiesta_juguete3', () => juguete(3)],
-  ['fiesta_moneda', moneda], ['fiesta_tickets', tickets], ['fiesta_torno', torno], ['fiesta_torno_no', tornoNo],
+  ['fiesta_moneda', moneda], ['fiesta_tickets', tickets], ['laberinto_puerta', puerta], ['fiesta_torno_no', tornoNo],
+  ['laberinto_localizador', localizador], ['laberinto_salida', salidaZumbido], ['laberinto_noclip', noclip], ['laberinto_tobogan', tobogan],
   ['fiesta_objetivo', objetivo], ['fiesta_regalo', regalo],
   ['semaforo_musica', semaforoMusica], ['semaforo_silbato', silbato], ['semaforo_fanfarria', fanfarria],
   ['semaforo_luz_verde', () => senal(true)], ['semaforo_luz_roja', () => senal(false)],
@@ -538,7 +609,11 @@ const EVENTOS = {
   'fiesta.juguete': [['fiesta_juguete1', 'fiesta_juguete2', 'fiesta_juguete3'], 28],
   'fiesta.moneda': [['fiesta_moneda'], 12],
   'fiesta.tickets': [['fiesta_tickets'], 12],
-  'fiesta.torno': [['fiesta_torno'], 16],
+  'fiesta.torno': [['laberinto_puerta'], 16],
+  'fiesta.localizador': [['laberinto_localizador'], 24],
+  'fiesta.salida': [['laberinto_salida'], 8],
+  'fiesta.noclip': [['laberinto_noclip'], 16],
+  'fiesta.tobogan': [['laberinto_tobogan'], 20],
   'fiesta.torno_no': [['fiesta_torno_no'], 16],
   'fiesta.objetivo': [['fiesta_objetivo'], 16],
   'fiesta.regalo': [['fiesta_regalo'], 24],

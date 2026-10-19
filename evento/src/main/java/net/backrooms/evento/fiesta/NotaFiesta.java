@@ -32,7 +32,7 @@ public class NotaFiesta extends EnSuelo {
 		{"Un informe con el sello del Proyecto Umbral:", "Registro de alimentación, sala 3: 28 sujetos. Rendimiento: excelente. Nadie pidió salir."},
 		{"Una nota con letra temblorosa:", "Mi hija vino a una fiesta en 1998. Hoy he visto su dibujo en la pared."},
 		{"Escrito con cera en un cartón:", "Cuando se va la luz, agáchate. Ve peor de lo que crees."},
-		{"Una tarjeta de felicitación:", "El Gran Premio no es una salida. Es una puerta. Y las puertas llevan a algún sitio."}
+		{"Una tarjeta de felicitación:", "El tobogán del final no es una salida. Es una puerta. Y las puertas llevan a algún sitio."}
 	};
 
 	public NotaFiesta(BlockBehaviour.Properties propiedades) {

@@ -1,0 +1,42 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "b": "backrooms_evento:block/banderines_1",
+    "particle": "backrooms_evento:block/banderines_1"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        6,
+        8
+      ],
+      "to": [
+        16,
+        16,
+        8
+      ],
+      "shade": false,
+      "faces": {
+        "north": {
+          "texture": "#b",
+          "uv": [
+            0,
+            0,
+            16,
+            10
+          ]
+        },
+        "south": {
+          "texture": "#b",
+          "uv": [
+            16,
+            0,
+            0,
+            10
+          ]
+        }
+      }
+    }
+  ]
+}

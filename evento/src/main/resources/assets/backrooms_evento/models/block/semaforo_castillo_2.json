@@ -1,0 +1,71 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "f": "backrooms_evento:block/semaforo_castillo_2",
+    "c": "backrooms_evento:block/semaforo_castillo_carcasa",
+    "r": "backrooms_evento:block/red_castillo",
+    "particle": "backrooms_evento:block/semaforo_castillo_carcasa"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        8
+      ],
+      "to": [
+        16,
+        16,
+        8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#r"
+        },
+        "south": {
+          "texture": "#r"
+        }
+      }
+    },
+    {
+      "from": [
+        4,
+        1,
+        6
+      ],
+      "to": [
+        12,
+        15,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#f",
+          "uv": [
+            4,
+            1,
+            12,
+            15
+          ]
+        },
+        "south": {
+          "texture": "#c"
+        },
+        "east": {
+          "texture": "#c"
+        },
+        "west": {
+          "texture": "#c"
+        },
+        "up": {
+          "texture": "#c"
+        },
+        "down": {
+          "texture": "#c"
+        }
+      },
+      "shade": false,
+      "light_emission": 12
+    }
+  ]
+}

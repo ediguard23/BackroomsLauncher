@@ -27,6 +27,7 @@ import net.minecraft.world.phys.Vec3;
  *   un nino que habla          cada 1,5-4 min, desde una sala en la que no estas
  *   un anuncio de la megafonia cada 3-6 min, desde el altavoz mas cercano (cada uno el suyo)
  *   la risa del Anfitrion      cada 3-7 min, muy lejos y sin saber de donde
+ *   la puerta de la salida     zumba (como un fluorescente) cada 2,5 s si estas a menos de 24 bloques
  *
  * Nada suena a la vez para todos: cada cliente sortea lo suyo.
  */
@@ -49,6 +50,7 @@ public final class AmbienteFiesta {
 	private static boolean dentro;
 	private static Aire aire;
 	private static int anuncio;
+	private static long zumbido;
 
 	private AmbienteFiesta() {
 	}
@@ -75,6 +77,12 @@ public final class AmbienteFiesta {
 			}
 		}
 		boolean apagon = AmbienteCliente.apagon();
+		// la puerta roja de la salida del laberinto zumba: la pista de que esta cerca
+		Vec3 salida = new Vec3(PlanoFiesta.SALIDA_X - 0.5, PlanoFiesta.SUELO + 2.0, PlanoFiesta.SALIDA_Z + 0.5);
+		if (ticks >= zumbido && j.position().distanceTo(salida) < 24) {
+			zumbido = ticks + 50;
+			sonar(mc, Sonidos.FIESTA_SALIDA, salida, 1.0F, 0.97F + AZAR.nextFloat() * 0.06F);
+		}
 		for (Tipo t : Tipo.values()) {
 			if (ticks < SIGUIENTE[t.ordinal()]) {
 				continue;

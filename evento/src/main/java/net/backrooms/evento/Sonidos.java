@@ -135,6 +135,11 @@ public final class Sonidos {
 	public static final SoundEvent PARKOUR_BOLAS = registrar("parkour.bolas");
 	public static final SoundEvent PARKOUR_FALLO = registrar("parkour.fallo");
 	public static final SoundEvent PARKOUR_SUBE = registrar("parkour.sube");
+	/* el laberinto: el localizador (suena desde la puerta de la salida), el zumbido de la puerta, el noclip y los toboganes */
+	public static final SoundEvent FIESTA_LOCALIZADOR = registrar("fiesta.localizador");
+	public static final SoundEvent FIESTA_SALIDA = registrar("fiesta.salida");
+	public static final SoundEvent FIESTA_NOCLIP = registrar("fiesta.noclip");
+	public static final SoundEvent FIESTA_TOBOGAN = registrar("fiesta.tobogan");
 	// la memoria de colores: una nota por baldosa (roja, amarilla, azul, verde)
 	public static final SoundEvent[] MEMORIA_NOTA = {registrar("memoria.nota_roja"), registrar("memoria.nota_amarilla"),
 		registrar("memoria.nota_azul"), registrar("memoria.nota_verde")};

@@ -13,12 +13,17 @@ import net.fabricmc.loader.api.FabricLoader;
  * con estos valores la primera vez; `/backrooms fiesta recargar` lo vuelve a leer).
  */
 public final class ConfigFiesta {
-	/** Tickets para canjear el Gran Premio (y pasar al siguiente tramo). */
+	/** Tickets que abren la puerta del final (y con ella el tobogan de salida). */
 	public int objetivoTickets = 1500;
 
-	/* el semaforo */
-	public int semaforoPremio = 300;
-	public int semaforoPremioRepetido = 150;
+	/* las vueltas: el bote del tobogan del castillo baja con cada minuto de vuelta */
+	public int jackpotInicial = 600;
+	public int jackpotMinimo = 200;
+	public int jackpotPerdidaMinuto = 40;
+	/** Monedas que cuesta el localizador de salida de las salas seguras. */
+	public int localizadorCoste = 2;
+
+	/* el semaforo del castillo */
 	/** Tickets que se pierden si te pillan moviendote con la luz roja (y vuelves a la salida). */
 	public int semaforoCastigo = 25;
 	/** Segundos de luz verde y de luz roja (minimo y maximo). */

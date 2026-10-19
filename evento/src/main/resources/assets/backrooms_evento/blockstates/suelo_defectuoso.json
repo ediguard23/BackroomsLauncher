@@ -6,11 +6,29 @@
     "roto=false,variante=1": {
       "model": "backrooms_evento:block/suelo_defectuoso_1"
     },
+    "roto=false,variante=2": {
+      "model": "backrooms_evento:block/suelo_defectuoso_2"
+    },
+    "roto=false,variante=3": {
+      "model": "backrooms_evento:block/suelo_defectuoso_3"
+    },
+    "roto=false,variante=4": {
+      "model": "backrooms_evento:block/suelo_defectuoso_4"
+    },
     "roto=true,variante=0": {
       "model": "backrooms_evento:block/suelo_defectuoso_0"
     },
     "roto=true,variante=1": {
       "model": "backrooms_evento:block/suelo_defectuoso_1"
+    },
+    "roto=true,variante=2": {
+      "model": "backrooms_evento:block/suelo_defectuoso_2"
+    },
+    "roto=true,variante=3": {
+      "model": "backrooms_evento:block/suelo_defectuoso_3"
+    },
+    "roto=true,variante=4": {
+      "model": "backrooms_evento:block/suelo_defectuoso_4"
     }
   }
 }

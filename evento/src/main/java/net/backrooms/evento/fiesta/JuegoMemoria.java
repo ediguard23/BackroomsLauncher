@@ -70,7 +70,7 @@ public final class JuegoMemoria {
 
 	private static boolean enSala(ServerPlayer j) {
 		PlanoFiesta.Sala s = PlanoFiesta.sala(j.getX(), j.getZ());
-		return Fiesta.es(j.level()) && s != null && s.nombre().equals("juegos") && j.getX() < 37;
+		return Fiesta.es(j.level()) && s != null && s.nombre().equals("memoria");
 	}
 
 	/** La baldosa de color que pisa (0-3), 4 el boton, -1 ninguna. */

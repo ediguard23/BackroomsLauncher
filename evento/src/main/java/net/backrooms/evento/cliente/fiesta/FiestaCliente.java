@@ -14,7 +14,7 @@ import net.minecraft.util.Mth;
 /**
  * Lo de la Fiesta en el cliente: monedas, tickets y las fichas que ya cogio (no se dibujan:
  * FichaRenderer), y el marcador de arriba a la derecha (monedas, tickets / objetivo y una barra
- * hasta el Gran Premio). Los tickets suben contando, para que se note cada premio.
+ * hasta la puerta del final). Los tickets suben contando, para que se note cada premio.
  */
 public final class FiestaCliente {
 	private static EstadoFiesta estado = EstadoFiesta.FUERA;
@@ -46,6 +46,10 @@ public final class FiestaCliente {
 
 	public static boolean cogida(int id) {
 		return COGIDAS.contains(id);
+	}
+
+	public static EstadoFiesta estado() {
+		return estado;
 	}
 
 	public static boolean dentro() {
@@ -80,7 +84,7 @@ public final class FiestaCliente {
 		g.fill(x0 + 4, (int) y + 23, x0 + 6, (int) y + 24, 0xFF000000);
 		int t = Math.round(ticketsVistos);
 		Texto.hud(g, "TICKETS " + t + "/" + estado.objetivo(), x0 + 14, y + 14, tam, 0.06F, mezcla(0xFFFFE6EA, 0xFFFFFFFF, brillo));
-		// la barra hasta el Gran Premio
+		// la barra hasta la puerta del final
 		float k = estado.objetivo() <= 0 ? 0 : Mth.clamp(ticketsVistos / estado.objetivo(), 0.0F, 1.0F);
 		g.fill(x0, (int) y + 30, (int) x1, (int) y + 34, 0xFF2A1F2B);
 		g.fill(x0, (int) y + 30, x0 + Math.round(ancho * k), (int) y + 34, k >= 1.0F ? 0xFFF2D46B : 0xFFE8384A);

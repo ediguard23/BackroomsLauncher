@@ -396,7 +396,8 @@ public final class Comandos {
 		net.backrooms.evento.fiesta.JuegoFiesta.Datos d = net.backrooms.evento.fiesta.JuegoFiesta.get().datos(j);
 		c.getSource().sendSuccess(() -> Component.literal(j.getGameProfile().name() + ": " + d.monedas + " monedas, " + d.tickets + "/"
 			+ net.backrooms.evento.fiesta.ConfigFiesta.get().objetivoTickets + " tickets, fichas cogidas " + d.cogidas.size()
-			+ ", tornos pagados " + d.pagados + ", semaforo ganado " + d.semaforo + " veces"), false);
+			+ ", puertas pagadas " + d.pagados + ", vuelta " + d.vuelta + (d.cobrada ? " (cobrada)" : " (bote "
+			+ net.backrooms.evento.fiesta.JuegoFiesta.get().bote(j) + ")") + ", vueltas acabadas " + d.vueltas), false);
 		return 1;
 	}
 

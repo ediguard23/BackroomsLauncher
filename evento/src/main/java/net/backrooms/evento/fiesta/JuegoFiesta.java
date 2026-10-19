@@ -31,25 +31,31 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.storage.LevelResource;
 
 /**
- * Lo de jugar en la Fiesta, por jugador: monedas (abren tornos), tickets (el progreso: el Gran
- * Premio pide ConfigFiesta.objetivoTickets), las fichas que ya cogio y los tornos que ya pago.
- * Se guarda en <mundo>/backrooms/fiesta.json.
+ * Lo de jugar en la Fiesta, por jugador: monedas (abren puertas y el localizador), tickets (el
+ * progreso: la puerta del final pide ConfigFiesta.objetivoTickets), las fichas que ya cogio, las
+ * puertas que ya pago y su vuelta. Se guarda en <mundo>/backrooms/fiesta.json.
  *
- * Las fichas (PlanoFiesta.MONEDAS y TICKETS) estan en sitios fijos y cada uno coge cada una
- * una vez: se cogen al pasar por encima. Se ven como entidades (FichaEntidad, una por sitio y
- * para todos, puestas solo cerca de alguien, como los cadaveres); quien ya la cogio no la ve
- * (EstadoFiesta.cogidas).
+ * Una VUELTA empieza en una habitacion de inicio (al llegar, al caer por un noclip de la sala
+ * central o al reaparecer): las monedas de las mesas vuelven a estar y las puertas se vuelven a
+ * pagar. Se acaba bajando por el tobogan del castillo, que da el BOTE: ConfigFiesta.jackpotInicial
+ * menos jackpotPerdidaMinuto por cada minuto de vuelta (nunca menos de jackpotMinimo). Las tiras de
+ * tickets, en cambio, se cogen una vez y ya.
  *
- * Los tornos (Torno) no se abren: al pagar (o al volver desde detras) se cruza al otro lado.
- * Quien canjea el Gran Premio entra en su sala; si se queda en el regalo gigante, sigue
- * adelante (de momento, como no hay mas niveles, escapa: Fases#escapar).
+ * Las fichas (PlanoFiesta.MONEDAS y TICKETS) estan en sitios fijos y se cogen al pasar por encima.
+ * Se ven como entidades (FichaEntidad, una por sitio y para todos, puestas solo cerca de alguien);
+ * quien ya la cogio no la ve (EstadoFiesta.cogidas).
+ *
+ * Las puertas (Torno) no se abren: al pagar (o al volver desde detras) se cruza al otro lado.
  */
 public final class JuegoFiesta {
 	private static final JuegoFiesta INSTANCIA = new JuegoFiesta();
@@ -58,8 +64,8 @@ public final class JuegoFiesta {
 	/** Fichas puestas (entidades) a esta distancia de alguien; se quitan a QUITAR. */
 	private static final double VER = 40.0;
 	private static final double QUITAR = 56.0;
-	/** Ticks dentro del regalo del Gran Premio hasta pasar. */
-	private static final int REGALO = 40;
+	/** Ticks en la boca del tobogan del final hasta irse. */
+	private static final int TOBOGAN = 30;
 
 	public static JuegoFiesta get() {
 		return INSTANCIA;
@@ -71,11 +77,15 @@ public final class JuegoFiesta {
 		public int tickets;
 		public Set<Integer> cogidas = new HashSet<>();
 		public Set<Integer> pagados = new HashSet<>();
-		public int semaforo;
 		public int memoria;
 		public int regalos;
 		/** Los parkours ya completados (su premio es solo la primera vez). */
 		public Set<Integer> parkours = new HashSet<>();
+		/** Vueltas empezadas y acabadas, cuando empezo la de ahora (tiempo del nivel) y si ya cobro su bote. */
+		public int vuelta;
+		public int vueltas;
+		public long vueltaDesde;
+		public boolean cobrada;
 		public boolean premio;
 	}
 
@@ -85,10 +95,12 @@ public final class JuegoFiesta {
 	private MinecraftServer servidor;
 	private long ticks;
 	private final Map<Integer, FichaEntidad> vivas = new HashMap<>();
-	private final Map<UUID, Integer> enRegalo = new HashMap<>();
+	private final Map<UUID, Integer> enTobogan = new HashMap<>();
 	private final Map<UUID, Long> ultimoTorno = new HashMap<>();
 	/** Ticks (de 4 en 4) que lleva cada uno en la trampilla del final de un parkour. */
 	private final Map<UUID, Integer> enTrampilla = new HashMap<>();
+	/** Rastros del localizador que quedan por ensenar (jugador -> veces). */
+	private final Map<UUID, Integer> rastros = new HashMap<>();
 
 	private JuegoFiesta() {
 	}
@@ -167,6 +179,38 @@ public final class JuegoFiesta {
 		this.enviar(j);
 	}
 
+	/**
+	 * Empieza otra vuelta: las monedas de las mesas vuelven a estar para el, las puertas se vuelven a
+	 * pagar y el bote empieza de nuevo. Las monedas que lleve encima se las queda.
+	 */
+	public void nuevaVuelta(ServerPlayer j) {
+		Datos d = this.datos(j);
+		for (PlanoFiesta.Punto p : PlanoFiesta.MONEDAS) {
+			d.cogidas.remove(p.id());
+		}
+		d.pagados.clear();
+		d.vuelta++;
+		d.cobrada = false;
+		ServerLevel nivel = Fiesta.nivel();
+		d.vueltaDesde = nivel == null ? 0 : nivel.getGameTime();
+		this.sucio = true;
+		this.enviar(j);
+	}
+
+	/** El bote que le daria la vuelta si la acabara ahora. */
+	public int bote(ServerPlayer j) {
+		Datos d = this.datos(j);
+		ConfigFiesta c = ConfigFiesta.get();
+		ServerLevel nivel = Fiesta.nivel();
+		long t = nivel == null ? 0 : Math.max(0, nivel.getGameTime() - d.vueltaDesde);
+		return bote(c.jackpotInicial, c.jackpotMinimo, c.jackpotPerdidaMinuto, t);
+	}
+
+	/** El bote tras `ticks` de vuelta (lo mismo en el cliente, MarcadorRenderer). */
+	public static int bote(int inicial, int minimo, int porMinuto, long ticks) {
+		return Math.max(minimo, inicial - (int) (ticks * porMinuto / 1200L));
+	}
+
 	/** Suma (o resta, con n < 0) tickets; avisa con el motivo y completa la mision al llegar. */
 	public void sumarTickets(ServerPlayer j, int n, String motivo) {
 		Datos d = this.datos(j);
@@ -181,7 +225,7 @@ public final class JuegoFiesta {
 		if (antes < objetivo && d.tickets >= objetivo) {
 			Misiones.get().completar(j, TipoMision.TICKETS);
 			Sonidos.aJugador(j, Sonidos.FIESTA_OBJETIVO, 1.0F);
-			j.displayClientMessage(Component.literal("¡Tienes los " + objetivo + " tickets! El Gran Premio te espera al norte del salón.")
+			j.displayClientMessage(Component.literal("¡Tienes los " + objetivo + " tickets! La puerta del norte de la sala central ya se abre para ti.")
 				.withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), false);
 		}
 		this.enviar(j);
@@ -195,7 +239,7 @@ public final class JuegoFiesta {
 		this.enviar(j);
 	}
 
-	/** La ficha sin coger mas cercana (x, z) para el radar, o null. */
+	/** La moneda o tira de tickets sin coger mas cercana (x, z) para el radar, o null. */
 	public int[] fichaCercana(ServerPlayer j) {
 		Datos d = this.datos(j);
 		double mejor = Double.MAX_VALUE;
@@ -215,14 +259,9 @@ public final class JuegoFiesta {
 		return r;
 	}
 
-	/** La puerta del Gran Premio (x, z), para el radar. */
+	/** La puerta del final (x, z), para el radar. */
 	public int[] puertaPremio() {
-		for (PlanoFiesta.Puerta p : PlanoFiesta.TORNOS) {
-			if (p.coste() == 0) {
-				return new int[] {p.x(), p.z()};
-			}
-		}
-		return null;
+		return new int[] {PlanoFiesta.PUERTA_FINAL_X, PlanoFiesta.PUERTA_FINAL_Z};
 	}
 
 	/* ---------------------------------------------------------------- tick */
@@ -244,8 +283,9 @@ public final class JuegoFiesta {
 				continue;
 			}
 			this.coger(j);
-			this.regalo(nivel, j);
 			this.parkour(nivel, j);
+			this.saltos(nivel, j);
+			this.rastro(nivel, j);
 		}
 		if (this.ticks % 20 == 0) {
 			this.fichas(nivel);
@@ -315,19 +355,19 @@ public final class JuegoFiesta {
 		}
 	}
 
-	/* --------------------------------------------------------------- tornos */
+	/* --------------------------------------------------------------- puertas */
 
 	/**
-	 * Alguien usa un torno (la casilla de abajo en `pos`, mirando a `mira`). Desde delante se
-	 * paga (o se ensenan los tickets, el del premio); desde detras se vuelve gratis.
+	 * Alguien usa una puerta (la casilla de abajo en `pos`, mirando a `mira`). Desde delante se
+	 * paga (o se ensenan los tickets, la del final); desde detras se vuelve gratis.
 	 */
-	public void torno(ServerPlayer j, BlockPos pos, Direction mira, int coste) {
+	public void torno(ServerPlayer j, BlockPos pos, Direction mira, int coste, int tipo) {
 		Long antes = this.ultimoTorno.get(j.getUUID());
 		if (antes != null && this.ticks - antes < 10) {
 			return;
 		}
 		this.ultimoTorno.put(j.getUUID(), this.ticks);
-		PlanoFiesta.Puerta puerta = PlanoFiesta.torno(pos.getX(), pos.getY(), pos.getZ());
+		PlanoFiesta.Puerta puerta = PlanoFiesta.puerta(pos.getX(), pos.getY(), pos.getZ());
 		int id = puerta == null ? -1 : puerta.id();
 		String nombre = puerta == null ? "esta puerta" : puerta.nombre();
 		double lado = (j.getX() - (pos.getX() + 0.5)) * mira.getStepX() + (j.getZ() - (pos.getZ() + 0.5)) * mira.getStepZ();
@@ -338,11 +378,11 @@ public final class JuegoFiesta {
 			this.cruzar(j, pos, mira);
 			return;
 		}
-		if (coste == 0) {
+		if (tipo == 2) {
 			int objetivo = ConfigFiesta.get().objetivoTickets;
 			if (d.tickets < objetivo) {
 				nivel.playSound(null, pos, Sonidos.FIESTA_TORNO_NO, SoundSource.BLOCKS, 1.0F, 1.0F);
-				j.displayClientMessage(Component.literal("GRAN PREMIO · Te faltan " + (objetivo - d.tickets) + " tickets (" + d.tickets + "/" + objetivo + ")")
+				j.displayClientMessage(Component.literal("Esta puerta pide " + objetivo + " tickets. Te faltan " + (objetivo - d.tickets) + ".")
 					.withStyle(ChatFormatting.RED), true);
 				return;
 			}
@@ -350,12 +390,18 @@ public final class JuegoFiesta {
 				d.premio = true;
 				this.sucio = true;
 				Sonidos.aJugador(j, Sonidos.FIESTA_PREMIO, 1.0F);
-				j.displayClientMessage(Component.literal("¡Felicidades! Entra en el regalo.").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), true);
+				j.displayClientMessage(Component.literal("¡Felicidades! La fiesta te espera.").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD), true);
 			}
 			this.cruzar(j, pos, mira);
 			return;
 		}
-		if (!d.pagados.contains(id)) {
+		if (tipo == 1) {
+			this.cruzar(j, pos, mira);
+			j.displayClientMessage(Component.literal("Al fondo del pasillo, el castillo de bolas. Muévete solo con la luz verde.")
+				.withStyle(ChatFormatting.LIGHT_PURPLE), true);
+			return;
+		}
+		if (coste > 0 && !d.pagados.contains(id)) {
 			if (d.monedas < coste) {
 				nivel.playSound(null, pos, Sonidos.FIESTA_TORNO_NO, SoundSource.BLOCKS, 1.0F, 1.0F);
 				j.displayClientMessage(Component.literal("Para pasar a " + nombre + " hacen falta " + coste + (coste == 1 ? " moneda" : " monedas")
@@ -371,7 +417,7 @@ public final class JuegoFiesta {
 		this.cruzar(j, pos, mira);
 	}
 
-	/** Lo pasa al otro lado del torno (el contrario de donde esta), de pie junto a la hoja. */
+	/** Lo pasa al otro lado de la puerta (el contrario de donde esta), de pie junto a la hoja. */
 	private void cruzar(ServerPlayer j, BlockPos pos, Direction mira) {
 		double lado = (j.getX() - (pos.getX() + 0.5)) * mira.getStepX() + (j.getZ() - (pos.getZ() + 0.5)) * mira.getStepZ();
 		Direction d = lado > 0 ? mira.getOpposite() : mira;
@@ -381,11 +427,113 @@ public final class JuegoFiesta {
 		j.level().playSound(null, pos, Sonidos.FIESTA_TORNO, SoundSource.BLOCKS, 0.9F, 0.95F + j.getRandom().nextFloat() * 0.1F);
 	}
 
+	/* ----------------------------------------------------------- localizador */
+
+	/**
+	 * El localizador de una sala segura: por ConfigFiesta.localizadorCoste monedas, la puerta de la
+	 * salida suena solo para quien lo pulsa (desde donde esta la puerta, lejos y a traves de las
+	 * paredes) y unas chispas suben de ella un momento.
+	 */
+	public void localizador(ServerPlayer j, BlockPos pos) {
+		Long antes = this.ultimoTorno.get(j.getUUID());
+		if (antes != null && this.ticks - antes < 20) {
+			return;
+		}
+		this.ultimoTorno.put(j.getUUID(), this.ticks);
+		Datos d = this.datos(j);
+		int coste = ConfigFiesta.get().localizadorCoste;
+		if (d.monedas < coste) {
+			j.level().playSound(null, pos, Sonidos.FIESTA_TORNO_NO, SoundSource.BLOCKS, 1.0F, 1.0F);
+			j.displayClientMessage(Component.literal("LOCALIZADOR · Hacen falta " + coste + " monedas (tienes " + d.monedas + ")").withStyle(ChatFormatting.RED), true);
+			return;
+		}
+		d.monedas -= coste;
+		this.sucio = true;
+		this.enviar(j);
+		j.level().playSound(null, pos, Sonidos.FIESTA_MONEDA, SoundSource.BLOCKS, 1.0F, 0.8F);
+		j.connection.send(new ClientboundSoundPacket(net.minecraft.core.Holder.direct(Sonidos.FIESTA_LOCALIZADOR), SoundSource.BLOCKS,
+			PlanoFiesta.SALIDA_X + 0.5, PlanoFiesta.SUELO + 2.0, PlanoFiesta.SALIDA_Z + 0.5, 6.0F, 1.0F, j.getRandom().nextLong()));
+		this.rastros.put(j.getUUID(), 10);
+		j.displayClientMessage(Component.literal("-" + coste + " MONEDAS · Escucha: la salida está sonando. Ve hacia el sonido.").withStyle(ChatFormatting.AQUA), true);
+	}
+
+	/** Las chispas del localizador sobre la puerta de la salida, solo para quien lo pulso. */
+	private void rastro(ServerLevel nivel, ServerPlayer j) {
+		Integer n = this.rastros.get(j.getUUID());
+		if (n == null) {
+			return;
+		}
+		if (n <= 0) {
+			this.rastros.remove(j.getUUID());
+			return;
+		}
+		this.rastros.put(j.getUUID(), n - 1);
+		nivel.sendParticles(j, ParticleTypes.END_ROD, true, true, PlanoFiesta.SALIDA_X - 0.5, PlanoFiesta.SUELO + 2.0, PlanoFiesta.SALIDA_Z + 0.5,
+			8, 0.2, 2.5, 0.2, 0.02);
+	}
+
+	/* ------------------------------------------------- noclip y toboganes */
+
+	/**
+	 * Los saltos de un sitio a otro: el noclip de la sala central (vuelve a empezar en una habitacion
+	 * de inicio), el tobogan del castillo (a la sala central, con el bote de la vuelta) y el tobogan
+	 * del final (se sale del nivel).
+	 */
+	private void saltos(ServerLevel nivel, ServerPlayer j) {
+		double x = j.getX();
+		double z = j.getZ();
+		if (PlanoFiesta.enCentral(x, z) && j.getY() < PlanoFiesta.SUELO - 0.3) {
+			nivel.playSound(null, j.blockPosition(), Sonidos.FIESTA_NOCLIP, SoundSource.PLAYERS, 1.0F, 1.0F);
+			this.nuevaVuelta(j);
+			Fiesta.aUnInicio(j);
+			j.displayClientMessage(Component.literal("VUELTA " + this.datos(j).vuelta + " · Otra vez dentro. Las monedas han vuelto a las mesas.")
+				.withStyle(ChatFormatting.LIGHT_PURPLE), true);
+			return;
+		}
+		if (x >= PlanoFiesta.TOB_X0 - 0.7 && x < PlanoFiesta.TOB_X1 + 1 && z >= PlanoFiesta.TOB_Z0 && z < PlanoFiesta.TOB_Z1 + 1
+			&& j.getY() > PlanoFiesta.CAS_P1) {
+			nivel.playSound(null, j.blockPosition(), Sonidos.FIESTA_TOBOGAN, SoundSource.PLAYERS, 1.2F, 1.0F);
+			j.teleportTo(nivel, PlanoFiesta.CENTRAL_LLEGADA_X, PlanoFiesta.SUELO + 1, PlanoFiesta.CENTRAL_LLEGADA_Z, Set.of(), -90.0F, 0.0F, true);
+			j.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 30, 2, false, false));
+			nivel.playSound(null, PlanoFiesta.CENTRAL_LLEGADA_X, PlanoFiesta.SUELO + 1.5, PlanoFiesta.CENTRAL_LLEGADA_Z, Sonidos.FIESTA_TOBOGAN,
+				SoundSource.PLAYERS, 0.8F, 1.3F);
+			Datos d = this.datos(j);
+			if (!d.cobrada) {
+				int bote = this.bote(j);
+				d.cobrada = true;
+				d.vueltas++;
+				this.sumarTickets(j, bote, "¡vuelta " + d.vuelta + " completada! (bote)");
+				Sonidos.aJugador(j, Sonidos.SEMAFORO_GANA, 1.0F);
+			} else {
+				j.displayClientMessage(Component.literal("Esta vuelta ya está cobrada: para otro bote, salta a un cuadrado de noclip.")
+					.withStyle(ChatFormatting.GRAY), true);
+			}
+			return;
+		}
+		boolean boca = x >= PlanoFiesta.FINAL_TOB_X0 && x < PlanoFiesta.FINAL_TOB_X1 + 1 && z < PlanoFiesta.FIN_Z0 - 0.3 && z >= PlanoFiesta.FINAL_TOB_Z0;
+		if (!boca) {
+			this.enTobogan.remove(j.getUUID());
+			return;
+		}
+		int n = this.enTobogan.merge(j.getUUID(), 4, Integer::sum);
+		if (n == 4) {
+			nivel.playSound(null, j.blockPosition(), Sonidos.FIESTA_REGALO, SoundSource.BLOCKS, 1.0F, 1.0F);
+		}
+		if (n >= TOBOGAN) {
+			this.enTobogan.remove(j.getUUID());
+			nivel.playSound(null, j.blockPosition(), Sonidos.FIESTA_TOBOGAN, SoundSource.PLAYERS, 1.2F, 0.8F);
+			Misiones.get().completar(j, TipoMision.PREMIO);
+			BackroomsEvento.LOG.info("{} sale de la Fiesta por el tobogan", j.getGameProfile().name());
+			// aqui empezara el siguiente tramo; mientras no exista, salir es escapar
+			net.backrooms.evento.fase.Fases.get().escapar(j);
+		}
+	}
+
 	/* ------------------------------------------------------------ parkour */
 
 	/**
 	 * En una zona de parkour: quien cae a la piscina de bolas lejos de donde se llega vuelve al
-	 * principio; quien se queda en la trampilla del final sube (y la primera vez se lleva su premio).
+	 * principio; quien se queda en la trampilla del final sube al castillo (y la primera vez se lleva su premio).
 	 */
 	private void parkour(ServerLevel nivel, ServerPlayer j) {
 		for (PlanoFiesta.Parkour p : PlanoFiesta.PARKOURS) {
@@ -410,40 +558,15 @@ public final class JuegoFiesta {
 					j.teleportTo(nivel, p.salidaX(), PlanoFiesta.SUELO + 1, p.salidaZ(), Set.of(), p.salidaGiro(), 0.0F, true);
 					Datos d = this.datos(j);
 					if (d.parkours.add(p.id())) {
-						this.sumarTickets(j, p.premio(), "¡atajo secreto!");
+						this.sumarTickets(j, p.premio(), "¡atajo secreto al castillo!");
+					} else {
+						j.displayClientMessage(Component.literal("¡Atajo secreto! Estás en el castillo.").withStyle(ChatFormatting.YELLOW), true);
 					}
 				}
 			} else {
 				this.enTrampilla.remove(j.getUUID());
 			}
 			return;
-		}
-	}
-
-	/* --------------------------------------------------------- el regalo */
-
-	/** Quien se queda dentro del regalo del Gran Premio (con los tickets) sigue adelante. */
-	private void regalo(ServerLevel nivel, ServerPlayer j) {
-		boolean dentro = j.getX() >= PlanoFiesta.PREMIO_X0 && j.getX() < PlanoFiesta.PREMIO_X1 + 1
-			&& j.getZ() >= PlanoFiesta.PREMIO_Z0 && j.getZ() < PlanoFiesta.PREMIO_Z1 + 1 && j.getY() < PlanoFiesta.SUELO + 3;
-		if (!dentro) {
-			this.enRegalo.remove(j.getUUID());
-			return;
-		}
-		Datos d = this.datos(j);
-		if (d.tickets < ConfigFiesta.get().objetivoTickets) {
-			return;
-		}
-		int n = this.enRegalo.merge(j.getUUID(), 4, Integer::sum);
-		if (n == 4) {
-			nivel.playSound(null, j.blockPosition(), Sonidos.FIESTA_REGALO, SoundSource.BLOCKS, 1.0F, 1.0F);
-		}
-		if (n >= REGALO) {
-			this.enRegalo.remove(j.getUUID());
-			Misiones.get().completar(j, TipoMision.PREMIO);
-			BackroomsEvento.LOG.info("{} canjea el Gran Premio de la Fiesta", j.getGameProfile().name());
-			// aqui empezara el siguiente tramo; mientras no exista, el Gran Premio es escapar
-			net.backrooms.evento.fase.Fases.get().escapar(j);
 		}
 	}
 
@@ -458,8 +581,9 @@ public final class JuegoFiesta {
 			return;
 		}
 		Datos d = this.datos(j);
+		ConfigFiesta c = ConfigFiesta.get();
 		int[] cogidas = d.cogidas.stream().mapToInt(Integer::intValue).toArray();
-		ServerPlayNetworking.send(j, new EstadoFiesta(false, d.monedas, d.tickets, ConfigFiesta.get().objetivoTickets, cogidas,
-			JuegoSemaforo.get().jugando(j) ? 1 : 0));
+		ServerPlayNetworking.send(j, new EstadoFiesta(false, d.monedas, d.tickets, c.objetivoTickets, cogidas,
+			JuegoSemaforo.get().jugando(j) ? 1 : 0, d.cobrada ? 0 : c.jackpotInicial, c.jackpotMinimo, c.jackpotPerdidaMinuto, d.vueltaDesde));
 	}
 }

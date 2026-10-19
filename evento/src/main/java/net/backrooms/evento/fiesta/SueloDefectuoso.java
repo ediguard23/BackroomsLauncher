@@ -29,12 +29,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * alrededor, pero su textura tiembla y se corrompe a ratos (animada), zumba muy bajo y suelta
  * alguna chispa. Si alguien se queda encima, cruje y al momento cede: deja de verse y de chocar
  * (ROTO) y se cae a la zona de parkour de debajo; con los de al lado (el parche entero). Al
- * rato vuelve a estar como si nada. VARIANTE: 0 goma, 1 moqueta de confeti.
+ * rato vuelve a estar como si nada. VARIANTE: 0 goma, 1 moqueta de confeti, 2-4 el damero del laberinto (blanco, azul, amarillo).
  */
 public class SueloDefectuoso extends Block {
 	public static final MapCodec<SueloDefectuoso> CODEC = simpleCodec(SueloDefectuoso::new);
 	public static final BooleanProperty ROTO = BooleanProperty.create("roto");
-	public static final IntegerProperty VARIANTE = IntegerProperty.create("variante", 0, 1);
+	public static final IntegerProperty VARIANTE = IntegerProperty.create("variante", 0, 4);
 	/** Ticks encima hasta que cede, y ticks roto hasta que se rehace. */
 	private static final int CEDE = 16;
 	private static final int REHACE = 80;

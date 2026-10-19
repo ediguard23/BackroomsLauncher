@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.WorldGenRegion;
 import net.minecraft.world.level.ChunkPos;
@@ -73,14 +72,12 @@ public class GeneradorFiesta extends ChunkGenerator {
 						chunk.setBlockState(pos, s);
 						fondo.update(x & 15, y, z & 15, s);
 						superficie.update(x & 15, y, z & 15, s);
-						if (s.hasBlockEntity()) {
-							// como hace el juego al generar: la entidad de bloque se crea al cargar el chunk
-							CompoundTag t = new CompoundTag();
-							t.putInt("x", x);
-							t.putInt("y", y);
-							t.putInt("z", z);
-							t.putString("id", "DUMMY");
-							chunk.setBlockEntityNbt(t);
+						if (s.getBlock() instanceof net.minecraft.world.level.block.EntityBlock eb) {
+							// al generar, la entidad de bloque no se crea sola: se pone en el chunk (como las valvulas)
+							net.minecraft.world.level.block.entity.BlockEntity be = eb.newBlockEntity(new BlockPos(x, y, z), s);
+							if (be != null) {
+								chunk.setBlockEntity(be);
+							}
 						}
 					}
 				}

@@ -370,9 +370,9 @@ El experimento dejó de ser completamente controlable.
 
 ## Nivel Fun — las Feeding Rooms
 
-Quien escapa de las Piscinas sube en un ascensor que no debería llevar a ningún sitio.
+Quien escapa de las Piscinas sube en una cabina que no debería llevar a ningún sitio.
 
-Cuando las puertas se abren, hay globos.
+Se despierta en un cuartito blanco con una sola puerta verde. Cuando la abre, hay globos.
 
 Una fiesta infantil: guirnaldas, tartas con velas encendidas, juegos de colores, una
 mascota sonriente en los carteles, música que suena desde algún altavoz lejano. Una voz
@@ -397,9 +397,17 @@ Lo que se descubre jugando, poco a poco y sin explicarlo nunca del todo:
 - los dibujos de niños: una fila de pequeños durmiendo con una figura alta detrás, otros
   entrando en una boca enorme, «NO ME DEJAN SALIR»;
 - la megafonía que se corta justo antes de decir qué es el plato principal;
-- los tickets: lo que cada sujeto le da al nivel. Mil quinientos, y el Gran Premio se abre.
+- los tickets: lo que cada sujeto le da al nivel. Mil quinientos, y la última puerta se abre.
 
-La salida es un regalo gigante. Nadie sabe si dentro está la salida... o la cocina.
+El nivel es un circuito que se repite. Un laberinto de pasillos blancos con columnas de colores,
+mesas de fiesta con monedas y puertas que cuestan monedas; flechas de neón en el techo que dicen
+por dónde se sale; suelos que fallan y dejan caer a un sitio que no debería estar ahí. Después, un
+castillo de bolas a oscuras donde una niña canta «¡luz verde!» y «¡luz roja!», y un tobogán. Abajo,
+una sala con un marcador que lleva la cuenta de lo que cada uno ha dado, y unos cuadrados negros en
+el suelo por los que se vuelve a empezar. Cada vuelta da menos si se tarda.
+
+La salida es un tobogán rojo al fondo de la fiesta de verdad, con un cartel encima: CERRAMOS.
+Nadie sabe si abajo está la salida... o la cocina.
 
 ---
 

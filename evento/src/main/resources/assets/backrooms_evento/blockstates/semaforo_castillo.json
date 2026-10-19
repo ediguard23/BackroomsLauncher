@@ -1,0 +1,49 @@
+{
+  "variants": {
+    "facing=north,luz=0": {
+      "model": "backrooms_evento:block/semaforo_castillo_0"
+    },
+    "facing=north,luz=1": {
+      "model": "backrooms_evento:block/semaforo_castillo_1"
+    },
+    "facing=north,luz=2": {
+      "model": "backrooms_evento:block/semaforo_castillo_2"
+    },
+    "facing=east,luz=0": {
+      "model": "backrooms_evento:block/semaforo_castillo_0",
+      "y": 90
+    },
+    "facing=east,luz=1": {
+      "model": "backrooms_evento:block/semaforo_castillo_1",
+      "y": 90
+    },
+    "facing=east,luz=2": {
+      "model": "backrooms_evento:block/semaforo_castillo_2",
+      "y": 90
+    },
+    "facing=south,luz=0": {
+      "model": "backrooms_evento:block/semaforo_castillo_0",
+      "y": 180
+    },
+    "facing=south,luz=1": {
+      "model": "backrooms_evento:block/semaforo_castillo_1",
+      "y": 180
+    },
+    "facing=south,luz=2": {
+      "model": "backrooms_evento:block/semaforo_castillo_2",
+      "y": 180
+    },
+    "facing=west,luz=0": {
+      "model": "backrooms_evento:block/semaforo_castillo_0",
+      "y": 270
+    },
+    "facing=west,luz=1": {
+      "model": "backrooms_evento:block/semaforo_castillo_1",
+      "y": 270
+    },
+    "facing=west,luz=2": {
+      "model": "backrooms_evento:block/semaforo_castillo_2",
+      "y": 270
+    }
+  }
+}
