@@ -1463,6 +1463,8 @@ public final class PlanoPiscinas {
 		}
 	}
 
+	/** Probabilidad de que una celda tenga cuerpo (no todas lo consiguen: tiene que caber en seco). */
+	private static final double PROB_CADAVER = 0.0479;
 	private static final Cadaver SIN_CADAVER = new Cadaver(0, 0, 0, -1, 0, 0, 0, 0);
 	private final java.util.concurrent.ConcurrentHashMap<Long, Cadaver> cadaveres = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -1486,7 +1488,7 @@ public final class PlanoPiscinas {
 	}
 
 	private Cadaver calcularCadaver(int cx, int cz) {
-		if (this.azar(cx, cz, 120) >= 0.04) {
+		if (this.azar(cx, cz, 120) >= PROB_CADAVER) {
 			return null;
 		}
 		Salida s = this.salida();
@@ -1544,13 +1546,16 @@ public final class PlanoPiscinas {
 		return this.pisable(bx, PISO, bz, col) && en(col, PISO - 1) != LOSA;
 	}
 
-	/** Un cuerpo tirado mide unos 2 bloques: la cabeza, los pies y los lados, todo en seco. */
+	/**
+	 * Un cuerpo tirado mide unos 2 bloques: la cabeza, los pies, los brazos abiertos y los lados, todo en
+	 * seco y con aire encima (pisable): asi ni la cabeza ni un brazo se meten en una pared.
+	 */
 	private boolean cuerpoSeco(double x, double z, float giro, byte[] col) {
 		double r = Math.toRadians(giro);
 		double fx = -Math.sin(r);
 		double fz = Math.cos(r);
-		for (double a = -1.2; a <= 1.21; a += 0.6) {
-			for (double b = -0.45; b <= 0.46; b += 0.9) {
+		for (double a = -1.5; a <= 1.51; a += 0.3) {
+			for (double b = -0.6; b <= 0.61; b += 0.3) {
 				if (!this.secoEn(x + fx * a - fz * b, z + fz * a + fx * b, col)) {
 					return false;
 				}

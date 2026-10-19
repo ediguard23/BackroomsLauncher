@@ -23,18 +23,18 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * Busca los regalos: la sala de los regalos, casi a oscuras, detras del tabique de la sala de
- * juegos. Quien pisa su estrella tiene SEGUNDOS para encontrar REGALOS regalos que solo ve el
- * (un brillo de colores en el suelo, PlanoFiesta.REGALOS_SITIOS) y que de vez en cuando tintinean
- * para orientarse; se cogen al pasar. Los diez ultimos segundos, un reloj. Con todos, tickets
- * (ConfigFiesta); si se acaba el tiempo, algunos por cada uno. Cada jugador juega su partida: se
- * puede jugar a la vez, y cada uno ve solo los suyos. Salir de la sala la acaba.
+ * Busca los regalos: una sala casi a oscuras llena de estanterias y montones de regalos. Quien pisa
+ * su estrella tiene SEGUNDOS para encontrar REGALOS regalos escondidos entre todos los de la sala
+ * (PlanoFiesta.REGALOS_SITIOS: el sorteo es de cada uno; los demas son de mentira). Se abren con clic
+ * derecho (RegaloBloque): el bueno suena y echa confeti, el vacio no. De vez en cuando uno de los que
+ * faltan tintinea para orientarse; los diez ultimos segundos, un reloj. Con todos, tickets
+ * (ConfigFiesta.regalosPremio); si se acaba el tiempo, algunos por cada uno. Se juega UNA vez por
+ * jugador (para que no se farmeen tickets). Salir de la sala la acaba.
  */
 public final class JuegoRegalos {
 	private static final JuegoRegalos INSTANCIA = new JuegoRegalos();
 	public static final int REGALOS = 8;
-	public static final int SEGUNDOS = 60;
-	private static final double COGER = 1.3;
+	public static final int SEGUNDOS = 30;
 	private static final int[] COLORES = {0xE8384A, 0xF6CE40, 0x3A96E6, 0x4AC46E};
 
 	public static JuegoRegalos get() {
@@ -42,7 +42,7 @@ public final class JuegoRegalos {
 	}
 
 	private static final class Partida {
-		final List<double[]> regalos = new ArrayList<>();
+		final List<int[]> regalos = new ArrayList<>();
 		final List<Boolean> cogidos = new ArrayList<>();
 		long fin;
 		long siguientePing;
@@ -50,7 +50,7 @@ public final class JuegoRegalos {
 
 	private final Random azar = new Random();
 	private final Map<UUID, Partida> partidas = new HashMap<>();
-	private final Map<UUID, Long> espera = new HashMap<>();
+	private final Map<UUID, Long> aviso = new HashMap<>();
 	private long ticks;
 
 	private JuegoRegalos() {
@@ -60,16 +60,17 @@ public final class JuegoRegalos {
 		ServerTickEvents.END_SERVER_TICK.register(INSTANCIA::tick);
 	}
 
-	/** Para el staff (/backrooms fiesta juegos): los regalos que le faltan a `j`, o null sin partida. */
+	/** Para el staff (/backrooms fiesta juegos): los regalos que le faltan a `j`. */
 	public String estado(ServerPlayer j) {
 		Partida p = this.partidas.get(j.getUUID());
 		if (p == null) {
-			return "regalos: sin partida";
+			return JuegoFiesta.get().datos(j).regalos > 0 ? "regalos: ya jugados" : "regalos: sin partida";
 		}
 		StringBuilder s = new StringBuilder("regalos que faltan:");
 		for (int i = 0; i < p.regalos.size(); i++) {
 			if (!p.cogidos.get(i)) {
-				s.append(String.format(java.util.Locale.ROOT, " %.1f,%.1f", p.regalos.get(i)[0], p.regalos.get(i)[2]));
+				int[] r = p.regalos.get(i);
+				s.append(' ').append(r[0]).append(',').append(r[1]).append(',').append(r[2]);
 			}
 		}
 		return s.toString();
@@ -101,14 +102,21 @@ public final class JuegoRegalos {
 			}
 			Partida p = this.partidas.get(j.getUUID());
 			if (p == null) {
-				Long hasta = this.espera.get(j.getUUID());
-				if (enBoton(nivel, j) && (hasta == null || this.ticks >= hasta)) {
-					this.empezar(nivel, j);
+				if (enBoton(nivel, j)) {
+					if (JuegoFiesta.get().datos(j).regalos > 0) {
+						Long antes = this.aviso.get(j.getUUID());
+						if (antes == null || this.ticks - antes > 100) {
+							this.aviso.put(j.getUUID(), this.ticks);
+							j.displayClientMessage(Component.literal("Ya buscaste tus regalos. Este juego es una sola vez.").withStyle(ChatFormatting.GRAY), true);
+						}
+					} else {
+						this.empezar(nivel, j);
+					}
 				}
 				continue;
 			}
 			if (!enSala(j)) {
-				this.acabar(j, p, "Has salido de la sala de los regalos.");
+				this.acabar(nivel, j, p, "Has salido de la sala de los regalos.");
 				continue;
 			}
 			this.jugar(nivel, j, p);
@@ -117,40 +125,48 @@ public final class JuegoRegalos {
 
 	private void empezar(ServerLevel nivel, ServerPlayer j) {
 		Partida p = new Partida();
-		List<double[]> sitios = new ArrayList<>(PlanoFiesta.REGALOS_SITIOS);
+		List<int[]> sitios = new ArrayList<>(PlanoFiesta.REGALOS_SITIOS);
 		Collections.shuffle(sitios, this.azar);
 		for (int i = 0; i < Math.min(REGALOS, sitios.size()); i++) {
 			p.regalos.add(sitios.get(i));
 			p.cogidos.add(false);
 		}
 		p.fin = this.ticks + SEGUNDOS * 20L;
-		p.siguientePing = this.ticks + 40;
+		p.siguientePing = this.ticks + 60;
 		this.partidas.put(j.getUUID(), p);
+		// cuenta como jugado desde ya: si sale o se le acaba el tiempo, no puede repetir
+		JuegoFiesta.get().datos(j).regalos++;
 		nivel.playSound(null, j.blockPosition(), Sonidos.MEMORIA_TURNO, SoundSource.BLOCKS, 1.2F, 1.2F);
-		j.displayClientMessage(Component.literal("REGALOS · Encuentra los " + p.regalos.size() + " regalos en " + SEGUNDOS + " s. Solo tú los ves brillar.")
-			.withStyle(ChatFormatting.LIGHT_PURPLE), false);
+		j.displayClientMessage(Component.literal("REGALOS · " + p.regalos.size() + " de estos regalos son tuyos: ábrelos (clic derecho) en "
+			+ SEGUNDOS + " s. Solo se juega una vez.").withStyle(ChatFormatting.LIGHT_PURPLE), false);
+	}
+
+	/** Clic derecho en un regalo de la sala (RegaloBloque): si es uno de los suyos, lo encuentra. */
+	public void abrir(ServerPlayer j, BlockPos pos) {
+		Partida p = this.partidas.get(j.getUUID());
+		if (p == null || !enSala(j)) {
+			return;
+		}
+		ServerLevel nivel = j.level();
+		for (int i = 0; i < p.regalos.size(); i++) {
+			int[] r = p.regalos.get(i);
+			if (r[0] == pos.getX() && r[1] == pos.getY() && r[2] == pos.getZ()) {
+				if (!p.cogidos.get(i)) {
+					p.cogidos.set(i, true);
+					nivel.sendParticles(j, new DustParticleOptions(COLORES[i % 4], 1.6F), true, false, r[0] + 0.5, r[1] + 0.8, r[2] + 0.5, 20, 0.3, 0.3, 0.3, 0.0);
+					sonar(j, Sonidos.REGALOS_COGER, new double[] {r[0] + 0.5, r[1] + 0.5, r[2] + 0.5}, 1.0F);
+				}
+				return;
+			}
+		}
+		// vacio: un sonido sordo de carton
+		sonar(j, Sonidos.FIESTA_TORNO_NO, new double[] {pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5}, 0.4F);
 	}
 
 	private void jugar(ServerLevel nivel, ServerPlayer j, Partida p) {
 		int quedan = 0;
-		for (int i = 0; i < p.regalos.size(); i++) {
-			if (p.cogidos.get(i)) {
-				continue;
-			}
-			double[] r = p.regalos.get(i);
-			double dx = j.getX() - r[0];
-			double dz = j.getZ() - r[2];
-			if (dx * dx + dz * dz <= COGER * COGER) {
-				p.cogidos.set(i, true);
-				nivel.sendParticles(j, new DustParticleOptions(COLORES[i % 4], 1.6F), true, false, r[0], r[1] + 0.5, r[2], 16, 0.3, 0.3, 0.3, 0.0);
-				sonar(j, Sonidos.REGALOS_COGER, r, 1.0F);
-				continue;
-			}
-			quedan++;
-			if (this.ticks % 8 == 0) {
-				// el brillo del regalo: solo para quien juega
-				nivel.sendParticles(j, new DustParticleOptions(COLORES[i % 4], 1.3F), true, false, r[0], r[1] + 0.35, r[2], 4, 0.2, 0.15, 0.2, 0.0);
-			}
+		for (boolean c : p.cogidos) {
+			quedan += c ? 0 : 1;
 		}
 		long resta = p.fin - this.ticks;
 		int cogidos = p.regalos.size() - quedan;
@@ -160,14 +176,15 @@ public final class JuegoRegalos {
 		}
 		if (this.ticks >= p.siguientePing) {
 			// un tintineo desde algun regalo que falte, para orientarse
-			p.siguientePing = this.ticks + 50 + this.azar.nextInt(30);
-			List<double[]> faltan = new ArrayList<>();
+			p.siguientePing = this.ticks + 70 + this.azar.nextInt(40);
+			List<int[]> faltan = new ArrayList<>();
 			for (int i = 0; i < p.regalos.size(); i++) {
 				if (!p.cogidos.get(i)) {
 					faltan.add(p.regalos.get(i));
 				}
 			}
-			sonar(j, Sonidos.REGALOS_PING, faltan.get(this.azar.nextInt(faltan.size())), 0.9F);
+			int[] r = faltan.get(this.azar.nextInt(faltan.size()));
+			sonar(j, Sonidos.REGALOS_PING, new double[] {r[0] + 0.5, r[1] + 0.5, r[2] + 0.5}, 0.8F);
 		}
 		if (resta <= 200 && resta % 20 == 0 && resta > 0) {
 			sonar(j, Sonidos.REGALOS_RELOJ, new double[] {j.getX(), j.getEyeY(), j.getZ()}, 0.7F);
@@ -182,25 +199,20 @@ public final class JuegoRegalos {
 			if (consuelo > 0) {
 				JuegoFiesta.get().sumarTickets(j, consuelo, cogidos + " regalos");
 			}
-			this.acabar(j, p, "¡Se acabó el tiempo! Encontraste " + cogidos + " de " + p.regalos.size() + ".");
+			this.acabar(nivel, j, p, "¡Se acabó el tiempo! Encontraste " + cogidos + " de " + p.regalos.size() + ".");
 		}
 	}
 
 	private void ganar(ServerLevel nivel, ServerPlayer j, Partida p) {
-		JuegoFiesta.Datos d = JuegoFiesta.get().datos(j);
-		ConfigFiesta c = ConfigFiesta.get();
-		int premio = d.regalos == 0 ? c.regalosPremio : c.regalosPremioRepetido;
-		d.regalos++;
 		nivel.playSound(null, j.getX(), j.getEyeY(), j.getZ(), Sonidos.SEMAFORO_GANA, SoundSource.BLOCKS, 2.0F, 1.05F);
-		JuegoFiesta.get().sumarTickets(j, premio, "¡todos los regalos!");
-		this.acabar(j, p, null);
+		JuegoFiesta.get().sumarTickets(j, ConfigFiesta.get().regalosPremio, "¡todos los regalos!");
+		this.acabar(nivel, j, p, null);
 	}
 
-	private void acabar(ServerPlayer j, Partida p, String aviso) {
+	private void acabar(ServerLevel nivel, ServerPlayer j, Partida p, String aviso) {
 		this.partidas.remove(j.getUUID());
-		this.espera.put(j.getUUID(), this.ticks + 100);
 		if (aviso != null) {
-			j.displayClientMessage(Component.literal(aviso + " Pisa la estrella para volver a jugar.").withStyle(ChatFormatting.GRAY), false);
+			j.displayClientMessage(Component.literal(aviso).withStyle(ChatFormatting.GRAY), false);
 		}
 	}
 

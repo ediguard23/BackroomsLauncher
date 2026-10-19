@@ -36,13 +36,13 @@ import org.jspecify.annotations.Nullable;
  * flaco; dentro hay alguien que fue un participante y recuerda muy bien como atraer a la gente.
  *
  * No esta siempre. Lo pone AnfitrionFiesta:
- *  - APARICION (con luz): de pie, lejos, mirandote. Si le miras (o pasan unos segundos) se
- *    va con un poco de confeti. No caza.
+ *  - APARICION (con luz): de pie, lejos, mirandote. No caza; se va (con un poco de confeti) si le
+ *    apuntas con la linterna encendida, o a los pocos segundos.
  *  - CAZA (en los apagones): te busca. Te ve a ConfigFiesta.anfitrionVista sin paredes en medio
  *    (agachado, a la mitad) y te oye correr a anfitrionOido. Va a donde te vio por ultima vez; si
  *    no te vuelve a ver en anfitrionOlvida segundos, te deja y ronda por los sitios de
  *    PlanoFiesta.RONDA. Si te alcanza te ABRAZA: no te puedes mover y al segundo y medio mueres.
- *    Al volver la luz se va.
+ *    Solo se le espanta apuntandole con la linterna ENCENDIDA (mirarle no basta). Al volver la luz se va.
  * No se le puede hacer dano.
  */
 public class Anfitrion extends Monster {
@@ -160,6 +160,10 @@ public class Anfitrion extends Monster {
 		}
 		if (this.modo() == APARICION) {
 			this.tickAparicion(nivel);
+			return;
+		}
+		if (this.tickCount > 20 && this.tickCount % 4 == 0 && this.alumbrado(nivel)) {
+			this.irse(nivel);
 			return;
 		}
 		ConfigFiesta c = ConfigFiesta.get();
@@ -283,15 +287,35 @@ public class Anfitrion extends Monster {
 			return;
 		}
 		this.getLookControl().setLookAt(j, 60.0F, 60.0F);
-		// le esta mirando: el angulo entre su vista y la direccion hacia el Anfitrion
-		Vec3 hacia = this.getEyePosition().subtract(j.getEyePosition()).normalize();
-		boolean visto = j.getViewVector(1.0F).dot(hacia) > 0.93 && j.hasLineOfSight(this);
 		if (this.vida == 2) {
 			nivel.playSound(null, this.getX(), this.getEyeY(), this.getZ(), Sonidos.ANFITRION_RISA, SoundSource.HOSTILE, 1.6F, 1.0F);
 		}
-		if (visto && this.vida > 15 || this.vida > 20 * 8) {
+		if (this.vida > 15 && this.alumbrado(nivel) || this.vida > 20 * 8) {
 			this.irse(nivel);
 		}
+	}
+
+	/**
+	 * Si alguien le esta apuntando con la linterna encendida: a menos de 20 bloques, mirando hacia el
+	 * (dentro del cono del foco) y sin paredes en medio. Mirarle sin luz no le hace nada.
+	 */
+	private boolean alumbrado(ServerLevel nivel) {
+		for (ServerPlayer j : nivel.players()) {
+			if (j.isSpectator() || !j.isAlive() || !net.backrooms.evento.objetos.HerramientasServidor.get().linterna(j)) {
+				continue;
+			}
+			Vec3 hacia = this.getBoundingBox().getCenter().subtract(j.getEyePosition());
+			double d = hacia.length();
+			if (d > 20.0 || d < 0.01) {
+				continue;
+			}
+			// el foco abre unos 25 grados; de cerca, el cuerpo entero cabe en el
+			double cono = d < 4.0 ? 0.80 : 0.91;
+			if (j.getViewVector(1.0F).dot(hacia.scale(1.0 / d)) > cono && j.hasLineOfSight(this)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/** Se va: confeti y un globo que se deshincha. */

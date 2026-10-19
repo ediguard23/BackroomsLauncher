@@ -67,7 +67,9 @@ public final class SemaforoCliente {
 		@Override
 		public void tick() {
 			Minecraft mc = Minecraft.getInstance();
-			if (mc.level == null || !net.backrooms.evento.fiesta.Fiesta.es(mc.level) || luz != 1) {
+			// fuera del castillo se calla (si no, al salir con la luz en verde seguia sonando en bucle)
+			if (mc.level == null || !net.backrooms.evento.fiesta.Fiesta.es(mc.level) || luz != 1 || mc.player == null
+				|| !PlanoFiesta.enCastillo(mc.player.getX(), mc.player.getZ())) {
 				this.stop();
 			}
 		}

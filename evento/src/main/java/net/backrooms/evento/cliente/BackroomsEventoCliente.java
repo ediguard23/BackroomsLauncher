@@ -71,6 +71,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		EntityRenderers.register(Entidades.ANFITRION, net.backrooms.evento.cliente.entidad.AnfitrionRenderer::new);
 		EntityModelLayerRegistry.registerModelLayer(net.backrooms.evento.cliente.entidad.AnfitrionRenderer.CAPA, net.backrooms.evento.cliente.entidad.MallaAnfitrion::crear);
 		EntityRenderers.register(Entidades.FICHA, net.backrooms.evento.cliente.fiesta.FichaRenderer::new);
+		net.backrooms.evento.fiesta.FichaEntidad.oculta = net.backrooms.evento.cliente.fiesta.FiestaCliente::cogida;
 		net.minecraft.client.renderer.blockentity.BlockEntityRenderers.register(net.backrooms.evento.fiesta.BloquesFiesta.MARCADOR_ENTIDAD,
 			net.backrooms.evento.cliente.fiesta.MarcadorRenderer::new);
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.EstadoFiesta.TYPE, (s, ctx) -> net.backrooms.evento.cliente.fiesta.FiestaCliente.recibir(s));

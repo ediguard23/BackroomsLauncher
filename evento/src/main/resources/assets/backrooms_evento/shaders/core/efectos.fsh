@@ -137,7 +137,11 @@ void main() {
     float inund = Estado5.y;
     if (inund > 0.0) {
         float h = Estado5.x;
-        vec3 rd = normalize(posicion(texCoord, 0.5));
+        // el rayo de este pixel con dos puntos (cerca y lejos): asi lleva el balanceo de la camara
+        // al andar; desde el origen, la superficie se movia con el jugador
+        vec3 r0 = posicion(texCoord, 0.0);
+        vec3 r1 = posicion(texCoord, 0.9);
+        vec3 rd = normalize(r1 - r0);
         bool cielo = profundidad >= 1.0;
         float escena = cielo ? 1.0e4 : dist;
         vec2 cxz = Estado5.zw;
@@ -152,9 +156,11 @@ void main() {
             }
         }
         if (abs(rd.y) > 1.0e-4) {
-            float tp = h / rd.y;
-            if (tp > 0.0 && tp < escena) {
-                vec2 w = (rd * tp).xz + cxz;
+            float tr = (h - r0.y) / rd.y;
+            vec3 cruce = r0 + rd * tr;
+            float tp = length(cruce);
+            if (tr > 0.0 && tp < escena) {
+                vec2 w = cruce.xz + cxz;
                 vec2 px = (floor(fract(w) * 16.0) + 0.5) / 16.0;
                 vec4 tx = texture(AguaSampler, Estado6.xy + px * Estado6.zw);
                 vec3 sup = tx.rgb * tinte * 1.1;

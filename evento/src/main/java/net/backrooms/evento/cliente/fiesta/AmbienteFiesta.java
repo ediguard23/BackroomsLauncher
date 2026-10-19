@@ -33,7 +33,7 @@ import net.minecraft.world.phys.Vec3;
  */
 public final class AmbienteFiesta {
 	private enum Tipo {
-		MUSICA(28, 34), GLOBO(20, 60), JUGUETE(45, 120), NINO(90, 240), ANUNCIO(180, 360), RISA(180, 420);
+		MUSICA(36, 48), GLOBO(20, 60), JUGUETE(45, 120), NINO(90, 240), ANUNCIO(180, 360), RISA(180, 420);
 
 		final int min;
 		final int max;
@@ -51,6 +51,8 @@ public final class AmbienteFiesta {
 	private static Aire aire;
 	private static int anuncio;
 	private static long zumbido;
+	/** La cancion que suena ahora (no se pone otra encima hasta que acabe). */
+	private static SoundInstance cancion;
 
 	private AmbienteFiesta() {
 	}
@@ -91,14 +93,19 @@ public final class AmbienteFiesta {
 			Vec3 ojo = j.getEyePosition();
 			switch (t) {
 				case MUSICA -> {
-					// a veces, un silencio largo (la cancion se acaba y no empieza otra)
-					if (apagon || AZAR.nextFloat() < 0.15F) {
+					// a veces, un silencio largo (la cancion se acaba y no empieza otra); nunca dos a la vez,
+					// y en el castillo no (alli suena la del semaforo)
+					if (cancion != null && mc.getSoundManager().isActive(cancion)) {
+						SIGUIENTE[t.ordinal()] = ticks + 100;
+						continue;
+					}
+					if (apagon || AZAR.nextFloat() < 0.15F || PlanoFiesta.enCastillo(j.getX(), j.getZ())) {
 						SIGUIENTE[t.ordinal()] += 20L * (20 + AZAR.nextInt(40));
 						continue;
 					}
 					int[] a = altavoz(ojo);
 					if (a != null) {
-						sonar(mc, Sonidos.FIESTA_MUSICA, new Vec3(a[0] + 0.5, a[1] + 0.5, a[2] + 0.5), 1.6F, 1.0F);
+						cancion = sonar(mc, Sonidos.FIESTA_MUSICA, new Vec3(a[0] + 0.5, a[1] + 0.5, a[2] + 0.5), 1.6F, 1.0F);
 					}
 				}
 				case GLOBO -> sonar(mc, Sonidos.FIESTA_GLOBO, alrededor(ojo, 4, 15, 2.0, 6.0), 0.5F + AZAR.nextFloat() * 0.3F, 0.85F + AZAR.nextFloat() * 0.3F);
@@ -156,9 +163,11 @@ public final class AmbienteFiesta {
 		return mejor;
 	}
 
-	private static void sonar(Minecraft mc, SoundEvent sonido, Vec3 p, float volumen, float tono) {
-		mc.getSoundManager().play(new SimpleSoundInstance(sonido.location(), SoundSource.AMBIENT, volumen, tono,
-			RandomSource.create(AZAR.nextLong()), false, 0, SoundInstance.Attenuation.LINEAR, p.x, p.y, p.z, false));
+	private static SoundInstance sonar(Minecraft mc, SoundEvent sonido, Vec3 p, float volumen, float tono) {
+		SoundInstance s = new SimpleSoundInstance(sonido.location(), SoundSource.AMBIENT, volumen, tono,
+			RandomSource.create(AZAR.nextLong()), false, 0, SoundInstance.Attenuation.LINEAR, p.x, p.y, p.z, false);
+		mc.getSoundManager().play(s);
+		return s;
 	}
 
 	private static Vec3 alrededor(Vec3 o, double min, double max, double dy0, double dy1) {

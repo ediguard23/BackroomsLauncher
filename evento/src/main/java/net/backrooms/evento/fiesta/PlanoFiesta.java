@@ -18,11 +18,11 @@ import net.minecraft.world.level.block.state.BlockState;
  * la niebla no se vuelva negra. Como en Backrooms: Escape Together, una vuelta es:
  *
  *   1. LAS HABITACIONES DE INICIO: se empieza en un cuartito con una puerta (uno de doce, al azar).
- *   2. EL LABERINTO (x -100..-4, z -44..44): pasillos blancos con columnas de colores, suelo a
- *      cuadros, banderines y flechas de neon en el techo que senalan la salida. Por los pasillos,
- *      mesas de fiesta con monedas, comida o tickets; las monedas abren las puertas de las
- *      habitaciones (salas seguras con el localizador de salida, la memoria, los regalos, la
- *      cocina, la siesta, la sala secreta y la de las mesas). Algun suelo esta defectuoso: cede y
+ *   2. EL LABERINTO (x -124..-4, z -52..52): pasillos blancos con columnas de colores, suelo a
+ *      cuadros y banderines. Por los pasillos, mesas de fiesta con monedas (se cogen con clic derecho)
+ *      o comida; las monedas abren las puertas de las habitaciones (26 salas seguras con el
+ *      localizador de salida, la memoria, los regalos, la cocina, la siesta, la sala secreta y la de
+ *      las mesas). Los tickets no estan tirados: se ganan. Algun suelo esta defectuoso: cede y
  *      lleva a un parkour, y la trampilla del final sube directa al castillo. La salida es una
  *      puerta roja en la pared este (zumba cuando estas cerca).
  *   3. EL CASTILLO (x 8..56, z -24..24): el parque de bolas, dos pisos de pasillos acolchados
@@ -44,13 +44,13 @@ public final class PlanoFiesta {
 	public static final int SUB = SUELO - 8;
 
 	/* el laberinto: celdas de CELDA (3 de paso y 1 de pared) */
-	public static final int LAB_X = -100;
-	public static final int LAB_Z = -44;
-	public static final int LAB_W = 24;
-	public static final int LAB_H = 22;
+	public static final int LAB_X = -124;
+	public static final int LAB_Z = -52;
+	public static final int LAB_W = 30;
+	public static final int LAB_H = 26;
 	public static final int CELDA = 4;
 	/** La celda de la salida (en el borde este) y su puerta roja, en la pared de fuera. */
-	public static final int SALIDA_CZ = 11;
+	public static final int SALIDA_CZ = 13;
 	public static final int SALIDA_X = LAB_X + LAB_W * CELDA;
 	public static final int SALIDA_Z = LAB_Z + SALIDA_CZ * CELDA + 2;
 
@@ -184,9 +184,9 @@ public final class PlanoFiesta {
 	/** El boton de empezar la memoria (x0, z0, de 2x1) y el de los regalos. */
 	public static final int[] MEMORIA_BOTON = new int[2];
 	public static final int[] REGALOS_BOTON = new int[2];
-	/** La sala de los regalos (interior) y los sitios donde puede salir un regalo. */
+	/** La sala de los regalos (interior) y sus regalos que se pueden abrir (el de arriba de cada monton): x, y, z. */
 	public static final int[] REGALOS_SALA = new int[4];
-	public static final List<double[]> REGALOS_SITIOS = new ArrayList<>();
+	public static final List<int[]> REGALOS_SITIOS = new ArrayList<>();
 
 	/** Limites del edificio (con sus muros), para el generador: salen de las cajas. */
 	public static final int X0;
@@ -298,12 +298,17 @@ public final class PlanoFiesta {
 		PUERTAS.add(new Puerta(PUERTAS.size(), x, SUELO + 1, z, mira, coste, nombre, tipo));
 	}
 
+	/** La altura del tablero de una mesa de fiesta (13/16 de su bloque): ahi se apoyan monedas y comida. */
+	private static final double MESA_Y = SUELO + 1 + 13.0 / 16.0 + 0.01;
+
 	private static void moneda(double x, double y, double z) {
 		MONEDAS.add(new Punto(siguienteId++, x, y, z, 1));
 	}
 
-	private static void tickets(double x, double y, double z, int valor) {
-		TICKETS.add(new Punto(siguienteId++, x, y, z, valor));
+	/** Un regalo de la sala de los regalos: se apunta como sitio (JuegoRegalos elige cuales son de verdad). */
+	private static void regalo(int x, int y, int z, int k) {
+		bloque(x, y, z, variante(BloquesFiesta.REGALO, Direction.from2DDataValue(k % 4), Math.floorMod(k * 7 + x, 4)));
+		REGALOS_SITIOS.add(new int[] {x, y, z});
 	}
 
 	/** Globos de colores alrededor de (x, z): un racimo. */
@@ -362,22 +367,53 @@ public final class PlanoFiesta {
 		Y1 = y1;
 	}
 
-	/** Las habitaciones del laberinto (en celdas). Ninguna toca a otra: entre ellas siempre hay pasillo. */
+	/** Cuantas salas seguras hay (cada una con su localizador de salida). */
+	public static final int SEGURAS = 26;
+
+	/**
+	 * Las habitaciones del laberinto (en celdas). Ninguna toca a otra, ni en diagonal: entre ellas
+	 * siempre hay pasillo. Las de inicio y las de los juegos van a mano; las salas seguras se reparten
+	 * solas (semilla fija) por el sitio que queda.
+	 */
 	private static void habitaciones() {
-		int[][] inicios = {{0, 3}, {0, 10}, {0, 18}, {4, 0}, {11, 0}, {17, 0}, {4, 21}, {11, 21}, {17, 21}, {7, 9}, {14, 6}, {13, 15}};
+		int[][] inicios = {{0, 4}, {0, 12}, {0, 21}, {6, 0}, {15, 0}, {24, 0}, {6, 25}, {15, 25}, {24, 25}, {9, 11}, {19, 8}, {17, 18}};
 		for (int i = 0; i < inicios.length; i++) {
 			HABITACIONES.add(new Habitacion("inicio", "inicio_" + (i + 1), inicios[i][0], inicios[i][1], 1, 1, 0));
 		}
-		int[][] seguras = {{2, 6}, {20, 3}, {9, 17}, {19, 15}};
-		for (int i = 0; i < seguras.length; i++) {
-			HABITACIONES.add(new Habitacion("segura", "segura_" + (i + 1), seguras[i][0], seguras[i][1], 2, 2, 1));
+		HABITACIONES.add(new Habitacion("memoria", "memoria", 6, 15, 3, 3, 2));
+		HABITACIONES.add(new Habitacion("regalos", "regalos", 18, 11, 4, 3, 2));
+		HABITACIONES.add(new Habitacion("cocina", "cocina", 7, 2, 3, 2, 2));
+		HABITACIONES.add(new Habitacion("siesta", "siesta", 16, 2, 3, 2, 2));
+		HABITACIONES.add(new Habitacion("secreta", "secreta", 26, 22, 2, 2, 3));
+		HABITACIONES.add(new Habitacion("mesas", "mesas", 11, 14, 3, 2, 1));
+		Random azar = new Random(777);
+		int seguras = 0;
+		for (int intento = 0; intento < 20000 && seguras < SEGURAS; intento++) {
+			int forma = azar.nextInt(3);
+			int w = forma == 1 ? 1 : 2;
+			int h = forma == 2 ? 1 : 2;
+			int cx = azar.nextInt(LAB_W - w + 1);
+			int cz = azar.nextInt(LAB_H - h + 1);
+			if (libre(cx, cz, w, h)) {
+				seguras++;
+				HABITACIONES.add(new Habitacion("segura", "segura_" + seguras, cx, cz, w, h, 1));
+			}
 		}
-		HABITACIONES.add(new Habitacion("memoria", "memoria", 5, 13, 3, 3, 2));
-		HABITACIONES.add(new Habitacion("regalos", "regalos", 15, 9, 3, 3, 2));
-		HABITACIONES.add(new Habitacion("cocina", "cocina", 6, 2, 3, 2, 2));
-		HABITACIONES.add(new Habitacion("siesta", "siesta", 13, 2, 3, 2, 2));
-		HABITACIONES.add(new Habitacion("secreta", "secreta", 21, 19, 2, 2, 3));
-		HABITACIONES.add(new Habitacion("mesas", "mesas", 9, 12, 3, 2, 1));
+	}
+
+	/** Si cabe una habitacion en esas celdas: con una celda de pasillo alrededor y lejos de la salida y los parches. */
+	private static boolean libre(int cx, int cz, int w, int h) {
+		for (Habitacion o : HABITACIONES) {
+			if (cx - 1 < o.cx() + o.w() && o.cx() < cx + w + 1 && cz - 1 < o.cz() + o.h() && o.cz() < cz + h + 1) {
+				return false;
+			}
+		}
+		for (int[] p : PARCHES) {
+			if (p[0] >= cx - 1 && p[0] <= cx + w && p[1] >= cz - 1 && p[1] <= cz + h) {
+				return false;
+			}
+		}
+		return !(cx + w >= LAB_W - 2 && Math.abs(cz - SALIDA_CZ) <= 2);
 	}
 
 	/* ----------------------------------------------------------- laberintos */
@@ -524,6 +560,10 @@ public final class PlanoFiesta {
 					}
 				}
 			}
+			if (opciones.isEmpty()) {
+				ENTRADAS.add(new int[] {h.x0(), h.z0()});
+				continue;
+			}
 			int[] o = opciones.get(new Random(100 + i).nextInt(opciones.size()));
 			Direction m = dir(o[2], o[3]);
 			// la puerta en el muro, en medio del tramo de la celda
@@ -598,32 +638,11 @@ public final class PlanoFiesta {
 	}
 
 	/**
-	 * Lo de los pasillos: mesas de fiesta con monedas, comida o tickets (contra una pared), banderines,
-	 * las flechas de neon que senalan la salida (por el camino mas corto), altavoces y la ronda del
-	 * Anfitrion.
+	 * Lo de los pasillos: mesas de fiesta con monedas o comida (contra una pared), banderines, altavoces
+	 * y la ronda del Anfitrion.
 	 */
 	private static void pasillos(boolean[][] este, boolean[][] sur, int[][] de, boolean[][] llega) {
-		// distancia de cada celda a la salida, por los pasillos
-		int[][] dist = new int[LAB_W][LAB_H];
-		for (int[] fila : dist) {
-			java.util.Arrays.fill(fila, Integer.MAX_VALUE);
-		}
-		ArrayDeque<int[]> cola = new ArrayDeque<>();
-		dist[LAB_W - 1][SALIDA_CZ] = 0;
-		cola.add(new int[] {LAB_W - 1, SALIDA_CZ});
 		int[][] dirs = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
-		while (!cola.isEmpty()) {
-			int[] c = cola.poll();
-			for (int[] d : dirs) {
-				int nx = c[0] + d[0];
-				int nz = c[1] + d[1];
-				if (nx >= 0 && nz >= 0 && nx < LAB_W && nz < LAB_H && de[nx][nz] < 0 && dist[nx][nz] == Integer.MAX_VALUE
-					&& abierto(este, sur, c[0], c[1], d[0], d[1])) {
-					dist[nx][nz] = dist[c[0]][c[1]] + 1;
-					cola.add(new int[] {nx, nz});
-				}
-			}
-		}
 		int mesas = 0;
 		for (int cx = 0; cx < LAB_W; cx++) {
 			for (int cz = 0; cz < LAB_H; cz++) {
@@ -637,20 +656,7 @@ public final class PlanoFiesta {
 					parche |= p[0] == cx && p[1] == cz;
 				}
 				boolean salida = cx == LAB_W - 1 && cz == SALIDA_CZ;
-				// la flecha del techo: hacia la celda vecina mas cerca de la salida
-				boolean flecha = false;
-				if (azar(cx, cz, 97, 4) == 0 && dist[cx][cz] > 1 && dist[cx][cz] != Integer.MAX_VALUE) {
-					for (int[] d : dirs) {
-						int nx = cx + d[0];
-						int nz = cz + d[1];
-						if (nx >= 0 && nz >= 0 && nx < LAB_W && nz < LAB_H && dist[nx][nz] == dist[cx][cz] - 1 && abierto(este, sur, cx, cz, d[0], d[1])) {
-							bloque(x0 + 2, TECHO - 1, z0 + 2, variante(BloquesFiesta.FLECHA, dir(d[0], d[1]), 0));
-							flecha = true;
-							break;
-						}
-					}
-				}
-				if (!flecha && azar(cx, cz, 93, 4) == 1) {
+				if (azar(cx, cz, 93, 4) == 1) {
 					Direction eje = azar(cx, cz, 94, 2) == 0 ? Direction.NORTH : Direction.EAST;
 					for (int k = 1; k <= 3; k++) {
 						bloque(eje == Direction.NORTH ? x0 + k : x0 + 2, TECHO - 1, eje == Direction.NORTH ? z0 + 2 : z0 + k,
@@ -674,20 +680,16 @@ public final class PlanoFiesta {
 					}
 					if (pared != null) {
 						mesa(pared[0], pared[1], dir(pared[2], pared[3]), azar(cx, cz, 92, 4));
-						double mx = pared[0] + 0.5 + pared[2] * 0.5;
-						double mz = pared[1] + 0.5 + pared[3] * 0.5;
-						int que = mesas++ % 7;
-						if (que < 4) {
-							moneda(mx, SUELO + 1.85, mz);
-						} else if (que == 4 || que == 6) {
-							COMIDA.add(new Plato(pared[0], SUELO + 1.82, pared[1], que == 4 ? Plano.C_GALLETAS : Plano.C_PIZZA));
-							if (que == 6) {
-								moneda(pared[0] + pared[2] + 0.5, SUELO + 1.85, pared[1] + pared[3] + 0.5);
-							}
+						// en la primera mitad de la mesa la moneda (o la comida); en la segunda, la tarta o la moneda
+						int que = mesas++ % 6;
+						boolean conComida = que >= 4;
+						if (conComida) {
+							COMIDA.add(new Plato(pared[0], MESA_Y, pared[1], que == 4 ? Plano.C_GALLETAS : Plano.C_PIZZA));
+							moneda(pared[0] + pared[2] + 0.5, MESA_Y, pared[1] + pared[3] + 0.5);
 						} else {
-							tickets(mx, SUELO + 1.85, mz, 25);
+							moneda(pared[0] + 0.5, MESA_Y, pared[1] + 0.5);
 						}
-						if (azar(cx, cz, 96, 3) == 0) {
+						if (!conComida && azar(cx, cz, 96, 3) == 0) {
 							bloque(pared[0] + pared[2], SUELO + 2, pared[1] + pared[3],
 								variante(BloquesFiesta.TARTA, Direction.from2DDataValue(azar(cx, cz, 98, 4)), azar(cx, cz, 99, 4)));
 						}
@@ -721,20 +723,33 @@ public final class PlanoFiesta {
 				}
 			}
 			case "segura" -> {
-				// la sala segura: suelo de goma, el localizador de salida en la pared y una mesa con algo
+				// la sala segura: suelo de goma, el localizador de salida en una pared larga y en la otra una mesa
+				// con una moneda y algo de comer (nunca en la pared de la puerta, si se puede)
 				caja(x0, SUELO, z0, x1, SUELO, z1, s(BloquesFiesta.SUELO_GOMA));
-				boolean norte = e[1] != z0;
-				int lz = norte ? z0 : z1;
-				Direction cara = norte ? Direction.SOUTH : Direction.NORTH;
-				bloque(x0 + 3, SUELO + 2, lz, mira(BloquesFiesta.LOCALIZADOR, cara));
-				bloque(x0 + 3, SUELO + 4, lz, variante(BloquesFiesta.CARTEL, cara, 2));
-				int mz = norte ? z1 : z0;
-				mesa(x0 + 2, mz, Direction.EAST, i % 4);
-				moneda(x0 + 3.0, SUELO + 1.85, mz + 0.5);
-				COMIDA.add(new Plato(x0 + 3, SUELO + 1.82, mz, i % 2 == 0 ? Plano.C_PIZZA : Plano.C_GALLETAS));
-				bloque(x0, SUELO + 1, norte ? z1 : z0, variante(BloquesFiesta.SILLITA, Direction.EAST, i % 4));
-				bloque(x0 + 6, SUELO + 1, norte ? z1 : z0, variante(BloquesFiesta.PELUCHE, Direction.WEST, i % 4));
-				bloque(x0 + 3, TECHO, z0 + 3, s(BloquesFiesta.LUZ));
+				boolean ancha = x1 - x0 >= z1 - z0;
+				int cx = (x0 + x1) / 2;
+				int cz = (z0 + z1) / 2;
+				if (ancha) {
+					boolean locNorte = e[1] != z0;
+					int lz = locNorte ? z0 : z1;
+					int mz = locNorte ? z1 : z0;
+					bloque(cx, SUELO + 2, lz, mira(BloquesFiesta.LOCALIZADOR, locNorte ? Direction.SOUTH : Direction.NORTH));
+					mesa(cx - 1, mz, Direction.EAST, i % 4);
+					moneda(cx, MESA_Y, mz + 0.5);
+					COMIDA.add(new Plato(cx - 1, MESA_Y, mz, i % 2 == 0 ? Plano.C_PIZZA : Plano.C_GALLETAS));
+				} else {
+					boolean locOeste = e[0] != x0;
+					int lx = locOeste ? x0 : x1;
+					int mx = locOeste ? x1 : x0;
+					bloque(lx, SUELO + 2, cz, mira(BloquesFiesta.LOCALIZADOR, locOeste ? Direction.EAST : Direction.WEST));
+					mesa(mx, cz - 1, Direction.SOUTH, i % 4);
+					moneda(mx + 0.5, MESA_Y, cz);
+					COMIDA.add(new Plato(mx, MESA_Y, cz - 1, i % 2 == 0 ? Plano.C_PIZZA : Plano.C_GALLETAS));
+				}
+				bloque(cx, TECHO, cz, s(BloquesFiesta.LUZ));
+				if (x1 - x0 >= 6) {
+					bloque(x0, SUELO + 1, z1, variante(BloquesFiesta.PELUCHE, Direction.EAST, i % 4));
+				}
 			}
 			case "memoria" -> {
 				// las baldosas de colores y el boton, sobre una alfombra oscura para que se distingan
@@ -754,38 +769,49 @@ public final class PlanoFiesta {
 				RONDA.add(new int[] {x0 + 5, z0 + 5});
 			}
 			case "regalos" -> {
-				// casi a oscuras: el techo sin luces salvo dos que fallan, y cosas apiladas
+				// casi a oscuras, llena de estanterias y montones de regalos: cada uno juega con los suyos
+				// (JuegoRegalos sortea cuales de estos son de verdad para cada jugador)
 				caja(x0, SUELO, z0, x1, SUELO, z1, s(BloquesFiesta.SUELO_GOMA_SUCIO));
-				caja(x0, TECHO, z0, x1, TECHO, z1, (x, y, z) -> (x == x0 + 5 && (z == z0 + 2 || z == z0 + 8)) ? s(BloquesFiesta.LUZ_PARPADEO) : s(BloquesFiesta.TECHO_LAB));
+				caja(x0, TECHO, z0, x1, TECHO, z1, (x, y, z) -> ((x - x0) % 7 == 3 && (z - z0) % 5 == 2) ? s(BloquesFiesta.LUZ_PARPADEO) : s(BloquesFiesta.TECHO_LAB));
 				REGALOS_SALA[0] = x0;
 				REGALOS_SALA[1] = z0;
 				REGALOS_SALA[2] = x1;
 				REGALOS_SALA[3] = z1;
-				REGALOS_BOTON[0] = x0 + 5;
-				REGALOS_BOTON[1] = z0 + 5;
-				bloque(x0 + 5, SUELO, z0 + 5, BloquesFiesta.BALDOSA_JUEGO.defaultBlockState().setValue(BaldosaJuego.COLOR, 4));
-				int[][] montones = {{x0 + 1, z0 + 1}, {x0 + 8, z0 + 1}, {x0 + 3, z0 + 4}, {x0 + 8, z0 + 6}, {x0 + 1, z0 + 8}, {x0 + 5, z0 + 9}};
-				for (int k = 0; k < montones.length; k++) {
-					int[] m = montones[k];
+				int bx = (x0 + x1) / 2;
+				int bz = (z0 + z1) / 2;
+				REGALOS_BOTON[0] = bx;
+				REGALOS_BOTON[1] = bz;
+				bloque(bx, SUELO, bz, BloquesFiesta.BALDOSA_JUEGO.defaultBlockState().setValue(BaldosaJuego.COLOR, 4));
+				// estanterias (encimeras de madera) en dos filas, con regalos encima y entre medias
+				int k = 0;
+				for (int z : new int[] {z0 + 3, z1 - 3}) {
+					for (int x = x0 + 2; x <= x1 - 2; x++) {
+						if (Math.abs(x - bx) <= 1) {
+							continue;
+						}
+						bloque(x, SUELO + 1, z, s(Blocks.STRIPPED_SPRUCE_LOG));
+						if (azar(x, z, 141, 2) == 0) {
+							regalo(x, SUELO + 2, z, k++);
+						} else if (azar(x, z, 142, 3) == 0) {
+							bloque(x, SUELO + 2, z, variante(BloquesFiesta.PELUCHE, Direction.from2DDataValue(azar(x, z, 143, 4)), azar(x, z, 144, 4)));
+						}
+					}
+				}
+				// montones en las esquinas y contra las paredes (el de arriba es el que se puede abrir)
+				int[][] montones = {{x0, z0}, {x1, z0}, {x0, z1}, {x1, z1}, {bx, z0}, {bx, z1}, {x0, bz}, {x1, bz}, {x0 + 4, z0 + 1}, {x1 - 4, z1 - 1},
+					{x0 + 1, z1 - 1}, {x1 - 1, z0 + 1}, {bx - 3, bz}, {bx + 3, bz}};
+				for (int[] m : montones) {
 					if (Math.abs(m[0] - e[0]) + Math.abs(m[1] - e[1]) <= 1) {
 						continue;
 					}
-					bloque(m[0], SUELO + 1, m[1], variante(BloquesFiesta.REGALO, Direction.from2DDataValue(k % 4), k % 4));
-					bloque(m[0], SUELO + 2, m[1], variante(BloquesFiesta.REGALO, Direction.from2DDataValue((k + 1) % 4), (k + 2) % 4));
-				}
-				for (int gx = x0; gx <= x1; gx += 2) {
-					for (int gz = z0; gz <= z1; gz += 2) {
-						boolean ocupado = Math.abs(gx - (x0 + 5)) + Math.abs(gz - (z0 + 5)) <= 1 || Math.abs(gx - e[0]) + Math.abs(gz - e[1]) <= 2;
-						for (int[] m : montones) {
-							ocupado |= m[0] == gx && m[1] == gz;
-						}
-						if (!ocupado) {
-							REGALOS_SITIOS.add(new double[] {gx + 0.5, SUELO + 1, gz + 0.5});
-						}
+					int alto = 1 + azar(m[0], m[1], 145, 3);
+					for (int y = 0; y < alto; y++) {
+						regalo(m[0], SUELO + 1 + y, m[1], k++);
 					}
+					REGALOS_SITIOS.removeIf(p -> p[0] == m[0] && p[2] == m[1] && p[1] < SUELO + alto);
 				}
-				bloque(x0 + 5, SUELO + 3, z0, variante(BloquesFiesta.CARTEL, Direction.SOUTH, 2));
-				RONDA.add(new int[] {x0 + 5, z0 + 7});
+				bloque(bx, SUELO + 3, z0 - 0, variante(BloquesFiesta.CARTEL, Direction.SOUTH, 2));
+				RONDA.add(new int[] {bx, bz + 2});
 			}
 			case "cocina" -> {
 				// baldosa blanca y negra, encimeras de acero, ollas enormes y bandejas con nombres
@@ -803,8 +829,8 @@ public final class PlanoFiesta {
 				}
 				COMIDA.add(new Plato(x0, SUELO + 2.0, ez, Plano.C_PIZZA));
 				COMIDA.add(new Plato(x1, SUELO + 2.0, ez, Plano.C_GALLETAS));
-				tickets(x0 + 5.5, SUELO + 2.0, z0 + 3.5 + 0.0, 50);
-				tickets(x1 - 0.5, SUELO + 1, (norte ? z1 : z0) + 0.5, 50);
+				moneda(x0 + 5.5, SUELO + 2.02, z0 + 3.5);
+				moneda(x1 + 0.5, SUELO + 1.02, (norte ? z1 : z0) + 0.5);
 				bloque(x0 + 5, SUELO + 3, (norte ? z0 : z1), variante(BloquesFiesta.CARTEL, cara, 6));
 				nota(x0 + 1, norte ? z1 : z0, 0);
 				RONDA.add(new int[] {x0 + 5, z0 + 5});
@@ -824,18 +850,18 @@ public final class PlanoFiesta {
 						}
 					}
 				}
-				tickets(x0 + 5.5, SUELO + 1, z0 + 3.5, 50);
+				moneda(x0 + 5.5, SUELO + 1.02, z0 + 3.5);
 				nota(x1 - 1, z0 + 3, 5);
 				bloque(x0, SUELO + 3, z0 + 3, variante(BloquesFiesta.DIBUJO, Direction.EAST, 4));
 				RONDA.add(new int[] {x0 + 5, z0 + 3});
 			}
 			case "secreta" -> {
-				// confeti, regalos, tickets y una nota
+				// confeti, regalos, monedas, comida y una nota
 				caja(x0, SUELO, z0, x1, SUELO, z1, s(BloquesFiesta.MOQUETA_CONFETI));
-				tickets(x0 + 1.5, SUELO + 1, z0 + 1.5, 50);
-				tickets(x1 - 0.5, SUELO + 1, z0 + 1.5, 50);
-				tickets(x0 + 1.5, SUELO + 1, z1 - 0.5, 50);
-				tickets(x1 - 0.5, SUELO + 1, z1 - 0.5, 50);
+				moneda(x0 + 1.5, SUELO + 1.02, z0 + 1.5);
+				moneda(x1 - 0.5, SUELO + 1.02, z0 + 1.5);
+				moneda(x0 + 1.5, SUELO + 1.02, z1 - 0.5);
+				COMIDA.add(new Plato(x1 - 1, SUELO + 1.0, z1 - 1, Plano.C_PIZZA));
 				bloque(x0 + 3, SUELO + 1, z0 + 3, variante(BloquesFiesta.REGALO, Direction.SOUTH, 3));
 				bloque(x0 + 3, SUELO + 2, z0, variante(BloquesFiesta.DIBUJO, Direction.SOUTH, 6));
 				bloque(x0, SUELO + 2, z0 + 3, variante(BloquesFiesta.DIBUJO, Direction.EAST, 7));
@@ -852,10 +878,10 @@ public final class PlanoFiesta {
 						}
 					}
 				}
-				moneda(x0 + 3.5, SUELO + 1.85, z0 + 2.5);
-				moneda(x1 - 2.5, SUELO + 1.85, z0 + 4.5);
-				tickets(x0 + 0.5, SUELO + 1, z1 - 0.5, 25);
-				COMIDA.add(new Plato(x0 + 6, SUELO + 1.82, z0 + 4, Plano.C_GALLETAS));
+				moneda(x0 + 3.5, MESA_Y, z0 + 2.5);
+				moneda(x1 - 2.5, MESA_Y, z0 + 4.5);
+				moneda(x0 + 0.5, SUELO + 1.02, z1 - 0.5);
+				COMIDA.add(new Plato(x0 + 6, MESA_Y, z0 + 4, Plano.C_GALLETAS));
 				racimo(x1 - 1, z1 - 1, SUELO + 1, 1);
 				bloque(x0 + 5, SUELO + 3, z0, variante(BloquesFiesta.CARTEL, Direction.SOUTH, 0));
 				nota(x0, z0 + 6, 2);
@@ -912,7 +938,6 @@ public final class PlanoFiesta {
 		}
 		caja(fx - 1, SUB + 1, fz - 1, fx + 2, SUB + 3, fz + 2, s(BloquesFiesta.ACOLCHADO_AMARILLO));
 		caja(fx, SUB + 3, fz, fx + 1, SUB + 3, fz + 1, s(BloquesFiesta.TRAMPILLA));
-		tickets(fx - 0.5, SUB + 4, fz + 1.0, 50);
 		PARKOURS.add(new Parkour(PARKOURS.size(), nombre, x0, z0, x1, z1, px + 1.0, pz + 1.0, fx, fz, fx + 1, fz + 1,
 			CASTILLO_LLEGADA_X, CASTILLO_LLEGADA_Z, -90.0F, premio));
 	}
@@ -924,9 +949,6 @@ public final class PlanoFiesta {
 		sala("pasillo_castillo", SALIDA_X + 1, SALIDA_Z - 1, CAS_X - 2, SALIDA_Z + 1, TECHO, BloquesFiesta.DAMEROS[0], BloquesFiesta.ZOCALO_LAB,
 			BloquesFiesta.PARED_LAB, 1, 4);
 		caja(SALIDA_X + 1, SUELO, SALIDA_Z - 1, CAS_X - 2, SUELO, SALIDA_Z + 1, (x, y, z) -> s(BloquesFiesta.DAMEROS[damero(x, z)]));
-		for (int x = SALIDA_X + 2; x <= CAS_X - 3; x += 3) {
-			bloque(x, TECHO - 1, SALIDA_Z, variante(BloquesFiesta.FLECHA, Direction.EAST, 0));
-		}
 	}
 
 	/**
@@ -1186,6 +1208,75 @@ public final class PlanoFiesta {
 		bloque(94, SUELO + 3, FIN_Z1, variante(BloquesFiesta.DIBUJO, Direction.NORTH, 1));
 		bloque(FIN_X1, SUELO + 4, -40, variante(BloquesFiesta.CARTEL, Direction.WEST, 5));
 		bloque(FIN_X1, SUELO + 3, -52, variante(BloquesFiesta.DIBUJO, Direction.WEST, 3));
+		// confeti por todo el suelo y regalos sueltos (lo primero: lo de despues lo pisa)
+		for (int i = 0; i < 140; i++) {
+			int x = FIN_X0 + 1 + azar(i, 1, 161, FIN_X1 - FIN_X0 - 1);
+			int z = FIN_Z0 + 1 + azar(i, 2, 161, FIN_Z1 - FIN_Z0 - 1);
+			boolean mesa = x == 63 || x == 64 || x == 65 || x == 69 || x == 70 || x == 71 || x == 89 || x == 90 || x == 91 || x == 95 || x == 96 || x == 97;
+			boolean ocupado = mesa || x <= FIN_X0 + 3 && z >= -50 && z <= -38 || x >= 74 && x <= 86 && z >= -45 && z <= -35;
+			if (!ocupado) {
+				bloque(x, SUELO + 1, z, variante(i % 9 == 0 ? BloquesFiesta.REGALO : BloquesFiesta.CONFETI, Direction.from2DDataValue(i % 4), i % 4));
+			}
+		}
+		// banderines de lado a lado del techo, cada 6 bloques
+		for (int z = FIN_Z0 + 2; z <= FIN_Z1 - 2; z += 6) {
+			for (int x = FIN_X0; x <= FIN_X1; x++) {
+				bloque(x, TECHO_FINAL - 1, z, variante(BloquesFiesta.BANDERINES, Direction.NORTH, Math.floorMod(x / 3 + z, 4)));
+			}
+		}
+		// columnas de colores con su racimo de globos arriba, en dos filas por el centro
+		for (int x : new int[] {67, 75, 85, 93}) {
+			for (int z : new int[] {-30, -50}) {
+				caja(x, SUELO + 1, z, x, TECHO_FINAL - 1, z, s(BloquesFiesta.COLUMNAS[Math.floorMod(x + z, BloquesFiesta.COLUMNAS.length)]));
+				racimo(x, z + 1, TECHO_FINAL - 2, x + z);
+			}
+		}
+		// el mostrador de premios contra la pared este: peluches y regalos encima y en las baldas de detras
+		caja(FIN_X1 - 3, SUELO + 1, -56, FIN_X1 - 3, SUELO + 1, -44, s(Blocks.STRIPPED_CHERRY_LOG));
+		for (int z = -56; z <= -44; z++) {
+			if (z % 2 == 0) {
+				bloque(FIN_X1 - 3, SUELO + 2, z, variante(BloquesFiesta.PELUCHE, Direction.EAST, Math.floorMod(z, 4)));
+			} else if (Math.floorMod(z, 3) == 0) {
+				bloque(FIN_X1 - 3, SUELO + 2, z, variante(BloquesFiesta.REGALO, Direction.EAST, Math.floorMod(z, 4)));
+			}
+			for (int y = SUELO + 1; y <= SUELO + 4; y++) {
+				if ((y + z) % 2 == 0) {
+					bloque(FIN_X1, y, z, variante(y % 2 == 0 ? BloquesFiesta.PELUCHE : BloquesFiesta.REGALO, Direction.WEST, Math.floorMod(y + z, 4)));
+				}
+			}
+		}
+		bloque(FIN_X1, SUELO + 6, -50, variante(BloquesFiesta.CARTEL, Direction.WEST, 1));
+		// la pista de baile: baldosas de colores encendidas y apagadas, en la esquina noroeste
+		for (int x = FIN_X0 + 1; x <= FIN_X0 + 8; x++) {
+			for (int z = FIN_Z0 + 1; z <= FIN_Z0 + 6; z++) {
+				bloque(x, SUELO, z, BloquesFiesta.BALDOSA_JUEGO.defaultBlockState().setValue(BaldosaJuego.COLOR, azar(x, z, 151, 4))
+					.setValue(BaldosaJuego.LUZ, azar(x, z, 152, 3) == 0));
+			}
+		}
+		bloque(FIN_X0, SUELO + 4, FIN_Z0 + 3, variante(BloquesFiesta.ALTAVOZ, Direction.EAST, 0));
+		// maquinitas de feria contra la pared oeste (al sur del escenario): cajas acolchadas con su pantalla
+		for (int z = -34; z <= -24; z += 3) {
+			Block col = BloquesFiesta.ACOLCHADOS[Math.floorMod(z, BloquesFiesta.ACOLCHADOS.length)];
+			caja(FIN_X0, SUELO + 1, z, FIN_X0 + 1, SUELO + 2, z + 1, s(col));
+			caja(FIN_X0, SUELO + 3, z, FIN_X0, SUELO + 3, z + 1, s(BloquesFiesta.LUZ));
+			bloque(FIN_X0 + 2, SUELO + 1, z, variante(BloquesFiesta.SILLITA, Direction.WEST, Math.floorMod(z, 4)));
+		}
+		// la tarta gigante delante del tobogan: tres pisos con velas encendidas
+		caja(76, SUELO + 1, FIN_Z0 + 6, 84, SUELO + 2, FIN_Z0 + 12, s(Blocks.PINK_TERRACOTTA));
+		caja(77, SUELO + 3, FIN_Z0 + 7, 83, SUELO + 4, FIN_Z0 + 11, s(Blocks.WHITE_TERRACOTTA));
+		caja(78, SUELO + 5, FIN_Z0 + 8, 82, SUELO + 5, FIN_Z0 + 10, s(Blocks.PINK_TERRACOTTA));
+		for (int[] v : new int[][] {{78, FIN_Z0 + 8}, {80, FIN_Z0 + 8}, {82, FIN_Z0 + 8}, {78, FIN_Z0 + 10}, {80, FIN_Z0 + 10}, {82, FIN_Z0 + 10}, {80, FIN_Z0 + 9}}) {
+			bloque(v[0], SUELO + 6, v[1], Blocks.RED_CANDLE.defaultBlockState().setValue(net.minecraft.world.level.block.CandleBlock.LIT, true));
+		}
+		// el arco de globos alrededor de la boca del tobogan
+		for (int k = 0; k <= 6; k++) {
+			int y = SUELO + 1 + Math.min(k, 6 - k) + (k == 3 ? 1 : 0);
+			bloque(77 + k, Math.max(SUELO + 5, y + 3), FIN_Z0, variante(BloquesFiesta.GLOBO, Direction.SOUTH, k % 4));
+		}
+		for (int y = SUELO + 1; y <= SUELO + 5; y++) {
+			bloque(77, y, FIN_Z0, variante(BloquesFiesta.GLOBO, Direction.SOUTH, y % 4));
+			bloque(83, y, FIN_Z0, variante(BloquesFiesta.GLOBO, Direction.SOUTH, (y + 2) % 4));
+		}
 		// el tobogan del final: un tubo rojo en la pared norte, con el cartel encima
 		caja(FINAL_TOB_X0 - 1, SUELO, FINAL_TOB_Z0 - 1, FINAL_TOB_X1 + 1, SUELO + 4, FIN_Z0 - 1, s(BloquesFiesta.TOBOGAN));
 		aire(FINAL_TOB_X0, SUELO + 1, FINAL_TOB_Z0, FINAL_TOB_X1, SUELO + 3, FIN_Z0 - 1);

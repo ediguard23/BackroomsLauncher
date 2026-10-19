@@ -367,8 +367,9 @@ SABORES.forEach((s, i) => {
     if (y > 8 && y < 11) return escala(ROJO, 0.8);
     return escala(s, 0.9 + hash(x, y, 222 + i) * 0.1);
   }));
-  const els = [caja([3, 0, 3], [13, 6, 13], '#t'), caja([5, 6, 7.5], [5.8, 9, 8.3], '#v'), caja([10, 6, 7.5], [10.8, 9, 8.3], '#v'), caja([7.6, 6, 5], [8.4, 9, 5.8], '#v')];
-  if (i === 3) els[0] = caja([3, 0, 3], [13, 6, 8], '#t');
+  // las tartas van siempre encima de una mesa (su tablero llega a 13/16): bajadas 3 para apoyarse en el
+  const els = [caja([3, -3, 3], [13, 3, 13], '#t'), caja([5, 3, 7.5], [5.8, 6, 8.3], '#v'), caja([10, 3, 7.5], [10.8, 6, 8.3], '#v'), caja([7.6, 3, 5], [8.4, 6, 5.8], '#v')];
+  if (i === 3) els[0] = caja([3, -3, 3], [13, 3, 8], '#t');
   json(`models/block/tarta_${i}.json`, mod({ t: t(`tarta_${i}`), v: t('globo_azul'), particle: t(`tarta_${i}`) }, els));
 });
 estados('tarta', 4, (i) => `tarta_${i}`);

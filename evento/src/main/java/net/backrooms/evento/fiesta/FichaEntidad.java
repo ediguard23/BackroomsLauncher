@@ -17,9 +17,9 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 /**
- * Una ficha de la Fiesta en su sitio (PlanoFiesta.MONEDAS y TICKETS): una moneda dorada o una
- * tira de tickets que flota y gira. Es la misma para todos; quien ya la cogio no la ve (el
- * cliente mira EstadoFiesta.cogidas). Se coge al pasar por encima (JuegoFiesta), no se toca.
+ * Una moneda de la Fiesta en su sitio (PlanoFiesta.MONEDAS): tumbada encima de una mesa. Es la
+ * misma para todos; quien ya la cogio no la ve ni la puede senalar (el cliente mira
+ * EstadoFiesta.cogidas). Se coge con clic derecho (JuegoFiesta#cogerFicha).
  */
 public class FichaEntidad extends Entity {
 	public static final Item MONEDA = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("moneda_fiesta")), Item::new,
@@ -30,6 +30,9 @@ public class FichaEntidad extends Entity {
 	private static final EntityDataAccessor<Integer> ID = SynchedEntityData.defineId(FichaEntidad.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Integer> TIPO = SynchedEntityData.defineId(FichaEntidad.class, EntityDataSerializers.INT);
 	private static final EntityDataAccessor<Integer> VALOR = SynchedEntityData.defineId(FichaEntidad.class, EntityDataSerializers.INT);
+
+	/** En el cliente: si ese jugador ya cogio la ficha (FiestaCliente la pone). */
+	public static java.util.function.IntPredicate oculta = id -> false;
 
 	public FichaEntidad(EntityType<? extends FichaEntidad> tipo, Level nivel) {
 		super(tipo, nivel);
@@ -58,6 +61,19 @@ public class FichaEntidad extends Entity {
 
 	public Item objeto() {
 		return this.tipo() == 0 ? MONEDA : TICKETS;
+	}
+
+	@Override
+	public boolean isPickable() {
+		return !(this.level().isClientSide() && oculta.test(this.id()));
+	}
+
+	@Override
+	public net.minecraft.world.InteractionResult interact(net.minecraft.world.entity.player.Player jugador, net.minecraft.world.InteractionHand mano) {
+		if (jugador instanceof net.minecraft.server.level.ServerPlayer sp && mano == net.minecraft.world.InteractionHand.MAIN_HAND) {
+			JuegoFiesta.get().cogerFicha(sp, this);
+		}
+		return net.minecraft.world.InteractionResult.SUCCESS;
 	}
 
 	@Override

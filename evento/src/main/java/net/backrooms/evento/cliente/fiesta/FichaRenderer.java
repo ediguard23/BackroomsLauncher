@@ -15,8 +15,8 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
 /**
- * Una ficha de la Fiesta: la moneda o la tira de tickets flotando a media altura, girando y
- * subiendo y bajando. Quien ya la cogio no la ve.
+ * Una moneda de la Fiesta: tumbada encima de la mesa, cada una girada a su manera, con la luz del
+ * sitio. Quien ya la cogio no la ve.
  */
 public class FichaRenderer extends EntityRenderer<FichaEntidad, FichaRenderer.Estado> {
 	private final ItemModelResolver modelos;
@@ -24,7 +24,7 @@ public class FichaRenderer extends EntityRenderer<FichaEntidad, FichaRenderer.Es
 	public FichaRenderer(EntityRendererProvider.Context ctx) {
 		super(ctx);
 		this.modelos = ctx.getItemModelResolver();
-		this.shadowRadius = 0.2F;
+		this.shadowRadius = 0.0F;
 		this.shadowStrength = 0.4F;
 	}
 
@@ -44,7 +44,7 @@ public class FichaRenderer extends EntityRenderer<FichaEntidad, FichaRenderer.Es
 		super.extractRenderState(f, e, parcial);
 		this.modelos.updateForNonLiving(e.objeto, new ItemStack(f.objeto()), ItemDisplayContext.GROUND, f);
 		e.oculta = FiestaCliente.cogida(f.id());
-		e.tiempo = f.tickCount + parcial + f.id() * 13.0F;
+		e.tiempo = f.id() * 47.0F;
 	}
 
 	@Override
@@ -53,10 +53,11 @@ public class FichaRenderer extends EntityRenderer<FichaEntidad, FichaRenderer.Es
 			return;
 		}
 		pose.pushPose();
-		pose.translate(0.0F, 0.45F + (float) Math.sin(e.tiempo * 0.09F) * 0.08F, 0.0F);
-		pose.mulPose(Axis.YP.rotationDegrees(e.tiempo * 4.0F));
-		pose.scale(1.3F, 1.3F, 1.3F);
-		e.objeto.submit(pose, nodos, 15728880, OverlayTexture.NO_OVERLAY, 0);
+		pose.translate(0.0F, 0.02F, 0.0F);
+		pose.mulPose(Axis.YP.rotationDegrees(e.tiempo));
+		pose.mulPose(Axis.XP.rotationDegrees(90.0F));
+		pose.scale(0.7F, 0.7F, 0.7F);
+		e.objeto.submit(pose, nodos, e.lightCoords, OverlayTexture.NO_OVERLAY, 0);
 		pose.popPose();
 		super.submit(e, pose, nodos, camara);
 	}

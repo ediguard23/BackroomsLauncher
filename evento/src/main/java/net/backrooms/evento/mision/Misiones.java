@@ -491,13 +491,11 @@ public final class Misiones {
 			}
 		}
 		if (e.fase == FASE_FIESTA && net.backrooms.evento.fiesta.Fiesta.es(j.level()) && !e.eliminado && e.escapado == 0) {
-			// la hoja cuenta los tickets; el radar, la ficha mas cercana sin coger o, ya con los
-			// tickets, la puerta del final
+			// la hoja cuenta los tickets; el radar no marca nada (las monedas se buscan) hasta tener los
+			// tickets: entonces, la puerta del final
 			hechos = net.backrooms.evento.fiesta.JuegoFiesta.get().tickets(j);
 			total = net.backrooms.evento.fiesta.ConfigFiesta.get().objetivoTickets;
-			if (pendiente(e, TipoMision.TICKETS) >= 0) {
-				objetivo = net.backrooms.evento.fiesta.JuegoFiesta.get().fichaCercana(j);
-			} else {
+			if (pendiente(e, TipoMision.TICKETS) < 0) {
 				objetivo = net.backrooms.evento.fiesta.JuegoFiesta.get().puertaPremio();
 				salida = true;
 			}

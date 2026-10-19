@@ -151,12 +151,13 @@ public final class HojaMisiones {
 	 * cerca), -2 buscando sin senal, -1 la mision en curso no es de casetes.
 	 */
 	private static void detector(GuiGraphics g, Tema tema, int distancia, float grados, int y1) {
-		if (distancia == -1) {
+		// en la Fiesta no hay radar de monedas: solo, con los tickets, el de la puerta del final
+		if (distancia == -1 || fiesta() && !MisionesCliente.salida()) {
 			return;
 		}
 		int cx = 70;
 		int cy = y1 - 46;
-		String que = fiesta() ? (MisionesCliente.salida() ? "SEÑAL DEL PREMIO" : "SEÑAL DE FICHA")
+		String que = fiesta() ? (MisionesCliente.salida() ? "SEÑAL DE LA PUERTA" : "")
 			: MisionesCliente.salida() ? "SEÑAL DE SALIDA" : piscinas() ? "SEÑAL DE VÁLVULA" : "SEÑAL DE CASETE";
 		Texto.maquina(g, que, 106, y1 - 64, 12, 0.14F, tema.papelTexto);
 		g.renderOutline(cx - 22, cy - 22, 44, 44, MenuBackrooms.alfa(tema.papelTinta, 0.4F));

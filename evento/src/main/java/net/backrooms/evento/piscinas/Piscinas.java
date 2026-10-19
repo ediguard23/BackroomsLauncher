@@ -229,6 +229,24 @@ public final class Piscinas {
 		return delante(j, c[0], PlanoPiscinas.PISO, c[1], s.mira(), 2.2);
 	}
 
+	/** Cuantos cuerpos hay en todas las Piscinas (staff: /backrooms piscinas cadaveres), o -1 sin plano. */
+	public static int contarCadaveres() {
+		PlanoPiscinas p = planoDe();
+		if (p == null) {
+			return -1;
+		}
+		int n = 0;
+		int r = PlanoPiscinas.MAPA / PlanoPiscinas.C + 1;
+		for (int cx = -r; cx <= r; cx++) {
+			for (int cz = -r; cz <= r; cz++) {
+				if (p.cadaverEnCelda(cx, cz) != null) {
+					n++;
+				}
+			}
+		}
+		return n;
+	}
+
 	/** Delante del cuerpo mas cercano (PlanoPiscinas#cadaverEnCelda); con `colgado`, de uno que cuelga. */
 	public static boolean irACadaver(ServerPlayer j, boolean colgado) {
 		PlanoPiscinas p = planoDe();

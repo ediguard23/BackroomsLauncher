@@ -59,8 +59,6 @@ import net.minecraft.world.level.storage.LevelResource;
  */
 public final class JuegoFiesta {
 	private static final JuegoFiesta INSTANCIA = new JuegoFiesta();
-	/** A esta distancia de una ficha se coge. */
-	private static final double COGER = 1.35;
 	/** Fichas puestas (entidades) a esta distancia de alguien; se quitan a QUITAR. */
 	private static final double VER = 40.0;
 	private static final double QUITAR = 56.0;
@@ -282,7 +280,6 @@ public final class JuegoFiesta {
 			if (j.isSpectator() || !j.isAlive()) {
 				continue;
 			}
-			this.coger(j);
 			this.parkour(nivel, j);
 			this.saltos(nivel, j);
 			this.rastro(nivel, j);
@@ -292,36 +289,28 @@ public final class JuegoFiesta {
 		}
 	}
 
-	/** Coge las fichas que tiene a los pies. */
-	private void coger(ServerPlayer j) {
+	/**
+	 * Clic derecho en una moneda (FichaEntidad): si no la tiene ya y esta al alcance, se la queda.
+	 * Las monedas no se cogen al pasar: hay que buscarlas en las mesas.
+	 */
+	public void cogerFicha(ServerPlayer j, FichaEntidad f) {
 		Datos d = this.datos(j);
-		for (PlanoFiesta.Punto p : PlanoFiesta.MONEDAS) {
-			if (!d.cogidas.contains(p.id()) && cerca(j, p)) {
-				d.cogidas.add(p.id());
-				d.monedas++;
-				this.sucio = true;
-				Sonidos.aJugador(j, Sonidos.FIESTA_MONEDA, 0.9F);
-				j.level().sendParticles(j, new DustParticleOptions(0xFFD23A, 1.2F), true, false, p.x(), p.y() + 0.4, p.z(), 10, 0.2, 0.2, 0.2, 0.0);
-				j.displayClientMessage(Component.literal("+1 MONEDA (" + d.monedas + ")").withStyle(ChatFormatting.GOLD), true);
-				this.enviar(j);
-			}
+		int id = f.id();
+		if (d.cogidas.contains(id) || j.distanceToSqr(f) > 4.5 * 4.5 || !Fiesta.es(j.level()) || j.isSpectator()) {
+			return;
 		}
-		for (PlanoFiesta.Punto p : PlanoFiesta.TICKETS) {
-			if (!d.cogidas.contains(p.id()) && cerca(j, p)) {
-				d.cogidas.add(p.id());
-				this.sucio = true;
-				Sonidos.aJugador(j, Sonidos.FIESTA_TICKETS, 0.9F);
-				j.level().sendParticles(j, ParticleTypes.HAPPY_VILLAGER, true, false, p.x(), p.y() + 0.4, p.z(), 6, 0.25, 0.2, 0.25, 0.0);
-				this.sumarTickets(j, p.valor(), "tira de tickets");
-			}
+		d.cogidas.add(id);
+		this.sucio = true;
+		if (f.tipo() == 0) {
+			d.monedas++;
+			Sonidos.aJugador(j, Sonidos.FIESTA_MONEDA, 0.9F);
+			j.level().sendParticles(j, new DustParticleOptions(0xFFD23A, 1.2F), true, false, f.getX(), f.getY() + 0.2, f.getZ(), 10, 0.2, 0.1, 0.2, 0.0);
+			j.displayClientMessage(Component.literal("+1 MONEDA (" + d.monedas + ")").withStyle(ChatFormatting.GOLD), true);
+			this.enviar(j);
+		} else {
+			Sonidos.aJugador(j, Sonidos.FIESTA_TICKETS, 0.9F);
+			this.sumarTickets(j, f.valor(), "tira de tickets");
 		}
-	}
-
-	private static boolean cerca(ServerPlayer j, PlanoFiesta.Punto p) {
-		double dx = j.getX() - p.x();
-		double dz = j.getZ() - p.z();
-		double dy = j.getY() - p.y();
-		return dx * dx + dz * dz <= COGER * COGER && dy > -1.5 && dy < 1.2;
 	}
 
 	/** Pone las fichas que tiene alguien cerca y quita las que ya no. */

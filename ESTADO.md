@@ -1,8 +1,48 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-18 (hora de Honduras). Mod `backrooms_evento` 0.22.0, launcher 1.0.0
+Última actualización: 2026-10-18 (hora de Honduras). Mod `backrooms_evento` 0.22.1, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+
+## 0.22.1: Nivel Fun y Piscinas, lo que pidió Bruno tras probar (2026-10-19; Bruno)
+
+Fiesta:
+- Las **tartas** se apoyan en la mesa (el modelo bajado 3 px: la mesa llega a 13/16 del bloque).
+- Sin **radar de fichas** (la hoja solo marca la puerta del final cuando ya tienes los 1500).
+- **Monedas** tumbadas en las mesas, quietas y con la luz del sitio; se cogen con **clic derecho**
+  (`FichaEntidad#interact` → `JuegoFiesta#cogerFicha`), no al pasar. En cada mesa, la moneda en una mitad y
+  la tarta o la comida en la otra.
+- **Sin tickets tirados**: solo se ganan (bote de la vuelta, memoria, regalos, primer parkour). Donde había
+  tiras ahora hay monedas o comida.
+- **Sin flechas de neón** (ni en el laberinto ni en el pasillo del castillo).
+- **Laberinto más grande** (30x26 celdas) con **26 salas seguras** (antes 4) repartidas solas con semilla
+  fija (`PlanoFiesta.SEGURAS`, de 7x7, 7x3 o 3x7, nunca pegadas a otra habitación), cada una con su
+  localizador y una mesa con moneda y comida.
+- **Regalos** rehecho: sala de 15x11 casi a oscuras con estanterías y montones; 8 de los ~30 regalos son
+  los tuyos (sorteo por jugador), se abren con **clic derecho** (`RegaloBloque`), **30 s**, y se juega **una
+  sola vez** por jugador (cuenta desde que empieza).
+- **Música**: la canción de la fiesta ya no se pisa con otra (dura 30,8 s y se relanzaba cada 28-34) ni suena
+  en el castillo; la musiquilla del semáforo (el «pim pim pim» en bucle) se calla al salir del castillo
+  (antes seguía si salías con la luz en verde).
+- **Salón final** lleno: banderines por todo el techo, columnas con globos, tarta gigante con velas delante del
+  tobogán, arco de globos, pista de baile de baldosas encendidas, mostrador de premios con peluches y regalos,
+  maquinitas de feria, confeti y regalos por el suelo.
+- **Anfitrión**: ya no se va porque le mires; solo si le apuntas con la **linterna encendida** (a menos de 20
+  bloques, en el cono del foco y sin paredes en medio). En el apagón sale **uno por cada 3 jugadores del
+  laberinto** (mínimo uno), en la ronda del laberinto, a más de 24 bloques de todos y separados entre sí, y se
+  **ríe alto** al salir.
+Piscinas:
+- **Agua de la inundación**: la superficie se dibujaba con el rayo desde el centro de la cámara, sin el
+  balanceo al andar, y se movía con el jugador; ahora el rayo sale de dos puntos del píxel (`efectos.fsh`).
+- **+30 cadáveres** (de 125 a 155 en este mundo; `PROB_CADAVER` 0,04 → 0,0479) y comprobación más estricta
+  de que el cuerpo tumbado quepa entero (cabeza y brazos incluidos) sin meterse en una pared.
+  `/backrooms piscinas cadaveres` los cuenta.
+Dudas: la comida (galletas, pizza) quita el hambre; la cordura **solo** la sube el agua de almendras (+30 %).
+**Probado** (capturas): tarta apoyada; moneda tumbada y cogida con clic derecho; 26 salas seguras; regalos (abrir uno
+de verdad, el tiempo de 30 s, el consuelo y «ya jugados» al repetir); Anfitrión: mirándole sin linterna sigue, con
+la linterna encendida se va; el salón final nuevo; el recuento de cadáveres. **Sin probar**: ver el agua de la
+inundación andando (las capturas quedaron bajo el agua), los cadáveres junto a paredes a la vista, la música
+(no se puede oír en las pruebas), el apagón con varios jugadores.
 
 ## 0.22.0: el Nivel Fun rehecho como en Backrooms: Escape Together (2026-10-19; Bruno)
 

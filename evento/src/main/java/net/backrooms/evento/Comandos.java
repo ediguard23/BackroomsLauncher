@@ -198,6 +198,11 @@ public final class Comandos {
 			.then(Commands.literal("piscinas")
 				.executes(c -> net.backrooms.evento.piscinas.Piscinas.llegar(c.getSource().getPlayerOrException()) ? 1 : 0)
 				.then(irPiscinas())
+				.then(Commands.literal("cadaveres").executes(c -> {
+					int n = net.backrooms.evento.piscinas.Piscinas.contarCadaveres();
+					c.getSource().sendSuccess(() -> Component.literal("Cuerpos en las Piscinas: " + n), false);
+					return Math.max(0, n);
+				}))
 				.then(Commands.literal("oir").then(Commands.argument("sonido", StringArgumentType.word())
 					.suggests((c, b) -> net.minecraft.commands.SharedSuggestionProvider.suggest(
 						java.util.List.of("gota", "agua", "orilla", "chapoteo", "tuberia", "grave", "grunido", "voz", "susurro"), b))

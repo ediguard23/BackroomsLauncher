@@ -55,7 +55,9 @@ public final class BloquesFiesta {
 	/** La mesa con mantel: choca como una mesa (el tablero arriba). */
 	public static final Block MESA = suelo("mesa_fiesta", MapColor.COLOR_PINK, SoundType.WOOD, Block.box(0, 0, 0, 16, 13, 16), Block.box(0, 11, 0, 16, 13, 16));
 	public static final Block TARTA = suelo("tarta", MapColor.COLOR_PINK, SoundType.WOOL, Block.box(3, 0, 3, 13, 9, 13), Shapes.empty());
-	public static final Block REGALO = suelo("regalo", MapColor.COLOR_RED, SoundType.WOOL, Block.box(2, 0, 2, 14, 12, 14), Block.box(2, 0, 2, 14, 12, 14));
+	/** El regalo (RegaloBloque): en la sala de los regalos se abre con clic derecho. */
+	public static final Block REGALO = conObjeto(Blocks.register(clave("regalo"), RegaloBloque::new,
+		propiedades(MapColor.COLOR_RED, SoundType.WOOL, 0.5F).noOcclusion()));
 	public static final Block SILLITA = suelo("sillita", MapColor.COLOR_BLUE, SoundType.WOOD, Block.box(3, 0, 3, 13, 14, 13), Block.box(3, 0, 3, 13, 8, 13));
 	public static final Block CONFETI = suelo("confeti", MapColor.NONE, SoundType.WOOL, Block.box(0, 0, 0, 16, 0.5, 16), Shapes.empty());
 	public static final Block PELUCHE = suelo("peluche", MapColor.COLOR_BROWN, SoundType.WOOL, Block.box(4, 0, 4, 12, 10, 12), Shapes.empty());
