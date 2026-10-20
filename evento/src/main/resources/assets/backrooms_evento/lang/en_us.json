@@ -162,5 +162,8 @@
   "block.backrooms_evento.moqueta_ciudad": "Road carpet",
   "block.backrooms_evento.pared_central": "Teal wall",
   "block.backrooms_evento.pared_central_baja": "Wall band",
-  "block.backrooms_evento.valla_fiesta": "White fence"
+  "block.backrooms_evento.valla_fiesta": "White fence",
+  "block.backrooms_evento.ramo_globos": "Balloon bunch",
+  "block.backrooms_evento.franja_aviso": "Warning stripe",
+  "block.backrooms_evento.cartel_noclip": "Noclip sign"
 }

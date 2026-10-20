@@ -1,6 +1,7 @@
 package net.backrooms.evento.fiesta;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import net.backrooms.evento.BackroomsEvento;
@@ -14,22 +15,26 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.phys.Vec3;
 
 /**
- * Cuando sale el Anfitrion (la entidad de la Fiesta) y cuando no:
+ * Los Anfitriones de la Fiesta y sus apagones:
+ *  - SIEMPRE hay en el laberinto uno por cada ConfigFiesta.anfitrionPorJugadores jugadores de la
+ *    Fiesta (como minimo uno). Salen en la ronda del laberinto, lejos de todos (24 bloques), de uno en
+ *    uno y riendose alto para que se les oiga; si sobran (se van jugadores), se quitan los mas lejanos.
+ *    Con luz merodean y no cazan (Anfitrion).
  *  - APAGONES: cada ConfigFiesta.apagonCada minutos (con alguien jugando) se va la luz durante
- *    apagonDura segundos (Ambiente#apagon: la oscuridad de siempre, solo las linternas). La
- *    megafonia lo anuncia con demasiada alegria y aparecen Anfitriones en el laberinto (uno por cada
- *    3 jugadores que esten dentro, como minimo uno), lejos de todos y riendose para que se les oiga;
- *    luego cazan. Se espantan con la linterna encendida (Anfitrion#alumbrado). Al volver la luz se van.
- *  - APARICIONES: con luz, cada aparicionCada minutos, a alguien le toca verlo de pie al fondo
- *    de un pasillo, mirandole; en cuanto le mira (o a los pocos segundos) desaparece.
- * Con `/backrooms acechadores false` no sale (como las demas entidades).
+ *    apagonDura segundos (Ambiente#apagon; en la Fiesta no es negro del todo, AmbienteCliente). La
+ *    megafonia lo anuncia con demasiada alegria; los Anfitriones van mas rapido y cazan a quien vean.
+ *    Al volver la luz, la megafonia hace como si nada y ellos vuelven a merodear.
+ * Con `/backrooms acechadores false` no hay ninguno (como las demas entidades).
  */
 public final class AnfitrionFiesta {
 	private static final AnfitrionFiesta INSTANCIA = new AnfitrionFiesta();
+	/** Los sitios de la ronda que estan en el laberinto (por ahi salen y merodean). */
+	private static List<int[]> rondaLaberinto;
 
 	public static AnfitrionFiesta get() {
 		return INSTANCIA;
@@ -38,7 +43,6 @@ public final class AnfitrionFiesta {
 	private final Random azar = new Random();
 	private long ticks;
 	private long proximoApagon = -1;
-	private long proximaAparicion = -1;
 	private boolean habiaApagon;
 
 	private AnfitrionFiesta() {
@@ -46,6 +50,26 @@ public final class AnfitrionFiesta {
 
 	public static void registrar() {
 		ServerTickEvents.END_SERVER_TICK.register(INSTANCIA::tick);
+	}
+
+	/** Si (x, z) esta en el laberinto (sus pasillos o sus habitaciones). */
+	public static boolean enLaberinto(double x, double z) {
+		return x >= PlanoFiesta.LAB_X && x < PlanoFiesta.SALIDA_X && z >= PlanoFiesta.LAB_Z && z < PlanoFiesta.LAB_Z + PlanoFiesta.LAB_H * PlanoFiesta.CELDA;
+	}
+
+	/** Los sitios de PlanoFiesta.RONDA que estan en los pasillos del laberinto. */
+	public static List<int[]> rondaLaberinto() {
+		if (rondaLaberinto == null) {
+			List<int[]> l = new ArrayList<>();
+			for (int[] r : PlanoFiesta.RONDA) {
+				PlanoFiesta.Sala s = PlanoFiesta.sala(r[0], r[1]);
+				if (enLaberinto(r[0], r[1]) && s != null && s.nombre().equals("laberinto")) {
+					l.add(r);
+				}
+			}
+			rondaLaberinto = l.isEmpty() ? PlanoFiesta.RONDA : l;
+		}
+		return rondaLaberinto;
 	}
 
 	private long minutos(float[] r) {
@@ -57,6 +81,16 @@ public final class AnfitrionFiesta {
 		for (ServerPlayer j : nivel.players()) {
 			if (!j.isSpectator() && !j.isCreative() && Misiones.get().enExpedicion(j)) {
 				l.add(j);
+			}
+		}
+		return l;
+	}
+
+	private static List<Anfitrion> vivos(ServerLevel nivel) {
+		List<Anfitrion> l = new ArrayList<>();
+		for (var e : nivel.getAllEntities()) {
+			if (e instanceof Anfitrion a && !a.isRemoved() && a.modo() == Anfitrion.CAZA) {
+				l.add(a);
 			}
 		}
 		return l;
@@ -75,33 +109,65 @@ public final class AnfitrionFiesta {
 		List<ServerPlayer> jugando = this.jugando(nivel);
 		boolean apagon = Ambiente.get().apagon(nivel);
 		if (this.habiaApagon && !apagon) {
-			// vuelve la luz: se van todos y la megafonia hace como si nada
-			this.quitarTodos(nivel);
 			for (ServerPlayer j : nivel.players()) {
 				Sonidos.aJugador(j, Sonidos.FIESTA_LUZ, 0.9F);
 			}
 		}
 		this.habiaApagon = apagon;
-		if (jugando.isEmpty() || !Acechadores.get().activos()) {
+		boolean activos = Acechadores.get().activos();
+		if (this.ticks % 40 == 0) {
+			this.poblacion(nivel, jugando, activos ? jugando.size() : 0);
+		}
+		if (jugando.isEmpty() || !activos) {
 			this.proximoApagon = -1;
-			this.proximaAparicion = -1;
 			return;
 		}
 		if (this.proximoApagon < 0) {
 			this.proximoApagon = this.ticks + this.minutos(c.apagonCada);
 		}
-		if (this.proximaAparicion < 0) {
-			this.proximaAparicion = this.ticks + this.minutos(c.aparicionCada);
-		}
 		if (!apagon && this.ticks >= this.proximoApagon) {
 			this.apagon(nivel, c.apagonDura[0] + this.azar.nextInt(Math.max(1, c.apagonDura[1] - c.apagonDura[0] + 1)));
-		} else if (!apagon && this.ticks >= this.proximaAparicion) {
-			this.proximaAparicion = this.ticks + this.minutos(c.aparicionCada);
-			this.aparicion(nivel, jugando.get(this.azar.nextInt(jugando.size())));
 		}
 	}
 
-	/** Se va la luz y salen a cazar. */
+	/**
+	 * Mantiene los Anfitriones que tiene que haber: uno por cada anfitrionPorJugadores (minimo uno con
+	 * alguien jugando). Pone uno cada vez (lejos de todos) o quita el que sobre mas lejos de nadie.
+	 */
+	private void poblacion(ServerLevel nivel, List<ServerPlayer> jugando, int jugadores) {
+		List<Anfitrion> vivos = vivos(nivel);
+		int quiero = jugadores <= 0 ? 0 : Math.max(1, (int) Math.ceil(jugadores / (double) Math.max(1, ConfigFiesta.get().anfitrionPorJugadores)));
+		if (vivos.size() > quiero) {
+			vivos.sort(Comparator.comparingDouble(a -> -cercania(a.position(), jugando)));
+			vivos.get(0).discard();
+			return;
+		}
+		if (vivos.size() < quiero) {
+			List<BlockPos> otros = new ArrayList<>();
+			for (Anfitrion a : vivos) {
+				otros.add(a.blockPosition());
+			}
+			BlockPos p = this.sitioLejos(nivel, jugando, 24, 80, otros);
+			if (p != null) {
+				Anfitrion a = this.poner(nivel, p, Anfitrion.CAZA);
+				if (a != null) {
+					// se rie al salir, alto: que se sepa que hay uno mas (y mas o menos donde)
+					nivel.playSound(null, p.getX() + 0.5, p.getY() + 2.0, p.getZ() + 0.5, Sonidos.ANFITRION_RISA, SoundSource.HOSTILE, 4.0F, 0.95F);
+					BackroomsEvento.LOG.info("Sale un Anfitrion en la Fiesta en {} {} ({} de {})", p.getX(), p.getZ(), vivos.size() + 1, quiero);
+				}
+			}
+		}
+	}
+
+	private static double cercania(Vec3 p, List<ServerPlayer> jugando) {
+		double d = Double.MAX_VALUE;
+		for (ServerPlayer j : jugando) {
+			d = Math.min(d, j.position().distanceTo(p));
+		}
+		return d;
+	}
+
+	/** Se va la luz: la megafonia lo anuncia y los Anfitriones cazan hasta que vuelva. */
 	public void apagon(ServerLevel nivel, int segundos) {
 		ConfigFiesta c = ConfigFiesta.get();
 		this.proximoApagon = this.ticks + this.minutos(c.apagonCada) + segundos * 20L;
@@ -109,30 +175,9 @@ public final class AnfitrionFiesta {
 		for (ServerPlayer j : nivel.players()) {
 			Sonidos.aJugador(j, Sonidos.FIESTA_APAGON, 0.9F);
 		}
-		List<ServerPlayer> jugando = this.jugando(nivel);
-		int enLaberinto = 0;
-		for (ServerPlayer j : jugando) {
-			if (enLaberinto(j.getX(), j.getZ())) {
-				enLaberinto++;
-			}
-		}
-		int n = Math.max(1, (int) Math.ceil(enLaberinto / 3.0));
-		List<BlockPos> puestos = new ArrayList<>();
-		for (int i = 0; i < n && !jugando.isEmpty(); i++) {
-			BlockPos p = this.sitioLejos(nivel, jugando, 24, 70, puestos);
-			if (p != null) {
-				Anfitrion a = this.poner(nivel, p, Anfitrion.CAZA);
-				if (a != null) {
-					puestos.add(p);
-					// se rie al salir, alto: que se sepa que ya esta ahi (y mas o menos donde)
-					nivel.playSound(null, p.getX() + 0.5, p.getY() + 2.0, p.getZ() + 0.5, Sonidos.ANFITRION_RISA, net.minecraft.sounds.SoundSource.HOSTILE, 4.0F, 0.95F);
-					BackroomsEvento.LOG.info("Apagon en la Fiesta: un Anfitrion sale en {} {}", p.getX(), p.getZ());
-				}
-			}
-		}
 	}
 
-	/** Uno de pie, lejos, mirando a `j` (con luz): se va en cuanto le mira. */
+	/** Uno de pie, lejos, mirando a `j` (staff: /backrooms fiesta aparicion): se va con la linterna. */
 	public void aparicion(ServerLevel nivel, ServerPlayer j) {
 		BlockPos mejor = null;
 		double dMejor = Double.MAX_VALUE;
@@ -172,23 +217,15 @@ public final class AnfitrionFiesta {
 		return a;
 	}
 
-	/** Si (x, z) esta en el laberinto (sus pasillos o sus habitaciones). */
-	private static boolean enLaberinto(double x, double z) {
-		return x >= PlanoFiesta.LAB_X && x < PlanoFiesta.SALIDA_X && z >= PlanoFiesta.LAB_Z && z < PlanoFiesta.LAB_Z + PlanoFiesta.LAB_H * PlanoFiesta.CELDA;
-	}
-
 	/**
 	 * Un sitio de la ronda del laberinto a min..max bloques de alguien, a mas de min de todos y lejos de
-	 * los Anfitriones ya puestos.
+	 * los Anfitriones que ya hay.
 	 */
-	private BlockPos sitioLejos(ServerLevel nivel, List<ServerPlayer> jugando, double min, double max, List<BlockPos> puestos) {
+	private BlockPos sitioLejos(ServerLevel nivel, List<ServerPlayer> jugando, double min, double max, List<BlockPos> otros) {
 		List<int[]> buenos = new ArrayList<>();
-		for (int[] r : PlanoFiesta.RONDA) {
-			if (!enLaberinto(r[0], r[1])) {
-				continue;
-			}
+		for (int[] r : rondaLaberinto()) {
 			boolean junto = false;
-			for (BlockPos o : puestos) {
+			for (BlockPos o : otros) {
 				junto |= Math.hypot(o.getX() - r[0], o.getZ() - r[1]) < 16;
 			}
 			if (junto) {

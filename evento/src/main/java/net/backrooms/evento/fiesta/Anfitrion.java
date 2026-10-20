@@ -1,5 +1,6 @@
 package net.backrooms.evento.fiesta;
 
+import java.util.List;
 import java.util.UUID;
 import net.backrooms.evento.BackroomsEvento;
 import net.backrooms.evento.Sonidos;
@@ -35,15 +36,15 @@ import org.jspecify.annotations.Nullable;
  * redonda con la sonrisa cosida, gorrito, pajarita, guantes blancos) demasiado alto y demasiado
  * flaco; dentro hay alguien que fue un participante y recuerda muy bien como atraer a la gente.
  *
- * No esta siempre. Lo pone AnfitrionFiesta:
- *  - APARICION (con luz): de pie, lejos, mirandote. No caza; se va (con un poco de confeti) si le
- *    apuntas con la linterna encendida, o a los pocos segundos.
- *  - CAZA (en los apagones): te busca. Te ve a ConfigFiesta.anfitrionVista sin paredes en medio
- *    (agachado, a la mitad) y te oye correr a anfitrionOido. Va a donde te vio por ultima vez; si
- *    no te vuelve a ver en anfitrionOlvida segundos, te deja y ronda por los sitios de
- *    PlanoFiesta.RONDA. Si te alcanza te ABRAZA: no te puedes mover y al segundo y medio mueres.
- *    Solo se le espanta apuntandole con la linterna ENCENDIDA (mirarle no basta). Al volver la luz se va.
- * No se le puede hacer dano.
+ * Siempre hay alguno en el laberinto (AnfitrionFiesta: uno por cada ConfigFiesta.anfitrionPorJugadores
+ * jugadores de la Fiesta, como minimo uno). No se va ni se le puede hacer dano.
+ *  - Con LUZ: merodea despacio por la ronda del laberinto (PlanoFiesta.RONDA). No caza a nadie.
+ *  - En un APAGON: un anfitrionApagon mas rapido; si te ve (a anfitrionDetecta bloques, sin paredes en
+ *    medio) va a por ti a anfitrionVelocidad. Va a donde te vio por ultima vez; si no te vuelve a ver en
+ *    anfitrionOlvida segundos, te deja y sigue rondando. Si te alcanza te ABRAZA: no te puedes mover y
+ *    al segundo y medio mueres. En las salas seguras y las de inicio no te persigue.
+ *  - APARICION (solo con /backrooms fiesta aparicion): de pie, lejos, mirandote; se va si le apuntas
+ *    con la linterna encendida, o a los pocos segundos.
  */
 public class Anfitrion extends Monster {
 	public static final int APARICION = 0;
@@ -162,14 +163,21 @@ public class Anfitrion extends Monster {
 			this.tickAparicion(nivel);
 			return;
 		}
-		if (this.tickCount > 20 && this.tickCount % 4 == 0 && this.alumbrado(nivel)) {
-			this.irse(nivel);
+		ConfigFiesta c = ConfigFiesta.get();
+		boolean apagon = net.backrooms.evento.ambiente.Ambiente.get().apagon(nivel);
+		if (!apagon) {
+			// con luz no caza: suelta a quien fuera y merodea
+			if (this.getTarget() != null) {
+				this.setTarget(null);
+			}
+			this.entityData.set(CAZANDO, false);
+			this.rondar(nivel, c.anfitrionVelocidad * 0.5);
+			this.hablar(nivel);
 			return;
 		}
-		ConfigFiesta c = ConfigFiesta.get();
 		AttributeInstance a = this.getAttribute(Attributes.MOVEMENT_SPEED);
 		if (a != null) {
-			a.setBaseValue(atributo(c.anfitrionCaza));
+			a.setBaseValue(atributo(c.anfitrionVelocidad * c.anfitrionApagon));
 		}
 		LivingTarget:
 		{
@@ -192,7 +200,7 @@ public class Anfitrion extends Monster {
 			}
 			this.entityData.set(CAZANDO, t != null);
 			if (t == null) {
-				this.rondar(nivel);
+				this.rondar(nivel, c.anfitrionVelocidad * c.anfitrionApagon * 0.5);
 				break LivingTarget;
 			}
 			if (this.ve(t)) {
@@ -219,9 +227,13 @@ public class Anfitrion extends Monster {
 				this.abrazar(nivel, t);
 			}
 		}
+		this.hablar(nivel);
+	}
+
+	/** De vez en cuando habla (te llama), cace o no. */
+	private void hablar(ServerLevel nivel) {
 		if (this.tickCount >= this.siguienteVoz) {
-			// de vez en cuando habla (te llama), cace o no
-			this.siguienteVoz = this.tickCount + 200 + this.random.nextInt(300);
+			this.siguienteVoz = this.tickCount + 300 + this.random.nextInt(400);
 			if (this.tickCount > 40) {
 				nivel.playSound(null, this.getX(), this.getEyeY(), this.getZ(), Sonidos.ANFITRION_VOZ, SoundSource.HOSTILE, 2.2F, 1.0F);
 			}
@@ -229,18 +241,21 @@ public class Anfitrion extends Monster {
 	}
 
 	private boolean valido(ServerPlayer j) {
-		return j.isAlive() && !j.isCreative() && !j.isSpectator() && j.level() == this.level() && Misiones.get().enExpedicion(j);
+		return j.isAlive() && !j.isCreative() && !j.isSpectator() && j.level() == this.level() && Misiones.get().enExpedicion(j) && !aSalvo(j);
+	}
+
+	/** En una sala segura o de inicio (detras de una puerta) no se le persigue. */
+	private static boolean aSalvo(ServerPlayer j) {
+		PlanoFiesta.Sala s = PlanoFiesta.sala(j.getX(), j.getZ());
+		return s != null && (s.nombre().startsWith("segura") || s.nombre().startsWith("inicio"));
 	}
 
 	private boolean ve(ServerPlayer j) {
-		ConfigFiesta c = ConfigFiesta.get();
-		double vista = c.anfitrionVista * (j.isCrouching() ? 0.5 : 1.0);
-		return this.distanceTo(j) <= vista && this.hasLineOfSight(j);
+		return this.distanceTo(j) <= ConfigFiesta.get().anfitrionDetecta && this.hasLineOfSight(j);
 	}
 
-	/** El que ve (o oye correr) mas cerca, o null. */
+	/** El que ve mas cerca, o null. */
 	private @Nullable ServerPlayer buscar(ServerLevel nivel) {
-		ConfigFiesta c = ConfigFiesta.get();
 		ServerPlayer mejor = null;
 		double dMejor = Double.MAX_VALUE;
 		for (ServerPlayer j : nivel.players()) {
@@ -248,7 +263,7 @@ public class Anfitrion extends Monster {
 				continue;
 			}
 			double d = this.distanceTo(j);
-			if (d < dMejor && (this.ve(j) || j.isSprinting() && d <= c.anfitrionOido)) {
+			if (d < dMejor && this.ve(j)) {
 				mejor = j;
 				dMejor = d;
 			}
@@ -260,15 +275,15 @@ public class Anfitrion extends Monster {
 		return mejor;
 	}
 
-	/** Sin presa: de un sitio de la ronda a otro, despacio. */
-	private void rondar(ServerLevel nivel) {
-		ConfigFiesta c = ConfigFiesta.get();
+	/** Sin presa: de un sitio de la ronda del laberinto a otro, a `bps` bloques por segundo. */
+	private void rondar(ServerLevel nivel, double bps) {
 		AttributeInstance a = this.getAttribute(Attributes.MOVEMENT_SPEED);
 		if (a != null) {
-			a.setBaseValue(atributo(c.anfitrionPaseo));
+			a.setBaseValue(atributo(bps));
 		}
 		if (this.ronda == null || this.position().distanceToSqr(this.ronda) < 4.0 || this.getNavigation().isDone() && this.random.nextInt(40) == 0) {
-			int[] p = PlanoFiesta.RONDA.get(this.random.nextInt(PlanoFiesta.RONDA.size()));
+			List<int[]> ronda = AnfitrionFiesta.rondaLaberinto();
+			int[] p = ronda.get(this.random.nextInt(ronda.size()));
 			this.ronda = new Vec3(p[0] + 0.5, PlanoFiesta.SUELO + 1, p[1] + 0.5);
 		}
 		if (this.getNavigation().isDone()) {
@@ -370,6 +385,12 @@ public class Anfitrion extends Monster {
 
 	@Override
 	public boolean isPushable() {
+		return false;
+	}
+
+	/** No se guardan: AnfitrionFiesta mantiene los que tiene que haber cerca de los jugadores. */
+	@Override
+	public boolean shouldBeSaved() {
 		return false;
 	}
 }

@@ -81,7 +81,20 @@ public final class AmbienteCliente {
 	 * Cuanta oscuridad hay: 0 luz normal, 1 apagon total. Con los parpadeos
 	 * del principio y del final.
 	 */
+	/**
+	 * 0..1: cuanta oscuridad de apagon hay. En la Fiesta nunca es negro del todo: se ve un poco sin
+	 * linterna (OSCURIDAD_FIESTA) y con ella, mucho mas.
+	 */
 	public static float oscuridad() {
+		float o = oscuridadApagon();
+		Minecraft mc = Minecraft.getInstance();
+		return mc.level != null && net.backrooms.evento.fiesta.Fiesta.es(mc.level) ? o * OSCURIDAD_FIESTA : o;
+	}
+
+	/** Cuanto se oscurece la Fiesta en un apagon (1 seria negro). */
+	private static final float OSCURIDAD_FIESTA = 0.72F;
+
+	private static float oscuridadApagon() {
 		if (!huboApagon) {
 			return 0.0F;
 		}

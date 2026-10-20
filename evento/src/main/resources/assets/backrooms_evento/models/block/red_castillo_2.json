@@ -1,0 +1,41 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "r": "backrooms_evento:block/red_castillo_larga",
+    "particle": "backrooms_evento:block/red_castillo"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        8
+      ],
+      "to": [
+        21.333333333333332,
+        16,
+        8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#r",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#r",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        }
+      }
+    }
+  ]
+}

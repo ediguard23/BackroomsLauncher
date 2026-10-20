@@ -18,10 +18,22 @@
       ],
       "faces": {
         "north": {
-          "texture": "#r"
+          "texture": "#r",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
         },
         "south": {
-          "texture": "#r"
+          "texture": "#r",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
         }
       }
     }

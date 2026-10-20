@@ -1,8 +1,57 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-18 (hora de Honduras). Mod `backrooms_evento` 0.22.1, launcher 1.0.0
+Última actualización: 2026-10-20 (hora de Honduras). Mod `backrooms_evento` 0.22.2, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+
+## 0.22.2: Nivel Fun, la segunda lista de Bruno (2026-10-20; Bruno)
+
+Laberinto y salas:
+- **Laberinto de 38x38 celdas (152x152 bloques)** con **60 salas seguras** (`PlanoFiesta.SEGURAS`) y 16 salas
+  de inicio. Cada sala segura tiene **dos puertas de monedas** en paredes distintas (la más lejana posible):
+  entras por una y sales por la otra a otra parte del laberinto, sin teletransporte. El localizador y la mesa
+  van en paredes sin puerta.
+- Las puertas cuestan 1, 2 o 3 monedas y la placa lo dice con **una moneda y la cifra** (antes palitos).
+- El **localizador** es una placa que se entiende: «BUSCAR SALIDA», un altavoz con ondas y «CLIC DCHO».
+- La **puerta morada** de los 1500 tickets es de **un solo sentido** («No hay vuelta atrás.»).
+- Regalos y peluches ya no flotan en losas: regalos sueltos (o de dos en dos) y el peluche de la siesta en el
+  suelo junto a las camas. Los estantes de pared del salón final, fuera (flotaban).
+Decorado:
+- **Globos en ramos de tres** atados con hilos a un peso (`RAMO_GLOBOS`), en vez de tirados por el suelo.
+- **Tartas** nuevas: plato, dos pisos con capas de nata, glaseado que chorrea, fresas y velas de rayas con
+  llama que alumbra (una a medio comer).
+- **Moneda** sin la carita triste: borde en relieve y una estrella.
+- **Red del castillo**: la malla casa de un bloque a otro y la primera y la última de cada tramo se meten en
+  el poste (`red_castillo_0/1/2`).
+- **Sala central** llena: banderines, marcadores, mostradores de premios junto a la puerta, tres mesas con
+  sillas y tartas, maquinitas, piscina de bolas con valla, ramos y carteles. Los **tres noclip** llevan una
+  franja amarilla y negra alrededor (`FRANJA`), un cartel «NOCLIP / OTRA VUELTA» con flecha
+  (`CARTEL_NOCLIP`) y partículas de portal que se ven de lejos.
+Anfitrión (payaso):
+- **No muere ni desaparece** (ni con la linterna; ya no se guarda en el mundo: si no hay nadie cerca se quita
+  y vuelve a salir cerca de los jugadores del laberinto).
+- **1 por cada 5 jugadores** del nivel (mínimo 1), aparece lejos (24-80 bloques) y se ríe alto al salir.
+- **Con luz** ronda despacio (la mitad de su velocidad) y no ataca. **En el apagón** va un 20 % más rápido
+  (4,4 × 1,2 = 5,3 b/s, por debajo del esprint de 5,6) y persigue a quien vea a **8 bloques o menos y sin
+  paredes en medio** (ya no oye). En una sala segura o de inicio no te pilla.
+- `ConfigFiesta`: `anfitrionPorJugadores`, `anfitrionDetecta`, `anfitrionVelocidad`, `anfitrionApagon`,
+  `anfitrionOlvida` (fuera `vista`, `oido`, `caza`, `paseo`, `aparicionCada`).
+- En la Fiesta el apagón deja ver un poco sin linterna (`OSCURIDAD_FIESTA` 0,72) y más con ella.
+Sonido y HUD:
+- La **música baja al 25 %** mientras habla o se ríe el Anfitrión o habla la megafonía (`AmbienteFiesta.Cancion`).
+- Las dos canciones tienen fundido de entrada y de salida (una se cortaba al final).
+- Nueva voz del semáforo pillado (Higgsfield), sin «vuelve al inicio».
+- **HUD** nuevo de monedas y tickets: panel con borde dorado, moneda grande, tickets con barra de progreso
+  a 1500 y el bote de la vuelta.
+Comida: **pizza +3 %** de cordura y **galletas +5 %** (`ComidaCordura`), además del hambre.
+Dudas: las **monedas ya eran de cada jugador** (cada uno tiene sus cogidas; al que la coge se le esconde). El
+**modo aventura** viene de `server.properties` (`gamemode=adventure`, `force-gamemode=false`): quien entró
+alguna vez en otro modo lo conserva; para el evento conviene `force-gamemode=true`.
+**Probado** (capturas y rcon): 60 salas seguras con sus dos puertas, cifras en las puertas, localizador, red
+del castillo, sala central y noclip, tarta, ramos, sala de regalos, peluche, HUD nuevo; Anfitrión: aparece a
+~36 bloques con un jugador, con luz se aleja (1,8 b/s) sin perseguir, en el apagón persigue y abraza, se quita
+sin jugadores cerca. **Sin probar**: oír la voz nueva y que la música baje, la velocidad de persecución a mano,
+el recuento de payasos con varios jugadores.
 
 ## 0.22.1: Nivel Fun y Piscinas, lo que pidió Bruno tras probar (2026-10-19; Bruno)
 

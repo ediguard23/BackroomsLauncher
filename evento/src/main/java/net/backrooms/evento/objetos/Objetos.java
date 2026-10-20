@@ -61,15 +61,17 @@ public final class Objetos {
 
 	/* ---------------------------------------------- comida del Nivel 0 */
 
-	/** Agua de almendras: la unica que sube la cordura. */
+	/** Agua de almendras: la que mas sube la cordura (+30 %); las galletas (+5 %) y la pizza (+3 %) un poco. */
 	public static final Item AGUA_ALMENDRAS = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("agua_almendras")),
 		net.backrooms.evento.supervivencia.AguaAlmendras::new,
 		new Item.Properties().stacksTo(4).food(new FoodProperties(2, 1.0F, true),
 			Consumables.defaultDrink().sound(net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(net.backrooms.evento.Sonidos.AGUA_BEBER)).consumeSeconds(2.0F)
 				.soundAfterConsume(net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(net.backrooms.evento.Sonidos.AGUA_SUSPIRO)).build()));
-	public static final Item GALLETAS = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("galletas")), Item::new,
+	public static final Item GALLETAS = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("galletas")),
+		p -> new net.backrooms.evento.supervivencia.ComidaCordura(p, 5.0F),
 		new Item.Properties().stacksTo(8).food(new FoodProperties(4, 3.0F, false)));
-	public static final Item PIZZA = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("pizza")), Item::new,
+	public static final Item PIZZA = Items.registerItem(ResourceKey.create(Registries.ITEM, BackroomsEvento.id("pizza")),
+		p -> new net.backrooms.evento.supervivencia.ComidaCordura(p, 3.0F),
 		new Item.Properties().stacksTo(4).food(new FoodProperties(8, 9.6F, false)));
 
 	/** El objeto de cada tipo de comida del plano (Plano.C_*). */

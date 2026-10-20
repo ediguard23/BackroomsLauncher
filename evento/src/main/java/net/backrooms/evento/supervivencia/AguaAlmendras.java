@@ -7,7 +7,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 /**
- * Agua de almendras: lo unico que sube la cordura en los Backrooms (+30 %).
+ * Agua de almendras: lo que mas sube la cordura en los Backrooms (+30 %; las galletas y la pizza, un poco:
+ * ComidaCordura).
  * Tambien quita un poco el hambre. Se puede beber aunque no tengas hambre.
  */
 public class AguaAlmendras extends Item {

@@ -21,7 +21,8 @@ import net.minecraft.world.phys.Vec3;
  *
  *   el aire de la sala         en bucle, muy bajo (zumbido electrico y ventilacion)
  *   la musica de la fiesta     desde el altavoz mas cercano, lejana y torcida; se calla en el
- *                              apagon y a veces se queda en silencio un rato largo
+ *                              apagon y a veces se queda en silencio un rato largo. Baja mucho
+ *                              mientras habla o se rie el Anfitrion o habla la megafonia (Cancion)
  *   un globo que cruje         cada 20-60 s, por encima, a 4-15 bloques
  *   un juguete que se enciende cada 45-120 s, a 8-25 bloques, sin que nadie lo toque
  *   un nino que habla          cada 1,5-4 min, desde una sala en la que no estas
@@ -53,6 +54,9 @@ public final class AmbienteFiesta {
 	private static long zumbido;
 	/** La cancion que suena ahora (no se pone otra encima hasta que acabe). */
 	private static SoundInstance cancion;
+	/** Hasta cuando (reloj del sistema) la musica va bajita: alguien habla. */
+	private static long bajaHasta;
+	private static boolean escuchando;
 
 	private AmbienteFiesta() {
 	}
@@ -67,6 +71,17 @@ public final class AmbienteFiesta {
 			return;
 		}
 		ticks++;
+		if (!escuchando) {
+			// cada voz del Anfitrion o de la megafonia baja la musica unos segundos
+			escuchando = true;
+			mc.getSoundManager().addListener((s, eventos, alcance) -> {
+				String p = s.getIdentifier().getPath();
+				if (p.startsWith("anfitrion.voz") || p.startsWith("anfitrion.risa") || p.startsWith("anfitrion.detecta") || p.startsWith("fiesta.anuncio")
+					|| p.startsWith("fiesta.bienvenida") || p.startsWith("fiesta.apagon") || p.startsWith("fiesta.luz")) {
+					bajaHasta = net.minecraft.util.Util.getMillis() + (p.startsWith("fiesta") ? 7000 : 4500);
+				}
+			});
+		}
 		if (aire == null || aire.isStopped() || !mc.getSoundManager().isActive(aire)) {
 			aire = new Aire();
 			mc.getSoundManager().play(aire);
@@ -79,6 +94,17 @@ public final class AmbienteFiesta {
 			}
 		}
 		boolean apagon = AmbienteCliente.apagon();
+		// los noclip de la sala central echan particulas de portal hacia arriba (para que se vean de lejos)
+		if (ticks % 3 == 0) {
+			for (int[] n : PlanoFiesta.NOCLIPS) {
+				if (j.distanceToSqr(n[0] + 1, PlanoFiesta.SUELO, n[1] + 1) < 40 * 40) {
+					mc.level.addParticle(net.minecraft.core.particles.ParticleTypes.PORTAL, n[0] + AZAR.nextDouble() * 2, PlanoFiesta.SUELO + 0.6,
+						n[1] + AZAR.nextDouble() * 2, 0.0, 0.6 + AZAR.nextDouble() * 0.6, 0.0);
+					mc.level.addParticle(net.minecraft.core.particles.ParticleTypes.REVERSE_PORTAL, n[0] + AZAR.nextDouble() * 2, PlanoFiesta.SUELO + 1.0,
+						n[1] + AZAR.nextDouble() * 2, 0.0, 0.04, 0.0);
+				}
+			}
+		}
 		// la puerta roja de la salida del laberinto zumba: la pista de que esta cerca
 		Vec3 salida = new Vec3(PlanoFiesta.SALIDA_X - 0.5, PlanoFiesta.SUELO + 2.0, PlanoFiesta.SALIDA_Z + 0.5);
 		if (ticks >= zumbido && j.position().distanceTo(salida) < 24) {
@@ -105,7 +131,8 @@ public final class AmbienteFiesta {
 					}
 					int[] a = altavoz(ojo);
 					if (a != null) {
-						cancion = sonar(mc, Sonidos.FIESTA_MUSICA, new Vec3(a[0] + 0.5, a[1] + 0.5, a[2] + 0.5), 1.6F, 1.0F);
+						cancion = new Cancion(new Vec3(a[0] + 0.5, a[1] + 0.5, a[2] + 0.5));
+						mc.getSoundManager().play(cancion);
 					}
 				}
 				case GLOBO -> sonar(mc, Sonidos.FIESTA_GLOBO, alrededor(ojo, 4, 15, 2.0, 6.0), 0.5F + AZAR.nextFloat() * 0.3F, 0.85F + AZAR.nextFloat() * 0.3F);
@@ -174,6 +201,33 @@ public final class AmbienteFiesta {
 		double ang = AZAR.nextDouble() * Math.PI * 2;
 		double d = min + AZAR.nextDouble() * (max - min);
 		return new Vec3(o.x + Math.cos(ang) * d, o.y + dy0 + AZAR.nextDouble() * (dy1 - dy0), o.z + Math.sin(ang) * d);
+	}
+
+	/** La cancion de la fiesta desde un altavoz: baja a una cuarta parte mientras alguien habla y vuelve despacio. */
+	private static final class Cancion extends AbstractTickableSoundInstance {
+		private static final float VOLUMEN = 1.6F;
+
+		Cancion(Vec3 p) {
+			super(Sonidos.FIESTA_MUSICA, SoundSource.AMBIENT, RandomSource.create(AZAR.nextLong()));
+			this.looping = false;
+			this.delay = 0;
+			this.volume = VOLUMEN;
+			this.x = p.x;
+			this.y = p.y;
+			this.z = p.z;
+			this.attenuation = SoundInstance.Attenuation.LINEAR;
+		}
+
+		@Override
+		public void tick() {
+			Minecraft mc = Minecraft.getInstance();
+			if (mc.level == null || !Fiesta.es(mc.level)) {
+				this.stop();
+				return;
+			}
+			float quiero = net.minecraft.util.Util.getMillis() < bajaHasta ? VOLUMEN * 0.25F : VOLUMEN;
+			this.volume += (quiero - this.volume) * (quiero < this.volume ? 0.3F : 0.04F);
+		}
 	}
 
 	/** El aire de la Fiesta en bucle; en el apagon baja (sin ventilacion), al salir se apaga. */

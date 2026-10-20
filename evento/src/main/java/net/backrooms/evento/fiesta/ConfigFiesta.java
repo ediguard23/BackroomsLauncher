@@ -45,16 +45,16 @@ public final class ConfigFiesta {
 	public float[] apagonCada = {5.0F, 9.0F};
 	/** Segundos que dura cada apagon (lo que dura la persecucion). */
 	public int[] apagonDura = {35, 50};
-	/** Bloques a los que te ve el Anfitrion (sin paredes en medio) y a los que te oye correr. */
-	public double anfitrionVista = 22.0;
-	public double anfitrionOido = 12.0;
-	/** Bloques por segundo cazando y paseando. */
-	public double anfitrionCaza = 5.2;
-	public double anfitrionPaseo = 1.4;
+	/** Un Anfitrion por cada tantos jugadores en la Fiesta (minimo uno). */
+	public int anfitrionPorJugadores = 5;
+	/** Bloques a los que te ve el Anfitrion en un apagon (nunca a traves de paredes). */
+	public double anfitrionDetecta = 8.0;
+	/** Bloques por segundo persiguiendo (como la Serpiente en seco); merodeando, la mitad. */
+	public double anfitrionVelocidad = 4.4;
+	/** En los apagones va este tanto mas rapido (1,2 = un 20 %). */
+	public double anfitrionApagon = 1.2;
 	/** Segundos sin verte hasta que te deja. */
 	public float anfitrionOlvida = 4.0F;
-	/** Minutos entre apariciones sueltas (fuera de los apagones: te mira de lejos y se va). */
-	public float[] aparicionCada = {2.0F, 4.0F};
 
 	private static ConfigFiesta actual = new ConfigFiesta();
 

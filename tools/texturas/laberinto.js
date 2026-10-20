@@ -214,13 +214,10 @@ PUERTAS.forEach(([n, col], tipo) => {
         l.punto(12, 1, [255, 236, 150]);
       }
       if (mitad === 1 && tipo === 0 && coste > 0) {
-        l.rect(3, 4, 12, 11, [30, 26, 34]);
-        for (let k = 0; k < coste; k++) {
-          const cx = 7.5 + (k - (coste - 1) / 2) * 2;
-          l.punto(Math.round(cx), 6, [242, 197, 58]);
-          l.punto(Math.round(cx), 7, [242, 197, 58]);
-        }
-        l.rect(5, 9, 10, 9, [242, 197, 58]);
+        l.rect(2, 3, 13, 12, [30, 26, 34]);
+        l.disco(4.5, 7.5, 1.6, [242, 197, 58]);
+        l.punto(4, 7, [255, 236, 150]);
+        l.texto(String(coste), 7, 4, [255, 214, 70], 1);
       }
       if (mitad === 1 && tipo === 1) l.rect(4, 6, 11, 7, [240, 230, 210]);
       if (mitad === 1 && tipo === 2) {
@@ -253,18 +250,27 @@ PUERTAS.forEach(([n, col], tipo) => {
   json('items/puerta_fiesta.json', { model: { type: 'minecraft:model', model: t('puerta_verde_arriba_1') } });
 }
 
-// el localizador de salida: placa blanca con un boton azul redondo, una flecha y "2" monedas
+// el localizador de salida: placa blanca con letras: BUSCAR SALIDA, un altavoz con sus ondas, CLIC DCHO y
+// 2 MONEDAS (con dos moneditas), para que se entienda que se pulsa
 {
-  const l = new Lienzo(32).pintar((x, y) => {
-    if (x < 6 || x > 25 || y < 4 || y > 27) return null;
-    if (x === 6 || x === 25 || y === 4 || y === 27) return [150, 150, 156];
-    return escala([236, 236, 240], 0.95 + hash(x, y, 481) * 0.05);
+  const l = new Lienzo(64).pintar((x, y) => {
+    if (x < 2 || x > 61 || y < 1 || y > 62) return null;
+    if (x < 4 || x > 59 || y < 3 || y > 60) return [20, 70, 160];
+    return escala([240, 240, 244], 0.96 + hash(x, y, 481) * 0.04);
   });
-  l.disco(15.5, 13, 6, [20, 70, 160]);
-  l.disco(15.5, 13, 4.6, [70, 150, 250]);
-  l.disco(14, 11.5, 1.4, [190, 230, 255]);
-  l.disco(13, 23, 1.6, [242, 197, 58]);
-  l.disco(18, 23, 1.6, [242, 197, 58]);
+  l.texto('BUSCAR', 'centro', 6, [200, 30, 40], 1);
+  l.texto('SALIDA', 'centro', 15, [200, 30, 40], 1);
+  // el altavoz: caja, cono y tres ondas
+  l.rect(20, 28, 24, 36, [40, 40, 50]);
+  l.poligono([[24, 28], [31, 23], [31, 41], [24, 36]], [40, 40, 50]);
+  for (let k = 0; k < 3; k++) {
+    const rr = 5 + k * 4;
+    for (let a = -0.8; a <= 0.8; a += 0.05) {
+      l.punto(Math.round(33 + Math.cos(a) * rr), Math.round(32 + Math.sin(a) * rr), [20, 110, 220]);
+    }
+  }
+  l.texto('CLIC DCHO', 'centro', 45, [30, 30, 40], 1);
+  l.texto('2 MONEDAS', 'centro', 53, [150, 110, 20], 1);
   guardar(TEX, 'localizador_salida', l);
   json('models/block/localizador_salida.json', enPared('localizador_salida', 6));
   const v = {};
@@ -327,15 +333,22 @@ json('models/block/poste_castillo.json', mod({ p: t('poste_castillo'), particle:
 ]));
 estados('poste_castillo', 4, () => 'poste_castillo', true);
 
-// la red negra: malla fina de cuadros (seis por bloque), con los nudos un poco mas gruesos
-guardar(TEX, 'red_castillo', new Lienzo(48).pintar((x, y) => {
-  if (x % 8 === 0 || y % 8 === 0) return escala([30, 30, 34], 0.9 + hash(x, y, 503) * 0.2);
-  return null;
-}));
-json('models/block/red_castillo.json', mod({ r: t('red_castillo'), particle: t('red_castillo') }, [
-  { from: [0, 0, 8], to: [16, 16, 8], faces: { north: { texture: '#r' }, south: { texture: '#r' } } }
-]));
-estados('red_castillo', 4, () => 'red_castillo');
+// la red negra: malla de cuadros (seis por bloque) con la linea partida entre dos cuadros vecinos, asi
+// que casa igual de un bloque al otro y por las dos caras. La primera y la ultima de cada tramo se alargan
+// dos cuadros (16/3) hasta meterse en el poste (variante 1 hacia atras, 2 hacia delante)
+{
+  const malla = (x, y) => (x % 8 === 0 || x % 8 === 7 || y % 8 === 0 || y % 8 === 7) ? escala([30, 30, 34], 0.9 + hash(x, y, 503) * 0.2) : null;
+  guardar(TEX, 'red_castillo', new Lienzo(48).pintar(malla));
+  guardar(TEX, 'red_castillo_larga', new Lienzo(64, 48).pintar(malla));
+  const L = 16 / 3;
+  const plano = (x0, x1, tex) => mod({ r: t(tex), particle: t('red_castillo') }, [
+    { from: [x0, 0, 8], to: [x1, 16, 8], faces: { north: { texture: '#r', uv: [0, 0, 16, 16] }, south: { texture: '#r', uv: [0, 0, 16, 16] } } }
+  ]);
+  json('models/block/red_castillo_0.json', plano(0, 16, 'red_castillo'));
+  json('models/block/red_castillo_1.json', plano(-L, 16, 'red_castillo_larga'));
+  json('models/block/red_castillo_2.json', plano(0, 16 + L, 'red_castillo_larga'));
+  estados('red_castillo', 4, (i) => `red_castillo_${i === 3 ? 0 : i}`);
+}
 
 // el semaforo pequeno: caja negra con la roja arriba y la verde abajo, sobre su trozo de red
 {
@@ -416,6 +429,64 @@ json('models/block/valla_fiesta.json', mod({ v: t('valla_fiesta'), particle: t('
 ]));
 estados('valla_fiesta', 4, () => 'valla_fiesta');
 
+// el ramo de globos: un peso en el suelo, el nudo y tres hilos (uno recto y dos inclinados) hasta tres
+// globos de colores (cuatro juegos de colores)
+{
+  guardar(TEX, 'hilo_globo', new Lienzo(4).pintar(() => [226, 222, 214]));
+  guardar(TEX, 'peso_globos', new Lienzo(16).pintar((x, y) => (Math.abs(x - 7.5) < 1.5 || Math.abs(y - 7.5) < 1.5 ? [250, 206, 60] : escala([200, 40, 120], 0.9 + hash(x, y, 551) * 0.1))));
+  const NG = ['rojo', 'amarillo', 'azul', 'verde'];
+  const globo = (cx, cy, cz, tex) => {
+    const cara = (e) => { const fc = {}; for (const d of ['north', 'south', 'east', 'west', 'up', 'down']) fc[d] = { texture: tex, uv: [0, 0, 7, 8] }; return { ...e, faces: fc }; };
+    return [
+      cara({ from: [cx - 3, cy, cz - 3], to: [cx + 3, cy + 7, cz + 3] }),
+      cara({ from: [cx - 3.6, cy + 1, cz - 2.4], to: [cx + 3.6, cy + 6, cz + 2.4] }),
+      cara({ from: [cx - 2.4, cy + 1, cz - 3.6], to: [cx + 2.4, cy + 6, cz + 3.6] }),
+      cara({ from: [cx - 1, cy - 0.8, cz - 1], to: [cx + 1, cy, cz + 1] })
+    ];
+  };
+  const hilo = (ang) => ({ from: [7.9, 3, 7.9], to: [8.1, 17, 8.1], rotation: { origin: [8, 3, 8], axis: 'z', angle: ang },
+    faces: { north: { texture: '#h' }, south: { texture: '#h' }, east: { texture: '#h' }, west: { texture: '#h' } } });
+  // donde acaba un hilo inclinado 22,5 grados (14 de largo): a 5,36 del centro y a 12,9 de altura sobre el nudo
+  for (let v = 0; v < 4; v++) {
+    const els = [
+      { from: [5.5, 0, 5.5], to: [10.5, 2.5, 10.5], faces: caras('#p') },
+      { from: [7.4, 2.5, 7.4], to: [8.6, 3.2, 8.6], faces: caras('#h') },
+      { from: [7.9, 3, 7.9], to: [8.1, 20, 8.1], faces: { north: { texture: '#h' }, south: { texture: '#h' }, east: { texture: '#h' }, west: { texture: '#h' } } },
+      hilo(22.5), hilo(-22.5),
+      ...globo(8, 20.8, 8, '#a'), ...globo(2.64, 16.7, 8, '#b'), ...globo(13.36, 16.7, 8, '#c')
+    ];
+    json(`models/block/ramo_globos_${v}.json`, mod({ a: t(`globo_${NG[v]}`), b: t(`globo_${NG[(v + 1) % 4]}`), c: t(`globo_${NG[(v + 2) % 4]}`),
+      h: t('hilo_globo'), p: t('peso_globos'), particle: t(`globo_${NG[v]}`) }, els));
+  }
+  estados('ramo_globos', 4, (i) => `ramo_globos_${i}`);
+}
+
+// la franja de aviso de los noclip: rayas amarillas y negras en diagonal, que brillan un poco
+guardar(TEX, 'franja_aviso', new Lienzo(16).pintar((x, y) => (Math.floor((x + y) / 4) % 2 === 0 ? escala([250, 206, 40], 0.95 + hash(x, y, 561) * 0.05) : [26, 24, 28])));
+simple('franja_aviso');
+
+// el cartel del noclip en su poste: NOCLIP (verde, roto) y OTRA VUELTA, con una flecha hacia abajo
+{
+  const l = new Lienzo(64).pintar((x, y) => {
+    if (y < 2 || y > 50) return null;
+    if (y < 4 || y > 48 || x < 2 || x > 61) return [250, 206, 40];
+    return escala([34, 20, 48], 0.9 + hash(x, y, 571) * 0.12);
+  });
+  l.texto('NOCLIP', 'centro', 8, [90, 255, 150], 1);
+  l.texto('NOCLIP', 'centro', 9, [190, 60, 255], 1, 0.4);
+  l.texto('OTRA', 'centro', 21, [255, 230, 120], 1);
+  l.texto('VUELTA', 'centro', 30, [255, 230, 120], 1);
+  l.poligono([[26, 40], [38, 40], [32, 47]], [255, 255, 255]);
+  guardar(TEX, 'cartel_noclip', l);
+  guardar(TEX, 'poste_cartel', new Lienzo(16).pintar((x, y) => escala([120, 84, 52], 0.85 + hash(x, y, 572) * 0.2)));
+  json('models/block/cartel_noclip.json', mod({ c: t('cartel_noclip'), p: t('poste_cartel'), particle: t('poste_cartel') }, [
+    { from: [7, 0, 7], to: [9, 10, 9], faces: caras('#p') },
+    { from: [0, 6, 7.5], to: [16, 22, 8.5], shade: false, light_emission: 6,
+      faces: { north: { texture: '#c' }, south: { texture: '#c' }, east: { texture: '#p' }, west: { texture: '#p' }, up: { texture: '#p' } } }
+  ]));
+  estados('cartel_noclip', 4, () => 'cartel_noclip');
+}
+
 console.log('  laberinto, puertas, flechas, rotulos, castillo, sala central y salon final');
 
 /* ============================================================ nombres */
@@ -449,7 +520,10 @@ const NOMBRES = {
   moqueta_ciudad: ['Moqueta de carreteras', 'Road carpet'],
   pared_central: ['Pared verde agua', 'Teal wall'],
   pared_central_baja: ['Franja de la pared', 'Wall band'],
-  valla_fiesta: ['Valla blanca', 'White fence']
+  valla_fiesta: ['Valla blanca', 'White fence'],
+  ramo_globos: ['Ramo de globos', 'Balloon bunch'],
+  franja_aviso: ['Franja de aviso', 'Warning stripe'],
+  cartel_noclip: ['Cartel del noclip', 'Noclip sign']
 };
 for (const [archivo, k] of [['es_es.json', 0], ['en_us.json', 1]]) {
   const f = path.join(ASSETS, 'lang', archivo);

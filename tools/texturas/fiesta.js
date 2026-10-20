@@ -172,6 +172,11 @@ console.log('  paredes, suelos, techo, luces y acolchados');
 /* ============================================================ decoracion */
 
 const mod = (textures, elements) => ({ parent: 'minecraft:block/block', textures, elements });
+const caras = (tex) => {
+  const f = {};
+  for (const d of ['north', 'south', 'east', 'west', 'up', 'down']) f[d] = { texture: tex };
+  return f;
+};
 const caja = (from, to, tex, extra = {}) => {
   const faces = {};
   for (const d of ['north', 'south', 'east', 'west', 'up', 'down']) faces[d] = { texture: tex };
@@ -358,19 +363,55 @@ COLORES.forEach((col, i) => {
 });
 estados('mesa_fiesta', 4, (i) => `mesa_fiesta_${i}`);
 
-// tartas (fresa, chocolate, vainilla y una a medio comer) con velas
-const SABORES = [[246, 170, 196], [120, 70, 44], [250, 236, 196], [246, 170, 196]];
-SABORES.forEach((s, i) => {
-  guardar(TEX, `tarta_${i}`, new Lienzo(16).pintar((x, y) => {
-    if (y < 3) return escala(CREMA, 0.95 + hash(x, y, 221) * 0.08);
-    if (y === 3 && x % 3 === 0) return CREMA;
-    if (y > 8 && y < 11) return escala(ROJO, 0.8);
-    return escala(s, 0.9 + hash(x, y, 222 + i) * 0.1);
+// tartas (fresa, chocolate, vainilla y una a medio comer): plato, dos pisos de bizcocho con capas de nata,
+// glaseado que chorrea por los lados, fresas en el piso de abajo y velas de rayas con su llama (que alumbra).
+// Van siempre encima de una mesa (su tablero llega a 13/16): el modelo empieza 3 mas abajo para apoyarse
+const SABORES = [
+  { glaseado: [250, 160, 196], bizcocho: [250, 226, 190] },
+  { glaseado: [92, 52, 32], bizcocho: [136, 82, 50] },
+  { glaseado: [252, 246, 228], bizcocho: [244, 212, 150] },
+  { glaseado: [250, 160, 196], bizcocho: [250, 226, 190] }
+];
+guardar(TEX, 'plato_tarta', new Lienzo(16).pintar((x, y) => (x < 1 || y < 1 || x > 14 || y > 14 ? [190, 190, 196] : escala([246, 246, 248], 0.96 + hash(x, y, 223) * 0.04))));
+guardar(TEX, 'vela_fiesta', new Lienzo(16).pintar((x, y) => ((x + y) % 6 < 3 ? [250, 250, 250] : [70, 140, 230])));
+guardar(TEX, 'llama_vela', new Lienzo(16).pintar((x, y) => mezcla([255, 250, 200], [255, 140, 30], y / 15)));
+guardar(TEX, 'fresa_tarta', new Lienzo(16).pintar((x, y) => {
+  if (y < 4) return [70, 160, 70];
+  return hash(x, y, 224) > 0.85 ? [250, 230, 120] : escala([214, 30, 46], 0.9 + hash(x, y, 225) * 0.1);
+}));
+SABORES.forEach((sab, i) => {
+  // el lado: glaseado arriba que chorrea en gotas de largo distinto, bizcocho con dos capas de nata
+  guardar(TEX, `tarta_lado_${i}`, new Lienzo(16).pintar((x, y) => {
+    const gota = 3 + Math.floor(hash(x, 0, 226 + i) * 4) * (x % 3 === 1 ? 1 : 0.4);
+    if (y < gota) return escala(sab.glaseado, 0.95 + (y === 0 ? 0.1 : 0) + hash(x, y, 227) * 0.05);
+    if (y === 7 || y === 8 || y === 12) return escala(CREMA, 0.95 + hash(x, y, 228) * 0.05);
+    return escala(sab.bizcocho, 0.88 + hash(x, y, 229 + i) * 0.14);
   }));
-  // las tartas van siempre encima de una mesa (su tablero llega a 13/16): bajadas 3 para apoyarse en el
-  const els = [caja([3, -3, 3], [13, 3, 13], '#t'), caja([5, 3, 7.5], [5.8, 6, 8.3], '#v'), caja([10, 3, 7.5], [10.8, 6, 8.3], '#v'), caja([7.6, 3, 5], [8.4, 6, 5.8], '#v')];
-  if (i === 3) els[0] = caja([3, -3, 3], [13, 3, 8], '#t');
-  json(`models/block/tarta_${i}.json`, mod({ t: t(`tarta_${i}`), v: t('globo_azul'), particle: t(`tarta_${i}`) }, els));
+  // la cima: glaseado con virutas de colores y un borde de nata en bolitas
+  guardar(TEX, `tarta_cima_${i}`, new Lienzo(16).pintar((x, y) => {
+    const borde = x < 2 || y < 2 || x > 13 || y > 13;
+    if (borde && (x + y) % 3 !== 0) return escala(CREMA, 0.92 + hash(x, y, 230) * 0.08);
+    const h = hash(x, y, 231 + i);
+    if (h > 0.9) return COLORES[Math.floor(h * 97) % 4];
+    return escala(sab.glaseado, 0.92 + hash(x, y, 232) * 0.08);
+  }));
+  const T = (n) => ({ texture: n });
+  const piso = (from, to) => ({ from, to, faces: { north: T('#l'), south: T('#l'), east: T('#l'), west: T('#l'), up: T('#c'), down: T('#p') } });
+  const media = i === 3;
+  const els = [
+    { from: [1.5, -3, 1.5], to: [14.5, -2.6, 14.5], faces: caras('#p') },
+    piso([2.5, -2.6, 2.5], [13.5, 1.4, media ? 8 : 13.5]),
+    piso([4.5, 1.4, 4.5], [11.5, 4.4, media ? 8 : 11.5])
+  ];
+  const fresas = media ? [[3, 3], [11.6, 3]] : [[3, 3], [11.6, 3], [3, 11.6], [11.6, 11.6], [7.3, 2.9], [7.3, 12]];
+  for (const [fx, fz] of fresas) els.push({ from: [fx, 1.4, fz], to: [fx + 1.4, 2.6, fz + 1.4], faces: caras('#f') });
+  const velas = media ? [[7.6, 5.4]] : [[6, 7.6], [9.2, 7.6], [7.6, 5.4], [7.6, 9.6]];
+  for (const [vx, vz] of velas) {
+    els.push({ from: [vx, 4.4, vz], to: [vx + 0.8, 7.4, vz + 0.8], faces: caras('#v') });
+    els.push({ from: [vx + 0.15, 7.4, vz + 0.15], to: [vx + 0.65, 8.6, vz + 0.65], shade: false, light_emission: 15, faces: caras('#ll') });
+  }
+  json(`models/block/tarta_${i}.json`, mod({ l: t(`tarta_lado_${i}`), c: t(`tarta_cima_${i}`), p: t('plato_tarta'), f: t('fresa_tarta'),
+    v: t('vela_fiesta'), ll: t('llama_vela'), particle: t(`tarta_cima_${i}`) }, els));
 });
 estados('tarta', 4, (i) => `tarta_${i}`);
 
@@ -590,11 +631,14 @@ json('items/luz_fiesta_parpadeo.json', { model: { type: 'minecraft:model', model
 {
   const m = new Lienzo(16).pintar((x, y) => {
     const d = Math.hypot(x - 7.5, y - 7.5);
-    if (d > 7) return null;
-    let c = d > 5.8 ? [184, 134, 28] : (x + y < 12 ? [255, 236, 140] : [242, 197, 58]);
-    if (y === 9 && x >= 5 && x <= 10 && d < 5) c = [184, 134, 28];
-    if (y === 10 && (x === 5 || x === 10)) c = [184, 134, 28];
-    if (y === 6 && (x === 5 || x === 10)) c = [184, 134, 28];
+    if (d > 7.2) return null;
+    if (d > 6.2) return [168, 118, 24];
+    if (d > 5.3) return x + y < 14 ? [255, 228, 120] : [214, 160, 40];
+    let c = escala([242, 197, 58], 1.0 + (7.5 - (x + y) / 2) * 0.025);
+    // la estrella de cinco puntas, en relieve
+    const a = Math.atan2(y - 7.5, x - 7.5) + Math.PI / 2;
+    const r = 2.0 + 1.9 * Math.pow(Math.abs(Math.cos(a * 2.5)), 3);
+    if (d < r) c = d > r - 0.9 ? [190, 138, 30] : [255, 236, 150];
     return c;
   });
   guardar(ITEM, 'moneda_fiesta', m);

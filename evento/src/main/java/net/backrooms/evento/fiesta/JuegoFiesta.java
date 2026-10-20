@@ -363,6 +363,12 @@ public final class JuegoFiesta {
 		ServerLevel nivel = j.level();
 		Datos d = this.datos(j);
 		if (lado <= 0) {
+			if (tipo == 2) {
+				// la puerta del final no tiene vuelta atras
+				nivel.playSound(null, pos, Sonidos.FIESTA_TORNO_NO, SoundSource.BLOCKS, 1.0F, 0.8F);
+				j.displayClientMessage(Component.literal("No hay vuelta atrás.").withStyle(ChatFormatting.DARK_RED), true);
+				return;
+			}
 			// desde detras: de vuelta
 			this.cruzar(j, pos, mira);
 			return;

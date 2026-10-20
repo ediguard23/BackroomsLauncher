@@ -122,6 +122,12 @@ public final class BloquesFiesta {
 	public static final Block MOQUETA_CIUDAD = registrar("moqueta_ciudad", propiedades(MapColor.COLOR_GREEN, GOMA, 1.0F));
 	public static final Block PARED_CENTRAL = registrar("pared_central", propiedades(MapColor.COLOR_CYAN, SoundType.STONE, 1.5F));
 	public static final Block PARED_CENTRAL_BAJA = registrar("pared_central_baja", propiedades(MapColor.COLOR_GREEN, SoundType.STONE, 1.5F));
+	/** Un ramo de tres globos atados con sus hilos a un peso (en el suelo, nunca un globo suelto en el suelo). */
+	public static final Block RAMO_GLOBOS = suelo("ramo_globos", MapColor.COLOR_RED, SoundType.WOOL, Block.box(2, 0, 2, 14, 16, 14), Shapes.empty());
+	/** La franja de aviso (amarilla y negra) alrededor de los noclip de la sala central. */
+	public static final Block FRANJA = registrar("franja_aviso", propiedades(MapColor.COLOR_YELLOW, SoundType.STONE, 1.0F).lightLevel(e -> 4));
+	/** El cartel en su poste junto a cada noclip: NOCLIP, OTRA VUELTA. */
+	public static final Block CARTEL_NOCLIP = suelo("cartel_noclip", MapColor.COLOR_YELLOW, SoundType.WOOD, Block.box(1, 0, 6, 15, 16, 10), Block.box(7, 0, 7, 9, 16, 9));
 	public static final Block VALLA = suelo("valla_fiesta", MapColor.SNOW, SoundType.WOOD, Block.box(0, 0, 6, 16, 14, 10), Block.box(0, 0, 6, 16, 24, 10));
 
 	/* ---------------------------------------- suelos defectuosos, parkour y juegos */
@@ -156,7 +162,7 @@ public final class BloquesFiesta {
 	/** Los que se ven a traves (redes, banderines, flechas, puertas...): para el cliente, capa CUTOUT. */
 	public static Block[] recortados() {
 		return new Block[] {GUIRNALDA, CARTEL, DIBUJO, ALTAVOZ, CONFETI, GLOBO, NOTA, PUERTA, SEMAFORO, LOCALIZADOR, MARCADOR, NOCLIP,
-			BANDERINES, FLECHA, LETRERO, NUBE, POSTE, RED, VALLA};
+			BANDERINES, FLECHA, LETRERO, NUBE, POSTE, RED, VALLA, RAMO_GLOBOS, CARTEL_NOCLIP, REGALO};
 	}
 
 	private static ResourceKey<Block> clave(String id) {

@@ -141,7 +141,11 @@ function musica (variante) {
   // un siseo de cinta debajo
   const hp = new D.Biquad('hp', 2500, 0.7);
   for (let i = 0; i < buf.length; i++) buf[i] += hp.paso(rnd() * 2 - 1) * 0.008;
-  return pico(sala(altavozViejo(buf, { alto: 3000 }), 0.45, 0.75), -3);
+  // entra y sale suave (antes el siseo y la sala se cortaban de golpe al final)
+  const salida = pico(sala(altavozViejo(buf, { alto: 3000 }), 0.45, 0.75), -3);
+  const n = salida.length;
+  for (let i = 0; i < n; i++) salida[i] *= Math.min(1, i / (0.3 * SR), (n - 1 - i) / (2.5 * SR));
+  return salida;
 }
 
 /* ============================================================== globos y juguetes */
