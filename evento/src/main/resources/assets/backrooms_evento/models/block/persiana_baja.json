@@ -1,0 +1,53 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "l": "backrooms_evento:block/persiana_baja",
+    "particle": "backrooms_evento:block/persiana_baja"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        6
+      ],
+      "to": [
+        16,
+        16,
+        10
+      ],
+      "faces": {
+        "north": {
+          "texture": "#l",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#l",
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#l"
+        },
+        "west": {
+          "texture": "#l"
+        },
+        "up": {
+          "texture": "#l"
+        },
+        "down": {
+          "texture": "#l"
+        }
+      }
+    }
+  ]
+}

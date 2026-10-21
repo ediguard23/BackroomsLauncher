@@ -23,7 +23,13 @@ public enum TipoMision {
 
 	/* las de la Fiesta (Nivel Fun): juntar los tickets dando vueltas y salir por el tobogan del final */
 	TICKETS("Consigue los tickets", "Sal del laberinto (las monedas de las mesas abren puertas; los localizadores de las salas seguras te guían), cruza el castillo moviéndote solo en verde y baja por el tobogán: cada vuelta da su bote. Para otra vuelta, salta a un cuadrado de noclip."),
-	PREMIO("Sal de la fiesta", "Con tus tickets, la puerta del norte de la sala central se abre. Al fondo del salón, el tobogán: quédate en su boca.");
+	PREMIO("Sal de la fiesta", "Con tus tickets, la puerta del norte de la sala central se abre. Al fondo del salón, el tobogán: quédate en su boca."),
+
+	/* las de la Estacion Electrica (Nivel 3): son de todos (las va cumpliendo JuegoEstacion) y la ultima, cruzar */
+	COMBUSTIBLE("Arranca el generador", "El generador de la nave central casi no tiene combustible. Busca bidones por los sectores y vacíalos en su boca (clic derecho). Sin corriente no funciona nada, y se gasta."),
+	PANELES("Repara los paneles", "Cada sector tiene dos paneles averiados. Cada uno pide un material (cable, caja de herramientas o cinta aislante): búscalo por los pasillos y úsalo en el panel. Con los dos de un sector, se abre su sala de fusibles."),
+	FUSIBLES("Restablece el circuito", "Lleva los cuatro fusibles a la sala de control y ponlos en su hueco (pared oeste). Después, sube los interruptores (pared este) en el orden de la pantalla. Si te equivocas, salta todo."),
+	PASARELA("Cruza la pasarela", "Con el circuito completo, la pasarela del norte tiene corriente. Crúzala hasta la puerta del final antes de que algo te encuentre.");
 
 	public final String titulo;
 	public final String descripcion;

@@ -55,6 +55,11 @@ public final class Entidades {
 		EntityType.Builder.<net.backrooms.evento.fiesta.Anfitrion>of(net.backrooms.evento.fiesta.Anfitrion::new, MobCategory.MONSTER)
 			.sized(0.8F, 2.7F).eyeHeight(2.4F).clientTrackingRange(10));
 
+	/** El Amasijo de la Estacion: una masa de cuerpos y brazos con una boca en medio. */
+	public static final EntityType<net.backrooms.evento.estacion.Amasijo> AMASIJO = registrar("amasijo",
+		EntityType.Builder.<net.backrooms.evento.estacion.Amasijo>of(net.backrooms.evento.estacion.Amasijo::new, MobCategory.MONSTER)
+			.sized(1.3F, 2.0F).eyeHeight(1.4F).clientTrackingRange(10));
+
 	private Entidades() {
 	}
 
@@ -68,6 +73,7 @@ public final class Entidades {
 		net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(SMILER, net.backrooms.evento.entidad.Smiler.atributos());
 		net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(SERPIENTE, net.backrooms.evento.entidad.Serpiente.atributos());
 		net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(ANFITRION, net.backrooms.evento.fiesta.Anfitrion.atributos());
+		net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry.register(AMASIJO, net.backrooms.evento.estacion.Amasijo.atributos());
 		BackroomsEvento.LOG.info("Entidades registradas ({})", BuiltInRegistries.ENTITY_TYPE.getKey(CASETE));
 	}
 }

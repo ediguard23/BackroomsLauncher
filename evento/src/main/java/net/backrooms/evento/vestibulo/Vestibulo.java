@@ -259,6 +259,11 @@ public final class Vestibulo {
 			net.backrooms.evento.fiesta.Fiesta.llegar(j, false);
 			return;
 		}
+		if (net.backrooms.evento.estacion.Estacion.es(donde)) {
+			// en la Estacion: vuelve al acceso (lo hecho por todos sigue hecho)
+			net.backrooms.evento.estacion.Estacion.llegar(j, false);
+			return;
+		}
 		Fase f = Fase.de(donde);
 		if (f == null) {
 			// en las Piscinas: vuelve a otro sitio de las Piscinas

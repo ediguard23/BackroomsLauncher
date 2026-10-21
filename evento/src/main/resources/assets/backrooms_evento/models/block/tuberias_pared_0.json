@@ -1,0 +1,75 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "p": "backrooms_evento:block/tuberia_estacion",
+    "s": "backrooms_evento:block/tuberia_soporte",
+    "v": "backrooms_evento:block/valvula_roja",
+    "particle": "backrooms_evento:block/tuberia_estacion"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        8,
+        11
+      ],
+      "to": [
+        16,
+        13,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#p"
+        },
+        "south": {
+          "texture": "#p"
+        },
+        "east": {
+          "texture": "#p"
+        },
+        "west": {
+          "texture": "#p"
+        },
+        "up": {
+          "texture": "#p"
+        },
+        "down": {
+          "texture": "#p"
+        }
+      }
+    },
+    {
+      "from": [
+        6,
+        7,
+        10
+      ],
+      "to": [
+        10,
+        14,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#s"
+        },
+        "south": {
+          "texture": "#s"
+        },
+        "east": {
+          "texture": "#s"
+        },
+        "west": {
+          "texture": "#s"
+        },
+        "up": {
+          "texture": "#s"
+        },
+        "down": {
+          "texture": "#s"
+        }
+      }
+    }
+  ]
+}

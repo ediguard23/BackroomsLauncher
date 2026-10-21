@@ -23,7 +23,7 @@ public class PantallaPanel extends Screen {
 	private static final int GRIS = 0xFFB8B3A6;
 	private static final int BLANCO = 0xFFF4F0E4;
 	private static final int ROJO = 0xFFFF6A5A;
-	private static final String[] PESTANAS = {"GENERAL", "NIVEL 0", "NIVEL 37 · PISCINAS", "NIVEL FUN"};
+	private static final String[] PESTANAS = {"GENERAL", "NIVEL 0", "NIVEL 37", "NIVEL FUN", "NIVEL 3"};
 
 	private static int pestana;
 	private static String respuesta = "";
@@ -118,7 +118,7 @@ public class PantallaPanel extends Screen {
 						Accion.de("Una válvula", "backrooms piscinas ir valvula"), Accion.de("Tarjeta roja", "backrooms piscinas ir tarjeta_roja"),
 						Accion.de("Tarjeta amarilla", "backrooms piscinas ir tarjeta_amarilla"), Accion.de("Tarjeta verde", "backrooms piscinas ir tarjeta_verde"),
 						Accion.de("Contar cadáveres", "backrooms piscinas cadaveres")))));
-			default -> new Pagina(
+			case 3 -> new Pagina(
 				"Las Feeding Rooms: una fiesta infantil vacía. Del cuartito de inicio al laberinto (monedas que abren puertas, salas seguras), el castillo de bolas con el semáforo y la sala central con el bote; con 1500 tickets, la puerta del salón final y su tobogán. En los apagones, el Anfitrión caza.",
 				List.of(new Entidad("Anfitrión", "El payaso de la fiesta: con luz ronda sin atacar; en el apagón persigue a quien ve a 8 bloques (no a través de paredes). Uno por cada 5 jugadores.", Accion.de("Que aparezca", "backrooms fiesta aparicion"))),
 				List.of(TipoMision.TICKETS, TipoMision.PREMIO),
@@ -131,6 +131,18 @@ public class PantallaPanel extends Screen {
 						Accion.de("Salón final", "backrooms fiesta ir final"), Accion.de("Memoria", "backrooms fiesta ir memoria"),
 						Accion.de("Regalos", "backrooms fiesta ir regalos"), Accion.de("Cocina", "backrooms fiesta ir cocina"),
 						Accion.de("Siesta", "backrooms fiesta ir siesta"), Accion.de("Sala secreta", "backrooms fiesta ir secreta")))));
+			default -> new Pagina(
+				"La Estación Eléctrica: una central vieja sin nadie. Se llega por el tobogán del salón final de la Fiesta. Entre todos: llenar el generador con bidones (gasta: sin gasoil, apagón), reparar los 8 paneles con cable, herramientas o cinta, llevar los 4 fusibles a la sala de control y bajar los interruptores en el orden de la pantalla. Entonces se enciende la pasarela y se sale por la puerta del fondo.",
+				List.of(new Entidad("Amasijo", "Carne y brazos con una boca. Ronda los sectores, oye las máquinas y caza a quien ve (más lejos con luz); se le despista rompiendo la línea de visión. Sale al arrancar el generador; más con la mitad de los paneles y con la pasarela.", Accion.de("Invocar", "backrooms invocar amasijo"))),
+				List.of(TipoMision.COMBUSTIBLE, TipoMision.PANELES, TipoMision.FUSIBLES, TipoMision.PASARELA),
+				List.of(new Seccion("ESTADO", List.of(Accion.de("Ver todo", "backrooms estacion ver"), Accion.de("Generador al 100", "backrooms estacion combustible 100"),
+						Accion.de("Generador al 10", "backrooms estacion combustible 10"), Accion.ojo("Vaciar el generador", "backrooms estacion combustible 0"),
+						Accion.ojo("Siguiente etapa", "backrooms estacion avanzar"), Accion.ojo("Todo como al principio", "backrooms estacion reponer"))),
+					new Seccion("SUCESOS", List.of(Accion.de("Luz normal", "backrooms luz"))),
+					new Seccion("IR A", List.of(Accion.de("Llevarme a la Estación", "backrooms estacion"), Accion.de("Acceso", "backrooms estacion ir acceso"),
+						Accion.de("Nave del generador", "backrooms estacion ir nave"), Accion.de("Sala de control", "backrooms estacion ir control"),
+						Accion.de("Pasarela", "backrooms estacion ir pasarela"), Accion.de("Paneles", "backrooms estacion ir a_paneles_1"),
+						Accion.de("Fusibles", "backrooms estacion ir a_fusibles")))));
 		};
 	}
 
@@ -139,7 +151,8 @@ public class PantallaPanel extends Screen {
 			case 0 -> this.estado.general();
 			case 1 -> this.estado.nivel0();
 			case 2 -> this.estado.piscinas();
-			default -> this.estado.fiesta();
+			case 3 -> this.estado.fiesta();
+			default -> this.estado.estacion();
 		};
 	}
 

@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "backrooms_evento:block/persiana_lamas"
+  },
+  "elements": []
+}

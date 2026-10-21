@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/orientable",
+  "textures": {
+    "front": "backrooms_evento:block/boca_combustible",
+    "side": "backrooms_evento:block/generador_carcasa",
+    "top": "backrooms_evento:block/generador_tapa"
+  }
+}

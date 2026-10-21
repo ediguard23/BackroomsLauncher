@@ -514,8 +514,10 @@ public final class JuegoFiesta {
 			nivel.playSound(null, j.blockPosition(), Sonidos.FIESTA_TOBOGAN, SoundSource.PLAYERS, 1.2F, 0.8F);
 			Misiones.get().completar(j, TipoMision.PREMIO);
 			BackroomsEvento.LOG.info("{} sale de la Fiesta por el tobogan", j.getGameProfile().name());
-			// aqui empezara el siguiente tramo; mientras no exista, salir es escapar
-			net.backrooms.evento.fase.Fases.get().escapar(j);
+			// al Nivel 3 (la Estacion Electrica); si el servidor no la tiene, salir es escapar
+			if (!net.backrooms.evento.estacion.Estacion.llegar(j, true)) {
+				net.backrooms.evento.fase.Fases.get().escapar(j);
+			}
 		}
 	}
 

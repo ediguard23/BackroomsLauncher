@@ -50,6 +50,10 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
                                  bote, puertas, localizador, noclip, toboganes), JuegoSemaforo (el del castillo),
                                  JuegoMemoria, JuegoRegalos, el Anfitrion y sus apagones
                                  (AnfitrionFiesta), ConfigFiesta
+      estacion/                  la Estacion Electrica (Nivel 3), despues de la Fiesta: PlanoEstacion (acceso, nave del
+                                 generador, sala de control, pasarela y los 4 sectores laberinto), GeneradorEstacion,
+                                 BloquesEstacion (Interactivos, Variante), JuegoEstacion (combustible, paneles, fusibles,
+                                 secuencia, pasarela; todo compartido), el Amasijo y cuantos salen (AmasijoEstacion)
       expedicion/                el /start (cinemática de la firma y el ascensor y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas
@@ -65,17 +69,19 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
   src/main/resources/assets/     texturas, modelos, sonidos, shaders (casi todo GENERADO)
 tools/
   texturas/*.js                  dibujan las texturas y modelos (npm run texturas)
-  texturas/entidades.js          modelos de Bacteria, Smiler y Serpiente -> genera Malla*.java (no editarlos a mano)
+  texturas/entidades.js          modelos de Bacteria, Smiler, Serpiente, Anfitrion y Amasijo -> genera Malla*.java (no editarlos a mano)
   texturas/huecos.js             las paredes huecas: tabiques, boquetes rotos, interior (multipart)
   texturas/piscinas.js           bloques de las Piscinas (azulejo, causticas animadas, luces, marcas y detalles...)
   texturas/cadaveres.js          las pieles de los cuerpos de las Piscinas (formato de piel de jugador)
   texturas/objetos3d.js          modelos 3D de la linterna, la camara y el agua de almendras
   texturas/fiesta.js             bloques de la Fiesta (papeles, suelos, decoracion, juegos)
   texturas/laberinto.js          los del laberinto, puertas, castillo, sala central y salon final (va despues de fiesta.js)
+  texturas/estacion.js           bloques y objetos de la Estacion Electrica (Nivel 3)
   sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros);
                                  la Bacteria y el agarre en sonidos/bacteria.js; las Piscinas y la
                                  Serpiente en sonidos/nivel37.js; la Fiesta y el Anfitrion en sonidos/fiesta.js;
-                                 la cinematica del tobogan en sonidos/tobogan.js
+                                 la cinematica del tobogan en sonidos/tobogan.js; la Estacion y el Amasijo en
+                                 sonidos/estacion.js
   sonidos/voces/                 las únicas grabaciones: voces generadas con Higgsfield
   video/                         tráiler 4K (npm run trailer)
   cartel/                        cartel animado para Yamipa (GIF 7x4 en colores de mapa)
@@ -115,6 +121,7 @@ servidor-ejemplo/                configuración del servidor del evento
   oir <sonido> <jugador>], tarjetas [reponer|abrir], recepcion, vestibulo,
   muerte, escapados, invocar bacteria|smiler|serpiente, megafono (tu voz para todos), reparar [radio],
   inundacion [segundos|parar], piscinas cadaveres, fiesta [jugador|ir <sala>|apagon|aparicion|tickets|monedas|ver|juegos|recargar],
+  estacion [jugador|ir <sala>|combustible <n>|avanzar|reponer|ver], invocar amasijo,
   acechadores, cordura, comida reponer, misiones...). Ver `Comandos.java`. La lista del evento (quién puede
   entrar): `/brwhitelist agregar|quitar|ver|lista|recargar` (`acceso/Whitelist.java`; la lista vive
   en la tienda, ver `VENTA.md`).

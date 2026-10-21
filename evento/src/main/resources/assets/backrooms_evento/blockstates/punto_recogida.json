@@ -1,0 +1,244 @@
+{
+  "variants": {
+    "facing=north,tipo=0,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_0"
+    },
+    "facing=north,tipo=0,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio"
+    },
+    "facing=north,tipo=1,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_1"
+    },
+    "facing=north,tipo=1,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio"
+    },
+    "facing=north,tipo=2,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_2"
+    },
+    "facing=north,tipo=2,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio"
+    },
+    "facing=north,tipo=3,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_3"
+    },
+    "facing=north,tipo=3,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio"
+    },
+    "facing=north,tipo=4,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_4"
+    },
+    "facing=north,tipo=4,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio"
+    },
+    "facing=north,tipo=5,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_5"
+    },
+    "facing=north,tipo=5,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio"
+    },
+    "facing=north,tipo=6,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_6"
+    },
+    "facing=north,tipo=6,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio"
+    },
+    "facing=north,tipo=7,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_7"
+    },
+    "facing=north,tipo=7,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio"
+    },
+    "facing=east,tipo=0,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_0",
+      "y": 90
+    },
+    "facing=east,tipo=0,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 90
+    },
+    "facing=east,tipo=1,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_1",
+      "y": 90
+    },
+    "facing=east,tipo=1,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 90
+    },
+    "facing=east,tipo=2,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_2",
+      "y": 90
+    },
+    "facing=east,tipo=2,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 90
+    },
+    "facing=east,tipo=3,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_3",
+      "y": 90
+    },
+    "facing=east,tipo=3,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 90
+    },
+    "facing=east,tipo=4,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_4",
+      "y": 90
+    },
+    "facing=east,tipo=4,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 90
+    },
+    "facing=east,tipo=5,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_5",
+      "y": 90
+    },
+    "facing=east,tipo=5,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 90
+    },
+    "facing=east,tipo=6,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_6",
+      "y": 90
+    },
+    "facing=east,tipo=6,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 90
+    },
+    "facing=east,tipo=7,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_7",
+      "y": 90
+    },
+    "facing=east,tipo=7,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 90
+    },
+    "facing=south,tipo=0,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_0",
+      "y": 180
+    },
+    "facing=south,tipo=0,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 180
+    },
+    "facing=south,tipo=1,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_1",
+      "y": 180
+    },
+    "facing=south,tipo=1,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 180
+    },
+    "facing=south,tipo=2,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_2",
+      "y": 180
+    },
+    "facing=south,tipo=2,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 180
+    },
+    "facing=south,tipo=3,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_3",
+      "y": 180
+    },
+    "facing=south,tipo=3,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 180
+    },
+    "facing=south,tipo=4,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_4",
+      "y": 180
+    },
+    "facing=south,tipo=4,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 180
+    },
+    "facing=south,tipo=5,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_5",
+      "y": 180
+    },
+    "facing=south,tipo=5,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 180
+    },
+    "facing=south,tipo=6,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_6",
+      "y": 180
+    },
+    "facing=south,tipo=6,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 180
+    },
+    "facing=south,tipo=7,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_7",
+      "y": 180
+    },
+    "facing=south,tipo=7,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 180
+    },
+    "facing=west,tipo=0,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_0",
+      "y": 270
+    },
+    "facing=west,tipo=0,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 270
+    },
+    "facing=west,tipo=1,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_1",
+      "y": 270
+    },
+    "facing=west,tipo=1,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 270
+    },
+    "facing=west,tipo=2,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_2",
+      "y": 270
+    },
+    "facing=west,tipo=2,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 270
+    },
+    "facing=west,tipo=3,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_3",
+      "y": 270
+    },
+    "facing=west,tipo=3,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 270
+    },
+    "facing=west,tipo=4,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_4",
+      "y": 270
+    },
+    "facing=west,tipo=4,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 270
+    },
+    "facing=west,tipo=5,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_5",
+      "y": 270
+    },
+    "facing=west,tipo=5,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 270
+    },
+    "facing=west,tipo=6,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_6",
+      "y": 270
+    },
+    "facing=west,tipo=6,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 270
+    },
+    "facing=west,tipo=7,vacio=false": {
+      "model": "backrooms_evento:block/punto_recogida_7",
+      "y": 270
+    },
+    "facing=west,tipo=7,vacio=true": {
+      "model": "backrooms_evento:block/punto_recogida_vacio",
+      "y": 270
+    }
+  }
+}

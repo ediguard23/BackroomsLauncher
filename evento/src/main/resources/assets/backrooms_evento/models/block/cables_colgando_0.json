@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "backrooms_evento:block/cables_colgando_0"
+  }
+}

@@ -69,7 +69,11 @@ import net.minecraft.server.level.ServerPlayer;
  *  reparar [radio]            deja los chunks de alrededor como los hizo el generador
  *  perdonar                   quita el ban a todos los que cayeron (al acabar el evento o tras una prueba)
  *  escapados [olvidar]       quienes han escapado y en que puesto
- *  invocar bacteria|smiler|serpiente  la pone delante
+ *  estacion [jugador]        lo manda a la Estacion Electrica (Nivel 3) como si bajara del tobogan de la Fiesta
+ *  estacion ir <sala>        a esa sala de la Estacion (acceso, pasillo, nave, control, pasarela, a_paneles_1, b_fusibles...)
+ *  estacion combustible <n>  pone el deposito del generador en n (0..100)
+ *  estacion avanzar|reponer|ver  pasa a la etapa siguiente, lo deja todo como al principio o lo cuenta
+ *  invocar bacteria|smiler|serpiente|amasijo  la pone delante
  *
  * Y /start [todos|jugadores]: la cinematica y al Nivel 0 a los que esperan en la recepcion
  * (todos: a todos los conectados; o a los indicados), poco a poco; el staff en creativo o espectador no.
@@ -160,7 +164,8 @@ public final class Comandos {
 					}
 					return 1;
 				}))
-				.then(Commands.literal("serpiente").executes(c -> invocarSerpiente(c.getSource().getPlayerOrException()))))
+				.then(Commands.literal("serpiente").executes(c -> invocarSerpiente(c.getSource().getPlayerOrException())))
+				.then(Commands.literal("amasijo").executes(c -> invocarAmasijo(c.getSource().getPlayerOrException()))))
 			.then(Commands.literal("acechadores").then(Commands.argument("si", BoolArgumentType.bool()).executes(c -> {
 				boolean si = BoolArgumentType.getBool(c, "si");
 				net.backrooms.evento.entidad.Acechadores.get().activos(si);
@@ -269,6 +274,31 @@ public final class Comandos {
 						+ net.backrooms.evento.fiesta.ConfigFiesta.get().objetivoTickets + " tickets)."), true);
 					return 1;
 				})))
+			.then(Commands.literal("estacion")
+				.executes(c -> net.backrooms.evento.estacion.Estacion.llegar(c.getSource().getPlayerOrException(), true) ? 1 : 0)
+				.then(Commands.argument("jugador", EntityArgument.player())
+					.executes(c -> net.backrooms.evento.estacion.Estacion.llegar(EntityArgument.getPlayer(c, "jugador"), true) ? 1 : 0))
+				.then(Commands.literal("ir").then(Commands.argument("sala", StringArgumentType.word())
+					.suggests((c, b) -> SharedSuggestionProvider.suggest(net.backrooms.evento.estacion.PlanoEstacion.SALAS.stream().map(s -> s.nombre()).distinct(), b))
+					.executes(c -> estacionIr(c, StringArgumentType.getString(c, "sala")))))
+				.then(Commands.literal("combustible").then(Commands.argument("n", IntegerArgumentType.integer(0, 100)).executes(c -> {
+					net.backrooms.evento.estacion.JuegoEstacion.get().combustible(IntegerArgumentType.getInteger(c, "n"));
+					return estacionVer(c);
+				})))
+				.then(Commands.literal("avanzar").executes(c -> {
+					net.backrooms.evento.estacion.JuegoEstacion.get().avanzar();
+					return estacionVer(c);
+				}))
+				.then(Commands.literal("reponer").executes(c -> {
+					net.backrooms.evento.estacion.JuegoEstacion.get().reponerTodo();
+					ServerLevel n = net.backrooms.evento.estacion.Estacion.nivel();
+					if (n != null) {
+						net.backrooms.evento.estacion.AmasijoEstacion.get().quitarTodos(n);
+					}
+					c.getSource().sendSuccess(() -> Component.literal("Estación como al principio (generador vacío, paneles rotos, fusibles en sus salas)."), true);
+					return 1;
+				}))
+				.then(Commands.literal("ver").executes(Comandos::estacionVer)))
 			.then(Commands.literal("megafono")
 				.executes(c -> {
 					net.backrooms.evento.expedicion.MegafonoStaff.alternar(c.getSource().getPlayerOrException());
@@ -481,6 +511,50 @@ public final class Comandos {
 		s.setYHeadRot(mira);
 		s.setYBodyRot(mira);
 		nivel.addFreshEntity(s);
+		return 1;
+	}
+
+	/** A esa sala de la Estacion (la primera con ese nombre), en el suelo de su centro. */
+	private static int estacionIr(CommandContext<CommandSourceStack> c, String nombre) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		ServerPlayer j = c.getSource().getPlayerOrException();
+		ServerLevel n = net.backrooms.evento.estacion.Estacion.nivel();
+		if (n == null) {
+			c.getSource().sendFailure(Component.literal("Este servidor no tiene la Estación."));
+			return 0;
+		}
+		for (net.backrooms.evento.estacion.PlanoEstacion.Sala s : net.backrooms.evento.estacion.PlanoEstacion.SALAS) {
+			if (s.nombre().equals(nombre)) {
+				j.teleportTo(n, (s.x0() + s.x1()) / 2.0 + 0.5, net.backrooms.evento.estacion.PlanoEstacion.SUELO + 1, (s.z0() + s.z1()) / 2.0 + 0.5,
+					java.util.Set.of(), j.getYRot(), 0.0F, true);
+				net.backrooms.evento.estacion.JuegoEstacion.get().enviar(j);
+				return 1;
+			}
+		}
+		c.getSource().sendFailure(Component.literal("No hay sala " + nombre));
+		return 0;
+	}
+
+	private static int estacionVer(CommandContext<CommandSourceStack> c) {
+		for (String l : net.backrooms.evento.estacion.JuegoEstacion.get().resumen()) {
+			c.getSource().sendSuccess(() -> Component.literal(l), false);
+		}
+		return 1;
+	}
+
+	/** Pone un Amasijo 7 bloques por delante, en el suelo (luego hace lo suyo: ronda y caza). */
+	private static int invocarAmasijo(ServerPlayer j) {
+		net.minecraft.server.level.ServerLevel nivel = j.level();
+		net.minecraft.world.phys.Vec3 p = j.position().add(j.getViewVector(1.0F).multiply(1, 0, 1).normalize().scale(7));
+		var a = net.backrooms.evento.mision.Entidades.AMASIJO.create(nivel, net.minecraft.world.entity.EntitySpawnReason.COMMAND);
+		if (a == null) {
+			return 0;
+		}
+		float mira = j.getYRot() + 180.0F;
+		a.snapTo(p.x, j.getY(), p.z, mira, 0.0F);
+		a.addTag(net.backrooms.evento.estacion.AmasijoEstacion.INVOCADO);
+		a.setYHeadRot(mira);
+		a.setYBodyRot(mira);
+		nivel.addFreshEntity(a);
 		return 1;
 	}
 

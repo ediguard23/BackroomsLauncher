@@ -1,0 +1,16 @@
+{
+  "variants": {
+    "color=0": {
+      "model": "backrooms_evento:block/franja_sector_rojo"
+    },
+    "color=1": {
+      "model": "backrooms_evento:block/franja_sector_amarillo"
+    },
+    "color=2": {
+      "model": "backrooms_evento:block/franja_sector_azul"
+    },
+    "color=3": {
+      "model": "backrooms_evento:block/franja_sector_verde"
+    }
+  }
+}

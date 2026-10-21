@@ -1266,5 +1266,201 @@
         "name": "backrooms_evento:cinematica_tobogan_despues"
       }
     ]
+  },
+  "estacion.ambiente": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_ambiente",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "estacion.generador": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_generador",
+        "attenuation_distance": 40
+      }
+    ]
+  },
+  "estacion.estruendo": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_estruendo1",
+        "attenuation_distance": 80
+      },
+      {
+        "name": "backrooms_evento:estacion_estruendo2",
+        "attenuation_distance": 80
+      },
+      {
+        "name": "backrooms_evento:estacion_estruendo3",
+        "attenuation_distance": 80
+      }
+    ]
+  },
+  "estacion.chispas": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_chispas1",
+        "attenuation_distance": 12
+      },
+      {
+        "name": "backrooms_evento:estacion_chispas2",
+        "attenuation_distance": 12
+      },
+      {
+        "name": "backrooms_evento:estacion_chispas3",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "estacion.arranca": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_arranca",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "estacion.parada": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_parada",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "estacion.reserva": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_reserva",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "estacion.repostar": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_repostar",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "estacion.fallo": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_fallo",
+        "attenuation_distance": 48
+      }
+    ]
+  },
+  "estacion.pasarela": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_pasarela",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "estacion.bidon": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_bidon",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "estacion.coger": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_coger",
+        "attenuation_distance": 12
+      }
+    ]
+  },
+  "estacion.reparar": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_reparar",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "estacion.persiana": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_persiana",
+        "attenuation_distance": 32
+      }
+    ]
+  },
+  "estacion.fusible": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_fusible",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "estacion.palanca": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_palanca",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "estacion.radio": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_radio",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "amasijo.pasos": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:amasijo_pasos1",
+        "attenuation_distance": 28
+      },
+      {
+        "name": "backrooms_evento:amasijo_pasos2",
+        "attenuation_distance": 28
+      },
+      {
+        "name": "backrooms_evento:amasijo_pasos3",
+        "attenuation_distance": 28
+      }
+    ]
+  },
+  "amasijo.grito": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:amasijo_grito",
+        "attenuation_distance": 64
+      }
+    ]
+  },
+  "amasijo.respira": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:amasijo_respira1",
+        "attenuation_distance": 20
+      },
+      {
+        "name": "backrooms_evento:amasijo_respira2",
+        "attenuation_distance": 20
+      }
+    ]
+  },
+  "amasijo.ataque": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:amasijo_ataque",
+        "attenuation_distance": 24
+      }
+    ]
   }
 }

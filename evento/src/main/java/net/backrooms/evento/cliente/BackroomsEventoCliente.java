@@ -76,6 +76,11 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			net.backrooms.evento.cliente.fiesta.MarcadorRenderer::new);
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.EstadoFiesta.TYPE, (s, ctx) -> net.backrooms.evento.cliente.fiesta.FiestaCliente.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Semaforo.TYPE, (s, ctx) -> net.backrooms.evento.cliente.fiesta.SemaforoCliente.recibir(s));
+		// la Estacion
+		BlockRenderLayerMap.putBlocks(ChunkSectionLayer.CUTOUT, net.backrooms.evento.estacion.BloquesEstacion.recortados());
+		EntityRenderers.register(Entidades.AMASIJO, net.backrooms.evento.cliente.entidad.AmasijoRenderer::new);
+		EntityModelLayerRegistry.registerModelLayer(net.backrooms.evento.cliente.entidad.AmasijoRenderer.CAPA, net.backrooms.evento.cliente.entidad.MallaAmasijo::crear);
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.EstadoEstacion.TYPE, (s, ctx) -> net.backrooms.evento.cliente.estacion.EstacionCliente.recibir(s));
 		// los tubos encendidos se tinen: grises en el apagon, rojos con la alarma
 		ColorProviderRegistry.BLOCK.register((estado, mundo, pos, tinte) -> AmbienteCliente.colorTubos(),
 			Bloques.FLUORESCENTE, Bloques.FLUORESCENTE_PARPADEO);
@@ -121,6 +126,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			net.backrooms.evento.cliente.cinematica.CinematicaCliente.tick(mc);
 			net.backrooms.evento.cliente.piscinas.AmbientePiscinas.tick(mc);
 			net.backrooms.evento.cliente.fiesta.AmbienteFiesta.tick(mc);
+			net.backrooms.evento.cliente.estacion.AmbienteEstacion.tick(mc);
 			net.backrooms.evento.cliente.piscinas.MordiscoCliente.tick(mc);
 		});
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("supervivencia"), SupervivenciaCliente::render);
@@ -135,6 +141,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("misiones"), PapelMisiones::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("hueco"), HuecoCliente::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("fiesta"), net.backrooms.evento.cliente.fiesta.FiestaCliente::render);
+		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("estacion"), net.backrooms.evento.cliente.estacion.EstacionCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("agarre"), AgarreCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("mordisco"), net.backrooms.evento.cliente.piscinas.MordiscoCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("ascensor"), AscensorCliente::render);
@@ -169,6 +176,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			HuecoCliente.olvidar();
 			net.backrooms.evento.cliente.fiesta.FiestaCliente.olvidar();
 			net.backrooms.evento.cliente.fiesta.SemaforoCliente.olvidar();
+			net.backrooms.evento.cliente.estacion.EstacionCliente.olvidar();
 		});
 		PantallaCinematica.cargar();
 		EfectosMundo.cargar();

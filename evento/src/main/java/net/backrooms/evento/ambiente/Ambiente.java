@@ -103,8 +103,8 @@ public final class Ambiente {
 				this.tickPiscinas(nivel);
 				continue;
 			}
-			if (net.backrooms.evento.fiesta.Fiesta.es(nivel)) {
-				// la Fiesta: los apagones los pone AnfitrionFiesta; aqui solo se acaban
+			if (net.backrooms.evento.fiesta.Fiesta.es(nivel) || net.backrooms.evento.estacion.Estacion.es(nivel)) {
+				// la Fiesta y la Estacion: los apagones los ponen AnfitrionFiesta y JuegoEstacion; aqui solo se acaban
 				Estado e = this.estado(nivel.dimension());
 				if ((e.apagon || e.alarma) && (this.ticks >= e.fin || nivel.players().isEmpty())) {
 					this.terminar(nivel);

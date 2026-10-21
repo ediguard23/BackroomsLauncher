@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "backrooms_evento:block/foco_pasarela_off"
+    },
+    "lit=true": {
+      "model": "backrooms_evento:block/foco_pasarela_on"
+    }
+  }
+}

@@ -1,0 +1,964 @@
+{
+  "variants": {
+    "facing=north,color=0,num=0": {
+      "model": "backrooms_evento:block/rotulo_a0"
+    },
+    "facing=north,color=0,num=1": {
+      "model": "backrooms_evento:block/rotulo_a1"
+    },
+    "facing=north,color=0,num=2": {
+      "model": "backrooms_evento:block/rotulo_a2"
+    },
+    "facing=north,color=0,num=3": {
+      "model": "backrooms_evento:block/rotulo_a3"
+    },
+    "facing=north,color=0,num=4": {
+      "model": "backrooms_evento:block/rotulo_a4"
+    },
+    "facing=north,color=0,num=5": {
+      "model": "backrooms_evento:block/rotulo_a5"
+    },
+    "facing=north,color=0,num=6": {
+      "model": "backrooms_evento:block/rotulo_a6"
+    },
+    "facing=north,color=0,num=7": {
+      "model": "backrooms_evento:block/rotulo_a7"
+    },
+    "facing=north,color=0,num=8": {
+      "model": "backrooms_evento:block/rotulo_a8"
+    },
+    "facing=north,color=0,num=9": {
+      "model": "backrooms_evento:block/rotulo_a9"
+    },
+    "facing=north,color=0,num=10": {
+      "model": "backrooms_evento:block/rotulo_a10"
+    },
+    "facing=north,color=0,num=11": {
+      "model": "backrooms_evento:block/rotulo_a11"
+    },
+    "facing=north,color=0,num=12": {
+      "model": "backrooms_evento:block/rotulo_a12"
+    },
+    "facing=north,color=0,num=13": {
+      "model": "backrooms_evento:block/rotulo_a13"
+    },
+    "facing=north,color=0,num=14": {
+      "model": "backrooms_evento:block/rotulo_a14"
+    },
+    "facing=north,color=0,num=15": {
+      "model": "backrooms_evento:block/rotulo_a15"
+    },
+    "facing=north,color=1,num=0": {
+      "model": "backrooms_evento:block/rotulo_b0"
+    },
+    "facing=north,color=1,num=1": {
+      "model": "backrooms_evento:block/rotulo_b1"
+    },
+    "facing=north,color=1,num=2": {
+      "model": "backrooms_evento:block/rotulo_b2"
+    },
+    "facing=north,color=1,num=3": {
+      "model": "backrooms_evento:block/rotulo_b3"
+    },
+    "facing=north,color=1,num=4": {
+      "model": "backrooms_evento:block/rotulo_b4"
+    },
+    "facing=north,color=1,num=5": {
+      "model": "backrooms_evento:block/rotulo_b5"
+    },
+    "facing=north,color=1,num=6": {
+      "model": "backrooms_evento:block/rotulo_b6"
+    },
+    "facing=north,color=1,num=7": {
+      "model": "backrooms_evento:block/rotulo_b7"
+    },
+    "facing=north,color=1,num=8": {
+      "model": "backrooms_evento:block/rotulo_b8"
+    },
+    "facing=north,color=1,num=9": {
+      "model": "backrooms_evento:block/rotulo_b9"
+    },
+    "facing=north,color=1,num=10": {
+      "model": "backrooms_evento:block/rotulo_b10"
+    },
+    "facing=north,color=1,num=11": {
+      "model": "backrooms_evento:block/rotulo_b11"
+    },
+    "facing=north,color=1,num=12": {
+      "model": "backrooms_evento:block/rotulo_b12"
+    },
+    "facing=north,color=1,num=13": {
+      "model": "backrooms_evento:block/rotulo_b13"
+    },
+    "facing=north,color=1,num=14": {
+      "model": "backrooms_evento:block/rotulo_b14"
+    },
+    "facing=north,color=1,num=15": {
+      "model": "backrooms_evento:block/rotulo_b15"
+    },
+    "facing=north,color=2,num=0": {
+      "model": "backrooms_evento:block/rotulo_c0"
+    },
+    "facing=north,color=2,num=1": {
+      "model": "backrooms_evento:block/rotulo_c1"
+    },
+    "facing=north,color=2,num=2": {
+      "model": "backrooms_evento:block/rotulo_c2"
+    },
+    "facing=north,color=2,num=3": {
+      "model": "backrooms_evento:block/rotulo_c3"
+    },
+    "facing=north,color=2,num=4": {
+      "model": "backrooms_evento:block/rotulo_c4"
+    },
+    "facing=north,color=2,num=5": {
+      "model": "backrooms_evento:block/rotulo_c5"
+    },
+    "facing=north,color=2,num=6": {
+      "model": "backrooms_evento:block/rotulo_c6"
+    },
+    "facing=north,color=2,num=7": {
+      "model": "backrooms_evento:block/rotulo_c7"
+    },
+    "facing=north,color=2,num=8": {
+      "model": "backrooms_evento:block/rotulo_c8"
+    },
+    "facing=north,color=2,num=9": {
+      "model": "backrooms_evento:block/rotulo_c9"
+    },
+    "facing=north,color=2,num=10": {
+      "model": "backrooms_evento:block/rotulo_c10"
+    },
+    "facing=north,color=2,num=11": {
+      "model": "backrooms_evento:block/rotulo_c11"
+    },
+    "facing=north,color=2,num=12": {
+      "model": "backrooms_evento:block/rotulo_c12"
+    },
+    "facing=north,color=2,num=13": {
+      "model": "backrooms_evento:block/rotulo_c13"
+    },
+    "facing=north,color=2,num=14": {
+      "model": "backrooms_evento:block/rotulo_c14"
+    },
+    "facing=north,color=2,num=15": {
+      "model": "backrooms_evento:block/rotulo_c15"
+    },
+    "facing=north,color=3,num=0": {
+      "model": "backrooms_evento:block/rotulo_d0"
+    },
+    "facing=north,color=3,num=1": {
+      "model": "backrooms_evento:block/rotulo_d1"
+    },
+    "facing=north,color=3,num=2": {
+      "model": "backrooms_evento:block/rotulo_d2"
+    },
+    "facing=north,color=3,num=3": {
+      "model": "backrooms_evento:block/rotulo_d3"
+    },
+    "facing=north,color=3,num=4": {
+      "model": "backrooms_evento:block/rotulo_d4"
+    },
+    "facing=north,color=3,num=5": {
+      "model": "backrooms_evento:block/rotulo_d5"
+    },
+    "facing=north,color=3,num=6": {
+      "model": "backrooms_evento:block/rotulo_d6"
+    },
+    "facing=north,color=3,num=7": {
+      "model": "backrooms_evento:block/rotulo_d7"
+    },
+    "facing=north,color=3,num=8": {
+      "model": "backrooms_evento:block/rotulo_d8"
+    },
+    "facing=north,color=3,num=9": {
+      "model": "backrooms_evento:block/rotulo_d9"
+    },
+    "facing=north,color=3,num=10": {
+      "model": "backrooms_evento:block/rotulo_d10"
+    },
+    "facing=north,color=3,num=11": {
+      "model": "backrooms_evento:block/rotulo_d11"
+    },
+    "facing=north,color=3,num=12": {
+      "model": "backrooms_evento:block/rotulo_d12"
+    },
+    "facing=north,color=3,num=13": {
+      "model": "backrooms_evento:block/rotulo_d13"
+    },
+    "facing=north,color=3,num=14": {
+      "model": "backrooms_evento:block/rotulo_d14"
+    },
+    "facing=north,color=3,num=15": {
+      "model": "backrooms_evento:block/rotulo_d15"
+    },
+    "facing=east,color=0,num=0": {
+      "model": "backrooms_evento:block/rotulo_a0",
+      "y": 90
+    },
+    "facing=east,color=0,num=1": {
+      "model": "backrooms_evento:block/rotulo_a1",
+      "y": 90
+    },
+    "facing=east,color=0,num=2": {
+      "model": "backrooms_evento:block/rotulo_a2",
+      "y": 90
+    },
+    "facing=east,color=0,num=3": {
+      "model": "backrooms_evento:block/rotulo_a3",
+      "y": 90
+    },
+    "facing=east,color=0,num=4": {
+      "model": "backrooms_evento:block/rotulo_a4",
+      "y": 90
+    },
+    "facing=east,color=0,num=5": {
+      "model": "backrooms_evento:block/rotulo_a5",
+      "y": 90
+    },
+    "facing=east,color=0,num=6": {
+      "model": "backrooms_evento:block/rotulo_a6",
+      "y": 90
+    },
+    "facing=east,color=0,num=7": {
+      "model": "backrooms_evento:block/rotulo_a7",
+      "y": 90
+    },
+    "facing=east,color=0,num=8": {
+      "model": "backrooms_evento:block/rotulo_a8",
+      "y": 90
+    },
+    "facing=east,color=0,num=9": {
+      "model": "backrooms_evento:block/rotulo_a9",
+      "y": 90
+    },
+    "facing=east,color=0,num=10": {
+      "model": "backrooms_evento:block/rotulo_a10",
+      "y": 90
+    },
+    "facing=east,color=0,num=11": {
+      "model": "backrooms_evento:block/rotulo_a11",
+      "y": 90
+    },
+    "facing=east,color=0,num=12": {
+      "model": "backrooms_evento:block/rotulo_a12",
+      "y": 90
+    },
+    "facing=east,color=0,num=13": {
+      "model": "backrooms_evento:block/rotulo_a13",
+      "y": 90
+    },
+    "facing=east,color=0,num=14": {
+      "model": "backrooms_evento:block/rotulo_a14",
+      "y": 90
+    },
+    "facing=east,color=0,num=15": {
+      "model": "backrooms_evento:block/rotulo_a15",
+      "y": 90
+    },
+    "facing=east,color=1,num=0": {
+      "model": "backrooms_evento:block/rotulo_b0",
+      "y": 90
+    },
+    "facing=east,color=1,num=1": {
+      "model": "backrooms_evento:block/rotulo_b1",
+      "y": 90
+    },
+    "facing=east,color=1,num=2": {
+      "model": "backrooms_evento:block/rotulo_b2",
+      "y": 90
+    },
+    "facing=east,color=1,num=3": {
+      "model": "backrooms_evento:block/rotulo_b3",
+      "y": 90
+    },
+    "facing=east,color=1,num=4": {
+      "model": "backrooms_evento:block/rotulo_b4",
+      "y": 90
+    },
+    "facing=east,color=1,num=5": {
+      "model": "backrooms_evento:block/rotulo_b5",
+      "y": 90
+    },
+    "facing=east,color=1,num=6": {
+      "model": "backrooms_evento:block/rotulo_b6",
+      "y": 90
+    },
+    "facing=east,color=1,num=7": {
+      "model": "backrooms_evento:block/rotulo_b7",
+      "y": 90
+    },
+    "facing=east,color=1,num=8": {
+      "model": "backrooms_evento:block/rotulo_b8",
+      "y": 90
+    },
+    "facing=east,color=1,num=9": {
+      "model": "backrooms_evento:block/rotulo_b9",
+      "y": 90
+    },
+    "facing=east,color=1,num=10": {
+      "model": "backrooms_evento:block/rotulo_b10",
+      "y": 90
+    },
+    "facing=east,color=1,num=11": {
+      "model": "backrooms_evento:block/rotulo_b11",
+      "y": 90
+    },
+    "facing=east,color=1,num=12": {
+      "model": "backrooms_evento:block/rotulo_b12",
+      "y": 90
+    },
+    "facing=east,color=1,num=13": {
+      "model": "backrooms_evento:block/rotulo_b13",
+      "y": 90
+    },
+    "facing=east,color=1,num=14": {
+      "model": "backrooms_evento:block/rotulo_b14",
+      "y": 90
+    },
+    "facing=east,color=1,num=15": {
+      "model": "backrooms_evento:block/rotulo_b15",
+      "y": 90
+    },
+    "facing=east,color=2,num=0": {
+      "model": "backrooms_evento:block/rotulo_c0",
+      "y": 90
+    },
+    "facing=east,color=2,num=1": {
+      "model": "backrooms_evento:block/rotulo_c1",
+      "y": 90
+    },
+    "facing=east,color=2,num=2": {
+      "model": "backrooms_evento:block/rotulo_c2",
+      "y": 90
+    },
+    "facing=east,color=2,num=3": {
+      "model": "backrooms_evento:block/rotulo_c3",
+      "y": 90
+    },
+    "facing=east,color=2,num=4": {
+      "model": "backrooms_evento:block/rotulo_c4",
+      "y": 90
+    },
+    "facing=east,color=2,num=5": {
+      "model": "backrooms_evento:block/rotulo_c5",
+      "y": 90
+    },
+    "facing=east,color=2,num=6": {
+      "model": "backrooms_evento:block/rotulo_c6",
+      "y": 90
+    },
+    "facing=east,color=2,num=7": {
+      "model": "backrooms_evento:block/rotulo_c7",
+      "y": 90
+    },
+    "facing=east,color=2,num=8": {
+      "model": "backrooms_evento:block/rotulo_c8",
+      "y": 90
+    },
+    "facing=east,color=2,num=9": {
+      "model": "backrooms_evento:block/rotulo_c9",
+      "y": 90
+    },
+    "facing=east,color=2,num=10": {
+      "model": "backrooms_evento:block/rotulo_c10",
+      "y": 90
+    },
+    "facing=east,color=2,num=11": {
+      "model": "backrooms_evento:block/rotulo_c11",
+      "y": 90
+    },
+    "facing=east,color=2,num=12": {
+      "model": "backrooms_evento:block/rotulo_c12",
+      "y": 90
+    },
+    "facing=east,color=2,num=13": {
+      "model": "backrooms_evento:block/rotulo_c13",
+      "y": 90
+    },
+    "facing=east,color=2,num=14": {
+      "model": "backrooms_evento:block/rotulo_c14",
+      "y": 90
+    },
+    "facing=east,color=2,num=15": {
+      "model": "backrooms_evento:block/rotulo_c15",
+      "y": 90
+    },
+    "facing=east,color=3,num=0": {
+      "model": "backrooms_evento:block/rotulo_d0",
+      "y": 90
+    },
+    "facing=east,color=3,num=1": {
+      "model": "backrooms_evento:block/rotulo_d1",
+      "y": 90
+    },
+    "facing=east,color=3,num=2": {
+      "model": "backrooms_evento:block/rotulo_d2",
+      "y": 90
+    },
+    "facing=east,color=3,num=3": {
+      "model": "backrooms_evento:block/rotulo_d3",
+      "y": 90
+    },
+    "facing=east,color=3,num=4": {
+      "model": "backrooms_evento:block/rotulo_d4",
+      "y": 90
+    },
+    "facing=east,color=3,num=5": {
+      "model": "backrooms_evento:block/rotulo_d5",
+      "y": 90
+    },
+    "facing=east,color=3,num=6": {
+      "model": "backrooms_evento:block/rotulo_d6",
+      "y": 90
+    },
+    "facing=east,color=3,num=7": {
+      "model": "backrooms_evento:block/rotulo_d7",
+      "y": 90
+    },
+    "facing=east,color=3,num=8": {
+      "model": "backrooms_evento:block/rotulo_d8",
+      "y": 90
+    },
+    "facing=east,color=3,num=9": {
+      "model": "backrooms_evento:block/rotulo_d9",
+      "y": 90
+    },
+    "facing=east,color=3,num=10": {
+      "model": "backrooms_evento:block/rotulo_d10",
+      "y": 90
+    },
+    "facing=east,color=3,num=11": {
+      "model": "backrooms_evento:block/rotulo_d11",
+      "y": 90
+    },
+    "facing=east,color=3,num=12": {
+      "model": "backrooms_evento:block/rotulo_d12",
+      "y": 90
+    },
+    "facing=east,color=3,num=13": {
+      "model": "backrooms_evento:block/rotulo_d13",
+      "y": 90
+    },
+    "facing=east,color=3,num=14": {
+      "model": "backrooms_evento:block/rotulo_d14",
+      "y": 90
+    },
+    "facing=east,color=3,num=15": {
+      "model": "backrooms_evento:block/rotulo_d15",
+      "y": 90
+    },
+    "facing=south,color=0,num=0": {
+      "model": "backrooms_evento:block/rotulo_a0",
+      "y": 180
+    },
+    "facing=south,color=0,num=1": {
+      "model": "backrooms_evento:block/rotulo_a1",
+      "y": 180
+    },
+    "facing=south,color=0,num=2": {
+      "model": "backrooms_evento:block/rotulo_a2",
+      "y": 180
+    },
+    "facing=south,color=0,num=3": {
+      "model": "backrooms_evento:block/rotulo_a3",
+      "y": 180
+    },
+    "facing=south,color=0,num=4": {
+      "model": "backrooms_evento:block/rotulo_a4",
+      "y": 180
+    },
+    "facing=south,color=0,num=5": {
+      "model": "backrooms_evento:block/rotulo_a5",
+      "y": 180
+    },
+    "facing=south,color=0,num=6": {
+      "model": "backrooms_evento:block/rotulo_a6",
+      "y": 180
+    },
+    "facing=south,color=0,num=7": {
+      "model": "backrooms_evento:block/rotulo_a7",
+      "y": 180
+    },
+    "facing=south,color=0,num=8": {
+      "model": "backrooms_evento:block/rotulo_a8",
+      "y": 180
+    },
+    "facing=south,color=0,num=9": {
+      "model": "backrooms_evento:block/rotulo_a9",
+      "y": 180
+    },
+    "facing=south,color=0,num=10": {
+      "model": "backrooms_evento:block/rotulo_a10",
+      "y": 180
+    },
+    "facing=south,color=0,num=11": {
+      "model": "backrooms_evento:block/rotulo_a11",
+      "y": 180
+    },
+    "facing=south,color=0,num=12": {
+      "model": "backrooms_evento:block/rotulo_a12",
+      "y": 180
+    },
+    "facing=south,color=0,num=13": {
+      "model": "backrooms_evento:block/rotulo_a13",
+      "y": 180
+    },
+    "facing=south,color=0,num=14": {
+      "model": "backrooms_evento:block/rotulo_a14",
+      "y": 180
+    },
+    "facing=south,color=0,num=15": {
+      "model": "backrooms_evento:block/rotulo_a15",
+      "y": 180
+    },
+    "facing=south,color=1,num=0": {
+      "model": "backrooms_evento:block/rotulo_b0",
+      "y": 180
+    },
+    "facing=south,color=1,num=1": {
+      "model": "backrooms_evento:block/rotulo_b1",
+      "y": 180
+    },
+    "facing=south,color=1,num=2": {
+      "model": "backrooms_evento:block/rotulo_b2",
+      "y": 180
+    },
+    "facing=south,color=1,num=3": {
+      "model": "backrooms_evento:block/rotulo_b3",
+      "y": 180
+    },
+    "facing=south,color=1,num=4": {
+      "model": "backrooms_evento:block/rotulo_b4",
+      "y": 180
+    },
+    "facing=south,color=1,num=5": {
+      "model": "backrooms_evento:block/rotulo_b5",
+      "y": 180
+    },
+    "facing=south,color=1,num=6": {
+      "model": "backrooms_evento:block/rotulo_b6",
+      "y": 180
+    },
+    "facing=south,color=1,num=7": {
+      "model": "backrooms_evento:block/rotulo_b7",
+      "y": 180
+    },
+    "facing=south,color=1,num=8": {
+      "model": "backrooms_evento:block/rotulo_b8",
+      "y": 180
+    },
+    "facing=south,color=1,num=9": {
+      "model": "backrooms_evento:block/rotulo_b9",
+      "y": 180
+    },
+    "facing=south,color=1,num=10": {
+      "model": "backrooms_evento:block/rotulo_b10",
+      "y": 180
+    },
+    "facing=south,color=1,num=11": {
+      "model": "backrooms_evento:block/rotulo_b11",
+      "y": 180
+    },
+    "facing=south,color=1,num=12": {
+      "model": "backrooms_evento:block/rotulo_b12",
+      "y": 180
+    },
+    "facing=south,color=1,num=13": {
+      "model": "backrooms_evento:block/rotulo_b13",
+      "y": 180
+    },
+    "facing=south,color=1,num=14": {
+      "model": "backrooms_evento:block/rotulo_b14",
+      "y": 180
+    },
+    "facing=south,color=1,num=15": {
+      "model": "backrooms_evento:block/rotulo_b15",
+      "y": 180
+    },
+    "facing=south,color=2,num=0": {
+      "model": "backrooms_evento:block/rotulo_c0",
+      "y": 180
+    },
+    "facing=south,color=2,num=1": {
+      "model": "backrooms_evento:block/rotulo_c1",
+      "y": 180
+    },
+    "facing=south,color=2,num=2": {
+      "model": "backrooms_evento:block/rotulo_c2",
+      "y": 180
+    },
+    "facing=south,color=2,num=3": {
+      "model": "backrooms_evento:block/rotulo_c3",
+      "y": 180
+    },
+    "facing=south,color=2,num=4": {
+      "model": "backrooms_evento:block/rotulo_c4",
+      "y": 180
+    },
+    "facing=south,color=2,num=5": {
+      "model": "backrooms_evento:block/rotulo_c5",
+      "y": 180
+    },
+    "facing=south,color=2,num=6": {
+      "model": "backrooms_evento:block/rotulo_c6",
+      "y": 180
+    },
+    "facing=south,color=2,num=7": {
+      "model": "backrooms_evento:block/rotulo_c7",
+      "y": 180
+    },
+    "facing=south,color=2,num=8": {
+      "model": "backrooms_evento:block/rotulo_c8",
+      "y": 180
+    },
+    "facing=south,color=2,num=9": {
+      "model": "backrooms_evento:block/rotulo_c9",
+      "y": 180
+    },
+    "facing=south,color=2,num=10": {
+      "model": "backrooms_evento:block/rotulo_c10",
+      "y": 180
+    },
+    "facing=south,color=2,num=11": {
+      "model": "backrooms_evento:block/rotulo_c11",
+      "y": 180
+    },
+    "facing=south,color=2,num=12": {
+      "model": "backrooms_evento:block/rotulo_c12",
+      "y": 180
+    },
+    "facing=south,color=2,num=13": {
+      "model": "backrooms_evento:block/rotulo_c13",
+      "y": 180
+    },
+    "facing=south,color=2,num=14": {
+      "model": "backrooms_evento:block/rotulo_c14",
+      "y": 180
+    },
+    "facing=south,color=2,num=15": {
+      "model": "backrooms_evento:block/rotulo_c15",
+      "y": 180
+    },
+    "facing=south,color=3,num=0": {
+      "model": "backrooms_evento:block/rotulo_d0",
+      "y": 180
+    },
+    "facing=south,color=3,num=1": {
+      "model": "backrooms_evento:block/rotulo_d1",
+      "y": 180
+    },
+    "facing=south,color=3,num=2": {
+      "model": "backrooms_evento:block/rotulo_d2",
+      "y": 180
+    },
+    "facing=south,color=3,num=3": {
+      "model": "backrooms_evento:block/rotulo_d3",
+      "y": 180
+    },
+    "facing=south,color=3,num=4": {
+      "model": "backrooms_evento:block/rotulo_d4",
+      "y": 180
+    },
+    "facing=south,color=3,num=5": {
+      "model": "backrooms_evento:block/rotulo_d5",
+      "y": 180
+    },
+    "facing=south,color=3,num=6": {
+      "model": "backrooms_evento:block/rotulo_d6",
+      "y": 180
+    },
+    "facing=south,color=3,num=7": {
+      "model": "backrooms_evento:block/rotulo_d7",
+      "y": 180
+    },
+    "facing=south,color=3,num=8": {
+      "model": "backrooms_evento:block/rotulo_d8",
+      "y": 180
+    },
+    "facing=south,color=3,num=9": {
+      "model": "backrooms_evento:block/rotulo_d9",
+      "y": 180
+    },
+    "facing=south,color=3,num=10": {
+      "model": "backrooms_evento:block/rotulo_d10",
+      "y": 180
+    },
+    "facing=south,color=3,num=11": {
+      "model": "backrooms_evento:block/rotulo_d11",
+      "y": 180
+    },
+    "facing=south,color=3,num=12": {
+      "model": "backrooms_evento:block/rotulo_d12",
+      "y": 180
+    },
+    "facing=south,color=3,num=13": {
+      "model": "backrooms_evento:block/rotulo_d13",
+      "y": 180
+    },
+    "facing=south,color=3,num=14": {
+      "model": "backrooms_evento:block/rotulo_d14",
+      "y": 180
+    },
+    "facing=south,color=3,num=15": {
+      "model": "backrooms_evento:block/rotulo_d15",
+      "y": 180
+    },
+    "facing=west,color=0,num=0": {
+      "model": "backrooms_evento:block/rotulo_a0",
+      "y": 270
+    },
+    "facing=west,color=0,num=1": {
+      "model": "backrooms_evento:block/rotulo_a1",
+      "y": 270
+    },
+    "facing=west,color=0,num=2": {
+      "model": "backrooms_evento:block/rotulo_a2",
+      "y": 270
+    },
+    "facing=west,color=0,num=3": {
+      "model": "backrooms_evento:block/rotulo_a3",
+      "y": 270
+    },
+    "facing=west,color=0,num=4": {
+      "model": "backrooms_evento:block/rotulo_a4",
+      "y": 270
+    },
+    "facing=west,color=0,num=5": {
+      "model": "backrooms_evento:block/rotulo_a5",
+      "y": 270
+    },
+    "facing=west,color=0,num=6": {
+      "model": "backrooms_evento:block/rotulo_a6",
+      "y": 270
+    },
+    "facing=west,color=0,num=7": {
+      "model": "backrooms_evento:block/rotulo_a7",
+      "y": 270
+    },
+    "facing=west,color=0,num=8": {
+      "model": "backrooms_evento:block/rotulo_a8",
+      "y": 270
+    },
+    "facing=west,color=0,num=9": {
+      "model": "backrooms_evento:block/rotulo_a9",
+      "y": 270
+    },
+    "facing=west,color=0,num=10": {
+      "model": "backrooms_evento:block/rotulo_a10",
+      "y": 270
+    },
+    "facing=west,color=0,num=11": {
+      "model": "backrooms_evento:block/rotulo_a11",
+      "y": 270
+    },
+    "facing=west,color=0,num=12": {
+      "model": "backrooms_evento:block/rotulo_a12",
+      "y": 270
+    },
+    "facing=west,color=0,num=13": {
+      "model": "backrooms_evento:block/rotulo_a13",
+      "y": 270
+    },
+    "facing=west,color=0,num=14": {
+      "model": "backrooms_evento:block/rotulo_a14",
+      "y": 270
+    },
+    "facing=west,color=0,num=15": {
+      "model": "backrooms_evento:block/rotulo_a15",
+      "y": 270
+    },
+    "facing=west,color=1,num=0": {
+      "model": "backrooms_evento:block/rotulo_b0",
+      "y": 270
+    },
+    "facing=west,color=1,num=1": {
+      "model": "backrooms_evento:block/rotulo_b1",
+      "y": 270
+    },
+    "facing=west,color=1,num=2": {
+      "model": "backrooms_evento:block/rotulo_b2",
+      "y": 270
+    },
+    "facing=west,color=1,num=3": {
+      "model": "backrooms_evento:block/rotulo_b3",
+      "y": 270
+    },
+    "facing=west,color=1,num=4": {
+      "model": "backrooms_evento:block/rotulo_b4",
+      "y": 270
+    },
+    "facing=west,color=1,num=5": {
+      "model": "backrooms_evento:block/rotulo_b5",
+      "y": 270
+    },
+    "facing=west,color=1,num=6": {
+      "model": "backrooms_evento:block/rotulo_b6",
+      "y": 270
+    },
+    "facing=west,color=1,num=7": {
+      "model": "backrooms_evento:block/rotulo_b7",
+      "y": 270
+    },
+    "facing=west,color=1,num=8": {
+      "model": "backrooms_evento:block/rotulo_b8",
+      "y": 270
+    },
+    "facing=west,color=1,num=9": {
+      "model": "backrooms_evento:block/rotulo_b9",
+      "y": 270
+    },
+    "facing=west,color=1,num=10": {
+      "model": "backrooms_evento:block/rotulo_b10",
+      "y": 270
+    },
+    "facing=west,color=1,num=11": {
+      "model": "backrooms_evento:block/rotulo_b11",
+      "y": 270
+    },
+    "facing=west,color=1,num=12": {
+      "model": "backrooms_evento:block/rotulo_b12",
+      "y": 270
+    },
+    "facing=west,color=1,num=13": {
+      "model": "backrooms_evento:block/rotulo_b13",
+      "y": 270
+    },
+    "facing=west,color=1,num=14": {
+      "model": "backrooms_evento:block/rotulo_b14",
+      "y": 270
+    },
+    "facing=west,color=1,num=15": {
+      "model": "backrooms_evento:block/rotulo_b15",
+      "y": 270
+    },
+    "facing=west,color=2,num=0": {
+      "model": "backrooms_evento:block/rotulo_c0",
+      "y": 270
+    },
+    "facing=west,color=2,num=1": {
+      "model": "backrooms_evento:block/rotulo_c1",
+      "y": 270
+    },
+    "facing=west,color=2,num=2": {
+      "model": "backrooms_evento:block/rotulo_c2",
+      "y": 270
+    },
+    "facing=west,color=2,num=3": {
+      "model": "backrooms_evento:block/rotulo_c3",
+      "y": 270
+    },
+    "facing=west,color=2,num=4": {
+      "model": "backrooms_evento:block/rotulo_c4",
+      "y": 270
+    },
+    "facing=west,color=2,num=5": {
+      "model": "backrooms_evento:block/rotulo_c5",
+      "y": 270
+    },
+    "facing=west,color=2,num=6": {
+      "model": "backrooms_evento:block/rotulo_c6",
+      "y": 270
+    },
+    "facing=west,color=2,num=7": {
+      "model": "backrooms_evento:block/rotulo_c7",
+      "y": 270
+    },
+    "facing=west,color=2,num=8": {
+      "model": "backrooms_evento:block/rotulo_c8",
+      "y": 270
+    },
+    "facing=west,color=2,num=9": {
+      "model": "backrooms_evento:block/rotulo_c9",
+      "y": 270
+    },
+    "facing=west,color=2,num=10": {
+      "model": "backrooms_evento:block/rotulo_c10",
+      "y": 270
+    },
+    "facing=west,color=2,num=11": {
+      "model": "backrooms_evento:block/rotulo_c11",
+      "y": 270
+    },
+    "facing=west,color=2,num=12": {
+      "model": "backrooms_evento:block/rotulo_c12",
+      "y": 270
+    },
+    "facing=west,color=2,num=13": {
+      "model": "backrooms_evento:block/rotulo_c13",
+      "y": 270
+    },
+    "facing=west,color=2,num=14": {
+      "model": "backrooms_evento:block/rotulo_c14",
+      "y": 270
+    },
+    "facing=west,color=2,num=15": {
+      "model": "backrooms_evento:block/rotulo_c15",
+      "y": 270
+    },
+    "facing=west,color=3,num=0": {
+      "model": "backrooms_evento:block/rotulo_d0",
+      "y": 270
+    },
+    "facing=west,color=3,num=1": {
+      "model": "backrooms_evento:block/rotulo_d1",
+      "y": 270
+    },
+    "facing=west,color=3,num=2": {
+      "model": "backrooms_evento:block/rotulo_d2",
+      "y": 270
+    },
+    "facing=west,color=3,num=3": {
+      "model": "backrooms_evento:block/rotulo_d3",
+      "y": 270
+    },
+    "facing=west,color=3,num=4": {
+      "model": "backrooms_evento:block/rotulo_d4",
+      "y": 270
+    },
+    "facing=west,color=3,num=5": {
+      "model": "backrooms_evento:block/rotulo_d5",
+      "y": 270
+    },
+    "facing=west,color=3,num=6": {
+      "model": "backrooms_evento:block/rotulo_d6",
+      "y": 270
+    },
+    "facing=west,color=3,num=7": {
+      "model": "backrooms_evento:block/rotulo_d7",
+      "y": 270
+    },
+    "facing=west,color=3,num=8": {
+      "model": "backrooms_evento:block/rotulo_d8",
+      "y": 270
+    },
+    "facing=west,color=3,num=9": {
+      "model": "backrooms_evento:block/rotulo_d9",
+      "y": 270
+    },
+    "facing=west,color=3,num=10": {
+      "model": "backrooms_evento:block/rotulo_d10",
+      "y": 270
+    },
+    "facing=west,color=3,num=11": {
+      "model": "backrooms_evento:block/rotulo_d11",
+      "y": 270
+    },
+    "facing=west,color=3,num=12": {
+      "model": "backrooms_evento:block/rotulo_d12",
+      "y": 270
+    },
+    "facing=west,color=3,num=13": {
+      "model": "backrooms_evento:block/rotulo_d13",
+      "y": 270
+    },
+    "facing=west,color=3,num=14": {
+      "model": "backrooms_evento:block/rotulo_d14",
+      "y": 270
+    },
+    "facing=west,color=3,num=15": {
+      "model": "backrooms_evento:block/rotulo_d15",
+      "y": 270
+    }
+  }
+}

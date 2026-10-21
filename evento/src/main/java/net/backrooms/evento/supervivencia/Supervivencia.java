@@ -166,8 +166,8 @@ public final class Supervivencia {
 		ServerLevel nivel = j.level();
 		Fase f = Fase.de(nivel);
 		if (f == null) {
-			if (Piscinas.es(nivel) || net.backrooms.evento.fiesta.Fiesta.es(nivel)) {
-				// la Fiesta baja la cordura como las Piscinas (y con el apagon, mas: ver locuraPiscinas)
+			if (Piscinas.es(nivel) || net.backrooms.evento.fiesta.Fiesta.es(nivel) || net.backrooms.evento.estacion.Estacion.es(nivel)) {
+				// la Fiesta y la Estacion bajan la cordura como las Piscinas (y con el apagon, mas: ver locuraPiscinas)
 				this.locuraPiscinas(j, nivel);
 			}
 			return;

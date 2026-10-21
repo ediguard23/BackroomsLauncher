@@ -1,0 +1,140 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "p": "backrooms_evento:block/palet_estacion",
+    "o": "backrooms_evento:block/cinta_tex",
+    "g": "backrooms_evento:block/gris_estacion",
+    "c": "backrooms_evento:block/fusible_ceramica",
+    "particle": "backrooms_evento:block/palet_estacion"
+  },
+  "elements": [
+    {
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        15,
+        2,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#p"
+        },
+        "south": {
+          "texture": "#p"
+        },
+        "east": {
+          "texture": "#p"
+        },
+        "west": {
+          "texture": "#p"
+        },
+        "up": {
+          "texture": "#p"
+        },
+        "down": {
+          "texture": "#p"
+        }
+      }
+    },
+    {
+      "from": [
+        3,
+        2,
+        3
+      ],
+      "to": [
+        8,
+        4,
+        8
+      ],
+      "faces": {
+        "north": {
+          "texture": "#o"
+        },
+        "south": {
+          "texture": "#o"
+        },
+        "east": {
+          "texture": "#o"
+        },
+        "west": {
+          "texture": "#o"
+        },
+        "up": {
+          "texture": "#o"
+        },
+        "down": {
+          "texture": "#o"
+        }
+      }
+    },
+    {
+      "from": [
+        8,
+        2,
+        8
+      ],
+      "to": [
+        13,
+        4,
+        13
+      ],
+      "faces": {
+        "north": {
+          "texture": "#o"
+        },
+        "south": {
+          "texture": "#o"
+        },
+        "east": {
+          "texture": "#o"
+        },
+        "west": {
+          "texture": "#o"
+        },
+        "up": {
+          "texture": "#o"
+        },
+        "down": {
+          "texture": "#o"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        4,
+        5
+      ],
+      "to": [
+        11,
+        6,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#o"
+        },
+        "south": {
+          "texture": "#o"
+        },
+        "east": {
+          "texture": "#o"
+        },
+        "west": {
+          "texture": "#o"
+        },
+        "up": {
+          "texture": "#o"
+        },
+        "down": {
+          "texture": "#o"
+        }
+      }
+    }
+  ]
+}

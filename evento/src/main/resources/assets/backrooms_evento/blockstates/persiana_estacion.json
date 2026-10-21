@@ -1,0 +1,274 @@
+{
+  "variants": {
+    "facing=north,parte=0,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja"
+    },
+    "facing=north,parte=0,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta"
+    },
+    "facing=north,parte=1,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas"
+    },
+    "facing=north,parte=1,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta"
+    },
+    "facing=north,parte=2,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta"
+    },
+    "facing=north,parte=2,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta"
+    },
+    "facing=north,parte=3,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja"
+    },
+    "facing=north,parte=3,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta"
+    },
+    "facing=north,parte=4,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas"
+    },
+    "facing=north,parte=4,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta"
+    },
+    "facing=north,parte=5,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta"
+    },
+    "facing=north,parte=5,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta"
+    },
+    "facing=north,parte=6,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja"
+    },
+    "facing=north,parte=6,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta"
+    },
+    "facing=north,parte=7,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas"
+    },
+    "facing=north,parte=7,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta"
+    },
+    "facing=north,parte=8,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta"
+    },
+    "facing=north,parte=8,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta"
+    },
+    "facing=east,parte=0,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja",
+      "y": 90
+    },
+    "facing=east,parte=0,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 90
+    },
+    "facing=east,parte=1,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas",
+      "y": 90
+    },
+    "facing=east,parte=1,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 90
+    },
+    "facing=east,parte=2,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta",
+      "y": 90
+    },
+    "facing=east,parte=2,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 90
+    },
+    "facing=east,parte=3,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja",
+      "y": 90
+    },
+    "facing=east,parte=3,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 90
+    },
+    "facing=east,parte=4,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas",
+      "y": 90
+    },
+    "facing=east,parte=4,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 90
+    },
+    "facing=east,parte=5,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta",
+      "y": 90
+    },
+    "facing=east,parte=5,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 90
+    },
+    "facing=east,parte=6,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja",
+      "y": 90
+    },
+    "facing=east,parte=6,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 90
+    },
+    "facing=east,parte=7,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas",
+      "y": 90
+    },
+    "facing=east,parte=7,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 90
+    },
+    "facing=east,parte=8,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta",
+      "y": 90
+    },
+    "facing=east,parte=8,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 90
+    },
+    "facing=south,parte=0,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja",
+      "y": 180
+    },
+    "facing=south,parte=0,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 180
+    },
+    "facing=south,parte=1,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas",
+      "y": 180
+    },
+    "facing=south,parte=1,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 180
+    },
+    "facing=south,parte=2,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta",
+      "y": 180
+    },
+    "facing=south,parte=2,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 180
+    },
+    "facing=south,parte=3,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja",
+      "y": 180
+    },
+    "facing=south,parte=3,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 180
+    },
+    "facing=south,parte=4,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas",
+      "y": 180
+    },
+    "facing=south,parte=4,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 180
+    },
+    "facing=south,parte=5,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta",
+      "y": 180
+    },
+    "facing=south,parte=5,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 180
+    },
+    "facing=south,parte=6,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja",
+      "y": 180
+    },
+    "facing=south,parte=6,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 180
+    },
+    "facing=south,parte=7,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas",
+      "y": 180
+    },
+    "facing=south,parte=7,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 180
+    },
+    "facing=south,parte=8,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta",
+      "y": 180
+    },
+    "facing=south,parte=8,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 180
+    },
+    "facing=west,parte=0,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja",
+      "y": 270
+    },
+    "facing=west,parte=0,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 270
+    },
+    "facing=west,parte=1,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas",
+      "y": 270
+    },
+    "facing=west,parte=1,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 270
+    },
+    "facing=west,parte=2,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta",
+      "y": 270
+    },
+    "facing=west,parte=2,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 270
+    },
+    "facing=west,parte=3,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja",
+      "y": 270
+    },
+    "facing=west,parte=3,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 270
+    },
+    "facing=west,parte=4,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas",
+      "y": 270
+    },
+    "facing=west,parte=4,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 270
+    },
+    "facing=west,parte=5,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta",
+      "y": 270
+    },
+    "facing=west,parte=5,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 270
+    },
+    "facing=west,parte=6,abierta=false": {
+      "model": "backrooms_evento:block/persiana_baja",
+      "y": 270
+    },
+    "facing=west,parte=6,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 270
+    },
+    "facing=west,parte=7,abierta=false": {
+      "model": "backrooms_evento:block/persiana_lamas",
+      "y": 270
+    },
+    "facing=west,parte=7,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 270
+    },
+    "facing=west,parte=8,abierta=false": {
+      "model": "backrooms_evento:block/persiana_alta",
+      "y": 270
+    },
+    "facing=west,parte=8,abierta=true": {
+      "model": "backrooms_evento:block/persiana_abierta",
+      "y": 270
+    }
+  }
+}

@@ -1,0 +1,204 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "l": "backrooms_evento:block/luz_roja",
+    "m": "backrooms_evento:block/tuberia_soporte",
+    "particle": "backrooms_evento:block/luz_roja"
+  },
+  "elements": [
+    {
+      "from": [
+        5,
+        4,
+        14
+      ],
+      "to": [
+        11,
+        10,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#m"
+        },
+        "south": {
+          "texture": "#m"
+        },
+        "east": {
+          "texture": "#m"
+        },
+        "west": {
+          "texture": "#m"
+        },
+        "up": {
+          "texture": "#m"
+        },
+        "down": {
+          "texture": "#m"
+        }
+      }
+    },
+    {
+      "from": [
+        5.5,
+        4.5,
+        11
+      ],
+      "to": [
+        10.5,
+        9.5,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#l"
+        },
+        "south": {
+          "texture": "#l"
+        },
+        "east": {
+          "texture": "#l"
+        },
+        "west": {
+          "texture": "#l"
+        },
+        "up": {
+          "texture": "#l"
+        },
+        "down": {
+          "texture": "#l"
+        }
+      },
+      "shade": false,
+      "light_emission": 15
+    },
+    {
+      "from": [
+        5,
+        4,
+        10.5
+      ],
+      "to": [
+        5.5,
+        10,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#m"
+        },
+        "south": {
+          "texture": "#m"
+        },
+        "east": {
+          "texture": "#m"
+        },
+        "west": {
+          "texture": "#m"
+        },
+        "up": {
+          "texture": "#m"
+        },
+        "down": {
+          "texture": "#m"
+        }
+      }
+    },
+    {
+      "from": [
+        10.5,
+        4,
+        10.5
+      ],
+      "to": [
+        11,
+        10,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#m"
+        },
+        "south": {
+          "texture": "#m"
+        },
+        "east": {
+          "texture": "#m"
+        },
+        "west": {
+          "texture": "#m"
+        },
+        "up": {
+          "texture": "#m"
+        },
+        "down": {
+          "texture": "#m"
+        }
+      }
+    },
+    {
+      "from": [
+        5,
+        9.5,
+        10.5
+      ],
+      "to": [
+        11,
+        10,
+        14
+      ],
+      "faces": {
+        "north": {
+          "texture": "#m"
+        },
+        "south": {
+          "texture": "#m"
+        },
+        "east": {
+          "texture": "#m"
+        },
+        "west": {
+          "texture": "#m"
+        },
+        "up": {
+          "texture": "#m"
+        },
+        "down": {
+          "texture": "#m"
+        }
+      }
+    },
+    {
+      "from": [
+        7.75,
+        4,
+        10.5
+      ],
+      "to": [
+        8.25,
+        10,
+        11
+      ],
+      "faces": {
+        "north": {
+          "texture": "#m"
+        },
+        "south": {
+          "texture": "#m"
+        },
+        "east": {
+          "texture": "#m"
+        },
+        "west": {
+          "texture": "#m"
+        },
+        "up": {
+          "texture": "#m"
+        },
+        "down": {
+          "texture": "#m"
+        }
+      }
+    }
+  ]
+}

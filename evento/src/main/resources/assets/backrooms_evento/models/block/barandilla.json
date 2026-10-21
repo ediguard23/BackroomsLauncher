@@ -1,0 +1,137 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "b": "backrooms_evento:block/barandilla_estacion",
+    "particle": "backrooms_evento:block/barandilla_estacion"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        14,
+        14
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#b"
+        },
+        "south": {
+          "texture": "#b"
+        },
+        "east": {
+          "texture": "#b"
+        },
+        "west": {
+          "texture": "#b"
+        },
+        "up": {
+          "texture": "#b"
+        },
+        "down": {
+          "texture": "#b"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        7,
+        14.5
+      ],
+      "to": [
+        16,
+        8.5,
+        15.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#b"
+        },
+        "south": {
+          "texture": "#b"
+        },
+        "east": {
+          "texture": "#b"
+        },
+        "west": {
+          "texture": "#b"
+        },
+        "up": {
+          "texture": "#b"
+        },
+        "down": {
+          "texture": "#b"
+        }
+      }
+    },
+    {
+      "from": [
+        1,
+        0,
+        14
+      ],
+      "to": [
+        3,
+        14,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#b"
+        },
+        "south": {
+          "texture": "#b"
+        },
+        "east": {
+          "texture": "#b"
+        },
+        "west": {
+          "texture": "#b"
+        },
+        "up": {
+          "texture": "#b"
+        },
+        "down": {
+          "texture": "#b"
+        }
+      }
+    },
+    {
+      "from": [
+        13,
+        0,
+        14
+      ],
+      "to": [
+        15,
+        14,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#b"
+        },
+        "south": {
+          "texture": "#b"
+        },
+        "east": {
+          "texture": "#b"
+        },
+        "west": {
+          "texture": "#b"
+        },
+        "up": {
+          "texture": "#b"
+        },
+        "down": {
+          "texture": "#b"
+        }
+      }
+    }
+  ]
+}

@@ -363,6 +363,48 @@ const ANFITRION = {
   ]
 };
 
+/* ============================================================= Amasijo */
+
+/*
+ * El Amasijo (la Estacion Electrica): una masa de carne palida del tamano de una persona
+ * agachada, con una boca enorme llena de dientes delante. Anda sobre seis brazos (las patas)
+ * y agita otros ocho hacia delante, con codo, como si buscara a tientas. Cabe en los pasillos
+ * de la Estacion (2 bloques de alto).
+ */
+const pataAma = (i, x, z, rx) => [`pata_${i}`, 'cuerpo', [x, 3, z], [rx, 0, 0], [
+  [-1.5, 0, -1.5, 3, 10, 3, 'carne'],
+  [-2, 9.5, -3, 4, 1.5, 5, 'mano']
+]];
+const brazoAma = (i, x, y, z, rx, ry) => [
+  [`brazo_${i}`, 'cuerpo', [x, y, z], [rx, ry, 0], [[-1.25, -1.25, -8, 2.5, 2.5, 8, 'carne']]],
+  [`ante_${i}`, `brazo_${i}`, [0, 0, -8], [30, 0, 0], [
+    [-1, -1, -8, 2, 2, 8, 'carne'],
+    [-2, -1.5, -11, 4, 3, 3, 'mano']
+  ]]
+];
+const AMASIJO = {
+  nombre: 'amasijo',
+  tex: [128, 128],
+  compartir: true,
+  vista: { esc: 6 },
+  piezas: [
+    ['cuerpo', null, [0, 10, 0], [0, 0, 0], [
+      [-9, -12, -8, 18, 16, 16, 'carne'],
+      [-7, -16, -6, 14, 4, 12, 'carne'],
+      [-10.5, -9, -5, 3, 10, 10, 'carne'],
+      [7.5, -10, -4, 3, 9, 9, 'carne'],
+      [-6, -8, 6, 12, 10, 4, 'carne']
+    ]],
+    pataAma(0, -6, -5, -12), pataAma(1, 6, -5, -12),
+    pataAma(2, -7, 1, 0), pataAma(3, 7, 1, 0),
+    pataAma(4, -5, 6, 12), pataAma(5, 5, 6, 12),
+    ...brazoAma(0, -8, -9, -5, -35, 30), ...brazoAma(1, 8, -9, -5, -35, -30),
+    ...brazoAma(2, -9, -2, -6, 10, 45), ...brazoAma(3, 9, -2, -6, 10, -45),
+    ...brazoAma(4, -4, -14, -3, -45, 15), ...brazoAma(5, 4, -14, -1, -55, -20),
+    ...brazoAma(6, -9, -6, 3, -20, 110), ...brazoAma(7, 9, -6, 3, -20, -110)
+  ]
+};
+
 function empaquetar (modelo) {
   const [W, H] = modelo.tex;
   let x = 0; let y = 0; let fila = 0;
@@ -478,6 +520,22 @@ const MATERIAL = {
   falange: (x, y, k, lado, u0, v0) => {
     const b = 150 - (y - v0) * 14 + hash(x, y, 490 + k) * 12;
     return [b, b * 0.94, b * 0.82];
+  },
+  // el Amasijo: carne palida y humeda con venas, moratones y pliegues; manos mas claras con
+  // las puntas de los dedos sucias
+  carne: (x, y, k) => {
+    const v = ruido(x * 0.8, y * 0.8, 7, 600 + k, 128);
+    let c = escala([206, 178, 168], 0.74 + v * 0.3 + hash(x, y, 601 + k) * 0.06);
+    if (Math.abs(ruido(x * 1.3, y * 0.6, 9, 602 + k, 128) - 0.5) < 0.025) c = [118, 64, 84];       // venas
+    if (ruido(x, y, 5, 603 + k, 128) > 0.74) c = escala([150, 96, 108], 0.9 + hash(x, y, 604) * 0.1); // moratones
+    if (hash(x, y, 605 + k) > 0.96) c = escala(c, 0.8);
+    return c;
+  },
+  mano: (x, y, k, lado, u0, v0) => {
+    let c = escala([222, 200, 188], 0.84 + hash(x, y, 610 + k) * 0.1);
+    if ((x - u0) % 2 === 1 && lado !== 'up') c = escala(c, 0.8);  // separacion de los dedos
+    if (lado === 'north' || lado === 'down') c = [c[0] * 0.78, c[1] * 0.56, c[2] * 0.52]; // las puntas, en carne viva
+    return c;
   }
 };
 
@@ -588,6 +646,44 @@ function caraAnfitrion (modelo, l, brillo) {
     pon(x, y, [52, 10, 14]);
     pon(x, y + 1, [52, 10, 14]);
     if (x % 2 === 0) { pon(x, y - 1, [30, 24, 20]); pon(x, y + 2, [30, 24, 20]); }
+  }
+}
+
+/**
+ * La boca del Amasijo en la cara north del cuerpo (18x16): un ovalo enorme, encias rojas,
+ * dos filas de dientes torcidos hacia dentro y la garganta negra; y cinco ojillos humedos
+ * repartidos por la carne que brillan en la oscuridad (tambien en `brillo`), como los dientes.
+ */
+function caraAmasijo (modelo, l, brillo) {
+  const c = modelo.piezas.find((p) => p[0] === 'cuerpo')[4][0];
+  const [u0, v0] = carasUV(c).north;
+  const pon = (x, y, col) => l.punto(u0 + x, v0 + y, col);
+  const luz = (x, y, col, f = 1) => { pon(x, y, col); brillo.punto(u0 + x, v0 + y, escala(col, f)); };
+  const cx = 8.5; const cy = 9.5; const rx = 7.6; const ry = 5.2;
+  for (let y = 0; y < 16; y++) {
+    for (let x = 0; x < 18; x++) {
+      const d = Math.pow((x - cx) / rx, 2) + Math.pow((y - cy) / ry, 2);
+      if (d > 1.18) continue;
+      if (d > 0.86) { pon(x, y, escala([156, 44, 56], 0.85 + hash(x, y, 620) * 0.2)); continue; } // encia
+      pon(x, y, d < 0.35 ? [10, 2, 3] : escala([58, 8, 12], 0.8 + hash(x, y, 621) * 0.3));       // garganta
+    }
+  }
+  // los dientes: triangulos irregulares desde arriba y desde abajo hacia el centro
+  for (let x = 2; x < 16; x++) {
+    const largo = 1 + Math.floor(hash(x, 0, 622) * 2.4);
+    const arriba = Math.round(cy - ry * Math.sqrt(Math.max(0, 1 - Math.pow((x - cx) / rx, 2))) + 0.6);
+    const abajo = Math.round(cy + ry * Math.sqrt(Math.max(0, 1 - Math.pow((x - cx) / rx, 2))) - 0.6);
+    if (x % 2 === 0 || hash(x, 1, 623) > 0.5) {
+      for (let r = 0; r < largo; r++) luz(x, arriba + r, escala([236, 226, 196], 1 - r * 0.12), 0.35);
+    }
+    if (x % 2 === 1 || hash(x, 2, 624) > 0.6) {
+      for (let r = 0; r < largo; r++) luz(x, abajo - r, escala([226, 214, 182], 1 - r * 0.12), 0.35);
+    }
+  }
+  // los ojillos, por encima de la boca y en los lados
+  for (const [x, y] of [[3, 2], [7, 1], [13, 2], [1, 6], [16, 5]]) {
+    pon(x - 1, y, [90, 40, 46]); pon(x + 1, y, [90, 40, 46]);
+    luz(x, y, [236, 222, 150]);
   }
 }
 
@@ -725,12 +821,12 @@ function vista (modelo, tex, archivo, poses = {}) {
 /* =============================================================== todo */
 
 console.log('Entidades');
-for (const modelo of [BACTERIA, SMILER, SERPIENTE, ANFITRION]) {
+for (const modelo of [BACTERIA, SMILER, SERPIENTE, ANFITRION, AMASIJO]) {
   empaquetar(modelo);
   const tex = pintar(modelo);
-  if (modelo === SMILER || modelo === SERPIENTE || modelo === ANFITRION) {
+  if (modelo !== BACTERIA) {
     const brillo = new Lienzo(...modelo.tex);
-    ({ smiler: caraSmiler, serpiente: caraSerpiente, anfitrion: caraAnfitrion })[modelo.nombre](modelo, tex, brillo);
+    ({ smiler: caraSmiler, serpiente: caraSerpiente, anfitrion: caraAnfitrion, amasijo: caraAmasijo })[modelo.nombre](modelo, tex, brillo);
     guardar(path.join(ASSETS, 'textures', 'entity'), `${modelo.nombre}_brillo`, brillo);
   }
   guardar(path.join(ASSETS, 'textures', 'entity'), modelo.nombre, tex);

@@ -146,6 +146,29 @@ public final class Sonidos {
 	public static final SoundEvent REGALOS_RELOJ = registrar("regalos.reloj");
 	public static final SoundEvent REGALOS_FIN = registrar("regalos.fin");
 
+	/* la Estacion Electrica (Nivel 3): el generador, lo que se hace y el Amasijo */
+	public static final SoundEvent ESTACION_GENERADOR = registrar("estacion.generador");
+	public static final SoundEvent ESTACION_AMBIENTE = registrar("estacion.ambiente");
+	public static final SoundEvent ESTACION_ARRANCA = registrar("estacion.arranca");
+	public static final SoundEvent ESTACION_PARADA = registrar("estacion.parada");
+	public static final SoundEvent ESTACION_RESERVA = registrar("estacion.reserva");
+	public static final SoundEvent ESTACION_REPOSTAR = registrar("estacion.repostar");
+	public static final SoundEvent ESTACION_BIDON = registrar("estacion.bidon");
+	public static final SoundEvent ESTACION_COGER = registrar("estacion.coger");
+	public static final SoundEvent ESTACION_REPARAR = registrar("estacion.reparar");
+	public static final SoundEvent ESTACION_PERSIANA = registrar("estacion.persiana");
+	public static final SoundEvent ESTACION_FUSIBLE = registrar("estacion.fusible");
+	public static final SoundEvent ESTACION_PALANCA = registrar("estacion.palanca");
+	public static final SoundEvent ESTACION_FALLO = registrar("estacion.fallo");
+	public static final SoundEvent ESTACION_PASARELA = registrar("estacion.pasarela");
+	public static final SoundEvent ESTACION_ESTRUENDO = registrar("estacion.estruendo");
+	public static final SoundEvent ESTACION_CHISPAS = registrar("estacion.chispas");
+	public static final SoundEvent ESTACION_RADIO = registrar("estacion.radio");
+	public static final SoundEvent AMASIJO_PASOS = registrar("amasijo.pasos");
+	public static final SoundEvent AMASIJO_GRITO = registrar("amasijo.grito");
+	public static final SoundEvent AMASIJO_RESPIRA = registrar("amasijo.respira");
+	public static final SoundEvent AMASIJO_ATAQUE = registrar("amasijo.ataque");
+
 	private static SoundEvent registrar(String ruta) {
 		Identifier id = BackroomsEvento.id(ruta);
 		return Registry.register(BuiltInRegistries.SOUND_EVENT, id, SoundEvent.createVariableRangeEvent(id));

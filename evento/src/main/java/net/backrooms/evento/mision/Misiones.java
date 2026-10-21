@@ -93,6 +93,8 @@ public final class Misiones {
 	public static final int FASE_PISCINAS = 37;
 	/** La Fiesta (Nivel Fun): no tiene numero de nivel; este solo la distingue. */
 	public static final int FASE_FIESTA = 100;
+	/** La Estacion Electrica (Nivel 3). */
+	public static final int FASE_ESTACION = 103;
 
 	/** Segundos de grabacion que pide cada mision de grabar. */
 	public static float segundosGrabar(TipoMision m) {
@@ -239,6 +241,25 @@ public final class Misiones {
 		this.sincronizar(jugador);
 	}
 
+	/**
+	 * Las misiones de la Estacion: las tres primeras son de todos (las cumple JuegoEstacion para todos a
+	 * la vez); quien llega tarde las tiene ya hechas hasta donde vayan los demas. La ultima, cruzar.
+	 */
+	public void asignarEstacion(ServerPlayer jugador) {
+		this.quitarCasetes(jugador.getUUID());
+		Estado e = new Estado();
+		e.fase = FASE_ESTACION;
+		e.misiones.add(TipoMision.COMBUSTIBLE);
+		e.misiones.add(TipoMision.PANELES);
+		e.misiones.add(TipoMision.FUSIBLES);
+		e.misiones.add(TipoMision.PASARELA);
+		int hechas = net.backrooms.evento.estacion.JuegoEstacion.get().etapa();
+		e.actual = Math.min(3, hechas);
+		this.estados.put(jugador.getUUID(), e);
+		this.sucio = true;
+		this.sincronizar(jugador);
+	}
+
 	/** Ha cerrado una de sus valvulas: true si era suya y no la tenia hecha. */
 	public boolean cerrarValvula(ServerPlayer j, int id) {
 		Estado e = this.estado(j);
@@ -374,7 +395,8 @@ public final class Misiones {
 		this.sucio = true;
 		net.backrooms.evento.Sonidos.aJugador(jugador, net.backrooms.evento.Sonidos.MISION_COMPLETA, 0.9F);
 		if (e.actual >= e.misiones.size()) {
-			String donde = e.fase == FASE_PISCINAS ? "la salida de emergencia: crúzala" : e.fase == FASE_FIESTA ? "el tobogán del final: métete en su boca" : "el ascensor de salida: síguelo";
+			String donde = e.fase == FASE_PISCINAS ? "la salida de emergencia: crúzala" : e.fase == FASE_FIESTA ? "el tobogán del final: métete en su boca"
+				: e.fase == FASE_ESTACION ? "la puerta del final de la pasarela" : "el ascensor de salida: síguelo";
 			jugador.displayClientMessage(Component.literal("Misiones completadas. El radar ya marca " + donde + ".").withStyle(ChatFormatting.GOLD), false);
 		} else {
 			TipoMision sig = e.misiones.get(e.actual);
@@ -499,6 +521,15 @@ public final class Misiones {
 				objetivo = net.backrooms.evento.fiesta.JuegoFiesta.get().puertaPremio();
 				salida = true;
 			}
+		}
+		if (e.fase == FASE_ESTACION && net.backrooms.evento.estacion.Estacion.es(j.level()) && !e.eliminado && e.escapado == 0) {
+			// el radar va a lo que toca ahora; la hoja cuenta lo de esa etapa
+			net.backrooms.evento.estacion.JuegoEstacion g = net.backrooms.evento.estacion.JuegoEstacion.get();
+			objetivo = g.objetivo(j);
+			int[] cuenta = g.cuenta();
+			hechos = cuenta[0];
+			total = cuenta[1];
+			salida = g.etapa() >= 3;
 		}
 		if (objetivo != null) {
 			double dx = objetivo[0] + 0.5 - j.getX();

@@ -285,6 +285,10 @@ public final class Comida {
 				this.fiesta(nivel);
 				continue;
 			}
+			if (net.backrooms.evento.estacion.Estacion.es(nivel)) {
+				this.estacion(nivel);
+				continue;
+			}
 			if (Fase.de(nivel) == null || !(nivel.getChunkSource().getGenerator() instanceof GeneradorNivel0 gen)) {
 				continue;
 			}
@@ -346,6 +350,22 @@ public final class Comida {
 			for (net.backrooms.evento.fiesta.PlanoFiesta.Plato p : net.backrooms.evento.fiesta.PlanoFiesta.COMIDA) {
 				if (Math.abs(p.x() - j.getBlockX()) <= RADIO && Math.abs(p.z() - j.getBlockZ()) <= RADIO && !cogidas.contains(clave(p.x(), p.z()))) {
 					this.materializar(nivel, dim, p.x(), p.z(), p.tipo(), p.y());
+				}
+			}
+		}
+	}
+
+	/** La Estacion: las fiambreras y latas del plano (PlanoEstacion.COMIDA), en el suelo. */
+	private void estacion(ServerLevel nivel) {
+		Set<Long> cogidas = this.cogidas(nivel);
+		String dim = nivel.dimension().identifier().toString();
+		for (ServerPlayer j : nivel.players()) {
+			if (j.isSpectator()) {
+				continue;
+			}
+			for (int[] p : net.backrooms.evento.estacion.PlanoEstacion.COMIDA) {
+				if (Math.abs(p[0] - j.getBlockX()) <= RADIO && Math.abs(p[1] - j.getBlockZ()) <= RADIO && !cogidas.contains(clave(p[0], p[1]))) {
+					this.materializar(nivel, dim, p[0], p[1], p[2], net.backrooms.evento.estacion.PlanoEstacion.SUELO + 1);
 				}
 			}
 		}

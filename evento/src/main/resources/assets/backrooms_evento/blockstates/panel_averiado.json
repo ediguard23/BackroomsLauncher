@@ -1,0 +1,244 @@
+{
+  "variants": {
+    "facing=north,tipo=0,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0"
+    },
+    "facing=north,tipo=0,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado"
+    },
+    "facing=north,tipo=1,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1"
+    },
+    "facing=north,tipo=1,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado"
+    },
+    "facing=north,tipo=2,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_2"
+    },
+    "facing=north,tipo=2,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado"
+    },
+    "facing=north,tipo=3,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0"
+    },
+    "facing=north,tipo=3,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado"
+    },
+    "facing=north,tipo=4,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1"
+    },
+    "facing=north,tipo=4,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado"
+    },
+    "facing=north,tipo=5,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_2"
+    },
+    "facing=north,tipo=5,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado"
+    },
+    "facing=north,tipo=6,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0"
+    },
+    "facing=north,tipo=6,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado"
+    },
+    "facing=north,tipo=7,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1"
+    },
+    "facing=north,tipo=7,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado"
+    },
+    "facing=east,tipo=0,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0",
+      "y": 90
+    },
+    "facing=east,tipo=0,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 90
+    },
+    "facing=east,tipo=1,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1",
+      "y": 90
+    },
+    "facing=east,tipo=1,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 90
+    },
+    "facing=east,tipo=2,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_2",
+      "y": 90
+    },
+    "facing=east,tipo=2,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 90
+    },
+    "facing=east,tipo=3,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0",
+      "y": 90
+    },
+    "facing=east,tipo=3,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 90
+    },
+    "facing=east,tipo=4,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1",
+      "y": 90
+    },
+    "facing=east,tipo=4,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 90
+    },
+    "facing=east,tipo=5,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_2",
+      "y": 90
+    },
+    "facing=east,tipo=5,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 90
+    },
+    "facing=east,tipo=6,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0",
+      "y": 90
+    },
+    "facing=east,tipo=6,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 90
+    },
+    "facing=east,tipo=7,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1",
+      "y": 90
+    },
+    "facing=east,tipo=7,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 90
+    },
+    "facing=south,tipo=0,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0",
+      "y": 180
+    },
+    "facing=south,tipo=0,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 180
+    },
+    "facing=south,tipo=1,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1",
+      "y": 180
+    },
+    "facing=south,tipo=1,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 180
+    },
+    "facing=south,tipo=2,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_2",
+      "y": 180
+    },
+    "facing=south,tipo=2,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 180
+    },
+    "facing=south,tipo=3,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0",
+      "y": 180
+    },
+    "facing=south,tipo=3,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 180
+    },
+    "facing=south,tipo=4,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1",
+      "y": 180
+    },
+    "facing=south,tipo=4,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 180
+    },
+    "facing=south,tipo=5,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_2",
+      "y": 180
+    },
+    "facing=south,tipo=5,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 180
+    },
+    "facing=south,tipo=6,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0",
+      "y": 180
+    },
+    "facing=south,tipo=6,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 180
+    },
+    "facing=south,tipo=7,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1",
+      "y": 180
+    },
+    "facing=south,tipo=7,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 180
+    },
+    "facing=west,tipo=0,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0",
+      "y": 270
+    },
+    "facing=west,tipo=0,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 270
+    },
+    "facing=west,tipo=1,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1",
+      "y": 270
+    },
+    "facing=west,tipo=1,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 270
+    },
+    "facing=west,tipo=2,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_2",
+      "y": 270
+    },
+    "facing=west,tipo=2,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 270
+    },
+    "facing=west,tipo=3,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0",
+      "y": 270
+    },
+    "facing=west,tipo=3,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 270
+    },
+    "facing=west,tipo=4,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1",
+      "y": 270
+    },
+    "facing=west,tipo=4,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 270
+    },
+    "facing=west,tipo=5,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_2",
+      "y": 270
+    },
+    "facing=west,tipo=5,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 270
+    },
+    "facing=west,tipo=6,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_0",
+      "y": 270
+    },
+    "facing=west,tipo=6,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 270
+    },
+    "facing=west,tipo=7,hecho=false": {
+      "model": "backrooms_evento:block/panel_averiado_1",
+      "y": 270
+    },
+    "facing=west,tipo=7,hecho=true": {
+      "model": "backrooms_evento:block/panel_reparado",
+      "y": 270
+    }
+  }
+}

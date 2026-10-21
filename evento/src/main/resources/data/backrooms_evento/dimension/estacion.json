@@ -1,0 +1,10 @@
+{
+  "type": "backrooms_evento:estacion",
+  "generator": {
+    "type": "backrooms_evento:estacion",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "backrooms_evento:estacion"
+    }
+  }
+}

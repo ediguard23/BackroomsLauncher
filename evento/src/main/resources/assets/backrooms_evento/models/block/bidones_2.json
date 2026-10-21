@@ -1,0 +1,76 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "a": "backrooms_evento:block/bidon_amarillo",
+    "o": "backrooms_evento:block/bidon_oxidado",
+    "r": "backrooms_evento:block/bidon_rojo",
+    "t": "backrooms_evento:block/bidon_tapa",
+    "particle": "backrooms_evento:block/bidon_amarillo"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        8.5,
+        13,
+        8.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#r"
+        },
+        "south": {
+          "texture": "#r"
+        },
+        "east": {
+          "texture": "#r"
+        },
+        "west": {
+          "texture": "#r"
+        },
+        "up": {
+          "texture": "#t"
+        },
+        "down": {
+          "texture": "#t"
+        }
+      }
+    },
+    {
+      "from": [
+        8.5,
+        0,
+        8
+      ],
+      "to": [
+        15,
+        11,
+        14.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#o"
+        },
+        "south": {
+          "texture": "#o"
+        },
+        "east": {
+          "texture": "#o"
+        },
+        "west": {
+          "texture": "#o"
+        },
+        "up": {
+          "texture": "#t"
+        },
+        "down": {
+          "texture": "#t"
+        }
+      }
+    }
+  ]
+}

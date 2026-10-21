@@ -76,7 +76,16 @@ public final class PanelAdmin {
 			fun.add("Jugadores aquí: " + fiesta.players().size() + "   ·   Anfitriones: " + contar(fiesta, net.backrooms.evento.fiesta.Anfitrion.class));
 			fun.add("Luz: " + Ambiente.get().resumen(fiesta));
 		}
-		return new EstadoPanel(general, cero, p37, fun);
+		ServerLevel estacion = s.getLevel(net.backrooms.evento.estacion.Estacion.DIMENSION);
+		List<String> n3 = new ArrayList<>();
+		if (estacion == null) {
+			n3.add("Este servidor no tiene la Estación.");
+		} else {
+			n3.add("Jugadores aquí: " + estacion.players().size() + "   ·   Amasijos: " + contar(estacion, net.backrooms.evento.estacion.Amasijo.class));
+			n3.add("Luz: " + Ambiente.get().resumen(estacion));
+			n3.addAll(net.backrooms.evento.estacion.JuegoEstacion.get().resumen());
+		}
+		return new EstadoPanel(general, cero, p37, fun, n3);
 	}
 
 	private static int contar(Level nivel, Class<? extends Entity> clase) {

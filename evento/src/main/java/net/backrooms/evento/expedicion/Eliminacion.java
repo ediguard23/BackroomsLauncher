@@ -75,7 +75,8 @@ public final class Eliminacion {
 		}
 		// el nivel donde ha caido (el aviso lo dice: el evento no es solo el Nivel 0)
 		String nivel = net.backrooms.evento.piscinas.Piscinas.es(j.level()) ? net.backrooms.evento.piscinas.Piscinas.NOMBRE
-			: net.backrooms.evento.fiesta.Fiesta.es(j.level()) ? net.backrooms.evento.fiesta.Fiesta.NOMBRE : "NIVEL 0";
+			: net.backrooms.evento.fiesta.Fiesta.es(j.level()) ? net.backrooms.evento.fiesta.Fiesta.NOMBRE
+			: net.backrooms.evento.estacion.Estacion.es(j.level()) ? net.backrooms.evento.estacion.Estacion.NOMBRE : "NIVEL 0";
 		Eliminado aviso = new Eliminado(nombre, j.getUUID(), quedan, nivel);
 		for (ServerPlayer otro : this.servidor.getPlayerList().getPlayers()) {
 			if (ServerPlayNetworking.canSend(otro, Eliminado.TYPE)) {

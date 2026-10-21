@@ -10,7 +10,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
  * El panel del staff (PanelAdmin): las lineas de estado en directo de lo general y de cada nivel.
  * Al recibirlo, el cliente abre el panel o, si ya esta abierto, lo refresca.
  */
-public record EstadoPanel(List<String> general, List<String> nivel0, List<String> piscinas, List<String> fiesta) implements CustomPacketPayload {
+public record EstadoPanel(List<String> general, List<String> nivel0, List<String> piscinas, List<String> fiesta, List<String> estacion) implements CustomPacketPayload {
 	public static final Type<EstadoPanel> TYPE = new Type<>(BackroomsEvento.id("panel"));
 	public static final StreamCodec<FriendlyByteBuf, EstadoPanel> CODEC = CustomPacketPayload.codec(
 		(p, buf) -> {
@@ -18,8 +18,9 @@ public record EstadoPanel(List<String> general, List<String> nivel0, List<String
 			escribir(buf, p.nivel0);
 			escribir(buf, p.piscinas);
 			escribir(buf, p.fiesta);
+			escribir(buf, p.estacion);
 		},
-		buf -> new EstadoPanel(leer(buf), leer(buf), leer(buf), leer(buf)));
+		buf -> new EstadoPanel(leer(buf), leer(buf), leer(buf), leer(buf), leer(buf)));
 
 	private static void escribir(FriendlyByteBuf buf, List<String> l) {
 		buf.writeVarInt(Math.min(l.size(), 64));

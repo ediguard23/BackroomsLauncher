@@ -56,9 +56,9 @@ public final class Piscinas {
 		return nivel.dimension().equals(DIMENSION);
 	}
 
-	/** Un nivel donde se juega la expedicion: una fase del Nivel 0, las Piscinas o la Fiesta. */
+	/** Un nivel donde se juega la expedicion: una fase del Nivel 0, las Piscinas, la Fiesta o la Estacion. */
 	public static boolean delEvento(Level nivel) {
-		return Fase.de(nivel) != null || es(nivel) || net.backrooms.evento.fiesta.Fiesta.es(nivel);
+		return Fase.de(nivel) != null || es(nivel) || net.backrooms.evento.fiesta.Fiesta.es(nivel) || net.backrooms.evento.estacion.Estacion.es(nivel);
 	}
 
 	/**

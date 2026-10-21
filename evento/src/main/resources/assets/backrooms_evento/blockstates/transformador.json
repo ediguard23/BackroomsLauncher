@@ -1,0 +1,124 @@
+{
+  "variants": {
+    "facing=north,variante=0": {
+      "model": "backrooms_evento:block/transformador_0"
+    },
+    "facing=north,variante=1": {
+      "model": "backrooms_evento:block/transformador_1"
+    },
+    "facing=north,variante=2": {
+      "model": "backrooms_evento:block/transformador_2"
+    },
+    "facing=north,variante=3": {
+      "model": "backrooms_evento:block/transformador_0"
+    },
+    "facing=north,variante=4": {
+      "model": "backrooms_evento:block/transformador_1"
+    },
+    "facing=north,variante=5": {
+      "model": "backrooms_evento:block/transformador_2"
+    },
+    "facing=north,variante=6": {
+      "model": "backrooms_evento:block/transformador_0"
+    },
+    "facing=north,variante=7": {
+      "model": "backrooms_evento:block/transformador_1"
+    },
+    "facing=east,variante=0": {
+      "model": "backrooms_evento:block/transformador_0",
+      "y": 90
+    },
+    "facing=east,variante=1": {
+      "model": "backrooms_evento:block/transformador_1",
+      "y": 90
+    },
+    "facing=east,variante=2": {
+      "model": "backrooms_evento:block/transformador_2",
+      "y": 90
+    },
+    "facing=east,variante=3": {
+      "model": "backrooms_evento:block/transformador_0",
+      "y": 90
+    },
+    "facing=east,variante=4": {
+      "model": "backrooms_evento:block/transformador_1",
+      "y": 90
+    },
+    "facing=east,variante=5": {
+      "model": "backrooms_evento:block/transformador_2",
+      "y": 90
+    },
+    "facing=east,variante=6": {
+      "model": "backrooms_evento:block/transformador_0",
+      "y": 90
+    },
+    "facing=east,variante=7": {
+      "model": "backrooms_evento:block/transformador_1",
+      "y": 90
+    },
+    "facing=south,variante=0": {
+      "model": "backrooms_evento:block/transformador_0",
+      "y": 180
+    },
+    "facing=south,variante=1": {
+      "model": "backrooms_evento:block/transformador_1",
+      "y": 180
+    },
+    "facing=south,variante=2": {
+      "model": "backrooms_evento:block/transformador_2",
+      "y": 180
+    },
+    "facing=south,variante=3": {
+      "model": "backrooms_evento:block/transformador_0",
+      "y": 180
+    },
+    "facing=south,variante=4": {
+      "model": "backrooms_evento:block/transformador_1",
+      "y": 180
+    },
+    "facing=south,variante=5": {
+      "model": "backrooms_evento:block/transformador_2",
+      "y": 180
+    },
+    "facing=south,variante=6": {
+      "model": "backrooms_evento:block/transformador_0",
+      "y": 180
+    },
+    "facing=south,variante=7": {
+      "model": "backrooms_evento:block/transformador_1",
+      "y": 180
+    },
+    "facing=west,variante=0": {
+      "model": "backrooms_evento:block/transformador_0",
+      "y": 270
+    },
+    "facing=west,variante=1": {
+      "model": "backrooms_evento:block/transformador_1",
+      "y": 270
+    },
+    "facing=west,variante=2": {
+      "model": "backrooms_evento:block/transformador_2",
+      "y": 270
+    },
+    "facing=west,variante=3": {
+      "model": "backrooms_evento:block/transformador_0",
+      "y": 270
+    },
+    "facing=west,variante=4": {
+      "model": "backrooms_evento:block/transformador_1",
+      "y": 270
+    },
+    "facing=west,variante=5": {
+      "model": "backrooms_evento:block/transformador_2",
+      "y": 270
+    },
+    "facing=west,variante=6": {
+      "model": "backrooms_evento:block/transformador_0",
+      "y": 270
+    },
+    "facing=west,variante=7": {
+      "model": "backrooms_evento:block/transformador_1",
+      "y": 270
+    }
+  }
+}

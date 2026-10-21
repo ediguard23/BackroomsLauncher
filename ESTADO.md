@@ -1,8 +1,63 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-21 (hora de Honduras). Mod `backrooms_evento` 0.24.0, launcher 1.0.0
+Última actualización: 2026-10-21 (hora de Honduras). Mod `backrooms_evento` 0.25.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+
+## 0.25.0: Nivel 3, la Estación Eléctrica (2026-10-21; Bruno)
+
+Nivel nuevo después de la Fiesta: el tobogán del salón final lleva ahora a la **Estación Eléctrica**
+(`estacion/`, dimensión `backrooms_evento:estacion`); si el servidor no la tiene, se escapa como antes.
+Historia en LORE.md (sección «Nivel 3»).
+
+- **El sitio** (`PlanoEstacion`, cajas como la Fiesta; `GeneradorEstacion` con índice de cajas por chunk):
+  acceso (vestuario, la radio, el tablón de instrucciones roto), pasillo, **nave del generador** (techo de 12,
+  generador naranja de 9x7 con su boca, escapes, turbinas, lámparas en las paredes), **sala de control**
+  (caja de fusibles al oeste, interruptores al este, consolas, pantalla con la secuencia, persiana de la
+  pasarela), la **pasarela** de rejilla sobre un pozo (focos a los lados, la puerta del fondo) y **4 sectores**
+  laberinto (A rojo, B amarillo, C azul, D verde; semilla fija): salas de paneles, de máquinas y de
+  fusibles (cerrada con persiana), rótulos «A-07», callejones con puntos de recogida, zonas a oscuras.
+- **El juego** (`JuegoEstacion`, todo compartido, se guarda en `<mundo>/backrooms/estacion.json`):
+  1. **Combustible**: el generador gasta (7 min el depósito lleno, solo con alguien en el nivel; empieza al
+     35 %). Bidones en las salas de máquinas y callejones (uno por persona; se reponen a los 2 min). Sin
+     gasoil: apagón en todo el nivel y nada eléctrico responde. Alarma de reserva por debajo del 15 %.
+  2. **Paneles**: 8 (2 por sector), cada uno pide cable, herramientas o cinta (en los callejones; se reponen a
+     los 90 s). Con los dos de un sector sube la persiana de su sala de fusibles.
+  3. **Fusibles**: los 4 a la caja de la sala de control y los **interruptores en el orden de la pantalla**
+     (se sortea). Cada acierto lo dice; un error: fallo de 12 s (apagón) y a empezar.
+  4. **Pasarela**: se abre la persiana, los focos se encienden de dos en dos hasta el fondo y quien llega a la
+     plataforma del final (vivo, no creativo) sale (de momento, escapa).
+  Misiones COMBUSTIBLE, PANELES, FUSIBLES y PASARELA (hoja y radar: a lo que toca ahora). Lo de la Estación
+  (materiales, bidones, fusibles) se le quita a quien sale del nivel, para que un fusible no se pierda.
+- **El Amasijo** (`Amasijo`, `AmasijoEstacion`; modelo en `entidades.js`: carne pálida, 6 brazos de patas,
+  8 que tantean, boca con dientes y ojillos que brillan): ronda los sectores, ve a 20 bloques (11 sin
+  corriente), grita y caza a 5 b/s hacia donde te vio; si rompes la línea de visión, a los 3,5 s te olvida.
+  Agarra y mata. Sale al arrancar el generador; uno más con la mitad de los paneles y otro con la pasarela
+  (+1 por cada 8 jugadores), lejos de todos. Cada sistema que vuelve hace un estruendo en un sector lejano.
+- **Cliente**: HUD arriba a la derecha (combustible con su barra, paneles n/8, fusibles por color, corriente),
+  maquinaria y generador en bucle según haya corriente, estruendos, chispas de los paneles rotos.
+- **Texturas y modelos**: `tools/texturas/estacion.js` (en `npm run texturas`); sonidos:
+  `tools/sonidos/estacion.js` (generador diésel, arranque, parada, reserva, repostar, fallo, persiana,
+  palanca, fusible, la radio, pasos/grito/respiración/mordisco del Amasijo).
+- **Staff**: `/backrooms estacion [jugador]`, `estacion ir <sala>` (acceso, nave, control, pasarela,
+  a_paneles_1, b_fusibles...), `estacion combustible <n>`, `estacion avanzar|reponer|ver`,
+  `invocar amasijo` (los invocados no los quita el reparto). Pestaña **NIVEL 3** en el panel.
+- Reaparecer (con «morir reaparece»): al acceso de la Estación. El aviso de eliminación dice «NIVEL 3».
+
+**Probado** (mundo de pruebas, Estación nueva): llegada, HUD, coger un bidón y repostar (arranca y completa la
+misión), reparar un panel con su material, meter los 4 fusibles, un interruptor equivocado (fallo y apagón) y
+la secuencia buena (pasarela activa, focos), salir por la plataforma (escapa, y se le quitan los
+materiales de la Estación), el Amasijo (aparece, caza y
+agarra), cómo se ven acceso, nave, sala de control, sala de paneles y pasarela. **Sin probar**: llegar desde
+el tobogán de la Fiesta de verdad, con varios jugadores a la vez, las persianas de las salas de fusibles al
+reparar los dos paneles de un sector (con `avanzar` sí se abren todas), los sonidos dentro del juego (se
+generaron, no se han escuchado), el panel (pestaña NIVEL 3) pulsando.
+**Falta**: la **voz de la radio** (Higgsfield; Chrome no estaba conectado): `tools/sonidos/voces/estacion_radio.wav`
+y volver a correr `node tools/sonidos/estacion.js estacion_radio` (sin el wav la radio es solo ruido y el
+corte). Guion propuesto (voz Juan, cansado): «¿Hola? ¿Alguien me recibe? Aquí la estación de relevo. Si habéis
+caído por el techo del acceso, escuchad: arrancad el generador antes que nada. Gasta mucho: no dejéis que se
+vacíe. Y no os quedéis a oscuras en los sectores. Hay algo ahí abajo que oye las máquinas. Si salís, decidles
+que nos dejaron aquí. Me llamo...». Tampoco está el Nivel 3 en el avance del launcher.
 
 ## 0.24.0: panel del staff, el evento de las Backrooms (no solo del Nivel 0) y arreglos (2026-10-21; Bruno)
 

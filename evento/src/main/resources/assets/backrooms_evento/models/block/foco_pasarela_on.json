@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "top": "backrooms_evento:block/foco_pasarela_on",
+    "side": "backrooms_evento:block/chapa_estacion",
+    "bottom": "backrooms_evento:block/chapa_estacion"
+  }
+}
