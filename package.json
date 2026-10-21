@@ -16,6 +16,7 @@
     "sonidos": "node tools/sonidos/generar.js",
     "probar": "node tools/probar-local.js",
     "sonidos:piscinas": "node tools/sonidos/piscinas.js",
+    "sonidos:tobogan": "node tools/sonidos/tobogan.js",
     "imagenes": "node tools/imagenes/generar.js",
     "texturas": "node tools/texturas/generar.js && node tools/texturas/decoracion.js && node tools/texturas/traje.js && node tools/texturas/objetos.js && node tools/texturas/objetos3d.js && node tools/texturas/huecos.js && node tools/texturas/piscinas.js && node tools/texturas/fiesta.js && node tools/texturas/laberinto.js && node tools/texturas/cadaveres.js",
     "trailer": "electron tools/video/main.js"

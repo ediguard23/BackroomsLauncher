@@ -1168,8 +1168,8 @@ public final class PlanoFiesta {
 		}
 		racimo(75, CEN_Z0 + 1, SUELO + 1, 0);
 		racimo(85, CEN_Z0 + 1, SUELO + 1, 3);
-		// los cuadrados de noclip, al sur: un pozo oscuro sin suelo, con su franja de aviso alrededor y
-		// un cartel que dice que por ahi se vuelve a empezar
+		// los cuadrados de noclip, al sur: un pozo oscuro sin suelo, con su franja de aviso alrededor (y las
+		// particulas de portal del cliente, AmbienteFiesta)
 		int[][] noclip = {{70, 7}, {79, 8}, {88, 7}};
 		for (int[] c : noclip) {
 			NOCLIPS.add(c);
@@ -1177,7 +1177,6 @@ public final class PlanoFiesta {
 			caja(c[0] - 1, SUELO - 5, c[1] - 1, c[0] + 2, SUELO - 1, c[1] + 2, s(Blocks.BLACK_CONCRETE));
 			aire(c[0], SUELO - 4, c[1], c[0] + 1, SUELO - 1, c[1] + 1);
 			caja(c[0], SUELO, c[1], c[0] + 1, SUELO, c[1] + 1, s(BloquesFiesta.NOCLIP));
-			bloque(c[0], SUELO + 1, c[1] - 2, mira(BloquesFiesta.CARTEL_NOCLIP, Direction.NORTH));
 		}
 		// mesas de fiesta con sus sillitas y tartas
 		for (int[] m : new int[][] {{71, -6}, {86, -6}, {78, 0}}) {

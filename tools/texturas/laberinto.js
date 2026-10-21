@@ -203,6 +203,14 @@ const hoja = (col, x, y, mitad) => {
   }
   return c;
 };
+// cifras de 3x5 para la placa de las puertas (las de 5x7 quedaban enormes)
+const CIFRAS = {
+  1: ['.#.', '##.', '.#.', '.#.', '###'],
+  2: ['##.', '..#', '.#.', '#..', '###'],
+  3: ['##.', '..#', '.#.', '..#', '##.'],
+  4: ['#.#', '#.#', '###', '..#', '..#'],
+  5: ['###', '#..', '##.', '..#', '##.']
+};
 PUERTAS.forEach(([n, col], tipo) => {
   for (const mitad of [0, 1]) {
     for (let coste = 0; coste <= 5; coste++) {
@@ -214,10 +222,12 @@ PUERTAS.forEach(([n, col], tipo) => {
         l.punto(12, 1, [255, 236, 150]);
       }
       if (mitad === 1 && tipo === 0 && coste > 0) {
-        l.rect(2, 3, 13, 12, [30, 26, 34]);
-        l.disco(4.5, 7.5, 1.6, [242, 197, 58]);
-        l.punto(4, 7, [255, 236, 150]);
-        l.texto(String(coste), 7, 4, [255, 214, 70], 1);
+        // una moneda de oro pequena con la cifra grabada (letra de 3x5)
+        l.disco(7.5, 7.5, 3.9, [150, 104, 20]);
+        l.disco(7.5, 7.5, 3.1, [242, 197, 58]);
+        l.punto(5, 5, [255, 236, 150]);
+        l.punto(6, 4, [255, 236, 150]);
+        CIFRAS[coste].forEach((fila, fy) => [...fila].forEach((v, fx) => { if (v === '#') l.punto(6 + fx, 5 + fy, [96, 58, 8]); }));
       }
       if (mitad === 1 && tipo === 1) l.rect(4, 6, 11, 7, [240, 230, 210]);
       if (mitad === 1 && tipo === 2) {
@@ -250,29 +260,79 @@ PUERTAS.forEach(([n, col], tipo) => {
   json('items/puerta_fiesta.json', { model: { type: 'minecraft:model', model: t('puerta_verde_arriba_1') } });
 }
 
-// el localizador de salida: placa blanca con letras: BUSCAR SALIDA, un altavoz con sus ondas, CLIC DCHO y
-// 2 MONEDAS (con dos moneditas), para que se entienda que se pulsa
+// el localizador de salida: un aparato en la pared, sin letras. Arriba una pantalla verde con el
+// muñeco que corre hacia la puerta (la señal de salida de siempre); abajo un raton con el boton derecho
+// que parpadea (se pulsa con clic derecho), rejillas de altavoz a los lados y dos moneditas (lo que cuesta).
+// Dos cuadros: el boton derecho encendido con sus rayitas y apagado
 {
-  const l = new Lienzo(64).pintar((x, y) => {
-    if (x < 2 || x > 61 || y < 1 || y > 62) return null;
-    if (x < 4 || x > 59 || y < 3 || y > 60) return [20, 70, 160];
-    return escala([240, 240, 244], 0.96 + hash(x, y, 481) * 0.04);
-  });
-  l.texto('BUSCAR', 'centro', 6, [200, 30, 40], 1);
-  l.texto('SALIDA', 'centro', 15, [200, 30, 40], 1);
-  // el altavoz: caja, cono y tres ondas
-  l.rect(20, 28, 24, 36, [40, 40, 50]);
-  l.poligono([[24, 28], [31, 23], [31, 41], [24, 36]], [40, 40, 50]);
-  for (let k = 0; k < 3; k++) {
-    const rr = 5 + k * 4;
-    for (let a = -0.8; a <= 0.8; a += 0.05) {
-      l.punto(Math.round(33 + Math.cos(a) * rr), Math.round(32 + Math.sin(a) * rr), [20, 110, 220]);
+  const cuadro = (encendido) => {
+    const l = new Lienzo(64).pintar((x, y) => {
+      const borde = Math.min(x, y, 63 - x, 63 - y);
+      if (borde < 2) return escala([70, 78, 112], 1.0 - borde * 0.15);
+      const brillo = 1.0 + (y < 8 ? 0.06 : 0) - y * 0.002;
+      return escala([30, 34, 54], brillo * (0.96 + hash(x, y, 481) * 0.04));
+    });
+    // la pantalla, con las esquinas romas, un degradado y lineas de barrido
+    for (let y = 5; y <= 31; y++) {
+      for (let x = 6; x <= 57; x++) {
+        const esquina = (x < 8 || x > 55) && (y < 7 || y > 29);
+        if (esquina) continue;
+        const c = mezcla([60, 200, 112], [22, 128, 70], (y - 5) / 26);
+        l.punto(x, y, escala(c, y % 3 === 0 ? 0.92 : 1.0));
+      }
     }
-  }
-  l.texto('CLIC DCHO', 'centro', 45, [30, 30, 40], 1);
-  l.texto('2 MONEDAS', 'centro', 53, [150, 110, 20], 1);
-  guardar(TEX, 'localizador_salida', l);
-  json('models/block/localizador_salida.json', enPared('localizador_salida', 6));
+    const B = [236, 255, 240];
+    // la puerta abierta (marco grueso) y el muñeco corriendo hacia ella, con una flecha
+    l.rect(42, 9, 52, 10, B).rect(42, 9, 43, 28, B).rect(51, 9, 52, 28, B);
+    l.rect(44, 11, 50, 28, [18, 96, 54]);
+    l.disco(26.5, 11.5, 2.7, B);
+    l.linea(25.5, 15, 22.5, 22, B, 3.2);
+    l.linea(25, 16, 30.5, 18.5, B, 2.2);
+    l.linea(24.5, 16, 18.5, 18.5, B, 2.2);
+    l.linea(22.5, 22, 27.5, 24.5, B, 2.4).linea(27.5, 24.5, 28, 28.5, B, 2.4);
+    l.linea(22.5, 22, 18.5, 25.5, B, 2.4).linea(18.5, 25.5, 15, 25.5, B, 2.4);
+    l.linea(33, 14.5, 37.5, 19, B, 2).linea(37.5, 19, 33, 23.5, B, 2);
+    // las rejillas del altavoz
+    for (const x0 of [8, 47]) {
+      for (let y = 38; y <= 57; y += 3) for (let x = x0; x <= x0 + 9; x += 3) { l.punto(x, y, [12, 14, 24]); l.punto(x + 1, y, [56, 62, 92]); }
+    }
+    // el raton: cuerpo blanco redondeado, la raya del medio, la ruedita y el boton derecho
+    const raton = (x, y) => {
+      const dx = x - 31.5;
+      const dy = y - 47.5;
+      return (dx * dx) / (7.2 * 7.2) + (dy * dy) / (10.4 * 10.4) <= 1.0;
+    };
+    for (let y = 36; y <= 59; y++) {
+      for (let x = 23; x <= 40; x++) {
+        if (!raton(x, y)) continue;
+        let c = escala([236, 238, 244], 1.0 - (x - 23) * 0.006);
+        if (y < 46 && x >= 32) c = encendido ? [255, 206, 40] : [200, 204, 214];
+        if (y < 46 && x === 31) c = [90, 94, 110];
+        if (y === 46) c = [90, 94, 110];
+        l.punto(x, y, c);
+      }
+    }
+    l.rect(31, 40, 31, 42, [60, 64, 80]);
+    if (encendido) {
+      l.linea(41, 38, 44.5, 34.5, [255, 214, 70], 1.6);
+      l.linea(42, 42, 46.5, 42, [255, 214, 70], 1.6);
+      l.linea(39, 35.5, 40, 31.5, [255, 214, 70], 1.6);
+    }
+    // lo que cuesta: dos moneditas abajo a la derecha
+    for (const cx of [47.5, 53.5]) {
+      l.disco(cx, 57, 2.4, [168, 118, 24]).disco(cx, 57, 1.7, [242, 197, 58]);
+      l.punto(Math.round(cx) - 1, 56, [255, 236, 150]);
+    }
+    return l;
+  };
+  guardar(TEX, 'localizador_salida', Lienzo.tira([cuadro(true), cuadro(false)]));
+  fs.writeFileSync(path.join(TEX, 'localizador_salida.png.mcmeta'), JSON.stringify({ animation: { frametime: 10 } }, null, 2) + '\n');
+  guardar(TEX, 'localizador_lado', new Lienzo(16).pintar((x, y) => escala([44, 50, 76], 0.9 + hash(x, y, 482) * 0.1)));
+  // una caja de 14x14 que sale un poco de la pared (la cara de delante brilla un poco)
+  json('models/block/localizador_salida.json', mod({ f: t('localizador_salida'), l: t('localizador_lado'), particle: t('localizador_lado') }, [{
+    from: [1, 1, 14.4], to: [15, 15, 16], shade: false, light_emission: 6,
+    faces: { north: { texture: '#f', uv: [0, 0, 16, 16] }, east: { texture: '#l' }, west: { texture: '#l' }, up: { texture: '#l' }, down: { texture: '#l' } }
+  }]));
   const v = {};
   for (const [f, y] of Object.entries(FACINGS)) v[`facing=${f}`] = { model: t('localizador_salida'), ...(y ? { y } : {}) };
   json('blockstates/localizador_salida.json', { variants: v });
@@ -465,28 +525,6 @@ estados('valla_fiesta', 4, () => 'valla_fiesta');
 guardar(TEX, 'franja_aviso', new Lienzo(16).pintar((x, y) => (Math.floor((x + y) / 4) % 2 === 0 ? escala([250, 206, 40], 0.95 + hash(x, y, 561) * 0.05) : [26, 24, 28])));
 simple('franja_aviso');
 
-// el cartel del noclip en su poste: NOCLIP (verde, roto) y OTRA VUELTA, con una flecha hacia abajo
-{
-  const l = new Lienzo(64).pintar((x, y) => {
-    if (y < 2 || y > 50) return null;
-    if (y < 4 || y > 48 || x < 2 || x > 61) return [250, 206, 40];
-    return escala([34, 20, 48], 0.9 + hash(x, y, 571) * 0.12);
-  });
-  l.texto('NOCLIP', 'centro', 8, [90, 255, 150], 1);
-  l.texto('NOCLIP', 'centro', 9, [190, 60, 255], 1, 0.4);
-  l.texto('OTRA', 'centro', 21, [255, 230, 120], 1);
-  l.texto('VUELTA', 'centro', 30, [255, 230, 120], 1);
-  l.poligono([[26, 40], [38, 40], [32, 47]], [255, 255, 255]);
-  guardar(TEX, 'cartel_noclip', l);
-  guardar(TEX, 'poste_cartel', new Lienzo(16).pintar((x, y) => escala([120, 84, 52], 0.85 + hash(x, y, 572) * 0.2)));
-  json('models/block/cartel_noclip.json', mod({ c: t('cartel_noclip'), p: t('poste_cartel'), particle: t('poste_cartel') }, [
-    { from: [7, 0, 7], to: [9, 10, 9], faces: caras('#p') },
-    { from: [0, 6, 7.5], to: [16, 22, 8.5], shade: false, light_emission: 6,
-      faces: { north: { texture: '#c' }, south: { texture: '#c' }, east: { texture: '#p' }, west: { texture: '#p' }, up: { texture: '#p' } } }
-  ]));
-  estados('cartel_noclip', 4, () => 'cartel_noclip');
-}
-
 console.log('  laberinto, puertas, flechas, rotulos, castillo, sala central y salon final');
 
 /* ============================================================ nombres */
@@ -522,8 +560,7 @@ const NOMBRES = {
   pared_central_baja: ['Franja de la pared', 'Wall band'],
   valla_fiesta: ['Valla blanca', 'White fence'],
   ramo_globos: ['Ramo de globos', 'Balloon bunch'],
-  franja_aviso: ['Franja de aviso', 'Warning stripe'],
-  cartel_noclip: ['Cartel del noclip', 'Noclip sign']
+  franja_aviso: ['Franja de aviso', 'Warning stripe']
 };
 for (const [archivo, k] of [['es_es.json', 0], ['en_us.json', 1]]) {
   const f = path.join(ASSETS, 'lang', archivo);

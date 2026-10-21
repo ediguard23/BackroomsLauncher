@@ -33,7 +33,7 @@ main.js, preload.js, src/        launcher (src/core: lógica; src/ui: interfaz)
 src/core/acceso.js               canje del código de entrada y pase en disco
 evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
   src/main/java/net/backrooms/
-    menu/                        menú principal, pausa, carga, inventario, muerte, TAB...
+    menu/                        menú principal, pausa, carga, muerte, TAB... (sin inventario: solo la barra)
     evento/
       mundo/                     Plano.java (trazado procedural) y GeneradorNivel0
       vestibulo/                 la recepcion (donde se espera el /start) y el "Centro de Expediciones"
@@ -41,7 +41,9 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
       fase/                      la fase del Nivel 0 (solo queda la 1) y los ascensores de salida
       piscinas/                  las Piscinas (Nivel 37): PlanoPiscinas (trazado, y donde van las valvulas,
                                  la salida y las tarjetas), su generador, sus bloques, la llegada y
-                                 sus misiones (Valvulas, Tarjetas: las 3 tarjetas y la puerta)
+                                 sus misiones (Valvulas, Tarjetas: las 3 tarjetas y la puerta), la puerta de la boveda
+                                 (Boveda) y el paso a la Fiesta por el tobogan (TransicionFiesta; cinematica en
+                                 cliente/cinematica/ToboganCliente)
       fiesta/                    la Fiesta (Nivel Fun, las Feeding Rooms), despues de las Piscinas, como en Backrooms:
                                  Escape Together: PlanoFiesta (habitaciones de inicio, laberinto con puertas de monedas,
                                  castillo de bolas, sala central y salon final), JuegoFiesta (vueltas, monedas, tickets,
@@ -72,7 +74,8 @@ tools/
   texturas/laberinto.js          los del laberinto, puertas, castillo, sala central y salon final (va despues de fiesta.js)
   sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros);
                                  la Bacteria y el agarre en sonidos/bacteria.js; las Piscinas y la
-                                 Serpiente en sonidos/nivel37.js; la Fiesta y el Anfitrion en sonidos/fiesta.js
+                                 Serpiente en sonidos/nivel37.js; la Fiesta y el Anfitrion en sonidos/fiesta.js;
+                                 la cinematica del tobogan en sonidos/tobogan.js
   sonidos/voces/                 las únicas grabaciones: voces generadas con Higgsfield
   video/                         tráiler 4K (npm run trailer)
   cartel/                        cartel animado para Yamipa (GIF 7x4 en colores de mapa)

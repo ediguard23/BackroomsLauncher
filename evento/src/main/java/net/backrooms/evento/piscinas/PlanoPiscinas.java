@@ -1147,8 +1147,14 @@ public final class PlanoPiscinas {
 	public static final int T_VERDE = 2;
 	/** Celdas alrededor de la puerta con carteles que llevan a ella (la mitad tiene uno). */
 	private static final int CARTELES = 10;
-	/** Columnas de pared que ocupa la salida: margen, puerta (2) y los tres lectores. */
-	private static final int ANCHO_SALIDA = 6;
+	/** Columnas de pared que ocupa la salida: margen, puerta de la boveda (3), un hueco y los tres lectores. */
+	private static final int ANCHO_SALIDA = 8;
+	/** Pasillo de la boveda (detras de la puerta, d = 2..8), la pared del fondo con la boca del tobogan (d = 9) y el pozo (d = 10). */
+	public static final int PASILLO_FIN = 8;
+	public static final int BOCA = 9;
+	public static final int POZO = 10;
+	/** El fondo del pozo del tobogan. */
+	public static final int FONDO_POZO = 34;
 
 	/** Una valvula: donde esta (el bloque de delante de la pared) y hacia donde mira. */
 	public record Valvula(int id, int x, int y, int z, int lado) {
@@ -1156,12 +1162,14 @@ public final class PlanoPiscinas {
 
 	/**
 	 * La salida de emergencia: (x, z) es la columna de delante de la pared donde empieza y
-	 * `lado` hacia la pared. A lo largo (hacia lado + 1, la derecha de quien la mira): un
-	 * margen, la puerta (columnas 1 y 2, en la pared, 3 de alto) con el cartel grande encima, y
-	 * los lectores (3, 4 y 5: roja, amarilla y verde) a la altura del pecho.
+	 * `lado` hacia la pared. A lo largo (a, hacia lado + 1, la derecha de quien la mira): un
+	 * margen, la puerta de la boveda (columnas 1 a 3, en la pared, 3x3) con su marco de acero, y
+	 * los lectores (5, 6 y 7: roja, amarilla y verde) a la altura del pecho. Hacia dentro (d): la
+	 * pared (1), el pasillo de la boveda (2 a 8, 3 de ancho y 3 de alto), la pared del fondo con la
+	 * boca del tobogan (9) y el pozo por el que se baja (10), que cae hasta FONDO_POZO.
 	 */
 	public record Salida(int x, int z, int lado) {
-		/** La columna de delante de la pared en la posicion a (0..5). */
+		/** La columna de delante de la pared en la posicion a (0..7). */
 		public int[] columna(int a) {
 			return new int[] {this.x + DX[(this.lado + 1) % 4] * a, this.z + DZ[(this.lado + 1) % 4] * a};
 		}
@@ -1170,6 +1178,31 @@ public final class PlanoPiscinas {
 		public int[] pared(int a) {
 			int[] c = this.columna(a);
 			return new int[] {c[0] + DX[this.lado], c[1] + DZ[this.lado]};
+		}
+
+		/** La columna (a, d) del marco de la salida. */
+		public int[] en(int a, int d) {
+			int[] c = this.columna(a);
+			return new int[] {c[0] + DX[this.lado] * d, c[1] + DZ[this.lado] * d};
+		}
+
+		/**
+		 * El punto del mundo de las coordenadas locales continuas (a, d), con el centro de cada
+		 * bloque en los enteros: {x, z}.
+		 */
+		public double[] mundo(double a, double d) {
+			return new double[] {this.x + 0.5 + DX[(this.lado + 1) % 4] * a + DX[this.lado] * d,
+				this.z + 0.5 + DZ[(this.lado + 1) % 4] * a + DZ[this.lado] * d};
+		}
+
+		/** Direccion del mundo de +a: {x, z}. */
+		public int[] ejeA() {
+			return new int[] {DX[(this.lado + 1) % 4], DZ[(this.lado + 1) % 4]};
+		}
+
+		/** Direccion del mundo de +d (hacia dentro): {x, z}. */
+		public int[] ejeD() {
+			return new int[] {DX[this.lado], DZ[this.lado]};
 		}
 
 		/** Hacia donde miran la puerta, los lectores y los carteles. */
@@ -1187,25 +1220,25 @@ public final class PlanoPiscinas {
 
 		/**
 		 * Donde cae (x, z) respecto a la salida: {a, d}, a lo largo de la pared (a, como en columna)
-		 * y hacia dentro de ella (d: 0 delante, 1 la pared de la puerta, 2..4 la cabina del ascensor).
+		 * y hacia dentro de ella (d), con el centro de cada bloque en los enteros.
 		 */
 		public double[] local(double x, double z) {
 			int ax = DX[(this.lado + 1) % 4];
 			int az = DZ[(this.lado + 1) % 4];
-			double rx = x - this.x;
-			double rz = z - this.z;
+			double rx = x - this.x - 0.5;
+			double rz = z - this.z - 0.5;
 			return new double[] {rx * ax + rz * az, rx * DX[this.lado] + rz * DZ[this.lado]};
 		}
 
-		/** Si (x, y, z) esta dentro de la cabina del ascensor de salida (detras de la puerta). */
-		public boolean enCabina(double x, double y, double z) {
+		/** Si (x, y, z) esta ya dentro del pasillo de la boveda (pasada la puerta). */
+		public boolean enPasillo(double x, double y, double z) {
 			double[] l = this.local(x, z);
-			return l[0] >= 1.0 && l[0] < 3.0 && l[1] >= 2.0 && l[1] < 5.0 && y >= PISO - 0.5 && y < PISO + 3;
+			return l[0] > 0.5 && l[0] < 3.5 && l[1] > 1.8 && l[1] < BOCA + 0.5 && y >= PISO - 0.5 && y < PISO + 3;
 		}
 
 		/** El lector de ese color: {x, y, z}. */
 		public int[] lector(int color) {
-			int[] c = this.columna(3 + color);
+			int[] c = this.columna(5 + color);
 			return new int[] {c[0], PISO + 1, c[1]};
 		}
 	}
@@ -1214,7 +1247,7 @@ public final class PlanoPiscinas {
 	private volatile java.util.List<Valvula> valvulas;
 	private final int[][] tarjetas = new int[3][];
 
-	/** La salida de emergencia: la pared libre mas cercana al centro del mapa donde cabe. */
+	/** La salida de emergencia: la mas cercana al centro del mapa donde cabe (cabeSalida). */
 	public Salida salida() {
 		Salida s = this.salida;
 		if (s == null) {
@@ -1225,22 +1258,25 @@ public final class PlanoPiscinas {
 	}
 
 	private Salida buscarSalida() {
-		byte[] col = new byte[ALTO];
-		byte[] vec = new byte[ALTO];
+		java.util.Map<Long, byte[]> cache = new java.util.HashMap<>();
 		for (int r = 0; r < 40; r++) {
 			for (int dx = -r; dx <= r; dx++) {
 				for (int dz = -r; dz <= r; dz++) {
 					if (Math.max(Math.abs(dx), Math.abs(dz)) != r || this.sala(dx, dz).oscura()) {
 						continue;
 					}
-					for (int t = 0; t < 70; t++) {
-						int[] c = this.candidata(dx, dz, 9, t);
-						for (int lado = 0; lado < 4; lado++) {
-							Salida s = new Salida(c[0], c[1], lado);
-							if (this.cabeSalida(s, dx, dz, col, vec)) {
-								return s;
+					for (int u = 1; u < C; u++) {
+						for (int v = 1; v < C; v++) {
+							for (int lado = 0; lado < 4; lado++) {
+								Salida s = new Salida(dx * C + u, dz * C + v, lado);
+								if (this.cabeSalida(s, dx, dz, cache)) {
+									return s;
+								}
 							}
 						}
+					}
+					if (cache.size() > 200000) {
+						cache.clear();
 					}
 				}
 			}
@@ -1248,80 +1284,150 @@ public final class PlanoPiscinas {
 		return new Salida(0, 0, NORTE);
 	}
 
-	/** Lo que hay en la cabina del ascensor de salida (detras de la puerta) en ese bloque. */
-	public static final int CAB_FUERA = -1;
-	public static final int CAB_AIRE = 0;
-	public static final int CAB_ACERO = 1;
-	public static final int CAB_SUELO = 2;
-	public static final int CAB_LUZ = 3;
-
-	/**
-	 * La cabina del ascensor de salida: detras de la puerta (2 de ancho) un hueco de 2 x 3 y 3 de
-	 * alto, con paredes de acero, suelo de ascensor y luz en el techo, como el ascensor de salida
-	 * del Nivel 0. Se excava en lo que haya detras de la pared (GeneradorPiscinas).
-	 */
-	public int cabina(int x, int y, int z) {
-		Salida s = this.salida();
-		double[] l = s.local(x, z);
-		int a = (int) l[0];
-		int d = (int) l[1];
-		if (a < 0 || a > 3 || d < 2 || d > 5 || y < PISO - 1 || y > PISO + 3) {
-			return CAB_FUERA;
+	private byte[] col(java.util.Map<Long, byte[]> cache, int x, int z) {
+		long k = ((long) x << 32) ^ (z & 0xFFFFFFFFL);
+		byte[] c = cache.get(k);
+		if (c == null) {
+			c = new byte[ALTO];
+			this.columna(x, z, c);
+			cache.put(k, c);
 		}
-		boolean dentro = a >= 1 && a <= 2 && d <= 4;
-		if (!dentro) {
-			return CAB_ACERO;
-		}
-		if (y == PISO - 1) {
-			return CAB_SUELO;
-		}
-		if (y == PISO + 3) {
-			return d == 3 ? CAB_LUZ : CAB_ACERO;
-		}
-		return CAB_AIRE;
+		return c;
 	}
 
-	/** Las seis columnas en la celda, secas y altas, con pared maciza detras de 4 de alto. */
-	private boolean cabeSalida(Salida s, int cx, int cz, byte[] col, byte[] vec) {
+	/**
+	 * Cabe la salida: delante, ocho columnas secas por donde andar (y dos filas mas para llegar a la
+	 * puerta); la pared, maciza en las ocho; y detras, todo macizo desde el fondo del pozo hasta el
+	 * techo del pasillo, para excavar el pasillo, la boca y el pozo sin abrir nada mas (ni agua).
+	 * La puerta, los lectores y lo de delante caen en la misma celda (sus detalles van con ella).
+	 */
+	private boolean cabeSalida(Salida s, int cx, int cz, java.util.Map<Long, byte[]> cache) {
 		for (int a = 0; a < ANCHO_SALIDA; a++) {
-			int[] c = s.columna(a);
 			int[] p = s.pared(a);
-			if (Math.floorDiv(c[0], C) != cx || Math.floorDiv(c[1], C) != cz || Math.floorDiv(p[0], C) != cx || Math.floorDiv(p[1], C) != cz) {
+			if (Math.floorDiv(p[0], C) != cx || Math.floorDiv(p[1], C) != cz) {
 				return false;
 			}
-			this.columna(c[0], c[1], col);
-			this.columna(p[0], p[1], vec);
-			if (!this.pisable(c[0], PISO, c[1], col) || en(col, PISO + 2) != AIRE || en(col, PISO + 3) != AIRE) {
-				return false;
-			}
+			byte[] w = this.col(cache, p[0], p[1]);
 			for (int y = PISO; y <= PISO + 3; y++) {
-				if (!macizoEn(vec, y)) {
+				if (!macizoEn(w, y)) {
 					return false;
 				}
 			}
-			// delante, al menos dos columnas por donde andar (los pasillos son de 3)
-			for (int d = 1; d <= 2; d++) {
-				int x = c[0] + DX[s.mira()] * d;
-				int z = c[1] + DZ[s.mira()] * d;
-				this.columna(x, z, vec);
-				if (this.dePie(vec) < 0 || en(vec, PISO + 2) != AIRE) {
+			int[] c = s.columna(a);
+			if (Math.floorDiv(c[0], C) != cx || Math.floorDiv(c[1], C) != cz) {
+				return false;
+			}
+			byte[] f = this.col(cache, c[0], c[1]);
+			if (!this.pisable(c[0], PISO, c[1], f) || en(f, PISO + 2) != AIRE) {
+				return false;
+			}
+		}
+		for (int a = 0; a < ANCHO_SALIDA; a++) {
+			for (int d = -2; d <= -1; d++) {
+				int[] c = s.en(a, d);
+				byte[] f = this.col(cache, c[0], c[1]);
+				if (this.dePie(f) < 0 || en(f, PISO + 2) != AIRE) {
 					return false;
+				}
+			}
+		}
+		for (int d = 2; d <= POZO + 1; d++) {
+			for (int a = -1; a <= 5; a++) {
+				int[] c = s.en(a, d);
+				byte[] w = this.col(cache, c[0], c[1]);
+				int abajo = a < 0 || a > 4 ? PISO - 1 : FONDO_POZO;
+				for (int y = abajo; y <= PISO + 3; y++) {
+					if (!macizoEn(w, y)) {
+						return false;
+					}
 				}
 			}
 		}
 		return true;
 	}
 
+	/** Lo que lleva la salida en ese bloque (lo excava el generador sobre lo que diga el plano). */
+	public static final int SAL_FUERA = -1;
+	public static final int SAL_AIRE = 0;
+	public static final int SAL_ACERO = 1;
+	public static final int SAL_SUELO = 2;
+	public static final int SAL_LUZ = 3;
+	public static final int SAL_TOBOGAN = 4;
+	public static final int SAL_TENUE = 5;
+
+	/** Si la columna (x, z) tiene algo de la salida (el generador mira entonces salidaBloque). */
+	public boolean enSalida(int x, int z) {
+		double[] l = this.salida().local(x + 0.5, z + 0.5);
+		return l[0] > -0.5 && l[0] < 4.5 && l[1] > 0.5 && l[1] < POZO + 1.5;
+	}
+
+	/**
+	 * El pasillo de la boveda, a partir de la pared de la puerta: el marco de acero de la puerta
+	 * (lo que no es la puerta), el pasillo de 3x3 con paredes de acero, suelo de rejilla y dos
+	 * luces, la pared del fondo con la boca del tobogan (3 de ancho abajo y 1 arriba, como un
+	 * arco), y el pozo forrado de tobogan rojo que cae hasta FONDO_POZO con una luz tenue abajo.
+	 */
+	public int salidaBloque(int x, int y, int z) {
+		Salida s = this.salida();
+		double[] l = s.local(x + 0.5, z + 0.5);
+		int a = (int) Math.round(l[0]);
+		int d = (int) Math.round(l[1]);
+		if (a < 0 || a > 4 || d < 1 || d > POZO + 1 || y < FONDO_POZO || y > PISO + 3) {
+			return SAL_FUERA;
+		}
+		boolean lado = a == 0 || a == 4;
+		if (d == 1) {
+			// la pared de la puerta: el marco de acero; la puerta la ponen los detalles
+			if (y < PISO) {
+				return SAL_FUERA;
+			}
+			return lado || y == PISO + 3 ? SAL_ACERO : SAL_FUERA;
+		}
+		if (d <= PASILLO_FIN) {
+			if (y < PISO - 1) {
+				return SAL_FUERA;
+			}
+			if (lado) {
+				return SAL_ACERO;
+			}
+			if (y == PISO - 1) {
+				return SAL_SUELO;
+			}
+			if (y == PISO + 3) {
+				return a == 2 && (d == 3 || d == 7) ? SAL_LUZ : SAL_ACERO;
+			}
+			return SAL_AIRE;
+		}
+		if (d == BOCA) {
+			if (y < PISO - 1) {
+				return SAL_FUERA;
+			}
+			if (lado || y >= PISO + 2) {
+				return SAL_ACERO;
+			}
+			if (y == PISO - 1) {
+				return SAL_TOBOGAN;
+			}
+			// la boca: abajo 3 de ancho, arriba solo la del medio (como un arco)
+			return y == PISO + 1 && a != 2 ? SAL_ACERO : SAL_AIRE;
+		}
+		if (d == POZO) {
+			if (lado || y >= PISO + 2 || y == FONDO_POZO) {
+				return SAL_TOBOGAN;
+			}
+			return y == FONDO_POZO + 1 && a == 2 ? SAL_TENUE : SAL_AIRE;
+		}
+		return SAL_TOBOGAN;
+	}
+
 	private java.util.List<Detalle> detallesSalida(Salida s) {
 		java.util.List<Detalle> out = new java.util.ArrayList<>();
 		int mira = s.mira();
-		for (int a = 1; a <= 2; a++) {
+		for (int a = 1; a <= 3; a++) {
 			int[] p = s.pared(a);
 			for (int f = 0; f < 3; f++) {
 				out.add(new Detalle(p[0], PISO + f, p[1], D_PUERTA, (a - 1) * 3 + f, mira));
 			}
-			int[] c = s.columna(a);
-			out.add(new Detalle(c[0], PISO + 3, c[1], D_CARTEL, CARTEL_GRANDE + a - 1, mira));
 		}
 		for (int color = 0; color < 3; color++) {
 			int[] l = s.lector(color);

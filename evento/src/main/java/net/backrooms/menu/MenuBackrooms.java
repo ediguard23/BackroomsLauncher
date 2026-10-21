@@ -64,6 +64,9 @@ public class MenuBackrooms extends Screen {
 		if (pantalla == null && net.backrooms.evento.cliente.cinematica.CinematicaCliente.activa()) {
 			return net.backrooms.evento.cliente.cinematica.CinematicaCliente.pantalla(); // nada corta la cinematica
 		}
+		if (pantalla == null && net.backrooms.evento.cliente.cinematica.ToboganCliente.activa()) {
+			return new net.backrooms.evento.cliente.cinematica.PantallaTobogan(); // ni la del tobogan
+		}
 		if (pantalla == null) {
 			return hayMundo ? null : new MenuBackrooms();
 		}
@@ -71,9 +74,10 @@ public class MenuBackrooms extends Screen {
 			return new SenalPerdida(((net.backrooms.menu.mixin.DisconnectedScreenAccessor) d).backrooms$detalles().reason());
 		}
 		if (pantalla.getClass() == net.minecraft.client.gui.screens.inventory.InventoryScreen.class) {
+			// sin inventario: solo la barra de abajo (en creativo, el staff si lo abre)
 			var jugador = net.minecraft.client.Minecraft.getInstance().player;
 			if (jugador != null && !jugador.hasInfiniteMaterials()) {
-				return new InventarioBackrooms(jugador);
+				return null;
 			}
 		}
 		if (pantalla.getClass() == net.minecraft.client.gui.screens.DeathScreen.class) {

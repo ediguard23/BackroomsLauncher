@@ -42,11 +42,19 @@ public final class InundacionCliente {
 	}
 
 	public static boolean activa() {
-		return fuerza > 0.001F;
+		return fuerza() > 0.001F;
 	}
 
-	/** La altura del agua ahora mismo. */
+	/** La altura del agua ahora mismo (la de la cinematica del tobogan, si la hay: solo se ve). */
 	public static float nivel() {
+		float cine = net.backrooms.evento.cliente.cinematica.ToboganCliente.agua();
+		if (cine >= 0) {
+			return cine;
+		}
+		return nivelReal();
+	}
+
+	private static float nivelReal() {
 		if (nivel < 0) {
 			return Inundacion.BAJO;
 		}
@@ -56,11 +64,11 @@ public final class InundacionCliente {
 
 	/** La altura del agua que cuenta como agua de verdad (Inundacion.nivelCliente), o -1 sin inundacion. */
 	public static double agua() {
-		return nivel < 0 ? -1.0 : nivel();
+		return nivel < 0 ? -1.0 : nivelReal();
 	}
 
 	public static float fuerza() {
-		return fuerza;
+		return net.backrooms.evento.cliente.cinematica.ToboganCliente.agua() >= 0 ? 1.0F : fuerza;
 	}
 
 	public static void tick(Minecraft mc) {

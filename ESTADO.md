@@ -1,8 +1,43 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-20 (hora de Honduras). Mod `backrooms_evento` 0.22.2, launcher 1.0.0
+Última actualización: 2026-10-20 (hora de Honduras). Mod `backrooms_evento` 0.23.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+
+## 0.23.0: la bóveda y el tobogán a la Fiesta, y retoques (2026-10-20; Bruno)
+
+Piscinas → Fiesta (sin ascensor):
+- La salida de emergencia es una **puerta de bóveda** redonda de 3x3 (aro de rayas amarillas y negras,
+  volante, bisagras, marco de acero; los lectores a la derecha). La hoja que se ve es una entidad
+  (`Boveda`, BlockDisplay de `PUERTA_BOVEDA`, no se guarda); los bloques `PUERTA_SALIDA` (3x3, PARTE 0..8)
+  solo chocan. Con la tercera tarjeta **se abre girando** hacia dentro (3,5 s, interpolación de Minecraft).
+- Detrás: **pasillo de acero** de 3x3 y 7 de largo (rejilla, dos luces) y al fondo la **boca del tobogán**
+  con un pozo rojo (`BloquesFiesta.TOBOGAN`) hasta y=34. `PlanoPiscinas#buscarSalida` busca ahora un sitio
+  donde todo lo de detrás de la pared sea macizo (no abre salas ni agua) y `salidaBloque` lo excava. **La
+  salida cambia de sitio**: hay que regenerar las Piscinas (en pruebas se borró `dimensions/.../piscinas`).
+- Al entrar en el pasillo (con las misiones hechas) empieza la **cinemática** (`TransicionFiesta`: quieto e
+  invulnerable; paquete `CinematicaTobogan`; `ToboganCliente`, `PantallaTobogan`): cámara propia (Marker),
+  sin HUD ni jugadores, franjas de cine. Andas, parpadean las luces, **alarma roja**, te das la vuelta y ves
+  **subir el agua** por la puerta (la superficie de la inundación, solo en tu cliente), corres, te metes por la
+  boca y caes por el pozo; negro; a los 11 s el servidor te lleva a la Fiesta y se abre la imagen. Sonido:
+  `tools/sonidos/tobogan.js` (`cinematica_tobogan.ogg` y `_despues.ogg`).
+- **Falta la voz** de la megafonía («fallo de contención, inundación total inminente»): no se pudo usar
+  Higgsfield (Chrome sin conectar). Se pone en `tools/sonidos/voces/megafonia_contencion.wav` (voz Marisol)
+  y `node tools/sonidos/tobogan.js`; mientras, solo suena la sirena.
+Otros:
+- Puertas del laberinto: la cifra pequeña (3x5) grabada en una moneda de oro.
+- Panel de monedas y tickets mucho más pequeño (124x33).
+- Fuera los carteles NOCLIP de la sala central (y el bloque `CARTEL_NOCLIP`).
+- **Localizador** sin texto: aparato con pantalla verde de salida (muñeco corriendo a la puerta), un ratón
+  con el botón derecho que **parpadea** (textura animada), rejillas de altavoz y dos moneditas.
+- **Sin inventario** (la E no abre nada; en creativo sí): solo la barra. Fuera `InventarioBackrooms`.
+- La **linterna y la cámara no se tiran** con Q (cliente y servidor, `SoltarObjeto*Mixin`).
+- **Linterna en la mano**: en primera persona se dibuja el brazo (con el guante del traje) y la linterna en el
+  puño apuntando al frente (`ManoLinternaMixin`).
+**Probado** (capturas): la bóveda cerrada, abriéndose y abierta; el pasillo y la boca; la cinemática entera
+hasta aparecer en la Fiesta con el título; números de las puertas, localizador y panel nuevos (texturas y HUD);
+la linterna en la mano. **Sin probar**: oír la cinemática (sonido sin voz aún), con varios jugadores a la vez,
+la Q con la linterna y la cámara en el juego, la E sin inventario, la linterna en tercera persona.
 
 ## 0.22.2: Nivel Fun, la segunda lista de Bruno (2026-10-20; Bruno)
 

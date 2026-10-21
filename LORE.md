@@ -370,9 +370,11 @@ El experimento dejó de ser completamente controlable.
 
 ## Nivel Fun — las Feeding Rooms
 
-Quien escapa de las Piscinas sube en una cabina que no debería llevar a ningún sitio.
+Quien escapa de las Piscinas cruza la compuerta de la bóveda justo cuando salta la alarma de
+contención: el nivel entero se va a inundar. Detrás de la compuerta solo hay un pasillo de acero y,
+al fondo, la boca de un tobogán rojo que no debería llevar a ningún sitio.
 
-Se despierta en un cuartito blanco con una sola puerta verde. Cuando la abre, hay globos.
+Cae en un cuartito blanco con una sola puerta verde. Cuando la abre, hay globos.
 
 Una fiesta infantil: guirnaldas, tartas con velas encendidas, juegos de colores, una
 mascota sonriente en los carteles, música que suena desde algún altavoz lejano. Una voz

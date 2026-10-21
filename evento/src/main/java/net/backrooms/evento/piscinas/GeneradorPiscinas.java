@@ -127,22 +127,26 @@ public class GeneradorPiscinas extends ChunkGenerator {
 					fondo.update(x, y, z, e);
 					superficie.update(x, y, z, e);
 				}
-				// la cabina del ascensor de salida, excavada detras de la puerta
-				for (int y = PlanoPiscinas.PISO - 1; y <= PlanoPiscinas.PISO + 3; y++) {
-					int cab = p.cabina(wx, y, wz);
-					if (cab == PlanoPiscinas.CAB_FUERA) {
-						break;
+				// el pasillo de la boveda y el pozo del tobogan, excavados detras de la puerta
+				if (p.enSalida(wx, wz)) {
+					for (int y = PlanoPiscinas.FONDO_POZO; y <= PlanoPiscinas.PISO + 3; y++) {
+						int sal = p.salidaBloque(wx, y, wz);
+						if (sal == PlanoPiscinas.SAL_FUERA) {
+							continue;
+						}
+						BlockState e = switch (sal) {
+							case PlanoPiscinas.SAL_ACERO -> net.backrooms.evento.bloques.Bloques.ACERO.defaultBlockState();
+							case PlanoPiscinas.SAL_SUELO -> BloquesPiscinas.REJILLA.defaultBlockState();
+							case PlanoPiscinas.SAL_LUZ -> BloquesPiscinas.LUZ_TECHO.defaultBlockState();
+							case PlanoPiscinas.SAL_TOBOGAN -> net.backrooms.evento.fiesta.BloquesFiesta.TOBOGAN.defaultBlockState();
+							case PlanoPiscinas.SAL_TENUE -> ESTADOS[PlanoPiscinas.LUZ_TENUE];
+							default -> net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
+						};
+						pos.set(x, y, z);
+						chunk.setBlockState(pos, e);
+						fondo.update(x, y, z, e);
+						superficie.update(x, y, z, e);
 					}
-					BlockState e = switch (cab) {
-						case PlanoPiscinas.CAB_ACERO -> net.backrooms.evento.bloques.Bloques.ACERO.defaultBlockState();
-						case PlanoPiscinas.CAB_SUELO -> net.backrooms.evento.bloques.Bloques.ASCENSOR_SUELO.defaultBlockState();
-						case PlanoPiscinas.CAB_LUZ -> net.backrooms.evento.bloques.Bloques.LUZ_ASCENSOR.defaultBlockState();
-						default -> net.minecraft.world.level.block.Blocks.AIR.defaultBlockState();
-					};
-					pos.set(x, y, z);
-					chunk.setBlockState(pos, e);
-					fondo.update(x, y, z, e);
-					superficie.update(x, y, z, e);
 				}
 				for (PlanoPiscinas.Detalle d : p.detallesEn(wx, wz)) {
 					BlockState e = detalle(d);

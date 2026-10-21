@@ -1292,5 +1292,19 @@
         "attenuation_distance": 20
       }
     ]
+  },
+  "cinematica.tobogan": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica_tobogan"
+      }
+    ]
+  },
+  "cinematica.tobogan.despues": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica_tobogan_despues"
+      }
+    ]
   }
 }

@@ -775,59 +775,101 @@ guardar(TEX, 'valvula_tubo', new Lienzo(16).pintar((x, y) => {
   json('items/lector_tarjeta.json', { model: { type: 'minecraft:model', model: t('lector_roja') } });
 }
 
-// la puerta: dos hojas de chapa gris verdosa con barra antipanico, bisagras y una franja roja;
-// se dibuja entera (64x96, 2x3 bloques) y se corta en seis. Abierta: negro.
+/// la puerta de la salida: una boveda redonda de acero de 3x3 (la hoja la dibuja una entidad, Boveda.java;
+// los bloques de la puerta no se ven: solo chocan). La cara de delante (hacia las piscinas) lleva un aro de
+// rayas amarillas y negras, remaches y el numero del nivel; el volante sale en relieve; detras, el mecanismo.
+// El modelo va de -16 a 32 en x e y (tres bloques) y la hoja de z = 2 a 14 (el volante, hasta 18.5)
 {
-  const P = new Lienzo(64, 96);
-  P.pintar((x, y) => {
-    const hoja = x < 32 ? 0 : 1;
-    const lx = x - hoja * 32;
-    let c = escala([96, 112, 104], 0.86 + fbm(x, y, 920, 64) * 0.16);
-    if (fbm(x * 0.5, y * 2, 921, 64) > 0.6) c = escala(c, 0.9); // chorretones de suciedad
-    // marco y canto de cada hoja
-    if (lx <= 1 || lx >= 30 || y <= 1) c = escala([70, 80, 76], 0.9);
-    if (hoja === 0 && lx === 31) c = [30, 32, 30]; // la junta entre las hojas
-    // paneles hundidos
-    const panel = (y > 8 && y < 40) || (y > 46 && y < 90);
-    if (panel && lx > 5 && lx < 26 && (lx === 6 || lx === 25 || y === 9 || y === 39 || y === 47 || y === 89)) c = escala(c, 0.78);
-    // franja roja de emergencia
-    if (y >= 41 && y <= 44) c = escala([176, 36, 28], 0.85 + hash(x, y, 922) * 0.15);
+  const ACERO_B = [150, 156, 162];
+  const cara = new Lienzo(64).pintar((x, y) => {
+    const dx = x - 31.5;
+    const dy = y - 31.5;
+    const d = Math.hypot(dx, dy);
+    const ang = Math.atan2(dy, dx);
+    if (d > 30.5) return escala([66, 70, 76], 0.9 + hash(x, y, 940) * 0.1);
+    if (d > 26) {
+      const raya = Math.floor((ang / Math.PI) * 10 + d * 0.18 + 40) % 2 === 0;
+      return raya ? escala([232, 188, 42], 0.92 + hash(x, y, 941) * 0.08) : [34, 34, 38];
+    }
+    if (d > 24.8) return [52, 56, 62];
+    // acero cepillado en circulos, con dos surcos y la placa del centro mas oscura
+    let c = escala(ACERO_B, 0.84 + fbm(d * 3, ang * 6, 942, 64) * 0.18 + (dx + dy < 0 ? 0.06 : -0.04));
+    if (Math.abs(d - 18) < 0.7 || Math.abs(d - 10.5) < 0.6) c = escala(c, 0.62);
+    if (d < 7) c = escala([108, 114, 122], 0.92 + hash(x, y, 943) * 0.08);
     return c;
   });
-  // barra antipanico (a la altura de la cintura) y bisagras
-  P.rect(5, 58, 58, 61, [176, 178, 172]).rect(5, 62, 58, 62, [90, 92, 88]);
-  for (const yb of [12, 50, 84]) { P.rect(0, yb, 1, yb + 5, [40, 42, 40]); P.rect(62, yb, 63, yb + 5, [40, 42, 40]); }
-  // ventanuco de malla en cada hoja
-  for (const hx of [10, 42]) {
-    P.rect(hx, 14, hx + 11, 30, [28, 36, 38]);
-    for (let y = 14; y <= 30; y += 3) P.rect(hx, y, hx + 11, y, [70, 78, 80]);
-    for (let x = hx; x <= hx + 11; x += 3) P.rect(x, 14, x, 30, [70, 78, 80]);
+  // remaches en el borde de dentro
+  for (let k = 0; k < 16; k++) {
+    const a = (k / 16) * Math.PI * 2;
+    const rx = 31.5 + Math.cos(a) * 21.8;
+    const ry = 31.5 + Math.sin(a) * 21.8;
+    cara.disco(rx + 0.4, ry + 0.4, 1.3, [70, 74, 80]);
+    cara.disco(rx, ry, 1.2, [196, 202, 208]);
   }
-  P.texto('SALIDA', 'centro', 68, [235, 235, 225], 1);
-  for (let col = 0; col < 2; col++) {
-    for (let fila = 0; fila < 3; fila++) {
-      const parte = new Lienzo(32);
-      for (let y = 0; y < 32; y++) {
-        for (let x = 0; x < 32; x++) {
-          const i = ((96 - 32 * (fila + 1) + y) * 64 + col * 32 + x) * 4;
-          parte.data.set(P.data.subarray(i, i + 4), (y * 32 + x) * 4);
-        }
-      }
-      guardar(TEX, `puerta_salida_${col * 3 + fila}`, parte);
-      json(`models/block/puerta_salida_${col * 3 + fila}.json`, enPared(`puerta_salida_${col * 3 + fila}`));
+  cara.texto('N-37', 'centro', 40, [150, 40, 34], 1);
+  guardar(TEX, 'boveda_cara', cara);
+  // el dorso: chapa mas oscura con dos barrotes de cierre cruzados y un engranaje en el centro
+  const dorso = new Lienzo(64).pintar((x, y) => {
+    const d = Math.hypot(x - 31.5, y - 31.5);
+    let c = escala([96, 102, 110], 0.86 + fbm(x, y, 944, 64) * 0.16);
+    if (d > 30.5) c = [56, 60, 66];
+    if (Math.abs(y - 31.5) < 3.5 || Math.abs(x - 31.5) < 3.5) c = escala([128, 132, 138], 0.92 + hash(x, y, 945) * 0.1);
+    if (Math.abs(y - 31.5) === 3.5 || Math.abs(x - 31.5) === 3.5) c = [60, 64, 70];
+    const dientes = Math.floor((Math.atan2(y - 31.5, x - 31.5) / Math.PI) * 6 + 12) % 2 === 0 ? 9.5 : 8;
+    if (d < dientes) c = escala([84, 88, 96], 0.9 + hash(x, y, 946) * 0.1);
+    if (d < 3) c = [40, 42, 46];
+    return c;
+  });
+  guardar(TEX, 'boveda_dorso', dorso);
+  guardar(TEX, 'boveda_canto', new Lienzo(16).pintar((x, y) => escala([118, 124, 132], (y % 4 === 0 ? 0.72 : 0.92) + hash(x, y, 947) * 0.1)));
+  guardar(TEX, 'boveda_volante', new Lienzo(16).pintar((x, y) => escala([196, 200, 206], 0.82 + (x + y) / 30 * 0.25 + hash(x, y, 948) * 0.06)));
+
+  const delante = (x0, y0, x1, y1) => [(x0 + 16) / 3, (32 - y1) / 3, (x1 + 16) / 3, (32 - y0) / 3];
+  const detras = (x0, y0, x1, y1) => [(32 - x1) / 3, (32 - y1) / 3, (32 - x0) / 3, (32 - y0) / 3];
+  const hoja = (x0, y0, x1, y1) => ({
+    from: [x0, y0, 2], to: [x1, y1, 14],
+    faces: {
+      south: { texture: '#f', uv: delante(x0, y0, x1, y1) },
+      north: { texture: '#b', uv: detras(x0, y0, x1, y1) },
+      east: { texture: '#c' }, west: { texture: '#c' }, up: { texture: '#c' }, down: { texture: '#c' }
     }
+  });
+  const pieza = (from, to, rot) => {
+    const e = { from, to, faces: {} };
+    for (const d of ['north', 'south', 'east', 'west', 'up', 'down']) e.faces[d] = { texture: '#v' };
+    if (rot) e.rotation = { origin: [8, 8, 17], axis: 'z', angle: rot };
+    return e;
+  };
+  const els = [
+    // la hoja redonda: tres cajas que hacen un octogono de unos 46 de ancho
+    hoja(-15, -7, 31, 23), hoja(-7, -15, 23, 31), hoja(-12, -12, 28, 28),
+    // las bisagras, del lado de a = 0
+    pieza([-16, -10, 6], [-12, -3, 16]), pieza([-16, 19, 6], [-12, 26, 16]),
+    // el volante: el cubo, cuatro radios y el aro (ocho barras)
+    pieza([4, 4, 14], [12, 12, 17.5]),
+    pieza([-5, 7, 16], [21, 9, 18]), pieza([7, -5, 16], [9, 21, 18]),
+    pieza([-5, 7, 16], [21, 9, 18], 45), pieza([7, -5, 16], [9, 21, 18], -45)
+  ];
+  for (const rot of [0, 45]) {
+    els.push(pieza([2, 19, 16], [14, 21.5, 18.5], rot || undefined), pieza([2, -5.5, 16], [14, -3, 18.5], rot || undefined));
+    els.push(pieza([-5.5, 2, 16], [-3, 14, 18.5], rot || undefined), pieza([19, 2, 16], [21.5, 14, 18.5], rot || undefined));
   }
-  guardar(TEX, 'puerta_salida_abierta', new Lienzo(32).pintar((x, y) => escala([10, 12, 14], 0.7 + fbm(x, y, 924, 32) * 0.4)));
-  json('models/block/puerta_salida_abierta.json', enPared('puerta_salida_abierta'));
+  json('models/block/puerta_boveda.json', {
+    parent: 'minecraft:block/block',
+    textures: { f: t('boveda_cara'), b: t('boveda_dorso'), c: t('boveda_canto'), v: t('boveda_volante'), particle: t('boveda_canto') },
+    elements: els
+  });
+  json('blockstates/puerta_boveda.json', { variants: { '': { model: t('puerta_boveda') } } });
+  // los bloques de la puerta no se ven (solo su particula)
+  json('models/block/puerta_salida.json', { textures: { particle: t('boveda_canto') }, elements: [] });
   const v = {};
   for (const [f, y] of Object.entries(FACINGS)) {
-    for (let p = 0; p < 6; p++) {
-      v[`abierta=false,facing=${f},parte=${p}`] = { model: t(`puerta_salida_${p}`), ...(y ? { y } : {}) };
-      v[`abierta=true,facing=${f},parte=${p}`] = { model: t('puerta_salida_abierta'), ...(y ? { y } : {}) };
+    for (let p = 0; p < 9; p++) {
+      for (const ab of ['false', 'true']) v[`abierta=${ab},facing=${f},parte=${p}`] = { model: t('puerta_salida'), ...(y ? { y } : {}) };
     }
   }
   json('blockstates/puerta_salida.json', { variants: v });
-  json('items/puerta_salida.json', { model: { type: 'minecraft:model', model: t('puerta_salida_1') } });
+  json('items/puerta_salida.json', { model: { type: 'minecraft:model', model: t('puerta_boveda') } });
 }
 
 // carteles verdes de salida de emergencia (con luz propia): el pequeno con el hombrecillo que
@@ -934,6 +976,7 @@ const NOMBRES = {
   valvula: ['Válvula', 'Valve'],
   lector_tarjeta: ['Lector de tarjeta', 'Card reader'],
   puerta_salida: ['Salida de emergencia', 'Emergency exit'],
+  puerta_boveda: ['Puerta de la bóveda', 'Vault door'],
   cartel_salida: ['Cartel de salida', 'Exit sign']
 };
 const OTROS = {

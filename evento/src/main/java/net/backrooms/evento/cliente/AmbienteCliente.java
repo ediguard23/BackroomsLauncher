@@ -88,6 +88,7 @@ public final class AmbienteCliente {
 	public static float oscuridad() {
 		float o = oscuridadApagon();
 		Minecraft mc = Minecraft.getInstance();
+		o = Math.max(o, net.backrooms.evento.cliente.cinematica.ToboganCliente.oscuridad());
 		return mc.level != null && net.backrooms.evento.fiesta.Fiesta.es(mc.level) ? o * OSCURIDAD_FIESTA : o;
 	}
 
@@ -140,6 +141,10 @@ public final class AmbienteCliente {
 	 * cae al final, como una luz giratoria.
 	 */
 	public static float rojo() {
+		return Math.max(rojoAlarma(), net.backrooms.evento.cliente.cinematica.ToboganCliente.rojo());
+	}
+
+	private static float rojoAlarma() {
 		float t = (ahora() - cambioAlarma) / 500.0F;
 		if (!alarma) {
 			return Mth.clamp(1.0F - t, 0.0F, 1.0F);

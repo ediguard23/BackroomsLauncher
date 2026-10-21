@@ -83,6 +83,11 @@ public final class Objetos {
 		};
 	}
 
+	/** Lo que no se puede tirar con Q (el equipo de la expedicion); en creativo, si. */
+	public static boolean noSeTira(net.minecraft.world.entity.player.Player j, net.minecraft.world.item.ItemStack s) {
+		return !j.hasInfiniteMaterials() && (s.is(LINTERNA) || s.is(CAMARA));
+	}
+
 	private Objetos() {
 	}
 

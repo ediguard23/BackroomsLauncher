@@ -75,7 +75,10 @@ public final class BloquesPiscinas {
 		propiedades(MapColor.METAL, SoundType.METAL, -1.0F).explosionResistance(3600000.0F).noOcclusion()
 			.lightLevel(e -> e.getValue(LectorTarjeta.LIT) ? 6 : 2)));
 	public static final Block PUERTA_SALIDA = conObjeto(Blocks.register(clave("puerta_salida"), PuertaSalida::new,
-		propiedades(MapColor.COLOR_GRAY, SoundType.METAL, -1.0F).explosionResistance(3600000.0F)));
+		propiedades(MapColor.COLOR_GRAY, SoundType.METAL, -1.0F).explosionResistance(3600000.0F).noOcclusion()));
+	/** La hoja de la boveda de la salida: nunca se pone; la dibuja la entidad de Boveda (su modelo ocupa 3x3). */
+	public static final Block PUERTA_BOVEDA = Blocks.register(clave("puerta_boveda"), Block::new,
+		propiedades(MapColor.METAL, SoundType.METAL, -1.0F).noCollision().noOcclusion());
 	public static final Block CARTEL_SALIDA = conObjeto(Blocks.register(clave("cartel_salida"), CartelSalida::new,
 		propiedades(MapColor.COLOR_GREEN, SoundType.GLASS, -1.0F).explosionResistance(3600000.0F).noCollision().noOcclusion()
 			.lightLevel(e -> 7)));

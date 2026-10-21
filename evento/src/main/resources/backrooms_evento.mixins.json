@@ -12,7 +12,8 @@
     "PiscinasJugadorMixin",
     "AguaPiscinasMixin",
     "ColaLoginMixin",
-    "InundacionAguaMixin"
+    "InundacionAguaMixin",
+    "SoltarObjetoMixin"
   ],
   "client": [
     "cliente.CinematicaBlurMixin",
@@ -28,7 +29,12 @@
     "cliente.RuedaCamaraMixin",
     "cliente.NombreTrajeMixin",
     "cliente.ColaConexionMixin",
-    "cliente.InundacionCamaraMixin"
+    "cliente.InundacionCamaraMixin",
+    "cliente.SoltarObjetoClienteMixin",
+    "cliente.ManoLinternaMixin",
+    "cliente.CamaraAccessor",
+    "cliente.OcultarJugadoresMixin",
+    "cliente.CargaToboganMixin"
   ],
   "injectors": {
     "defaultRequire": 1

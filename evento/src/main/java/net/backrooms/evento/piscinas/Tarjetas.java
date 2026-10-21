@@ -12,7 +12,6 @@ import java.util.UUID;
 import net.backrooms.evento.BackroomsEvento;
 import net.backrooms.evento.Sonidos;
 import net.backrooms.evento.entidad.Serpiente;
-import net.backrooms.evento.fase.Fases;
 import net.backrooms.evento.mision.Entidades;
 import net.backrooms.evento.mision.Misiones;
 import net.backrooms.evento.mision.TipoMision;
@@ -21,7 +20,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -101,6 +99,7 @@ public final class Tarjetas {
 			INSTANCIA.servidor = null;
 			java.util.Arrays.fill(INSTANCIA.vivas, null);
 			INSTANCIA.guardiana = null;
+			Boveda.get().olvidar();
 		});
 		ServerTickEvents.END_SERVER_TICK.register(s -> INSTANCIA.tick());
 		net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents.AFTER_DEATH.register((ent, fuente) -> {
@@ -250,7 +249,8 @@ public final class Tarjetas {
 			this.ajustarPuerta(nivel, p.salida());
 			this.guardiana(nivel, p.tarjeta(PlanoPiscinas.T_ROJA));
 		}
-		this.cabina(nivel, p.salida());
+		this.pasillo(nivel, p.salida());
+		Boveda.get().tick(nivel, p.salida(), this.abierta());
 		this.cruzando.values().removeIf(t -> this.ticks - t > 40);
 		this.muertes.values().removeIf(t -> this.ticks - t > 400);
 	}
@@ -464,7 +464,7 @@ public final class Tarjetas {
 		PlanoPiscinas p = Valvulas.plano(nivel);
 		if (p != null) {
 			this.ajustarPuerta(nivel, p.salida());
-			int[] c = p.salida().columna(1);
+			int[] c = p.salida().columna(2);
 			nivel.playSound(null, c[0] + 0.5, PlanoPiscinas.PISO + 1, c[1] + 0.5, Sonidos.PUERTA_SALIDA, SoundSource.BLOCKS, 3.0F, 1.0F);
 		}
 		this.anunciar(Component.literal("LA SALIDA DE EMERGENCIA ESTÁ ABIERTA. Quien haya hecho sus misiones puede cruzarla.").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
@@ -487,7 +487,7 @@ public final class Tarjetas {
 			}
 		}
 		boolean abierta = this.abierta();
-		for (int a = 1; a <= 2; a++) {
+		for (int a = 1; a <= 3; a++) {
 			int[] w = s.pared(a);
 			for (int f = 0; f < 3; f++) {
 				BlockPos pos = new BlockPos(w[0], PlanoPiscinas.PISO + f, w[1]);
@@ -528,57 +528,39 @@ public final class Tarjetas {
 
 	/* -------------------------------------------------------------- cruzar */
 
-	/** Alguien entra en la puerta abierta. */
-	/** Ticks (de 10 en 10) que lleva cada uno dentro de la cabina del ascensor de salida. */
-	private final Map<UUID, Integer> enCabina = new HashMap<>();
-
 	/**
-	 * El ascensor de salida: quien ha hecho sus misiones y se queda un momento dentro de la
-	 * cabina (con la puerta abierta) sube: cruza la salida (cruzar).
+	 * El pasillo de la boveda: quien entra (con la puerta abierta) y ha hecho sus misiones ve la
+	 * cinematica y baja por el tobogan a la Fiesta (TransicionFiesta). Quien no las ha hecho no
+	 * deberia poder pasar la puerta (PuertaSalida); si aun asi esta dentro, se le saca.
 	 */
-	private void cabina(ServerLevel nivel, PlanoPiscinas.Salida s) {
+	private void pasillo(ServerLevel nivel, PlanoPiscinas.Salida s) {
 		if (!this.abierta()) {
-			this.enCabina.clear();
 			return;
 		}
-		java.util.Set<UUID> vistos = new java.util.HashSet<>();
-		// sobre una copia: quien sube cambia de dimension y sale de la lista (si no, el servidor se cae)
+		// sobre una copia: quien baja cambia de dimension y sale de la lista (si no, el servidor se cae)
 		for (ServerPlayer j : new java.util.ArrayList<>(nivel.players())) {
-			if (j.isSpectator() || !s.enCabina(j.getX(), j.getY(), j.getZ())) {
+			if (j.isSpectator() || !s.enPasillo(j.getX(), j.getY(), j.getZ()) || TransicionFiesta.get().enCurso(j)) {
 				continue;
 			}
-			vistos.add(j.getUUID());
-			int n = this.enCabina.merge(j.getUUID(), 10, Integer::sum);
-			if (n == 10) {
-				nivel.playSound(null, j.blockPosition(), Sonidos.ASCENSOR_PANEL, SoundSource.BLOCKS, 1.0F, 1.0F);
-			}
-			if (n >= 30) {
-				this.enCabina.remove(j.getUUID());
-				vistos.remove(j.getUUID());
-				this.cruzar(j, j.blockPosition(), Direction.from2DDataValue(0));
-			}
+			this.cruzar(j, s);
 		}
-		this.enCabina.keySet().retainAll(vistos);
 	}
 
-	public void cruzar(ServerPlayer j, BlockPos pos, Direction mira) {
+	public void cruzar(ServerPlayer j, PlanoPiscinas.Salida s) {
 		if (this.cruzando.containsKey(j.getUUID()) || j.isSpectator()) {
 			return;
 		}
 		this.cruzando.put(j.getUUID(), this.ticks);
 		if (!Misiones.get().todasHechas(j)) {
-			// fuera: medio paso hacia atras
-			j.teleportTo(j.level(), pos.getX() + 0.5 + mira.getStepX() * 1.4, j.getY(), pos.getZ() + 0.5 + mira.getStepZ() * 1.4,
-				java.util.Set.of(), j.getYRot(), j.getXRot(), true);
-			j.level().playSound(null, pos, Sonidos.ASCENSOR_DENEGADO, SoundSource.BLOCKS, 0.9F, 1.0F);
+			// fuera, delante de la puerta
+			double[] f = s.mundo(2.0, -1.2);
+			j.teleportTo(j.level(), f[0], PlanoPiscinas.PISO, f[1], java.util.Set.of(), j.getYRot(), j.getXRot(), true);
+			j.level().playSound(null, j.blockPosition(), Sonidos.ASCENSOR_DENEGADO, SoundSource.BLOCKS, 0.9F, 1.0F);
 			j.displayClientMessage(Component.literal("ACCESO DENEGADO · Completa tus misiones").withStyle(ChatFormatting.RED), true);
 			return;
 		}
 		BackroomsEvento.LOG.info("{} cruza la salida de emergencia de las Piscinas", j.getGameProfile().name());
-		// el ascensor sube a la Fiesta (si el servidor no la tiene, cruzar es escapar)
-		if (!net.backrooms.evento.fiesta.Fiesta.llegar(j, true)) {
-			Fases.get().escapar(j);
-		}
+		TransicionFiesta.get().empezar(j, s);
 	}
 
 	/* --------------------------------------------------------------- staff */

@@ -2,19 +2,20 @@
   "parent": "minecraft:block/block",
   "textures": {
     "f": "backrooms_evento:block/localizador_salida",
-    "particle": "backrooms_evento:block/localizador_salida"
+    "l": "backrooms_evento:block/localizador_lado",
+    "particle": "backrooms_evento:block/localizador_lado"
   },
   "elements": [
     {
       "from": [
-        0,
-        0,
-        15.9
+        1,
+        1,
+        14.4
       ],
       "to": [
-        16,
-        16,
-        15.9
+        15,
+        15,
+        16
       ],
       "shade": false,
       "light_emission": 6,
@@ -27,6 +28,18 @@
             16,
             16
           ]
+        },
+        "east": {
+          "texture": "#l"
+        },
+        "west": {
+          "texture": "#l"
+        },
+        "up": {
+          "texture": "#l"
+        },
+        "down": {
+          "texture": "#l"
         }
       }
     }
