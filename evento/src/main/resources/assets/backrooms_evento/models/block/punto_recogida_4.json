@@ -2,7 +2,7 @@
   "parent": "minecraft:block/block",
   "textures": {
     "p": "backrooms_evento:block/palet_estacion",
-    "o": "backrooms_evento:block/fusible_rojo_tex",
+    "o": "backrooms_evento:block/fusible_banda",
     "g": "backrooms_evento:block/gris_estacion",
     "c": "backrooms_evento:block/fusible_ceramica",
     "particle": "backrooms_evento:block/palet_estacion"
@@ -42,13 +42,13 @@
     },
     {
       "from": [
-        5,
+        3,
         2,
         5
       ],
       "to": [
-        11,
-        4,
+        13,
+        3,
         11
       ],
       "faces": {
@@ -74,46 +74,142 @@
     },
     {
       "from": [
-        6.5,
         4,
-        6.5
+        3,
+        7
       ],
       "to": [
-        9.5,
         6,
-        9.5
+        9,
+        9
       ],
       "faces": {
         "north": {
-          "texture": "#g"
+          "texture": "#c"
         },
         "south": {
-          "texture": "#g"
+          "texture": "#c"
         },
         "east": {
-          "texture": "#g"
+          "texture": "#c"
         },
         "west": {
-          "texture": "#g"
+          "texture": "#c"
         },
         "up": {
-          "texture": "#g"
+          "texture": "#c"
         },
         "down": {
-          "texture": "#g"
+          "texture": "#c"
         }
       }
     },
     {
       "from": [
-        6,
-        6,
-        6
+        3.9,
+        5,
+        6.9
       ],
       "to": [
+        6.1,
+        7,
+        9.1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#o"
+        },
+        "south": {
+          "texture": "#o"
+        },
+        "east": {
+          "texture": "#o"
+        },
+        "west": {
+          "texture": "#o"
+        },
+        "up": {
+          "texture": "#o"
+        },
+        "down": {
+          "texture": "#o"
+        }
+      }
+    },
+    {
+      "from": [
+        7,
+        3,
+        7
+      ],
+      "to": [
+        9,
+        9,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#c"
+        },
+        "south": {
+          "texture": "#c"
+        },
+        "east": {
+          "texture": "#c"
+        },
+        "west": {
+          "texture": "#c"
+        },
+        "up": {
+          "texture": "#c"
+        },
+        "down": {
+          "texture": "#c"
+        }
+      }
+    },
+    {
+      "from": [
+        6.9,
+        5,
+        6.9
+      ],
+      "to": [
+        9.1,
+        7,
+        9.1
+      ],
+      "faces": {
+        "north": {
+          "texture": "#o"
+        },
+        "south": {
+          "texture": "#o"
+        },
+        "east": {
+          "texture": "#o"
+        },
+        "west": {
+          "texture": "#o"
+        },
+        "up": {
+          "texture": "#o"
+        },
+        "down": {
+          "texture": "#o"
+        }
+      }
+    },
+    {
+      "from": [
         10,
+        3,
+        7
+      ],
+      "to": [
         12,
-        10
+        9,
+        9
       ],
       "faces": {
         "north": {
@@ -138,14 +234,14 @@
     },
     {
       "from": [
-        5.9,
-        8,
-        5.9
+        9.9,
+        5,
+        6.9
       ],
       "to": [
-        10.1,
-        10,
-        10.1
+        12.1,
+        7,
+        9.1
       ],
       "faces": {
         "north": {
@@ -165,38 +261,6 @@
         },
         "down": {
           "texture": "#o"
-        }
-      }
-    },
-    {
-      "from": [
-        6.5,
-        12,
-        6.5
-      ],
-      "to": [
-        9.5,
-        14,
-        9.5
-      ],
-      "faces": {
-        "north": {
-          "texture": "#g"
-        },
-        "south": {
-          "texture": "#g"
-        },
-        "east": {
-          "texture": "#g"
-        },
-        "west": {
-          "texture": "#g"
-        },
-        "up": {
-          "texture": "#g"
-        },
-        "down": {
-          "texture": "#g"
         }
       }
     }

@@ -142,6 +142,13 @@ public final class Misiones {
 				if (leidos != null) {
 					this.estados.putAll(leidos);
 				}
+				// misiones que ya no existen (de una version anterior) se leen como null: fuera
+				for (Estado e : this.estados.values()) {
+					if (e.misiones != null && e.misiones.removeIf(java.util.Objects::isNull)) {
+						e.actual = Math.min(e.actual, e.misiones.size());
+						this.sucio = true;
+					}
+				}
 			}
 			BackroomsEvento.LOG.info("Misiones cargadas: {} exploradores", this.estados.size());
 		} catch (Exception e) {
@@ -250,11 +257,12 @@ public final class Misiones {
 		Estado e = new Estado();
 		e.fase = FASE_ESTACION;
 		e.misiones.add(TipoMision.COMBUSTIBLE);
-		e.misiones.add(TipoMision.PANELES);
-		e.misiones.add(TipoMision.FUSIBLES);
+		e.misiones.add(TipoMision.PISO1);
+		e.misiones.add(TipoMision.PISO2);
+		e.misiones.add(TipoMision.PISO3);
 		e.misiones.add(TipoMision.PASARELA);
 		int hechas = net.backrooms.evento.estacion.JuegoEstacion.get().etapa();
-		e.actual = Math.min(3, hechas);
+		e.actual = Math.min(4, hechas);
 		this.estados.put(jugador.getUUID(), e);
 		this.sucio = true;
 		this.sincronizar(jugador);
@@ -526,10 +534,10 @@ public final class Misiones {
 			// el radar va a lo que toca ahora; la hoja cuenta lo de esa etapa
 			net.backrooms.evento.estacion.JuegoEstacion g = net.backrooms.evento.estacion.JuegoEstacion.get();
 			objetivo = g.objetivo(j);
-			int[] cuenta = g.cuenta();
+			int[] cuenta = g.cuenta(j);
 			hechos = cuenta[0];
 			total = cuenta[1];
-			salida = g.etapa() >= 3;
+			salida = g.pasarela();
 		}
 		if (objetivo != null) {
 			double dx = objetivo[0] + 0.5 - j.getX();

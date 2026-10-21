@@ -20,19 +20,19 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Cuantos Amasijos hay en la Estacion y donde salen. Hasta que se arranca el generador, ninguno (la
- * estacion esta dormida). Luego uno; uno mas con la mitad de los paneles reparados y otro con la
- * pasarela encendida; y uno mas por cada POR_JUGADORES jugadores. Salen lejos de todos (en los
- * pasillos de los sectores) y nunca de golpe: de uno en uno.
+ * Cuantos Amasijos hay en la Estacion y donde salen: uno por cada piso con gente (y uno mas por cada
+ * POR_JUGADORES jugadores en ese piso), desde que el generador tiene gasolina o hay alguna central
+ * activa; con la pasarela encendida, uno mas en el piso 3. Salen lejos de todos, en los pasillos de su
+ * laberinto, y nunca de golpe: de uno en uno. No suben escaleras: el que se sale de su piso, se va.
  *
- * Cada sistema que vuelve (ruido) hace un estruendo en algun sector lejano: no siempre es el.
+ * Cada sistema que vuelve (ruido) hace un estruendo en algun sitio lejano: no siempre es el.
  */
 public final class AmasijoEstacion {
 	private static final AmasijoEstacion INSTANCIA = new AmasijoEstacion();
-	private static final int POR_JUGADORES = 8;
-	private static List<int[]> ronda;
+	private static final int POR_JUGADORES = 10;
 	/** La etiqueta de los que pone el staff (invocar amasijo): no cuentan ni se quitan solos. */
 	public static final String INVOCADO = "invocado";
+	private static final List<List<int[]>> RONDAS = new ArrayList<>();
 
 	private final Random azar = new Random();
 	private long ticks;
@@ -49,18 +49,20 @@ public final class AmasijoEstacion {
 		ServerTickEvents.END_SERVER_TICK.register(INSTANCIA::tick);
 	}
 
-	/** Los sitios de la ronda que estan en los sectores (no en la nave ni el acceso). */
-	public static List<int[]> ronda() {
-		if (ronda == null) {
-			List<int[]> l = new ArrayList<>();
-			for (int[] r : PlanoEstacion.RONDA) {
-				if (PlanoEstacion.sector(r[0], r[1]) >= 0) {
-					l.add(r);
+	/** Los sitios de la ronda de un piso: {x, z, piso}. */
+	public static List<int[]> ronda(int piso) {
+		if (RONDAS.isEmpty()) {
+			for (int p = 0; p < PlanoEstacion.PISOS; p++) {
+				List<int[]> l = new ArrayList<>();
+				for (int[] r : PlanoEstacion.RONDA) {
+					if (r[2] == p) {
+						l.add(r);
+					}
 				}
+				RONDAS.add(l);
 			}
-			ronda = l.isEmpty() ? PlanoEstacion.RONDA : l;
 		}
-		return ronda;
+		return RONDAS.get(Math.max(0, Math.min(PlanoEstacion.PISOS - 1, piso)));
 	}
 
 	/** El generador ha arrancado: la estacion se despierta. */
@@ -68,11 +70,11 @@ public final class AmasijoEstacion {
 		this.despierto = true;
 	}
 
-	/** Un estruendo metalico en un sector lejano (al reparar, al fallar...). */
+	/** Un estruendo metalico en un sitio lejano del laberinto de algun piso. */
 	public void ruido(ServerLevel nivel) {
-		List<int[]> r = ronda();
+		List<int[]> r = ronda(this.azar.nextInt(PlanoEstacion.PISOS));
 		int[] p = r.get(this.azar.nextInt(r.size()));
-		nivel.playSound(null, p[0] + 0.5, PlanoEstacion.SUELO + 2, p[1] + 0.5, Sonidos.ESTACION_ESTRUENDO, SoundSource.AMBIENT, 6.0F, 0.8F + this.azar.nextFloat() * 0.3F);
+		nivel.playSound(null, p[0] + 0.5, PlanoEstacion.SUELOS[p[2]] + 2, p[1] + 0.5, Sonidos.ESTACION_ESTRUENDO, SoundSource.AMBIENT, 6.0F, 0.8F + this.azar.nextFloat() * 0.3F);
 	}
 
 	private void tick(MinecraftServer s) {
@@ -84,47 +86,59 @@ public final class AmasijoEstacion {
 		if (nivel == null) {
 			return;
 		}
-		List<ServerPlayer> jugando = new ArrayList<>();
+		JuegoEstacion g = JuegoEstacion.get();
+		boolean activo = Acechadores.get().activos() && (this.despierto || g.arrancado() || g.centrales() > 0);
+		List<List<ServerPlayer>> jugando = new ArrayList<>();
+		List<List<Amasijo>> vivos = new ArrayList<>();
+		for (int p = 0; p < PlanoEstacion.PISOS; p++) {
+			jugando.add(new ArrayList<>());
+			vivos.add(new ArrayList<>());
+		}
 		for (ServerPlayer j : nivel.players()) {
 			if (!j.isSpectator() && !j.isCreative() && Misiones.get().enExpedicion(j)) {
-				jugando.add(j);
+				jugando.get(PlanoEstacion.piso(j.getY())).add(j);
 			}
 		}
-		JuegoEstacion g = JuegoEstacion.get();
-		boolean activo = Acechadores.get().activos() && (this.despierto || g.etapa() >= 1);
-		int quiero = 0;
-		if (activo && !jugando.isEmpty()) {
-			quiero = 1 + (g.reparados() >= PlanoEstacion.PANELES.size() / 2 ? 1 : 0) + (g.pasarela() ? 1 : 0) + (jugando.size() - 1) / POR_JUGADORES;
-		}
-		List<Amasijo> vivos = new ArrayList<>();
 		for (var e : nivel.getAllEntities()) {
 			if (e instanceof Amasijo a && !a.isRemoved() && !a.getTags().contains(INVOCADO)) {
-				vivos.add(a);
+				vivos.get(a.piso()).add(a);
 			}
 		}
-		if (vivos.size() > quiero) {
-			vivos.sort(Comparator.comparingDouble(a -> -cercania(a.position(), jugando)));
-			vivos.get(0).discard();
+		for (int p = 0; p < PlanoEstacion.PISOS; p++) {
+			List<ServerPlayer> js = jugando.get(p);
+			List<Amasijo> vs = vivos.get(p);
+			int quiero = 0;
+			if (activo && !js.isEmpty()) {
+				quiero = 1 + (js.size() - 1) / POR_JUGADORES + (p == PlanoEstacion.PISOS - 1 && g.pasarela() ? 1 : 0);
+			}
+			if (vs.size() > quiero) {
+				vs.sort(Comparator.comparingDouble(a -> -cercania(a.position(), js)));
+				vs.get(0).discard();
+				continue;
+			}
+			if (vs.size() < quiero) {
+				this.poner(nivel, p, js, vs, quiero);
+			}
+		}
+	}
+
+	private void poner(ServerLevel nivel, int piso, List<ServerPlayer> js, List<Amasijo> vs, int quiero) {
+		List<BlockPos> otros = new ArrayList<>();
+		for (Amasijo a : vs) {
+			otros.add(a.blockPosition());
+		}
+		BlockPos p = this.sitioLejos(nivel, piso, js, 25, 80, otros);
+		if (p == null) {
 			return;
 		}
-		if (vivos.size() < quiero) {
-			List<BlockPos> otros = new ArrayList<>();
-			for (Amasijo a : vivos) {
-				otros.add(a.blockPosition());
-			}
-			BlockPos p = this.sitioLejos(nivel, jugando, 30, 90, otros);
-			if (p == null) {
-				return;
-			}
-			Amasijo a = Entidades.AMASIJO.create(nivel, EntitySpawnReason.EVENT);
-			if (a == null) {
-				return;
-			}
-			a.snapTo(p.getX() + 0.5, p.getY(), p.getZ() + 0.5, this.azar.nextFloat() * 360.0F, 0.0F);
-			nivel.addFreshEntity(a);
-			nivel.playSound(null, p.getX() + 0.5, p.getY() + 1.5, p.getZ() + 0.5, Sonidos.AMASIJO_GRITO, SoundSource.HOSTILE, 5.0F, 0.7F);
-			BackroomsEvento.LOG.info("Sale un Amasijo en la Estacion en {} {} ({} de {})", p.getX(), p.getZ(), vivos.size() + 1, quiero);
+		Amasijo a = Entidades.AMASIJO.create(nivel, EntitySpawnReason.EVENT);
+		if (a == null) {
+			return;
 		}
+		a.snapTo(p.getX() + 0.5, p.getY(), p.getZ() + 0.5, this.azar.nextFloat() * 360.0F, 0.0F);
+		nivel.addFreshEntity(a);
+		nivel.playSound(null, p.getX() + 0.5, p.getY() + 1.5, p.getZ() + 0.5, Sonidos.AMASIJO_GRITO, SoundSource.HOSTILE, 5.0F, 0.7F);
+		BackroomsEvento.LOG.info("Sale un Amasijo en el piso {} de la Estacion en {} {} ({} de {})", piso + 1, p.getX(), p.getZ(), vs.size() + 1, quiero);
 	}
 
 	private static double cercania(Vec3 p, List<ServerPlayer> jugando) {
@@ -135,9 +149,10 @@ public final class AmasijoEstacion {
 		return d;
 	}
 
-	private @Nullable BlockPos sitioLejos(ServerLevel nivel, List<ServerPlayer> jugando, double min, double max, List<BlockPos> otros) {
+	private @Nullable BlockPos sitioLejos(ServerLevel nivel, int piso, List<ServerPlayer> jugando, double min, double max, List<BlockPos> otros) {
 		List<int[]> buenos = new ArrayList<>();
-		for (int[] r : ronda()) {
+		int y = PlanoEstacion.SUELOS[piso] + 1;
+		for (int[] r : ronda(piso)) {
 			boolean junto = false;
 			for (BlockPos o : otros) {
 				junto |= Math.hypot(o.getX() - r[0], o.getZ() - r[1]) < 20;
@@ -149,7 +164,7 @@ public final class AmasijoEstacion {
 			for (ServerPlayer j : jugando) {
 				cerca = Math.min(cerca, Math.hypot(j.getX() - r[0], j.getZ() - r[1]));
 			}
-			if (cerca >= min && cerca <= max && nivel.isPositionEntityTicking(BlockPos.containing(r[0], PlanoEstacion.SUELO + 1, r[1]))) {
+			if (cerca >= min && cerca <= max && nivel.isPositionEntityTicking(BlockPos.containing(r[0], y, r[1]))) {
 				buenos.add(r);
 			}
 		}
@@ -157,7 +172,7 @@ public final class AmasijoEstacion {
 			return null;
 		}
 		int[] r = buenos.get(this.azar.nextInt(buenos.size()));
-		return BlockPos.containing(r[0], PlanoEstacion.SUELO + 1, r[1]);
+		return BlockPos.containing(r[0], y, r[1]);
 	}
 
 	public void quitarTodos(ServerLevel nivel) {

@@ -79,10 +79,12 @@ public final class BloquesEstacion {
 		propiedades(MapColor.COLOR_YELLOW, SoundType.METAL).noOcclusion()));
 	public static final Block PANEL = conObjeto(Blocks.register(clave("panel_averiado"), Interactivos.Panel::new,
 		propiedades(MapColor.COLOR_GRAY, SoundType.METAL).noOcclusion().lightLevel(e -> e.getValue(Interactivos.HECHO) ? 4 : 2)));
-	public static final Block FUSIBLE = conObjeto(Blocks.register(clave("caja_fusible"), Interactivos.Fusible::new,
-		propiedades(MapColor.COLOR_GRAY, SoundType.METAL).noCollision().noOcclusion().lightLevel(e -> e.getValue(Interactivos.HECHO) ? 6 : 1)));
-	public static final Block INTERRUPTOR = conObjeto(Blocks.register(clave("interruptor"), Interactivos.Interruptor::new,
-		propiedades(MapColor.COLOR_GRAY, SoundType.METAL).noCollision().noOcclusion().lightLevel(e -> e.getValue(Interactivos.HECHO) ? 6 : 2)));
+	/** La caja de fusible de una reja, en el muro (se ve por los dos lados). */
+	public static final Block CAJA_REJA = conObjeto(Blocks.register(clave("caja_fusible"), Interactivos.CajaReja::new,
+		propiedades(MapColor.COLOR_GRAY, SoundType.METAL).lightLevel(e -> e.getValue(Interactivos.HECHO) ? 5 : 1)));
+	/** Las rejas de los laberintos (3x3, como la persiana) y la puerta encadenada del final. */
+	public static final Block REJA = conObjeto(Blocks.register(clave("reja_estacion"), Interactivos.Persiana::new,
+		propiedades(MapColor.METAL, SoundType.METAL).noOcclusion()));
 	public static final Block PERSIANA = conObjeto(Blocks.register(clave("persiana_estacion"), Interactivos.Persiana::new,
 		propiedades(MapColor.METAL, SoundType.METAL).noOcclusion()));
 	public static final Block FOCO = conObjeto(Blocks.register(clave("foco_pasarela"), Interactivos.Foco::new,
@@ -91,19 +93,20 @@ public final class BloquesEstacion {
 	/* ------------------------------------------------------------- objetos */
 
 	public static final Item CABLE = objeto("cable_electrico", 4);
-	public static final Item HERRAMIENTAS = objeto("caja_herramientas", 1);
+	/** Para la cadena de la puerta del final (solo hay una en todo el nivel). */
+	public static final Item CIZALLA = objeto("cizalla", 1);
 	public static final Item CINTA = objeto("cinta_aislante", 4);
 	public static final Item BIDON = objeto("bidon_combustible", 1);
-	public static final Item[] FUSIBLES = {objeto("fusible_rojo", 1), objeto("fusible_amarillo", 1), objeto("fusible_azul", 1), objeto("fusible_verde", 1)};
-	/** Lo que hace falta para cada tipo de panel (y lo que da cada punto de recogida). */
-	public static final Item[] MATERIALES = {CABLE, HERRAMIENTAS, CINTA};
+	public static final Item FUSIBLE = objeto("fusible", 4);
+	/** Lo que da cada punto de recogida (PlanoEstacion.CABLE, CIZALLA, CINTA, BIDON, FUSIBLE). */
+	private static final Item[] POR_TIPO = {CABLE, CIZALLA, CINTA, BIDON, FUSIBLE};
 
 	private BloquesEstacion() {
 	}
 
 	/** El objeto que da un punto de recogida (Interactivos.TIPO). */
 	public static Item deTipo(int tipo) {
-		return tipo < 3 ? MATERIALES[tipo] : tipo == 3 ? BIDON : FUSIBLES[tipo - 4];
+		return POR_TIPO[Math.min(tipo, POR_TIPO.length - 1)];
 	}
 
 	/** Si es un objeto de la Estacion (material, bidon o fusible): no sale del nivel. */
@@ -111,8 +114,8 @@ public final class BloquesEstacion {
 		if (s.isEmpty()) {
 			return false;
 		}
-		for (int t = 0; t < 8; t++) {
-			if (s.is(deTipo(t))) {
+		for (Item i : POR_TIPO) {
+			if (s.is(i)) {
 				return true;
 			}
 		}
@@ -121,7 +124,7 @@ public final class BloquesEstacion {
 
 	/** Los que se ven a traves (rejilla, cables, barandilla...): para el cliente, capa CUTOUT. */
 	public static Block[] recortados() {
-		return new Block[] {REJILLA, TUBERIAS, CUADRO, SENAL, LUZ_ROJA, ROTULO, CABLES, BARANDILLA, PUNTO, PANEL, FUSIBLE, INTERRUPTOR, ESCAPE,
+		return new Block[] {REJILLA, TUBERIAS, CUADRO, SENAL, LUZ_ROJA, ROTULO, CABLES, BARANDILLA, PUNTO, PANEL, REJA, ESCAPE,
 			ESTANTERIA, CONSOLA, ARMARIO, TRANSFORMADOR, MAQUINA, BIDONES, LAMPARA, LAMPARA_FUNDIDA};
 	}
 

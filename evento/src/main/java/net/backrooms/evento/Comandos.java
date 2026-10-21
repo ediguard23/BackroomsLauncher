@@ -70,9 +70,11 @@ import net.minecraft.server.level.ServerPlayer;
  *  perdonar                   quita el ban a todos los que cayeron (al acabar el evento o tras una prueba)
  *  escapados [olvidar]       quienes han escapado y en que puesto
  *  estacion [jugador]        lo manda a la Estacion Electrica (Nivel 3) como si bajara del tobogan de la Fiesta
- *  estacion ir <sala>        a esa sala de la Estacion (acceso, pasillo, nave, control, pasarela, a_paneles_1, b_fusibles...)
+ *  estacion ir <sala>        a esa sala de la Estacion (nave, laberinto_1..3, pasillo_final_1..3, central_1..3,
+ *                            llegada_2, llegada_3, pasarela)
  *  estacion combustible <n>  pone el deposito del generador en n (0..100)
- *  estacion avanzar|reponer|ver  pasa a la etapa siguiente, lo deja todo como al principio o lo cuenta
+ *  estacion avanzar|reponer|ver  activa la central siguiente (o corta la cadena), lo deja todo como al
+ *                            principio o lo cuenta
  *  invocar bacteria|smiler|serpiente|amasijo  la pone delante
  *
  * Y /start [todos|jugadores]: la cinematica y al Nivel 0 a los que esperan en la recepcion
@@ -295,7 +297,7 @@ public final class Comandos {
 					if (n != null) {
 						net.backrooms.evento.estacion.AmasijoEstacion.get().quitarTodos(n);
 					}
-					c.getSource().sendSuccess(() -> Component.literal("Estación como al principio (generador vacío, paneles rotos, fusibles en sus salas)."), true);
+					c.getSource().sendSuccess(() -> Component.literal("Estación como al principio (generador al 40 %, rejas cerradas, centrales sin nada, cadena puesta)."), true);
 					return 1;
 				}))
 				.then(Commands.literal("ver").executes(Comandos::estacionVer)))
@@ -524,8 +526,11 @@ public final class Comandos {
 		}
 		for (net.backrooms.evento.estacion.PlanoEstacion.Sala s : net.backrooms.evento.estacion.PlanoEstacion.SALAS) {
 			if (s.nombre().equals(nombre)) {
-				j.teleportTo(n, (s.x0() + s.x1()) / 2.0 + 0.5, net.backrooms.evento.estacion.PlanoEstacion.SUELO + 1, (s.z0() + s.z1()) / 2.0 + 0.5,
-					java.util.Set.of(), j.getYRot(), 0.0F, true);
+				// en medio (en la de la central, en una esquina: en medio estan las consolas)
+				boolean esquina = s.nombre().startsWith("central");
+				double x = esquina ? s.x0() + 1.5 : (s.x0() + s.x1()) / 2.0 + 0.5;
+				double z = esquina ? s.z0() + 1.5 : (s.z0() + s.z1()) / 2.0 + 0.5;
+				j.teleportTo(n, x, net.backrooms.evento.estacion.PlanoEstacion.SUELOS[s.piso()] + 1, z, java.util.Set.of(), j.getYRot(), 0.0F, true);
 				net.backrooms.evento.estacion.JuegoEstacion.get().enviar(j);
 				return 1;
 			}

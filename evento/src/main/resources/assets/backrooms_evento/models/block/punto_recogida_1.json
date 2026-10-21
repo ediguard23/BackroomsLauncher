@@ -2,8 +2,8 @@
   "parent": "minecraft:block/block",
   "textures": {
     "p": "backrooms_evento:block/palet_estacion",
-    "o": "backrooms_evento:block/caja_herramientas_tex",
-    "g": "backrooms_evento:block/gris_estacion",
+    "o": "backrooms_evento:block/cizalla_mangos",
+    "g": "backrooms_evento:block/acero_estacion",
     "c": "backrooms_evento:block/fusible_ceramica",
     "particle": "backrooms_evento:block/palet_estacion"
   },
@@ -42,14 +42,14 @@
     },
     {
       "from": [
-        3,
         2,
-        5
+        2,
+        7
       ],
       "to": [
-        13,
-        7,
-        11
+        10,
+        3.5,
+        8
       ],
       "faces": {
         "north": {
@@ -70,50 +70,68 @@
         "down": {
           "texture": "#o"
         }
+      },
+      "rotation": {
+        "angle": 22.5,
+        "axis": "y",
+        "origin": [
+          8,
+          2,
+          8
+        ]
       }
     },
     {
       "from": [
-        5,
-        7,
-        7.5
+        2,
+        2,
+        9
       ],
       "to": [
-        6,
-        9,
-        8.5
+        10,
+        3.5,
+        10
       ],
       "faces": {
         "north": {
-          "texture": "#g"
+          "texture": "#o"
         },
         "south": {
-          "texture": "#g"
+          "texture": "#o"
         },
         "east": {
-          "texture": "#g"
+          "texture": "#o"
         },
         "west": {
-          "texture": "#g"
+          "texture": "#o"
         },
         "up": {
-          "texture": "#g"
+          "texture": "#o"
         },
         "down": {
-          "texture": "#g"
+          "texture": "#o"
         }
+      },
+      "rotation": {
+        "angle": 22.5,
+        "axis": "y",
+        "origin": [
+          8,
+          2,
+          8
+        ]
       }
     },
     {
       "from": [
         10,
-        7,
+        2,
         7.5
       ],
       "to": [
-        11,
-        9,
-        8.5
+        14,
+        3,
+        9.5
       ],
       "faces": {
         "north": {
@@ -134,38 +152,15 @@
         "down": {
           "texture": "#g"
         }
-      }
-    },
-    {
-      "from": [
-        5,
-        9,
-        7.5
-      ],
-      "to": [
-        11,
-        10,
-        8.5
-      ],
-      "faces": {
-        "north": {
-          "texture": "#g"
-        },
-        "south": {
-          "texture": "#g"
-        },
-        "east": {
-          "texture": "#g"
-        },
-        "west": {
-          "texture": "#g"
-        },
-        "up": {
-          "texture": "#g"
-        },
-        "down": {
-          "texture": "#g"
-        }
+      },
+      "rotation": {
+        "angle": 22.5,
+        "axis": "y",
+        "origin": [
+          8,
+          2,
+          8
+        ]
       }
     }
   ]

@@ -364,8 +364,8 @@ public final class Comida {
 				continue;
 			}
 			for (int[] p : net.backrooms.evento.estacion.PlanoEstacion.COMIDA) {
-				if (Math.abs(p[0] - j.getBlockX()) <= RADIO && Math.abs(p[1] - j.getBlockZ()) <= RADIO && !cogidas.contains(clave(p[0], p[1]))) {
-					this.materializar(nivel, dim, p[0], p[1], p[2], net.backrooms.evento.estacion.PlanoEstacion.SUELO + 1);
+				if (Math.abs(p[3] - j.getBlockY()) < 8 && Math.abs(p[0] - j.getBlockX()) <= RADIO && Math.abs(p[1] - j.getBlockZ()) <= RADIO && !cogidas.contains(clave(p[0], p[1]))) {
+					this.materializar(nivel, dim, p[0], p[1], p[2], p[3]);
 				}
 			}
 		}

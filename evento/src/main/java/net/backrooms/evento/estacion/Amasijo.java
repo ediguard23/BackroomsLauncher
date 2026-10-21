@@ -38,10 +38,11 @@ import org.jspecify.annotations.Nullable;
  * que salen en todas direcciones y una boca enorme llena de dientes en medio; anda sobre los brazos,
  * deprisa, con un repiqueteo sobre la chapa que se confunde con la maquinaria.
  *
- * Cuantos hay y cuando salen lo decide AmasijoEstacion (cada sistema que vuelve despierta alguno mas).
- * No se le puede hacer dano.
- *  - Ronda por los pasillos de los sectores, sin prisa.
- *  - Si ve a alguien (sin paredes en medio: a DETECTA bloques con luz, menos a oscuras) chilla y va a
+ * Cuantos hay y cuando salen lo decide AmasijoEstacion (uno por piso con gente; cada central que se
+ * activa despierta alguno mas). No se le puede hacer dano y no sube escaleras: cada uno es de su piso.
+ *  - Ronda por los pasillos de su laberinto, sin prisa. Las rejas cerradas le cortan el paso.
+ *  - Si ve a alguien (sin paredes en medio, a DETECTA bloques) chilla y va a por el. A oscuras (sin
+ *    gasolina en el generador) no le hace falta verte: te encuentra a DETECTA_OSCURO bloques. Va a
  *    por el a VELOCIDAD (algo menos que correr: se le escapa rompiendo la linea de vision en los
  *    cruces). Si no le vuelve a ver en OLVIDA segundos, le deja.
  *  - Si le alcanza le AGARRA: no se puede mover y al segundo muere.
@@ -50,7 +51,7 @@ public class Amasijo extends Monster {
 	private static final double ALCANCE = 1.7;
 	private static final int AGARRE = 22;
 	private static final double DETECTA = 20.0;
-	private static final double DETECTA_OSCURO = 11.0;
+	private static final double DETECTA_OSCURO = 26.0;
 	private static final double VELOCIDAD = 5.0;
 	private static final double RONDA = 2.4;
 	private static final int OLVIDA = 70;
@@ -194,13 +195,14 @@ public class Amasijo extends Monster {
 	}
 
 	private boolean valido(ServerPlayer j) {
-		return j.isAlive() && !j.isCreative() && !j.isSpectator() && j.level() == this.level() && Misiones.get().enExpedicion(j);
+		return j.isAlive() && !j.isCreative() && !j.isSpectator() && j.level() == this.level() && Misiones.get().enExpedicion(j)
+			&& PlanoEstacion.piso(j.getY()) == this.piso();
 	}
 
 	/** Le ve: sin paredes en medio y cerca (con luz, mas lejos: la luz te deja expuesto). */
 	private boolean ve(ServerLevel nivel, ServerPlayer j) {
 		boolean oscuro = !JuegoEstacion.get().corriente();
-		return this.distanceTo(j) <= (oscuro ? DETECTA_OSCURO : DETECTA) && this.hasLineOfSight(j);
+		return oscuro ? this.distanceTo(j) <= DETECTA_OSCURO : this.distanceTo(j) <= DETECTA && this.hasLineOfSight(j);
 	}
 
 	private @Nullable ServerPlayer buscar(ServerLevel nivel) {
@@ -223,14 +225,19 @@ public class Amasijo extends Monster {
 		return mejor;
 	}
 
-	/** Sin presa: de un sitio de la ronda de los sectores a otro. */
+	/** Su piso (el de donde salio: no sube escaleras). */
+	public int piso() {
+		return PlanoEstacion.piso(this.getY());
+	}
+
+	/** Sin presa: de un sitio de la ronda de su laberinto a otro. */
 	private void rondar(double bps) {
 		AttributeInstance a = this.getAttribute(Attributes.MOVEMENT_SPEED);
 		if (a != null) {
 			a.setBaseValue(atributo(bps));
 		}
 		if (this.ronda == null || this.position().distanceToSqr(this.ronda) < 4.0 || this.getNavigation().isDone() && this.random.nextInt(40) == 0) {
-			List<int[]> ronda = AmasijoEstacion.ronda();
+			List<int[]> ronda = AmasijoEstacion.ronda(this.piso());
 			// mas a menudo cerca de donde esta (no cruza el mapa de punta a punta todo el rato)
 			int[] mejor = ronda.get(this.random.nextInt(ronda.size()));
 			for (int k = 0; k < 4; k++) {
@@ -239,7 +246,7 @@ public class Amasijo extends Monster {
 					mejor = p;
 				}
 			}
-			this.ronda = new Vec3(mejor[0] + 0.5, PlanoEstacion.SUELO + 1, mejor[1] + 0.5);
+			this.ronda = new Vec3(mejor[0] + 0.5, PlanoEstacion.SUELOS[mejor[2]] + 1, mejor[1] + 0.5);
 		}
 		if (this.getNavigation().isDone()) {
 			this.getNavigation().moveTo(this.ronda.x, this.ronda.y, this.ronda.z, 1.0);

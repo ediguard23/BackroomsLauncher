@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
  *                          sin corriente baja casi del todo (y se oye mas todo lo demas)
  *   el generador           en bucle desde el generador de la nave, solo con corriente
  *   un estruendo metalico  cada 50-150 s, lejos: algo que cae, una tuberia que cede...
- *   las chispas            de los paneles sin reparar (las pone el propio bloque)
+ *   las chispas            de las centrales sin activar (las pone el propio bloque)
  *
  * Cada cliente sortea lo suyo.
  */

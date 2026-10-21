@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "north": "backrooms_evento:block/caja_fusible_puesto",
+    "south": "backrooms_evento:block/caja_fusible_puesto",
+    "east": "backrooms_evento:block/pared_pintada",
+    "west": "backrooms_evento:block/pared_pintada",
+    "up": "backrooms_evento:block/hormigon_estacion",
+    "down": "backrooms_evento:block/hormigon_estacion",
+    "particle": "backrooms_evento:block/caja_fusible_puesto"
+  }
+}

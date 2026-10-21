@@ -144,7 +144,7 @@ public final class Interactivos {
 		@Override
 		protected InteractionResult useWithoutItem(BlockState e, Level nivel, BlockPos pos, Player j, BlockHitResult golpe) {
 			if (j instanceof ServerPlayer sp) {
-				JuegoEstacion.get().reparar(sp, pos);
+				JuegoEstacion.get().central(sp, pos);
 			}
 			return InteractionResult.SUCCESS;
 		}
@@ -179,24 +179,27 @@ public final class Interactivos {
 		}
 	}
 
-	/** Un hueco de la caja de fusibles de la sala de control (COLOR), con su fusible puesto o no. */
-	public static class Fusible extends EnPared {
-		public static final MapCodec<Fusible> CODEC = simpleCodec(Fusible::new);
+	/**
+	 * La caja de fusible de una reja: un bloque entero metido en el muro, con la caja a los dos lados.
+	 * HECHO: tiene su fusible (y la reja esta abierta). Clic derecho: lo pone (si llevas uno) o lo saca.
+	 */
+	public static class CajaReja extends Block {
+		public static final MapCodec<CajaReja> CODEC = simpleCodec(CajaReja::new);
 
-		public Fusible(BlockBehaviour.Properties p) {
+		public CajaReja(BlockBehaviour.Properties p) {
 			super(p);
-			this.registerDefaultState(this.defaultBlockState().setValue(COLOR, 0).setValue(HECHO, false));
+			this.registerDefaultState(this.stateDefinition.any().setValue(HECHO, false));
 		}
 
 		@Override
-		protected MapCodec<? extends Fusible> codec() {
+		protected MapCodec<? extends CajaReja> codec() {
 			return CODEC;
 		}
 
 		@Override
 		protected InteractionResult useWithoutItem(BlockState e, Level nivel, BlockPos pos, Player j, BlockHitResult golpe) {
 			if (j instanceof ServerPlayer sp) {
-				JuegoEstacion.get().ponerFusible(sp, e.getValue(COLOR));
+				JuegoEstacion.get().cajaReja(sp, pos);
 			}
 			return InteractionResult.SUCCESS;
 		}
@@ -208,42 +211,7 @@ public final class Interactivos {
 
 		@Override
 		protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b) {
-			super.createBlockStateDefinition(b);
-			b.add(COLOR, HECHO);
-		}
-	}
-
-	/** Un interruptor grande de palanca de la sala de control (COLOR), subido (HECHO) o bajado. */
-	public static class Interruptor extends EnPared {
-		public static final MapCodec<Interruptor> CODEC = simpleCodec(Interruptor::new);
-
-		public Interruptor(BlockBehaviour.Properties p) {
-			super(p);
-			this.registerDefaultState(this.defaultBlockState().setValue(COLOR, 0).setValue(HECHO, false));
-		}
-
-		@Override
-		protected MapCodec<? extends Interruptor> codec() {
-			return CODEC;
-		}
-
-		@Override
-		protected InteractionResult useWithoutItem(BlockState e, Level nivel, BlockPos pos, Player j, BlockHitResult golpe) {
-			if (j instanceof ServerPlayer sp) {
-				JuegoEstacion.get().palanca(sp, e.getValue(COLOR));
-			}
-			return InteractionResult.SUCCESS;
-		}
-
-		@Override
-		protected InteractionResult useItemOn(ItemStack s, BlockState e, Level nivel, BlockPos pos, Player j, InteractionHand mano, BlockHitResult golpe) {
-			return this.useWithoutItem(e, nivel, pos, j, golpe);
-		}
-
-		@Override
-		protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b) {
-			super.createBlockStateDefinition(b);
-			b.add(COLOR, HECHO);
+			b.add(HECHO);
 		}
 	}
 

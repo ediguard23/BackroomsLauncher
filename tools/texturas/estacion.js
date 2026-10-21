@@ -353,11 +353,11 @@ rayo.arriba = true;
 const CARTELES = [
   cartel([236, 200, 48], NEGRO, ['PELIGRO', 'ALTA', 'TENSION'], NEGRO, rayo),
   cartel([236, 236, 228], [40, 120, 70], ['ACCESO', 'PERSONAL', 'NIVEL 3'], [40, 120, 70]),
-  cartel([40, 44, 48], [200, 200, 196], ['SECTORES', 'A B -', 'C D -'], [236, 236, 228]),
+  cartel([40, 44, 48], [200, 200, 196], ['CENTRAL', 'SALIDA', 'ARRIBA'], [236, 236, 228]),
   cartel([236, 200, 48], NEGRO, ['GASOIL', 'BOCA DEL', 'DEPOSITO'], NEGRO),
-  romper(cartel([228, 226, 214], [50, 50, 50], ['INSTRUC.', '1 ARRANCAR', 'GENERADOR', '2 REPARAR'], [30, 30, 30]), 1310, 0.15),
-  romper(cartel([228, 226, 214], [50, 50, 50], ['PANELES', '3 FUSIBLES', 'A CONTROL', '4 EN ORDEN'], [30, 30, 30]), 1311, 0.35),
-  romper(cartel([228, 226, 214], [50, 50, 50], ['5 PASAR', 'NO ACERC', 'SE AL', 'SECTOR'], [30, 30, 30]), 1312, 0.55),
+  romper(cartel([228, 226, 214], [50, 50, 50], ['INSTRUC.', '1 GASOIL', 'GENERAD.', '2 REJAS'], [30, 30, 30]), 1310, 0.15),
+  romper(cartel([228, 226, 214], [50, 50, 50], ['FUSIBLE', 'EN CAJA', '3 CENTRAL', 'CADA PISO'], [30, 30, 30]), 1311, 0.35),
+  romper(cartel([228, 226, 214], [50, 50, 50], ['4 SUBIR', '5 PASAR', 'NO ACERC', 'SE AL'], [30, 30, 30]), 1312, 0.55),
   cartel([236, 236, 228], [170, 40, 34], ['REV. 47-B', 'NO TOCAR', 'DOC 0371'], [170, 40, 34])
 ];
 CARTELES.forEach((l, v) => {
@@ -549,35 +549,36 @@ console.log('  armarios, transformadores, maquinas, bidones, estanterias, consol
 // el punto de recogida: un palet bajo con cinta de aviso y lo que da encima (o vacio)
 const palet = pinta('palet_estacion', 16, (x, y) => (y < 3 ? aviso(x, y, 3) : escala([150, 118, 70], 0.85 + hash(x, y, 1500) * 0.15)));
 const naranjaCable = pinta('cable_naranja', 16, (x, y) => ((x + y * 2) % 4 === 0 ? [140, 60, 20] : escala([220, 110, 40], 0.9 + hash(x, y, 1501) * 0.1)));
-const rojoCaja = pinta('caja_herramientas_tex', 16, (x, y) => (y === 5 ? [40, 40, 40] : escala([190, 40, 34], 0.88 + hash(x, y, 1502) * 0.12)));
+const mangos = pinta('cizalla_mangos', 16, (x, y) => escala([190, 36, 30], 0.85 + hash(x, y, 1502) * 0.15));
+const acero = pinta('acero_estacion', 16, (x, y) => escala([176, 180, 184], 0.8 + hash(x, y, 1506) * 0.25));
 const cinta = pinta('cinta_tex', 16, (x, y) => escala(y % 4 === 0 ? [60, 60, 64] : [30, 30, 34], 0.9 + hash(x, y, 1503) * 0.2));
 const gris = pinta('gris_estacion', 16, (x, y) => escala([150, 150, 146], 0.88 + hash(x, y, 1504) * 0.12));
 const ceramica = pinta('fusible_ceramica', 16, (x, y) => escala([236, 232, 220], 0.92 + hash(x, y, 1505) * 0.08));
-const FUS_COL = SECTOR.map((c, i) => pinta(`fusible_${SECTOR_NOMBRE[i]}_tex`, 16, () => c));
+const bandaFusible = pinta('fusible_banda', 16, (x, y) => (x % 4 === 0 ? [40, 40, 40] : escala(AMARILLO, 0.95 + hash(x, y, 1507) * 0.08)));
 const base = [caja([1, 0, 1], [15, 2, 15], '#p')];
 const objetoPunto = [
   // 0 cable: un rollo
   [caja([4, 2, 4], [12, 4, 12], '#o'), caja([3, 4, 3], [13, 6, 13], '#o'), caja([6, 4, 6], [10, 6, 10], '#g')],
-  // 1 herramientas: la caja roja con su asa
-  [caja([3, 2, 5], [13, 7, 11], '#o'), caja([5, 7, 7.5], [6, 9, 8.5], '#g'), caja([10, 7, 7.5], [11, 9, 8.5], '#g'), caja([5, 9, 7.5], [11, 10, 8.5], '#g')],
+  // 1 cizalla: tumbada en diagonal, mangos rojos y las mandibulas de acero
+  [{ ...caja([2, 2, 7], [10, 3.5, 8], '#o'), rotation: { angle: 22.5, axis: 'y', origin: [8, 2, 8] } },
+    { ...caja([2, 2, 9], [10, 3.5, 10], '#o'), rotation: { angle: 22.5, axis: 'y', origin: [8, 2, 8] } },
+    { ...caja([10, 2, 7.5], [14, 3, 9.5], '#g'), rotation: { angle: 22.5, axis: 'y', origin: [8, 2, 8] } }],
   // 2 cinta: dos rollos
   [caja([3, 2, 3], [8, 4, 8], '#o'), caja([8, 2, 8], [13, 4, 13], '#o'), caja([5, 4, 5], [11, 6, 11], '#o')],
   // 3 bidon: la garrafa amarilla con su asa y su tapon
-  [caja([4, 2, 5], [12, 13, 11], '#o'), caja([5, 13, 7], [11, 15, 8.5], '#o'), caja([9, 13, 9], [11, 15, 11], '#g')]
+  [caja([4, 2, 5], [12, 13, 11], '#o'), caja([5, 13, 7], [11, 15, 8.5], '#o'), caja([9, 13, 9], [11, 15, 11], '#g')],
+  // 4 fusibles: tres de pie en su soporte, con la banda amarilla
+  [caja([3, 2, 5], [13, 3, 11], '#g'),
+    caja([4, 3, 7], [6, 9, 9], '#c'), caja([3.9, 5, 6.9], [6.1, 7, 9.1], '#o'),
+    caja([7, 3, 7], [9, 9, 9], '#c'), caja([6.9, 5, 6.9], [9.1, 7, 9.1], '#o'),
+    caja([10, 3, 7], [12, 9, 9], '#c'), caja([9.9, 5, 6.9], [12.1, 7, 9.1], '#o')]
 ];
-const texPunto = [naranjaCable, rojoCaja, cinta, BID[0]];
-for (let tipo = 0; tipo < 8; tipo++) {
-  let els;
-  let o;
-  if (tipo < 4) { els = objetoPunto[tipo]; o = texPunto[tipo]; } else {
-    // el fusible: en su soporte, de pie, con la banda del color
-    o = FUS_COL[tipo - 4];
-    els = [caja([5, 2, 5], [11, 4, 11], '#g'), caja([6.5, 4, 6.5], [9.5, 6, 9.5], '#g'), caja([6, 6, 6], [10, 12, 10], '#c'), caja([5.9, 8, 5.9], [10.1, 10, 10.1], '#o'), caja([6.5, 12, 6.5], [9.5, 14, 9.5], '#g')];
-  }
-  json(`models/block/punto_recogida_${tipo}.json`, mod({ p: palet, o, g: gris, c: ceramica, particle: palet }, [...base, ...els]));
+const texPunto = [naranjaCable, mangos, cinta, BID[0], bandaFusible];
+for (let tipo = 0; tipo < 5; tipo++) {
+  json(`models/block/punto_recogida_${tipo}.json`, mod({ p: palet, o: texPunto[tipo], g: tipo === 1 ? acero : gris, c: ceramica, particle: palet }, [...base, ...objetoPunto[tipo]]));
 }
 json('models/block/punto_recogida_vacio.json', mod({ p: palet, particle: palet }, base));
-estados('punto_recogida', { facing: FAC, tipo: rango(8), vacio: [false, true] }, (e) => (e.vacio ? 'punto_recogida_vacio' : `punto_recogida_${e.tipo}`), 'punto_recogida_3');
+estados('punto_recogida', { facing: FAC, tipo: rango(8), vacio: [false, true] }, (e) => (e.vacio ? 'punto_recogida_vacio' : `punto_recogida_${Math.min(e.tipo, 4)}`), 'punto_recogida_4');
 
 // los paneles averiados: la puerta abierta y dentro lo roto (segun lo que haga falta); reparados, cerrados
 const caja_panel = pinta('panel_caja', 16, (x, y) => metal(x, y, 1510, [116, 124, 118]));
@@ -622,38 +623,25 @@ json('models/block/panel_reparado.json', mod({ f: t('panel_cerrado'), m: caja_pa
 ]));
 estados('panel_averiado', { facing: FAC, tipo: rango(8), hecho: [false, true] }, (e) => (e.hecho ? 'panel_reparado' : `panel_averiado_${e.tipo % 3}`), 'panel_averiado_0');
 
-// la caja de fusibles de la sala de control: el hueco con el color; con el fusible, encendido
-for (let c = 0; c < 4; c++) {
-  for (const hecho of [false, true]) {
-    const n = `caja_fusible_${SECTOR_NOMBRE[c]}${hecho ? '_puesto' : ''}`;
-    const l = new Lienzo(16).pintar((x, y) => metal(x, y, 1550 + c, [96, 100, 104]));
-    l.rect(1, 1, 14, 3, SECTOR[c]);
-    l.rect(5, 4, 10, 14, [20, 20, 20]);
-    if (hecho) { l.rect(6, 5, 9, 13, [236, 232, 220]); l.rect(6, 8, 9, 10, SECTOR[c]); l.rect(12, 6, 13, 7, [60, 230, 80]); } else l.rect(12, 6, 13, 7, [200, 40, 30]);
-    guardar(TEX, n, l);
-    json(`models/block/${n}.json`, mod({ f: t(n), m: caja_panel, particle: caja_panel }, [
-      { ...cajaFrente([3, 1, 13], [13, 15, 16], '#f', '#m'), ...(hecho ? { shade: false } : {}) }
-    ]));
-  }
+// la caja de fusible de una reja: metida en el muro, se ve por los dos lados; con el fusible, la luz verde
+for (const hecho of [false, true]) {
+  const n = hecho ? 'caja_fusible_puesto' : 'caja_fusible';
+  const l = new Lienzo(16).pintar((x, y) => pintada(x, y, 1550, 16));
+  l.rect(3, 1, 12, 14, [40, 40, 40]);
+  l.rect(4, 2, 11, 13, [96, 100, 104]);
+  l.rect(4, 2, 11, 3, AMARILLO);
+  l.rect(6, 5, 9, 12, [20, 20, 20]);
+  if (hecho) { l.rect(7, 5, 8, 12, [236, 232, 220]); l.rect(7, 7, 8, 9, AMARILLO); }
+  l.rect(10, 5, 10, 6, hecho ? [60, 230, 80] : [200, 40, 30]);
+  guardar(TEX, n, l);
+  json(`models/block/${n}.json`, { parent: 'minecraft:block/cube', textures: { north: t(n), south: t(n), east: t('pared_pintada'), west: t('pared_pintada'), up: t('hormigon_estacion'), down: t('hormigon_estacion'), particle: t(n) } });
 }
-estados('caja_fusible', { facing: FAC, color: rango(4), hecho: [false, true] }, (e) => `caja_fusible_${SECTOR_NOMBRE[e.color]}${e.hecho ? '_puesto' : ''}`, 'caja_fusible_rojo');
-
-// los interruptores: la palanca abajo (apagado) o arriba (encendido), con su color
-for (let c = 0; c < 4; c++) {
-  const placa = `interruptor_${SECTOR_NOMBRE[c]}`;
-  const l = new Lienzo(16).pintar((x, y) => metal(x, y, 1560 + c, [96, 100, 104]));
-  l.rect(2, 1, 13, 3, SECTOR[c]);
-  l.rect(6, 4, 9, 13, [20, 20, 20]);
-  guardar(TEX, placa, l);
-  for (const hecho of [false, true]) {
-    json(`models/block/${placa}${hecho ? '_arriba' : ''}.json`, mod({ f: t(placa), m: caja_panel, g: gris, r: FUS_COL[c], particle: caja_panel }, [
-      cajaFrente([4, 2, 14], [12, 14, 16], '#f', '#m'),
-      { from: [7, 8, 9], to: [9, 9.5, 14], rotation: { angle: hecho ? 45 : -45, axis: 'x', origin: [8, 8.5, 14] },
-        faces: { north: { texture: '#r' }, south: { texture: '#g' }, east: { texture: '#g' }, west: { texture: '#g' }, up: { texture: '#g' }, down: { texture: '#g' } } }
-    ]));
-  }
+json('blockstates/caja_fusible.json', { variants: { 'hecho=false': { model: t('caja_fusible') }, 'hecho=true': { model: t('caja_fusible_puesto') } } });
+json('items/caja_fusible.json', { model: { type: 'minecraft:model', model: t('caja_fusible') } });
+for (const viejo of ['blockstates/interruptor.json', 'items/interruptor.json']) {
+  const ruta = path.join(ASSETS, viejo);
+  if (fs.existsSync(ruta)) fs.unlinkSync(ruta);
 }
-estados('interruptor', { facing: FAC, color: rango(4), hecho: [false, true] }, (e) => `interruptor_${SECTOR_NOMBRE[e.color]}${e.hecho ? '_arriba' : ''}`, 'interruptor_rojo');
 
 // la persiana metalica de 3x3: lamas; abajo la franja de aviso, arriba el cajon donde se enrolla
 const lamas = (x, y) => {
@@ -673,6 +661,24 @@ pinta('persiana_alta', 16, (x, y) => (y < 4 ? escala([90, 94, 96], 0.85 + hash(x
 json('models/block/persiana_abierta.json', { parent: 'minecraft:block/block', textures: { particle: t('persiana_lamas') }, elements: [] });
 estados('persiana_estacion', { facing: FAC, parte: rango(9), abierta: [false, true] },
   (e) => (e.abierta ? 'persiana_abierta' : ['persiana_baja', 'persiana_lamas', 'persiana_alta'][e.parte % 3]), 'persiana_lamas');
+
+// las rejas de los laberintos (y la puerta encadenada del final): barrotes de acero con travesanos
+const barrotes = (x, y) => {
+  if (x % 4 === 1 || x % 4 === 2) return escala([96, 100, 102], 0.85 + hash(x, y, 1590) * 0.2 + (x % 4 === 1 ? 0.15 : 0));
+  if (y === 7 || y === 8) return escala([80, 84, 86], 0.9 + hash(x, y, 1591) * 0.15);
+  return null;
+};
+pinta('reja_barrotes', 16, barrotes);
+pinta('reja_baja', 16, (x, y) => (y >= 13 ? aviso(x, y, 3) : barrotes(x, y)));
+pinta('reja_alta', 16, (x, y) => (y < 3 ? escala([70, 72, 74], 0.85 + hash(x, y, 1592) * 0.15) : barrotes(x, y)));
+['reja_baja', 'reja_barrotes', 'reja_alta'].forEach((n) => {
+  json(`models/block/${n}.json`, mod({ l: t(n), particle: t(n) }, [
+    { from: [0, 0, 7], to: [16, 16, 9], faces: { north: { texture: '#l', uv: [0, 0, 16, 16] }, south: { texture: '#l', uv: [0, 0, 16, 16] }, east: { texture: '#l', uv: [7, 0, 9, 16] }, west: { texture: '#l', uv: [7, 0, 9, 16] }, up: { texture: '#l', uv: [0, 7, 16, 9] }, down: { texture: '#l', uv: [0, 7, 16, 9] } } }
+  ]));
+});
+json('models/block/reja_abierta.json', { parent: 'minecraft:block/block', textures: { particle: t('reja_barrotes') }, elements: [] });
+estados('reja_estacion', { facing: FAC, parte: rango(9), abierta: [false, true] },
+  (e) => (e.abierta ? 'reja_abierta' : ['reja_baja', 'reja_barrotes', 'reja_alta'][e.parte % 3]), 'reja_barrotes');
 
 // los focos de la pasarela, en el suelo junto a ella
 for (const lit of [false, true]) {
@@ -701,12 +707,14 @@ objeto('cable_electrico', (x, y) => {
   if (Math.abs(d - 4.8) < 0.6) return [120, 50, 16];
   return escala([226, 112, 40], 0.85 + ((x + y) % 3 === 0 ? 0.2 : 0));
 });
-objeto('caja_herramientas', (x, y) => {
-  if (y >= 3 && y <= 4 && x >= 5 && x <= 10) return (x === 5 || x === 10 || y === 3) ? [50, 50, 50] : null;
-  if (y < 5 || y > 13 || x < 1 || x > 14) return null;
-  if (y === 8) return [40, 40, 40];
-  if (x === 7 || x === 8) return y === 9 ? [200, 200, 196] : null;
-  return escala([200, 40, 34], 0.85 + (y < 8 ? 0.15 : 0));
+objeto('cizalla', (x, y) => {
+  // en diagonal: las mandibulas arriba a la derecha, los mangos rojos abajo a la izquierda
+  const u = x - y;
+  const v = x + y;
+  if (v >= 18 && v <= 27 && Math.abs(u) <= 3) return escala([186, 190, 194], 0.8 + (u > 0 ? 0.2 : 0));
+  if (v >= 15 && v < 18 && Math.abs(u) <= 2) return [70, 70, 72];
+  if (v >= 2 && v < 15 && (Math.abs(u - 2) <= 0 || Math.abs(u + 2) <= 0 || Math.abs(u - 1.5) < 1 && v < 12 || Math.abs(u + 1.5) < 1 && v < 12)) return escala([196, 36, 30], 0.85 + (v % 3 === 0 ? 0.15 : 0));
+  return null;
 });
 objeto('cinta_aislante', (x, y) => {
   const d = Math.hypot(x - 7.5, y - 7.5);
@@ -722,13 +730,18 @@ objeto('bidon_combustible', (x, y) => {
   if ((x - 2) === (y - 4) || (13 - x) === (y - 4)) c = escala(c, 0.8); // la X de la chapa
   return c;
 });
-SECTOR.forEach((col, i) => objeto(`fusible_${SECTOR_NOMBRE[i]}`, (x, y) => {
+objeto('fusible', (x, y) => {
   if (x < 5 || x > 10) return null;
   if (y < 1 || y > 14) return null;
   if (y <= 2 || y >= 13) return [180, 180, 176];
-  if (y >= 6 && y <= 9) return col;
+  if (y >= 6 && y <= 9) return AMARILLO;
   return escala([236, 232, 220], x === 5 ? 0.85 : 1);
-}));
+});
+for (const viejo of ['fusible_rojo', 'fusible_amarillo', 'fusible_azul', 'fusible_verde', 'caja_herramientas']) {
+  for (const ruta of [path.join(ITEM, viejo + '.png'), path.join(ASSETS, 'models', 'item', viejo + '.json'), path.join(ASSETS, 'items', viejo + '.json')]) {
+    if (fs.existsSync(ruta)) fs.unlinkSync(ruta);
+  }
+}
 console.log('  objetos');
 
 /* ============================================================ nombres */
@@ -765,21 +778,18 @@ const NOMBRES = {
   consola_control: ['Consola de control', 'Control console'],
   barandilla: ['Barandilla', 'Railing'],
   punto_recogida: ['Punto de recogida', 'Pickup point'],
-  panel_averiado: ['Panel averiado', 'Broken panel'],
-  caja_fusible: ['Caja de fusibles', 'Fuse box'],
-  interruptor: ['Interruptor', 'Switch'],
+  panel_averiado: ['Central eléctrica', 'Power terminal'],
+  caja_fusible: ['Caja de fusible', 'Fuse box'],
+  reja_estacion: ['Reja', 'Gate'],
   persiana_estacion: ['Persiana metálica', 'Roller shutter'],
   foco_pasarela: ['Foco de la pasarela', 'Catwalk light']
 };
 const OTROS = {
   'item.backrooms_evento.cable_electrico': ['Cable eléctrico', 'Electrical cable'],
-  'item.backrooms_evento.caja_herramientas': ['Caja de herramientas', 'Toolbox'],
+  'item.backrooms_evento.cizalla': ['Cizalla', 'Bolt cutters'],
   'item.backrooms_evento.cinta_aislante': ['Cinta aislante', 'Insulating tape'],
   'item.backrooms_evento.bidon_combustible': ['Bidón de gasoil', 'Fuel can'],
-  'item.backrooms_evento.fusible_rojo': ['Fusible rojo', 'Red fuse'],
-  'item.backrooms_evento.fusible_amarillo': ['Fusible amarillo', 'Yellow fuse'],
-  'item.backrooms_evento.fusible_azul': ['Fusible azul', 'Blue fuse'],
-  'item.backrooms_evento.fusible_verde': ['Fusible verde', 'Green fuse'],
+  'item.backrooms_evento.fusible': ['Fusible', 'Fuse'],
   'entity.backrooms_evento.amasijo': ['El Amasijo', 'The Tangle'],
   'death.attack.backrooms_evento.estacion': ['%1$s se quedó a oscuras en la Estación', '%1$s was left in the dark at the Station'],
   'death.attack.backrooms_evento.estacion.player': ['%2$s arrastró a %1$s a los pasillos sin luz', '%2$s dragged %1$s into the unlit corridors']
@@ -789,6 +799,8 @@ for (const [archivo, k] of [['es_es.json', 0], ['en_us.json', 1]]) {
   const lang = JSON.parse(fs.readFileSync(f, 'utf8'));
   for (const [id, v] of Object.entries(NOMBRES)) lang[`block.${NS}.${id}`] = v[k];
   for (const [id, v] of Object.entries(OTROS)) lang[id] = v[k];
+  for (const viejo of ['block.backrooms_evento.interruptor', 'item.backrooms_evento.caja_herramientas', 'item.backrooms_evento.fusible_rojo',
+    'item.backrooms_evento.fusible_amarillo', 'item.backrooms_evento.fusible_azul', 'item.backrooms_evento.fusible_verde']) delete lang[viejo];
   fs.writeFileSync(f, JSON.stringify(lang, null, 2) + '\n');
 }
 console.log('  lang: la estacion');

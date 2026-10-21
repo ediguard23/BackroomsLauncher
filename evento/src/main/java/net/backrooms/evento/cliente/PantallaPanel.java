@@ -132,17 +132,18 @@ public class PantallaPanel extends Screen {
 						Accion.de("Regalos", "backrooms fiesta ir regalos"), Accion.de("Cocina", "backrooms fiesta ir cocina"),
 						Accion.de("Siesta", "backrooms fiesta ir siesta"), Accion.de("Sala secreta", "backrooms fiesta ir secreta")))));
 			default -> new Pagina(
-				"La Estación Eléctrica: una central vieja sin nadie. Se llega por el tobogán del salón final de la Fiesta. Entre todos: llenar el generador con bidones (gasta: sin gasoil, apagón), reparar los 8 paneles con cable, herramientas o cinta, llevar los 4 fusibles a la sala de control y bajar los interruptores en el orden de la pantalla. Entonces se enciende la pasarela y se sale por la puerta del fondo.",
-				List.of(new Entidad("Amasijo", "Carne y brazos con una boca. Ronda los sectores, oye las máquinas y caza a quien ve (más lejos con luz); se le despista rompiendo la línea de visión. Sale al arrancar el generador; más con la mitad de los paneles y con la pasarela.", Accion.de("Invocar", "backrooms invocar amasijo"))),
-				List.of(TipoMision.COMBUSTIBLE, TipoMision.PANELES, TipoMision.FUSIBLES, TipoMision.PASARELA),
+				"La Estación Eléctrica, como la de Escape Together: tres pisos que se suben. En cada uno, un laberinto con rejas que se abren con un fusible en su caja (y se cierran si alguien lo saca); al final, un pasillo largo y en un costado la central (fusibles, cinta y cable). Con la central activa se abre la escalera al piso de arriba. La del piso 3 enciende la pasarela; al otro lado, una puerta encadenada (la cizalla). Abajo, el generador gasta gasolina: sin ella, apagón.",
+				List.of(new Entidad("Amasijo", "Carne y brazos con una boca. Uno por piso con gente (más con muchos jugadores); no sube escaleras y las rejas cerradas le cortan el paso. Caza a quien ve; a oscuras (sin gasolina) te encuentra sin verte.", Accion.de("Invocar", "backrooms invocar amasijo"))),
+				List.of(TipoMision.COMBUSTIBLE, TipoMision.PISO1, TipoMision.PISO2, TipoMision.PISO3, TipoMision.PASARELA),
 				List.of(new Seccion("ESTADO", List.of(Accion.de("Ver todo", "backrooms estacion ver"), Accion.de("Generador al 100", "backrooms estacion combustible 100"),
 						Accion.de("Generador al 10", "backrooms estacion combustible 10"), Accion.ojo("Vaciar el generador", "backrooms estacion combustible 0"),
-						Accion.ojo("Siguiente etapa", "backrooms estacion avanzar"), Accion.ojo("Todo como al principio", "backrooms estacion reponer"))),
+						Accion.ojo("Siguiente central", "backrooms estacion avanzar"), Accion.ojo("Todo como al principio", "backrooms estacion reponer"))),
 					new Seccion("SUCESOS", List.of(Accion.de("Luz normal", "backrooms luz"))),
-					new Seccion("IR A", List.of(Accion.de("Llevarme a la Estación", "backrooms estacion"), Accion.de("Acceso", "backrooms estacion ir acceso"),
-						Accion.de("Nave del generador", "backrooms estacion ir nave"), Accion.de("Sala de control", "backrooms estacion ir control"),
-						Accion.de("Pasarela", "backrooms estacion ir pasarela"), Accion.de("Paneles", "backrooms estacion ir a_paneles_1"),
-						Accion.de("Fusibles", "backrooms estacion ir a_fusibles")))));
+					new Seccion("IR A", List.of(Accion.de("Llevarme a la Estación", "backrooms estacion"), Accion.de("Nave del generador", "backrooms estacion ir nave"),
+						Accion.de("Laberinto 1", "backrooms estacion ir laberinto_1"), Accion.de("Central 1", "backrooms estacion ir central_1"),
+						Accion.de("Laberinto 2", "backrooms estacion ir laberinto_2"), Accion.de("Central 2", "backrooms estacion ir central_2"),
+						Accion.de("Laberinto 3", "backrooms estacion ir laberinto_3"), Accion.de("Central 3", "backrooms estacion ir central_3"),
+						Accion.de("Pasarela", "backrooms estacion ir pasarela")))));
 		};
 	}
 

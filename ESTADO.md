@@ -1,10 +1,52 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-21 (hora de Honduras). Mod `backrooms_evento` 0.25.0, launcher 1.0.0
+Última actualización: 2026-10-21 (hora de Honduras). Mod `backrooms_evento` 0.26.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
 
-## 0.25.0: Nivel 3, la Estación Eléctrica (2026-10-21; Bruno)
+## 0.26.0: el Nivel 3 rehecho como el de Escape Together (2026-10-21; Bruno)
+
+Bruno pidió que la Estación fuera como el nivel 3 de **Backrooms: Escape Together** (se buscó en los foros
+de Steam: subestación, generador de gasolina, rejas que se abren y cierran con fusibles, cinta, cable,
+cizalla, pasarela, el «arm demon»). Lo de la 0.25.0 de abajo (sectores, paneles, interruptores en orden) ya
+no existe; se quedan el generador, el Amasijo, el HUD, las texturas y los sonidos.
+
+- **Tres pisos que se suben** (`PlanoEstacion`, y = 40, 54 y 68; la dimensión ahora tiene 96 de alto). Se
+  llega cayendo a la **nave del generador** (piso 1, al sur). Cada piso es un **laberinto** de 19x15 celdas
+  (semilla fija) partido en tres zonas por dos líneas de **rejas** (dos rejas por línea) y con dos
+  **trasteros** cerrados con reja. Al final, un **pasillo largo** de lado a lado (se sale del laberinto por
+  el medio) y en un costado la **central**; al otro costado, una puerta tapiada. Detrás de la central, la
+  **escalera** (persiana que se abre con la central) al piso de arriba. Pisos: 1 sur→norte (central al este),
+  2 norte→sur (al oeste), 3 sur→norte (al este) y al este de la central del 3, la **pasarela** sobre un pozo
+  hasta la **puerta encadenada**.
+- **Rejas** (`reja_estacion`, 3x3 de barrotes): se abren con un fusible en su **caja** (`caja_fusible`, bloque
+  entero en el muro de al lado, se ve por los dos lados); clic derecho otra vez: sacas el fusible y la reja
+  baja (no baja si hay alguien debajo). Cortan el paso al Amasijo.
+- **Centrales** (bloque `panel_averiado`, ahora «Central eléctrica»): piso 1: 2 fusibles + 1 cinta; piso 2:
+  2 fusibles + 1 cinta + 1 cable; piso 3: 3 fusibles + 2 cintas + 2 cables. Clic derecho pone todo lo que
+  lleves que le falte; con todo y corriente, se activa (pantalla encima con lo que falta).
+- **Objetos**: fusible (genérico, ya no hay de colores), cinta, cable, bidón de gasolina y la **cizalla**
+  (una, en un trastero del piso 3: corta la cadena del final). Se reponen solos; la cizalla, solo si nadie
+  la tiene. Fuera la caja de herramientas y los interruptores.
+- **Generador**: 10 min el depósito lleno, empieza al 40 %. Sin gasolina, apagón y el Amasijo te encuentra
+  sin verte (a 26 bloques).
+- **Amasijo**: uno por piso con gente (+1 cada 10 jugadores, +1 en el piso 3 con la pasarela); no sube
+  escaleras (solo ve y caza en su piso).
+- Misiones: COMBUSTIBLE, PISO1, PISO2, PISO3, PASARELA. Al reaparecer, al piso más alto abierto. HUD: piso,
+  lo puesto en la central de tu piso, centrales activas (un cuadrito por piso) y la corriente.
+- Staff: `estacion ir nave|laberinto_1..3|pasillo_final_1..3|central_1..3|llegada_2|llegada_3|pasarela`,
+  `estacion avanzar` (activa la central siguiente; al final, corta la cadena). Panel NIVEL 3 al día.
+- Arreglo: si `misiones.json` tiene una misión que ya no existe, se descarta al cargar (se caía el servidor).
+
+**Probado** (mundo de pruebas, Estación nueva): llegada (HUD «PISO 1 · CENTRAL 0/3»), una reja (poner el fusible
+abre, sacarlo cierra y lo devuelve), activar la central 1 con 2 fusibles y 1 cinta, subir andando la escalera
+al piso 2 (el HUD cambia de piso), la central 2 (con `avanzar`), subir al piso 3, la central 3 (pasarela y
+focos), la cadena (sin cizalla avisa; con ella se corta) y salir (escapa); el Amasijo sale en el piso del
+jugador. **Sin probar**: recorrer los laberintos enteros a pie (que todas las zonas conecten por sus rejas,
+dónde caen los puntos y los trasteros), el Amasijo cazando entre rejas, varios jugadores, los pisos 2 y 3
+con sus propios materiales (solo con `avanzar`).
+
+## 0.25.0: Nivel 3, la Estación Eléctrica (2026-10-21; Bruno) — sustituido por la 0.26.0
 
 Nivel nuevo después de la Fiesta: el tobogán del salón final lleva ahora a la **Estación Eléctrica**
 (`estacion/`, dimensión `backrooms_evento:estacion`); si el servidor no la tiene, se escapa como antes.

@@ -12,7 +12,8 @@ import net.minecraft.util.Mth;
 /**
  * La Estacion Electrica en el cliente: el estado que manda el servidor (JuegoEstacion) y el
  * cuadrito de arriba a la derecha, como una placa de mantenimiento: el combustible del generador
- * (en rojo y parpadeando en la reserva), los paneles reparados, los fusibles puestos y si hay
+ * (en rojo y parpadeando en la reserva), el piso donde estas, lo puesto en su central, las centrales
+ * activas (un cuadrito por piso) y si hay
  * corriente. La barra del combustible baja suave, sin saltos.
  */
 public final class EstacionCliente {
@@ -28,7 +29,7 @@ public final class EstacionCliente {
 		if (estado.fuera() || e.fuera()) {
 			combustibleVisto = e.combustible();
 		}
-		if (e.paneles() != estado.paneles() || e.fusibles() != estado.fusibles() || e.etapa() != estado.etapa()) {
+		if (e.puestos() != estado.puestos() || e.centrales() != estado.centrales() || e.piso() != estado.piso()) {
 			cambio = net.minecraft.util.Util.getMillis();
 		}
 		estado = e;
@@ -83,28 +84,27 @@ public final class EstacionCliente {
 			g.fill(mx, by + 3, mx + 1, by + 4, 0x88000000);
 		}
 		Texto.hud(g, pct, x1 - 4 - anPct, by - 1, 6.5F, 0.06F, reserva ? 0xFFFF6A5A : 0xFFFFFFFF);
-		// paneles y fusibles
+		// el piso, lo puesto en su central y las centrales activas (un cuadrito por piso)
 		int blanco = mezcla(0xFFD8E0D0, 0xFFFFFFFF, brillo);
-		float an = Texto.hud(g, "PANELES ", x0 + 5, y0 + 15, 6.5F, 0.06F, 0xFF9FB09A);
-		boolean todos = estado.totalPaneles() > 0 && estado.paneles() >= estado.totalPaneles();
-		Texto.hud(g, estado.paneles() + "/" + estado.totalPaneles(), x0 + 5 + an, y0 + 15, 6.5F, 0.06F, todos ? 0xFF7AE07A : blanco);
-		int fx = x0 + 66;
-		an = Texto.hud(g, "FUSIBLES ", fx, y0 + 15, 6.5F, 0.06F, 0xFF9FB09A);
-		int[] colores = {0xFFE0362C, 0xFFF2D03A, 0xFF3A7AE8, 0xFF3AC25A};
-		for (int i = 0; i < 4; i++) {
-			int cx = fx + (int) Math.ceil(an) + i * 6;
-			boolean puesto = i < estado.fusibles();
-			g.fill(cx, y0 + 16, cx + 4, y0 + 21, puesto ? colores[i] : 0xFF2A302A);
-			g.renderOutline(cx, y0 + 16, 4, 5, puesto ? 0xFFFFFFFF : 0xFF5A645A);
+		int[] colores = {0xFFE0362C, 0xFFF2D03A, 0xFF3A9AE8};
+		float an = Texto.hud(g, "PISO " + (estado.piso() + 1) + "  ", x0 + 5, y0 + 15, 6.5F, 0.06F, colores[Math.min(2, estado.piso())]);
+		an += Texto.hud(g, "CENTRAL ", x0 + 5 + an, y0 + 15, 6.5F, 0.06F, 0xFF9FB09A);
+		boolean llena = estado.necesarios() > 0 && estado.puestos() >= estado.necesarios();
+		Texto.hud(g, estado.puestos() + "/" + estado.necesarios(), x0 + 5 + an, y0 + 15, 6.5F, 0.06F, llena ? 0xFF7AE07A : blanco);
+		for (int i = 0; i < 3; i++) {
+			int cx = x1 - 22 + i * 6;
+			boolean activa = i < estado.centrales();
+			g.fill(cx, y0 + 16, cx + 4, y0 + 21, activa ? colores[i] : 0xFF2A302A);
+			g.renderOutline(cx, y0 + 16, 4, 5, activa ? 0xFFFFFFFF : 0xFF5A645A);
 		}
 		// la corriente
 		String s;
 		int c;
-		if (estado.etapa() >= 3) {
-			s = "PASARELA ACTIVA";
+		if (estado.centrales() >= 3) {
+			s = estado.cadena() ? "SALIDA ABIERTA" : "PASARELA · CADENA PUESTA";
 			c = parpadeo ? 0xFF7AE07A : 0xFF4AB04A;
 		} else if (!estado.corriente()) {
-			s = estado.etapa() == 0 ? "SIN CORRIENTE · GENERADOR" : "SIN CORRIENTE";
+			s = "SIN CORRIENTE · GENERADOR";
 			c = parpadeo ? 0xFFFF4A3A : 0xFF8A2A22;
 		} else {
 			s = "CORRIENTE OK";

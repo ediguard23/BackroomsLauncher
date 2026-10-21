@@ -26,10 +26,11 @@ public enum TipoMision {
 	PREMIO("Sal de la fiesta", "Con tus tickets, la puerta del norte de la sala central se abre. Al fondo del salón, el tobogán: quédate en su boca."),
 
 	/* las de la Estacion Electrica (Nivel 3): son de todos (las va cumpliendo JuegoEstacion) y la ultima, cruzar */
-	COMBUSTIBLE("Arranca el generador", "El generador de la nave central casi no tiene combustible. Busca bidones por los sectores y vacíalos en su boca (clic derecho). Sin corriente no funciona nada, y se gasta."),
-	PANELES("Repara los paneles", "Cada sector tiene dos paneles averiados. Cada uno pide un material (cable, caja de herramientas o cinta aislante): búscalo por los pasillos y úsalo en el panel. Con los dos de un sector, se abre su sala de fusibles."),
-	FUSIBLES("Restablece el circuito", "Lleva los cuatro fusibles a la sala de control y ponlos en su hueco (pared oeste). Después, sube los interruptores (pared este) en el orden de la pantalla. Si te equivocas, salta todo."),
-	PASARELA("Cruza la pasarela", "Con el circuito completo, la pasarela del norte tiene corriente. Crúzala hasta la puerta del final antes de que algo te encuentre.");
+	COMBUSTIBLE("Echa gasolina al generador", "El generador de la nave (abajo, en el piso 1) gasta sin parar. Busca bidones de gasolina por los pasillos y vacíalos en su boca (clic derecho). Sin gasolina, apagón: nada funciona y lo que vive aquí se pone nervioso."),
+	PISO1("Activa la central del piso 1", "Cruza el laberinto: las rejas se abren con un fusible en su caja (en el muro de al lado); si alguien lo saca, se cierran. Al final, un pasillo largo y en un costado la central: ponle 2 fusibles y 1 cinta aislante. Se abre la escalera."),
+	PISO2("Activa la central del piso 2", "Otro laberinto, otra central: 2 fusibles, 1 cinta y 1 cable. Las rejas también sirven para cerrarle el paso a lo que te persigue."),
+	PISO3("Activa la central del piso 3", "La última: 3 fusibles, 2 cintas y 2 cables. Da corriente a la pasarela. En algún trastero de este piso hay una cizalla: hará falta."),
+	PASARELA("Cruza la pasarela", "La pasarela tiene corriente. Al otro lado, la puerta del final está encadenada: córtala con la cizalla y sal.");
 
 	public final String titulo;
 	public final String descripcion;

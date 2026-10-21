@@ -415,40 +415,40 @@ Nadie sabe si abajo está la salida... o la cocina.
 
 ## Nivel 3 — la Estación Eléctrica
 
-Abajo no está la cocina. El tobogán escupe a quien lo baja por un agujero del techo de un vestuario de
-hormigón: taquillas, un banco, una radio que se enciende sola y un tablón de instrucciones medio quemado.
+Abajo no está la cocina. El tobogán escupe a quien lo baja por un agujero del techo de una nave de
+hormigón: un generador de gasolina naranja, taquillas, una radio que se enciende sola y un tablón de
+instrucciones medio quemado.
 
-Una central eléctrica vieja y enorme que sigue funcionando sin nadie. Paredes pintadas de verde pálido y
-desconchadas, chapa estriada, tuberías, cuadros con relojes que tiemblan, transformadores que zumban. En
-medio, en una nave de techo altísimo, un generador diésel naranja. Alrededor, cuatro sectores (A, B, C y D),
-cada uno con su franja de color pintada en las paredes y sus salas numeradas, unidos por pasillos que se
-cruzan como un laberinto.
+Una central eléctrica vieja que sigue funcionando sin nadie, construida hacia arriba: tres pisos, uno
+encima de otro, cada uno con su franja pintada en las paredes (rojo, amarillo, azul). Cada piso es un
+laberinto de pasillos de hormigón cortado por rejas. Al final de cada uno, un pasillo largo de lado a lado
+y, en un costado, la puerta de la central del piso. Solo con la central funcionando se abre la escalera al
+piso de arriba. En lo alto, una pasarela sobre un pozo lleva a la única salida.
 
-La única salida es una pasarela de rejilla sobre un pozo, al otro lado de la sala de control. Sin corriente
-no se abre, no se enciende y no lleva a ningún sitio.
+Las instrucciones del tablón se leen a medias: GASOIL AL GENERADOR. FUSIBLE EN LAS REJAS. LA CENTRAL DE
+CADA PISO. SUBIR. El resto está quemado. Todo es de todos: lo que uno arregla, sirve para los demás.
 
-Las instrucciones del tablón se leen a medias: ARRANCAR EL GENERADOR. REPARAR PANELES. FUSIBLES A CONTROL.
-EN ORDEN. El resto está quemado. Todo es de todos: lo que uno arregla, sirve para los demás.
-
-- **El combustible.** El generador traga gasoil sin parar. Hay que traerle bidones de las salas de máquinas
-  y de los callejones de los sectores. Si se vacía, la estación entera se queda a oscuras y nada responde.
-- **Los paneles.** Ocho paneles reventados, dos por sector, piden un cable, la caja de herramientas o cinta
-  aislante. Con los dos de un sector, la persiana de su sala de fusibles sube.
-- **Los fusibles.** Uno por sector, de su color. Van en la caja de la sala de control. Luego, los
-  interruptores en el orden que dice la pantalla. Un error y salta todo: oscuridad y a empezar.
-- **La pasarela.** Los focos se encienden uno detrás de otro hasta la puerta del fondo. Hay que cruzarla.
+- **La gasolina.** El generador de abajo traga sin parar. Hay bidones por los laberintos; alguien tiene
+  que bajarlos. Si se vacía, la estación entera se queda a oscuras: nada responde y lo que vive en los
+  pasillos ya no necesita verte para encontrarte.
+- **Las rejas.** Se abren con un fusible en su caja, empotrada en el muro de al lado. Si alguien saca el
+  fusible, la reja baja. Sirven para avanzar... y para dejar algo encerrado al otro lado.
+- **Las centrales.** Piden fusibles, cinta aislante y cable. Con todo puesto y corriente, la central del piso
+  se enciende y la persiana de la escalera sube.
+- **La pasarela.** La central del tercer piso le da corriente: los focos se encienden uno detrás de otro. Al
+  otro lado, una puerta con una cadena gruesa. En algún trastero del tercer piso hay una cizalla.
 
 Cada sistema que vuelve hace ruido. Y en los pasillos hay algo que lo oye.
 
 **El Amasijo** es una masa de carne pálida del tamaño de una persona agachada: brazos y más brazos, unos para
 andar y otros que tantean el aire, y una boca enorme llena de dientes donde debería estar la cara. Nadie sabe
-de cuántos participantes está hecho. No está siempre: sale cuando la estación despierta, y hay más cuanto más
-se arregla. Usa los pasillos mejor que nadie, corre en cuanto ve a alguien y no se cansa; pero no ve a través
-de las paredes. Romper la línea de visión es la única forma de despistarlo.
+de cuántos participantes está hecho. Hay uno en cada piso donde hay alguien, y no sube escaleras. Corre en
+cuanto ve a alguien y no se cansa; pero no ve a través de las paredes, y una reja cerrada lo para. Romper la
+línea de visión es la única forma de despistarlo... mientras haya luz.
 
 Es el primer nivel donde se ve que alguien estudia las Backrooms desde dentro: los carteles de mantenimiento
-llevan números de documento en lugar de nombres, hay sectores que no están en los planos y la radio del
-vestuario repite un mensaje de alguien que se quedó allí. Siempre se corta justo antes de decir quién es.
+llevan números de documento en lugar de nombres y la radio de la nave repite un mensaje de alguien que se
+quedó allí. Siempre se corta justo antes de decir quién es.
 
 ---
 

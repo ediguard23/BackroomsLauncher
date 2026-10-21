@@ -120,8 +120,8 @@ public class GeneradorEstacion extends ChunkGenerator {
 
 	@Override
 	public void addDebugScreenInfo(List<String> lineas, RandomState estado, BlockPos pos) {
-		PlanoEstacion.Sala s = PlanoEstacion.sala(pos.getX(), pos.getZ());
-		lineas.add("Estacion: " + (s == null ? "fuera" : s.nombre()));
+		PlanoEstacion.Sala s = PlanoEstacion.sala(pos.getX(), pos.getY(), pos.getZ());
+		lineas.add("Estacion: " + PlanoEstacion.PISO[PlanoEstacion.piso(pos.getY())] + " · " + (s == null ? "fuera" : s.nombre()));
 	}
 
 	@Override
