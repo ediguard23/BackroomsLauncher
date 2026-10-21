@@ -8,7 +8,8 @@
  *     0 - 1.1   pasos por la rejilla de metal del pasillo
  *     0.8, 1.0  las luces parpadean (chasquido y zumbido electrico)
  *     1.2       la sirena de contencion (sube una vez por segundo, como el rojo de las luces)
- *     1.6       la megafonia (voz de Higgsfield en tools/sonidos/voces/megafonia_contencion.wav;
+ *     1.5       la megafonia (voz Marisol de Higgsfield, con las pausas recortadas y un 10 % mas rapida,
+ *               en tools/sonidos/voces/megafonia_contencion.wav;
  *               si no esta, solo la sirena)
  *     2.5       retumbar grave; 3.0 entra el agua por la puerta (rugido que crece, golpes y
  *               crujidos del metal)
@@ -174,7 +175,7 @@ function cinematica () {
   if (voz) {
     const v = altavoz(voz);
     const rvV = new D.Freeverb({ sala: 0.9, amortiguacion: 0.4, predelayMs: 60 });
-    const iv = Math.round(1.6 * SR);
+    const iv = Math.round(1.5 * SR);
     for (let j = 0; j < v.length + SR && iv + j < p.n; j++) {
       const x = j < v.length ? v[j] * 0.55 : 0;
       const [a, b] = rvV.paso(x);

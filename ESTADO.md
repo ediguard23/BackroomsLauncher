@@ -21,9 +21,9 @@ Piscinas → Fiesta (sin ascensor):
   **subir el agua** por la puerta (la superficie de la inundación, solo en tu cliente), corres, te metes por la
   boca y caes por el pozo; negro; a los 11 s el servidor te lleva a la Fiesta y se abre la imagen. Sonido:
   `tools/sonidos/tobogan.js` (`cinematica_tobogan.ogg` y `_despues.ogg`).
-- **Falta la voz** de la megafonía («fallo de contención, inundación total inminente»): no se pudo usar
-  Higgsfield (Chrome sin conectar). Se pone en `tools/sonidos/voces/megafonia_contencion.wav` (voz Marisol)
-  y `node tools/sonidos/tobogan.js`; mientras, solo suena la sirena.
+- La megafonía (voz Marisol de Higgsfield, 1 crédito): «Atención. Fallo de contención en el Nivel treinta y
+  siete. Las compuertas no resisten. Inundación total del nivel inminente.» (pausas recortadas y un 10 % más
+  rápida para que quepa: `tools/sonidos/voces/megafonia_contencion.wav`).
 Otros:
 - Puertas del laberinto: la cifra pequeña (3x5) grabada en una moneda de oro.
 - Panel de monedas y tickets mucho más pequeño (124x33).
@@ -36,7 +36,7 @@ Otros:
   puño apuntando al frente (`ManoLinternaMixin`).
 **Probado** (capturas): la bóveda cerrada, abriéndose y abierta; el pasillo y la boca; la cinemática entera
 hasta aparecer en la Fiesta con el título; números de las puertas, localizador y panel nuevos (texturas y HUD);
-la linterna en la mano. **Sin probar**: oír la cinemática (sonido sin voz aún), con varios jugadores a la vez,
+la linterna en la mano. **Sin probar**: oír la cinemática en el juego, con varios jugadores a la vez,
 la Q con la linterna y la cámara en el juego, la E sin inventario, la linterna en tercera persona.
 
 ## 0.22.2: Nivel Fun, la segunda lista de Bruno (2026-10-20; Bruno)
