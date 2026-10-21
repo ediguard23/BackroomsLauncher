@@ -23,8 +23,8 @@ public final class Evento {
 	}
 
 	public String nombre = "BACKROOMS";
-	/** Nivel del evento ("0", "37"...): decide el Tema de los menus. */
-	public String nivel = "0";
+	/** Nivel de los menus del inicio ("0", "37", "fun"; "todos": uno al azar): Tema#actual. */
+	public String nivel = "todos";
 	public String host = "";
 	public int puerto = 25565;
 	public String discord = "";

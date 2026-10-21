@@ -897,7 +897,9 @@ public final class PlanoPiscinas {
 	public static final int S_GOTAS_SANGRE = 2;
 	public static final int S_ESCOMBROS = 3;
 	public static final int S_HUELLAS = 4;
-	public static final int S_CUANTAS = 5;
+	/** El rastro de algo arrastrado: tres manchas seguidas (S_ARRASTRE + 0, 1 y 2), del charco a las ultimas gotas. */
+	public static final int S_ARRASTRE = 5;
+	public static final int S_CUANTAS = 8;
 
 	/** Algo en una pared (MarcaPiscina, `variante` = la marca). */
 	public static final int D_MARCA = 0;
@@ -968,7 +970,21 @@ public final class PlanoPiscinas {
 		// un cuerpo: su charco de sangre debajo (y nada mas en la celda)
 		Cadaver cad = this.cadaverEnCelda(cx, cz);
 		if (cad != null) {
-			return java.util.List.of(new Detalle((int) Math.floor(cad.x()), PISO, (int) Math.floor(cad.z()), D_MANCHA, S_GOTAS_SANGRE, this.hash(cx, cz, 129) & 3));
+			int bx = (int) Math.floor(cad.x());
+			int bz = (int) Math.floor(cad.z());
+			java.util.List<Detalle> cuerpo = new java.util.ArrayList<>();
+			cuerpo.add(new Detalle(bx, PISO, bz, D_MANCHA, S_GOTAS_SANGRE, this.hash(cx, cz, 129) & 3));
+			// a la mitad los han arrastrado hasta aqui: el rastro llega al cuerpo (el charco, a su lado)
+			if (this.azar(cx, cz, 131) < 0.5) {
+				int l0 = this.hash(cx, cz, 132) % 4;
+				for (int i = 0; i < 4; i++) {
+					int lado = (l0 + i) % 4;
+					if (this.arrastreDesde(cuerpo, cx, cz, bx + DX[lado], bz + DZ[lado], lado)) {
+						break;
+					}
+				}
+			}
+			return java.util.List.copyOf(cuerpo);
 		}
 		if (Math.max(Math.abs(cx - sal.celdaX()), Math.abs(cz - sal.celdaZ())) <= CARTELES && this.azar(cx, cz, 97) < 0.5) {
 			int[] p = this.pared(cx, cz, 8, PISO + 2, 1);
@@ -1012,14 +1028,48 @@ public final class PlanoPiscinas {
 			} else if (q < 0.94) {
 				this.marca(out, cx, cz, k, h % 2 == 0 ? M_MANO : M_MANOS, PISO + 1);
 			} else {
-				switch (h % 3) {
+				switch (h % 4) {
 					case 0 -> this.marca(out, cx, cz, k, M_SANGRE, PISO);
 					case 1 -> this.suelo(out, cx, cz, k, D_MANCHA, S_GOTAS_SANGRE);
+					case 2 -> this.arrastre(out, cx, cz, k);
 					default -> this.azulejoPared(out, cx, cz, k, 1);
 				}
 			}
 		}
 		return java.util.List.copyOf(out);
+	}
+
+	/**
+	 * Un rastro de arrastre (S_ARRASTRE, tres manchas seguidas): empieza en (x, z) y sigue hacia
+	 * `lado`, en tres columnas de suelo seco de la celda. false si no cabe.
+	 */
+	private boolean arrastreDesde(java.util.List<Detalle> out, int cx, int cz, int x, int z, int lado) {
+		byte[] col = new byte[ALTO];
+		for (int i = 0; i < 3; i++) {
+			int px = x + DX[lado] * i;
+			int pz = z + DZ[lado] * i;
+			if (Math.floorDiv(px, C) != cx || Math.floorDiv(pz, C) != cz) {
+				return false;
+			}
+			this.columna(px, pz, col);
+			if (!this.pisable(px, PISO, pz, col) || en(col, PISO - 1) == LOSA || en(col, PISO + 2) != AIRE) {
+				return false;
+			}
+		}
+		for (int i = 0; i < 3; i++) {
+			out.add(new Detalle(x + DX[lado] * i, PISO, z + DZ[lado] * i, D_MANCHA, S_ARRASTRE + i, lado));
+		}
+		return true;
+	}
+
+	/** Un rastro de arrastre en algun sitio de la celda. */
+	private void arrastre(java.util.List<Detalle> out, int cx, int cz, int k) {
+		for (int t = 0; t < 40; t++) {
+			int[] c = this.candidata(cx, cz, k + 11, t);
+			if (this.arrastreDesde(out, cx, cz, c[0], c[1], this.hash(cx, cz, 140 + t) % 4)) {
+				return;
+			}
+		}
 	}
 
 	/** Columna (x, z) de la celda donde probar el intento t del detalle k. */

@@ -48,6 +48,13 @@ public final class TransicionFiesta {
 			INSTANCIA.invulnerable.clear();
 		});
 		ServerTickEvents.END_SERVER_TICK.register(s -> INSTANCIA.tick());
+		// quien se va a mitad: se le quita lo de la cinematica antes de que se guarde (si no, se quedaria
+		// invulnerable para siempre: Minecraft lo guarda con el jugador)
+		net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents.DISCONNECT.register((h, s) -> {
+			if (INSTANCIA.enCurso(h.player)) {
+				INSTANCIA.terminar(h.player, false);
+			}
+		});
 	}
 
 	public boolean enCurso(ServerPlayer j) {

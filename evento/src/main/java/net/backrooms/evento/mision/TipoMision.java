@@ -22,7 +22,7 @@ public enum TipoMision {
 	SALIDA("Abre la salida de emergencia", "Solo hay tres tarjetas en todo el nivel: roja, amarilla y verde. Entre todos hay que encontrarlas y meterlas en los lectores de la puerta."),
 
 	/* las de la Fiesta (Nivel Fun): juntar los tickets dando vueltas y salir por el tobogan del final */
-	TICKETS("Consigue los tickets", "Sal del laberinto (las monedas de las mesas abren puertas; las flechas del techo y los localizadores te guían), cruza el castillo moviéndote solo en verde y baja por el tobogán: cada vuelta da su bote. Para otra vuelta, salta a un cuadrado de noclip."),
+	TICKETS("Consigue los tickets", "Sal del laberinto (las monedas de las mesas abren puertas; los localizadores de las salas seguras te guían), cruza el castillo moviéndote solo en verde y baja por el tobogán: cada vuelta da su bote. Para otra vuelta, salta a un cuadrado de noclip."),
 	PREMIO("Sal de la fiesta", "Con tus tickets, la puerta del norte de la sala central se abre. Al fondo del salón, el tobogán: quédate en su boca.");
 
 	public final String titulo;

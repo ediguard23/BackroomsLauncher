@@ -72,6 +72,32 @@ body.en-piscinas .velo {
     linear-gradient(0deg, rgba(4, 26, 32, 0.7) 0%, transparent 18%, transparent 86%, rgba(4, 26, 32, 0.6) 100%);
 }
 
+/* --------------------------------- el fondo en el Nivel Fun (Feeding Rooms) */
+
+body.en-fiesta .velo {
+  background:
+    linear-gradient(90deg, rgba(14, 22, 18, 0.84) 0%, rgba(14, 22, 18, 0.5) 30%, rgba(14, 22, 18, 0) 50%, rgba(14, 22, 18, 0) 62%, rgba(14, 22, 18, 0.55) 100%),
+    linear-gradient(0deg, rgba(14, 22, 18, 0.7) 0%, transparent 18%, transparent 86%, rgba(14, 22, 18, 0.6) 100%);
+}
+
+/* ------------------------------------------------ el avance de los niveles */
+
+body.en-avance .hud-superior, body.en-avance .escena, body.en-avance .hud-inferior { opacity: 0; pointer-events: none; }
+body.en-avance .velo { opacity: 0.35; }
+.hud-superior, .escena, .hud-inferior { transition: opacity 0.6s ease; }
+#avance {
+  position: fixed; inset: 0; z-index: 40; display: flex; flex-direction: column; justify-content: flex-end;
+  padding: 0 0 11vh 7vw; gap: 6px; pointer-events: none; opacity: 0; cursor: pointer;
+  color: #f2e9c4; text-shadow: 2px 0 rgba(255, 0, 60, 0.55), -2px 0 rgba(0, 200, 255, 0.45), 0 0 18px rgba(0, 0, 0, 0.9);
+}
+body.en-avance #avance { pointer-events: auto; }
+#avance.visible { opacity: 1; }
+#avance.visible .avance-num { animation: presenta 1.2s steps(1, end) forwards; }
+.avance-num { font-size: 22px; letter-spacing: 0.5em; opacity: 0.85; }
+.avance-nombre { font-size: 64px; letter-spacing: 0.12em; line-height: 1; }
+.avance-lema { font-size: 20px; letter-spacing: 0.06em; opacity: 0.8; }
+.avance-saltar { position: fixed; right: 34px; bottom: 26px; font-size: 14px; letter-spacing: 0.3em; opacity: 0.55; }
+
 /* salto de cinta al cambiar de nivel */
 body.cambio-nivel #pasillo { animation: cambio-nivel 0.7s steps(7); }
 body.cambio-nivel #grano { opacity: 0.4; }

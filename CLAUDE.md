@@ -48,7 +48,7 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
                                  Escape Together: PlanoFiesta (habitaciones de inicio, laberinto con puertas de monedas,
                                  castillo de bolas, sala central y salon final), JuegoFiesta (vueltas, monedas, tickets,
                                  bote, puertas, localizador, noclip, toboganes), JuegoSemaforo (el del castillo),
-                                 JuegoMemoria, JuegoRegalos, suelos defectuosos y parkour, el Anfitrion y sus apagones
+                                 JuegoMemoria, JuegoRegalos, el Anfitrion y sus apagones
                                  (AnfitrionFiesta), ConfigFiesta
       expedicion/                el /start (cinemática de la firma y el ascensor y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
@@ -107,6 +107,9 @@ servidor-ejemplo/                configuración del servidor del evento
   la imagen en `%APPDATA%/.backrooms-event/screenshots` (vale aunque la ventana esté a
   pantalla completa). El cursor del sistema no sale en las capturas: `cursor` escribe en el
   log si se ve, está oculto o capturado. `node tools/rcon.js "<comando>"` manda comandos al servidor.
+- **Panel del staff: `/backrooms panel`** (PanelAdmin + cliente/PantallaPanel): cada nivel con su estado en
+  directo, entidades, misiones, sucesos y botones para casi todos los comandos. Si se añade un comando
+  o una entidad, ponlo también en el panel.
 - Comandos de staff: `/start`, `/backrooms ...` (buscar, cinematica, apagon, alarma, luz,
   ambiente, fase, piscinas [ir <sala>|ir detalle|ir corre|ir valvula|ir salida|ir tarjeta_<color>|ir cadaver [colgado]|
   oir <sonido> <jugador>], tarjetas [reponer|abrir], recepcion, vestibulo,

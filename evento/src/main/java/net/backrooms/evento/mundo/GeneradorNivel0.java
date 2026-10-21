@@ -234,6 +234,8 @@ public class GeneradorNivel0 extends ChunkGenerator {
 				Bloques.SILLA.defaultBlockState().setValue(EnSuelo.FACING, mira).setValue(Silla.VOLCADA, d.tipo() == Plano.D_SILLA_VOLCADA), a, b);
 			case Plano.D_SENAL -> poner(chunk, pos.set(x, SUELO + 1, z),
 				Bloques.SENALES[d.variante()].defaultBlockState().setValue(EnSuelo.FACING, mira), a, b);
+			case Plano.D_ARRASTRE -> poner(chunk, pos.set(x, SUELO + 1, z), net.backrooms.evento.piscinas.BloquesPiscinas.MANCHA.defaultBlockState()
+				.setValue(EnSuelo.FACING, mira).setValue(net.backrooms.evento.piscinas.ManchaSuelo.MANCHA, net.backrooms.evento.piscinas.PlanoPiscinas.S_ARRASTRE + d.variante()), a, b);
 			case Plano.D_VENA -> poner(chunk, pos.set(x, SUELO + 1, z), Bloques.CAPA_BACILO.defaultBlockState(), a, b);
 			default -> {
 			}

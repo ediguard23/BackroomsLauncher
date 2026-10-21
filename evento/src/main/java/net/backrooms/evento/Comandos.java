@@ -28,6 +28,8 @@ import net.minecraft.server.level.ServerPlayer;
 /**
  * Comandos del staff: /backrooms ...
  *
+ *  panel                     abre el panel del staff: cada nivel con su estado, entidades, misiones,
+ *                            sucesos y botones para casi todo lo de abajo (PanelAdmin, PantallaPanel)
  *  buscar <cosa> [jugador]   lleva al jugador a mirar la <cosa> mas cercana del
  *                            Nivel 0 (la busca en el plano, sin cargar chunks)
  *  misiones dar <jugador>    le asigna sus 3 misiones y reparte sus casetes alrededor
@@ -74,7 +76,7 @@ import net.minecraft.server.level.ServerPlayer;
  */
 public final class Comandos {
 	private static final List<String> COSAS = List.of(
-		"enchufe", "dibujo", "cinta", "salida", "nota", "silla", "senal", "vena", "ventilador", "ventilador_grande", "pared_fina", "bacilo", "oscuridad", "hueco");
+		"enchufe", "dibujo", "cinta", "salida", "nota", "silla", "senal", "vena", "arrastre", "ventilador", "ventilador_grande", "pared_fina", "bacilo", "oscuridad", "hueco");
 
 	private Comandos() {
 	}
@@ -94,6 +96,7 @@ public final class Comandos {
 				.executes(c -> empezar(c, List.copyOf(EntityArgument.getPlayers(c, "jugadores"))))));
 		d.register(Commands.literal("backrooms")
 			.requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
+			.then(Commands.literal("panel").executes(c -> PanelAdmin.abrir(c.getSource().getPlayerOrException()) ? 1 : 0))
 			.then(Commands.literal("buscar")
 				.then(Commands.argument("cosa", StringArgumentType.word())
 					.suggests((c, b) -> SharedSuggestionProvider.suggest(COSAS, b))
@@ -171,7 +174,7 @@ public final class Comandos {
 			})))
 			.then(Commands.literal("comida").then(Commands.literal("reponer").executes(c -> {
 				net.backrooms.evento.supervivencia.Comida.get().reponer();
-				c.getSource().sendSuccess(() -> Component.literal("Toda la comida del Nivel 0 vuelve a su sitio."), true);
+				c.getSource().sendSuccess(() -> Component.literal("Toda la comida (Nivel 0 y Piscinas) vuelve a su sitio."), true);
 				return 1;
 			})))
 			.then(Commands.literal("luz").executes(c -> {
@@ -660,6 +663,7 @@ public final class Comandos {
 			case "silla" -> d.tipo() == Plano.D_SILLA || d.tipo() == Plano.D_SILLA_VOLCADA;
 			case "senal" -> d.tipo() == Plano.D_SENAL;
 			case "vena" -> d.tipo() == Plano.D_VENA;
+			case "arrastre" -> d.tipo() == Plano.D_ARRASTRE && d.variante() == 0;
 			default -> false;
 		};
 		if (!es) {

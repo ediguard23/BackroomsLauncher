@@ -148,7 +148,7 @@ public class MenuPausa extends PauseScreen {
 		super.render(g, mx, my, parcial);
 	}
 
-	/** Las misiones van en el inventario: aqui solo un recordatorio clavado. */
+	/** Las misiones van en la hoja de la esquina (PapelMisiones, tecla M): aqui solo un recordatorio clavado. */
 	private void notaMisiones(GuiGraphics g) {
 		int x0 = 790;
 		int y0 = 272;
@@ -163,8 +163,8 @@ public class MenuPausa extends PauseScreen {
 		g.fill(x0, y0, x1, y1, this.tema.papel);
 		g.fill(x0 + 34, y0, x0 + 36, y1, 0x59BE3228);
 		Texto.maquina(g, "MISIONES DEL EXPLORADOR", x0 + 46, y0 + 14, 13, 0.18F, this.tema.papelTinta);
-		String tecla = this.minecraft.options.keyInventory.getTranslatedKeyMessage().getString().toUpperCase();
-		Texto.parrafo(g, "Están en tu inventario: pulsa " + tecla + ".", x0 + 46, y0 + 42, 14, x1 - x0 - 62, 1.4F, this.tema.papelTexto);
+		String tecla = net.backrooms.evento.cliente.PapelMisiones.TECLA.getTranslatedKeyMessage().getString().toUpperCase();
+		Texto.parrafo(g, "Están en la hoja de la esquina: pulsa " + tecla + " para verla entera.", x0 + 46, y0 + 42, 14, x1 - x0 - 62, 1.4F, this.tema.papelTexto);
 		p.popMatrix();
 	}
 

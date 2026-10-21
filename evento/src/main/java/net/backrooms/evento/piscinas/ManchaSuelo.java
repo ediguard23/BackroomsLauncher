@@ -11,7 +11,8 @@ import net.minecraft.world.phys.shapes.Shapes;
 
 /**
  * Una mancha pegada al azulejo del suelo (no choca): suciedad acumulada, un charco
- * oscuro seco, un rastro de gotas de sangre, escombros de azulejo y huellas descalzas.
+ * oscuro seco, un rastro de gotas de sangre, escombros de azulejo, huellas descalzas y el rastro
+ * de algo arrastrado (tres seguidas).
  * Texturas en tools/texturas/piscinas.js, en este orden (los numeros, en PlanoPiscinas.S_*).
  */
 public class ManchaSuelo extends EnSuelo {

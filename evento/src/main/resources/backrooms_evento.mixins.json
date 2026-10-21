@@ -13,7 +13,8 @@
     "AguaPiscinasMixin",
     "ColaLoginMixin",
     "InundacionAguaMixin",
-    "SoltarObjetoMixin"
+    "SoltarObjetoMixin",
+    "SoloBarraMixin"
   ],
   "client": [
     "cliente.CinematicaBlurMixin",

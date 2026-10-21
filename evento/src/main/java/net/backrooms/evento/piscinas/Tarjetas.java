@@ -414,7 +414,7 @@ public final class Tarjetas {
 			return;
 		}
 		if (!j.getInventory().add(new ItemStack(Objetos.TARJETAS[c]))) {
-			j.displayClientMessage(Component.literal("No te cabe: haz sitio en el inventario.").withStyle(ChatFormatting.GRAY), true);
+			j.displayClientMessage(Component.literal("No te cabe: haz sitio en la barra (suelta algo con Q).").withStyle(ChatFormatting.GRAY), true);
 			return;
 		}
 		ServerLevel nivel = j.level();

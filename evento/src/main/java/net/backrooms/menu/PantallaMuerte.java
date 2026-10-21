@@ -140,7 +140,7 @@ public class PantallaMuerte extends DeathScreen {
 		if (eliminado) {
 			String fin = "TU EXPEDICIÓN HA TERMINADO";
 			Texto.hud(g, fin, 590 - Texto.anchoHud(fin, 26, 0.12F) / 2.0F, 448, 26, 0.12F, AMARILLO);
-			String nota = "La señal se cortará en unos segundos. Gracias por bajar al Nivel 0.";
+			String nota = "La señal se cortará en unos segundos. Gracias por entrar en las Backrooms.";
 			Texto.maquina(g, nota, 590 - Texto.anchoMaquina(nota, 14, 0.02F) / 2.0F, 498, 14, 0.02F, MenuBackrooms.alfa(0xFFEAD9A0, 0.75F));
 		} else {
 			MenuBackrooms.botonTubo(g, this.reaparecer, 390, 470, 790, 546, "REAPARECER", "...");

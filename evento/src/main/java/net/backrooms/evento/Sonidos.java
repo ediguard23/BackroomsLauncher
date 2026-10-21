@@ -128,13 +128,8 @@ public final class Sonidos {
 	public static final SoundEvent ANFITRION_ABRAZO = registrar("anfitrion.abrazo");
 	public static final SoundEvent ANFITRION_VOZ = registrar("anfitrion.voz");
 	public static final SoundEvent ANFITRION_RISA = registrar("anfitrion.risa");
-	// los suelos defectuosos y el parkour
-	public static final SoundEvent SUELO_ZUMBIDO = registrar("suelo.zumbido");
-	public static final SoundEvent SUELO_CRUJE = registrar("suelo.cruje");
-	public static final SoundEvent SUELO_CAE = registrar("suelo.cae");
+	// caer en una piscina de bolas
 	public static final SoundEvent PARKOUR_BOLAS = registrar("parkour.bolas");
-	public static final SoundEvent PARKOUR_FALLO = registrar("parkour.fallo");
-	public static final SoundEvent PARKOUR_SUBE = registrar("parkour.sube");
 	/* el laberinto: el localizador (suena desde la puerta de la salida), el zumbido de la puerta, el noclip y los toboganes */
 	public static final SoundEvent FIESTA_LOCALIZADOR = registrar("fiesta.localizador");
 	public static final SoundEvent FIESTA_SALIDA = registrar("fiesta.salida");

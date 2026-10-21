@@ -496,45 +496,6 @@ console.log('  decoracion: globos, guirnaldas, carteles, dibujos, mesas, tartas,
 
 /* ============================================================ suelos defectuosos y juegos */
 
-// el suelo defectuoso: la misma goma (o moqueta) que alrededor, animada. Casi siempre igual;
-// a ratos un parpadeo, una franja desplazada o los colores que se corrompen un instante
-{
-  const base = [(x, y) => goma(x, y, false), null];
-  const moqueta = (x, y) => {
-    let c = escala([46, 52, 120], 0.86 + fbm(x, y, 141, 32) * 0.2 + hash(x, y, 142) * 0.06);
-    const h = hash(Math.floor(x / 3), Math.floor(y / 3), 143);
-    if (h > 0.86 && x % 3 !== 2 && y % 3 === 1) c = escala(COLORES[Math.floor(h * 97) % 4], 0.95);
-    return c;
-  };
-  base[1] = moqueta;
-  // el damero del laberinto: un bloque por color (blanco, azul, amarillo), como PlanoFiesta#damero
-  for (const col of [[232, 232, 226], [52, 92, 196], [236, 196, 58]]) base.push((x, y) => damero(col, x, y));
-  base.forEach((f, v) => {
-    const cuadros = [];
-    for (let k = 0; k < 6; k++) {
-      cuadros.push(new Lienzo(32).pintar((x, y) => {
-        if (k === 0) return f(x, y);
-        if (k === 1) return escala(f(x, y), 0.82);                                   // parpadeo
-        if (k === 2) { const d = (y >= 10 && y < 16) ? 4 : 0; return f((x + d) % 32, y); } // franja corrida
-        if (k === 3) { const c = f(x, y); return [c[2], c[0], c[1]]; }              // colores cambiados
-        if (k === 4) return (y % 3 === 0) ? escala(f(x, y), 0.6) : f(x, y);         // lineas
-        return mezcla(f(x, y), [255, 255, 255], (x + y) % 7 === 0 ? 0.25 : 0);      // ruido
-      }));
-    }
-    const nombre = `suelo_defectuoso_${v}`;
-    guardar(TEX, nombre, Lienzo.tira(cuadros));
-    // casi todo el rato el cuadro normal; los otros, muy de vez en cuando y muy cortos
-    const frames = [{ index: 0, time: 70 }, { index: 1, time: 2 }, { index: 0, time: 40 }, { index: 2, time: 2 }, { index: 0, time: 3 },
-      { index: 4, time: 2 }, { index: 0, time: 90 }, { index: 3, time: 1 }, { index: 5, time: 2 }, { index: 0, time: 55 }];
-    fs.writeFileSync(path.join(TEX, `${nombre}.png.mcmeta`), JSON.stringify({ animation: { frametime: 1, frames } }, null, 2) + '\n');
-    json(`models/block/${nombre}.json`, { parent: 'minecraft:block/cube_all', textures: { all: t(nombre) } });
-  });
-  const v = {};
-  for (const roto of [false, true]) for (let i = 0; i < 5; i++) v[`roto=${roto},variante=${i}`] = { model: t(`suelo_defectuoso_${i}`) };
-  json('blockstates/suelo_defectuoso.json', { variants: v });
-  json('items/suelo_defectuoso.json', { model: { type: 'minecraft:model', model: t('suelo_defectuoso_0') } });
-}
-
 // la piscina de bolas: bolas de colores amontonadas
 guardar(TEX, 'piscina_bolas', new Lienzo(32).pintar((x, y) => {
   const cx = Math.floor(x / 5);
@@ -550,20 +511,6 @@ json('models/block/piscina_bolas.json', { parent: 'minecraft:block/block', textu
   elements: [caja([0, 0, 0], [16, 6, 16], '#b')] });
 json('blockstates/piscina_bolas.json', { variants: { '': { model: t('piscina_bolas') } } });
 json('items/piscina_bolas.json', { model: { type: 'minecraft:model', model: t('piscina_bolas') } });
-
-// la trampilla del final del parkour: placa dorada con una flecha hacia arriba que brilla
-{
-  const l = new Lienzo(32).pintar((x, y) => {
-    let c = escala([222, 182, 60], 0.9 + hash(x, y, 351) * 0.1);
-    if (x < 2 || y < 2 || x > 29 || y > 29) c = [150, 110, 30];
-    return c;
-  });
-  l.poligono([[16, 5], [26, 16], [20, 16], [20, 27], [12, 27], [12, 16], [6, 16]], [255, 250, 220]);
-  guardar(TEX, 'trampilla_fiesta', l);
-  json('models/block/trampilla_fiesta.json', { parent: 'minecraft:block/cube_all', textures: { all: t('trampilla_fiesta') } });
-  json('blockstates/trampilla_fiesta.json', { variants: { '': { model: t('trampilla_fiesta') } } });
-  json('items/trampilla_fiesta.json', { model: { type: 'minecraft:model', model: t('trampilla_fiesta') } });
-}
 
 // la nota de la fiesta: papel de colores doblado con letra de cera
 guardar(TEX, 'nota_fiesta', new Lienzo(16).pintar((x, y) => {
@@ -689,9 +636,7 @@ const NOMBRES = {
   olla: ['Olla', 'Pot'],
   bandeja: ['Bandeja', 'Tray'],
   camita: ['Camita', 'Nap bed'],
-  suelo_defectuoso: ['Suelo defectuoso', 'Faulty floor'],
   piscina_bolas: ['Piscina de bolas', 'Ball pit'],
-  trampilla_fiesta: ['Trampilla', 'Hatch'],
   nota_fiesta: ['Nota', 'Note'],
   baldosa_juego: ['Baldosa de juego', 'Game tile']
 };

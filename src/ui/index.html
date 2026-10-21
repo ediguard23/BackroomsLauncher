@@ -9,7 +9,7 @@
 </head>
 <body class="cargando">
 
-  <!-- Fondo: pasillo del Nivel 0 en WebGL (o la imagen de fondo si existe) -->
+  <!-- Fondo: los niveles del evento en WebGL (o la imagen de fondo si existe) -->
   <canvas id="pasillo" aria-hidden="true"></canvas>
   <div id="fondo-imagen" aria-hidden="true"></div>
   <div class="velo" aria-hidden="true"></div>
@@ -23,6 +23,14 @@
       <img src="../../assets/logo-peakmc-studio.png" alt="">
       <span>PRESENTA</span>
     </div>
+  </div>
+
+  <!-- Avance: el rotulo de cada nivel mientras se ensena a pantalla completa (clic para saltar) -->
+  <div id="avance" aria-hidden="true">
+    <span id="avance-num" class="avance-num"></span>
+    <span id="avance-nombre" class="avance-nombre"></span>
+    <span id="avance-lema" class="avance-lema"></span>
+    <span class="avance-saltar">CLIC PARA SALTAR</span>
   </div>
 
   <!-- HUD de la camara -->
@@ -50,7 +58,7 @@
           <img class="logo-eco eco-b" src="../../assets/logo-backrooms.png" alt="">
         </div>
         <div class="titulo-txt">
-          <span id="subtitulo" class="sub">NIVEL 0</span>
+          <span id="subtitulo" class="sub">PROYECTO UMBRAL</span>
           <h1 id="nombre-evento" class="solo-lector">BACKROOMS</h1>
           <p class="lema">Si sales de la realidad por accidente, acabas aquí.</p>
         </div>

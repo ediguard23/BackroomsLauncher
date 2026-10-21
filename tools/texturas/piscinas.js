@@ -594,6 +594,31 @@ mancha('huellas', (x, y) => {
   }
   return null;
 });
+// el rastro de algo (alguien) arrastrado: tres manchas seguidas en tres bloques (arrastre_0, _1 y _2).
+// Empieza ancho y empapado (con el charco donde se quedo) y se va estrechando en surcos cada vez mas
+// finos y secos hasta unas gotas. Corre de abajo (s = parte) a arriba (s = parte + 1) de cada
+// textura: girada con FACING, la parte siguiente va hacia donde mira la mancha (PlanoPiscinas.S_ARRASTRE).
+for (let parte = 0; parte < 3; parte++) {
+  mancha(`arrastre_${parte}`, (x, y) => {
+    const s = parte + (L - 0.5 - y) / L;          // 0 (el charco) .. 3 (el final)
+    const k = s / 3;
+    const centro = L / 2 - 0.5 + Math.sin(s * 2.1) * 2.6 + Math.sin(s * 5.3) * 0.8;
+    const ancho = 11.5 * Math.pow(1 - k, 0.75) + 0.6 + (s < 0.35 ? (0.35 - s) * 14 : 0);
+    const dx = x - centro;
+    const d = Math.abs(dx) / ancho;
+    // gotas sueltas alrededor (mas al principio)
+    const gota = hash(x, y + parte * L, 880 + parte) > 0.985 - (1 - k) * 0.01 && Math.abs(dx) < ancho * 1.8;
+    if (d > 1) return gota && s < 2.6 ? [...SECA, 0.85] : null;
+    // los surcos: rayas a lo largo que se separan y se cortan cuanto mas lejos
+    const surcos = 0.5 + 0.5 * Math.sin(dx * (1.1 + k * 1.6) + Math.sin(s * 3.0) * 1.5 + hash(Math.round(dx), 7, 881) * 2.0);
+    const lleno = Math.max(0, 1 - k * 1.25);
+    const densidad = (1 - d * d) * (lleno + (1 - lleno) * Math.pow(surcos, 2.5)) * (0.85 + 0.3 * fbm(x, y + parte * L, 882));
+    if (densidad < 0.22 + k * 0.25) return null;
+    const fresca = Math.max(0, 1 - s * 0.7);       // al principio aun brilla
+    const c = mezcla(SECA, [128, 12, 16], fresca * (0.6 + 0.4 * (1 - d)));
+    return [...escala(c, 0.85 + hash(x, y, 883) * 0.2), Math.min(0.95, 0.55 + densidad * 0.5)];
+  });
+}
 {
   for (const n of MANCHAS) {
     json(`models/block/mancha_${n}.json`, {

@@ -7,16 +7,15 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 
 /**
- * El nivel de las Backrooms en el que esta ambientado el evento: fondo,
- * colores, textos y sonidos de los menus.
- *
- * Lo elige el organizador con "level" en pack/evento.json (el launcher lo
- * pasa al mod en config/backrooms-event.json). Por defecto el Nivel 0, el del
- * launcher; las Piscinas (Nivel 37) quedan listas para el proximo evento.
+ * El aspecto de los menus segun el nivel de las Backrooms: fondo, colores, textos y sonidos. Hay
+ * uno por nivel del evento (Nivel 0, Piscinas y Nivel Fun). Dentro del juego manda el nivel donde
+ * se esta; en el menu de inicio, "level" de pack/evento.json (el launcher lo pasa al mod en
+ * config/backrooms-event.json): "0", "37", "fun" o "todos" (uno al azar, lo normal).
  */
 public final class Tema {
 	public static final Tema NIVEL_0 = nivel0();
 	public static final Tema PISCINAS = piscinas();
+	public static final Tema FIESTA = fiesta();
 
 	private static Tema actual;
 
@@ -120,6 +119,45 @@ public final class Tema {
 		return t;
 	}
 
+	private static Tema fiesta() {
+		Tema t = new Tema();
+		t.nivel = "NIVEL FUN";
+		t.lema = "Alguien ha preparado una fiesta. Para ti.";
+		t.desconexion = "La música se ha cortado. Esto es lo último que llegó:";
+		t.fondo = Fondo.FIESTA;
+		t.parpadea = true;
+		t.sonidos("nivel0");
+		t.tubo = 0xFFFFF6E0;
+		t.acento = 0xFFF6CE40;
+		t.negro = 0xFF0E1612;
+		t.velo = 0x0E1612;
+		t.caja = 0x0A120E;
+		t.paseFondo = 0xFFF4EEDC;
+		t.paseCintaArriba = 0xFFE8384A;
+		t.paseCintaAbajo = 0xFFC22A3C;
+		t.paseRanura = 0xFF2A1F2B;
+		t.paseTinta = 0xFF1C1418;
+		t.fotoMarco = 0xFF8F7F85;
+		t.fotoFondo = 0xFFD6CCC6;
+		t.pistaOn = 0xFF3A96E6;
+		t.pistaOff = 0xFF9B9172;
+		t.bola = 0xFFF6F0DA;
+		t.papel = 0xFFF6F0E2;
+		t.papelRayas = 0x2E3C5AA0;
+		t.papelTinta = 0xFF2A2517;
+		t.papelFecha = 0xFFC22A3C;
+		t.papelTexto = 0xFF4A4330;
+		t.papelVacio = 0xFF6D6550;
+		t.tuboHalo = 0xFFE6A0;
+		t.tuboMarco = 0xFF3A2A22;
+		t.tuboApagado = 0xFF2A261B;
+		t.tuboArriba = 0xFFF8E8;
+		t.tuboAbajo = 0xF6CE70;
+		t.tuboTinta = 0xFF2A1A12;
+		t.tuboTintaOff = 0xFF6D6550;
+		return t;
+	}
+
 	private static Tema piscinas() {
 		Tema t = new Tema();
 		t.nivel = "NIVEL 37";
@@ -168,11 +206,31 @@ public final class Tema {
 		this.destello = sonido(base + ".destello");
 	}
 
-	/** El tema del evento (se lee una vez de config/backrooms-event.json). */
+	/**
+	 * El tema de ahora: dentro del juego, el del nivel donde estas (la pausa, la muerte...); en el
+	 * menu de inicio, el de config/backrooms-event.json ("0", "37" o "fun") o, si no dice ninguno,
+	 * uno de los tres al azar en cada arranque (el evento es de las Backrooms, no de un nivel).
+	 */
 	public static Tema actual() {
+		net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
+		if (mc != null && mc.level != null) {
+			if (net.backrooms.evento.piscinas.Piscinas.es(mc.level)) {
+				return PISCINAS;
+			}
+			return net.backrooms.evento.fiesta.Fiesta.es(mc.level) ? FIESTA : NIVEL_0;
+		}
 		if (actual == null) {
 			String nivel = Evento.cargar().nivel.trim();
-			actual = nivel.equals("37") || nivel.equalsIgnoreCase("piscinas") ? PISCINAS : NIVEL_0;
+			if (nivel.equals("37") || nivel.equalsIgnoreCase("piscinas")) {
+				actual = PISCINAS;
+			} else if (nivel.equalsIgnoreCase("fun") || nivel.equalsIgnoreCase("fiesta")) {
+				actual = FIESTA;
+			} else if (nivel.equals("0")) {
+				actual = NIVEL_0;
+			} else {
+				Tema[] todos = {NIVEL_0, PISCINAS, FIESTA};
+				actual = todos[AZAR.nextInt(todos.length)];
+			}
 		}
 		return actual;
 	}

@@ -67,7 +67,7 @@ async function cargar (root, origen) {
 function publico (m) {
   return {
     nombre: m.name || null,
-    nivel: m.level != null ? String(m.level) : '0',
+    nivel: m.level != null ? String(m.level) : 'todos',
     packVersion: m.packVersion || null,
     minecraft: m.minecraft,
     server: { host: m.server.host, port: m.server.port || 25565 },

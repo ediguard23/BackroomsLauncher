@@ -398,6 +398,10 @@ public final class Plano {
 	public static final int D_SILLA_VOLCADA = 7;
 	public static final int D_SENAL = 8;
 	public static final int D_VENA = 9;
+	/** El rastro de algo arrastrado por la moqueta: tres seguidas (variante 0, 1 y 2) hacia su lado (mira). */
+	public static final int D_ARRASTRE = 10;
+	private static final int[] RX = {0, 1, 0, -1};
+	private static final int[] RZ = {-1, 0, 1, 0};
 
 	/** Decoracion de una columna libre: tipo, hacia donde mira (0 N, 1 E, 2 S, 3 O) y variante. */
 	public record Deco(int tipo, int mira, int variante) {
@@ -423,6 +427,10 @@ public final class Plano {
 		boolean oscuro = this.oscuridad(x, z) == 2;
 		if (oscuro && ruido2(x / 9.0, z / 9.0, 70) > 0.71) {
 			return new Deco(D_VENA, 0, 0);
+		}
+		Deco rastro = this.arrastre(x, z);
+		if (rastro != null) {
+			return rastro;
 		}
 		int[] lados = new int[4];
 		int n = 0;
@@ -467,6 +475,33 @@ public final class Plano {
 			return new Deco(D_SENAL, mira, (int) (azar(x, z, 67) * 5));
 		}
 		return NADA;
+	}
+
+	/**
+	 * Si (x, z) es parte de un rastro de arrastre: empiezan al azar en alguna columna (mas a
+	 * oscuras, donde caza la Bacteria) y siguen tres columnas libres hacia su lado.
+	 */
+	private Deco arrastre(int x, int z) {
+		for (int lado = 0; lado < 4; lado++) {
+			for (int i = 0; i < 3; i++) {
+				int ax = x - RX[lado] * i;
+				int az = z - RZ[lado] * i;
+				double p = this.oscuridad(ax, az) == 2 ? 0.0016 : 0.0006;
+				if (azar(ax, az, 75) >= p || (int) (azar(ax, az, 76) * 4) != lado) {
+					continue;
+				}
+				boolean cabe = true;
+				for (int j = 0; j < 3 && cabe; j++) {
+					int px = ax + RX[lado] * j;
+					int pz = az + RZ[lado] * j;
+					cabe = !this.pared(px, pz) && !this.cercaAscensor(Math.floorDiv(px, G), Math.floorDiv(pz, G), 1);
+				}
+				if (cabe) {
+					return new Deco(D_ARRASTRE, lado, i);
+				}
+			}
+		}
+		return null;
 	}
 
 	/** Ventilador colgado del techo en (x, z): 0 ninguno, 1 normal, 2 grande. Uno como mucho por celda. */

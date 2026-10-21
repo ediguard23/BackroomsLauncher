@@ -1133,50 +1133,10 @@
       }
     ]
   },
-  "suelo.zumbido": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:suelo_zumbido",
-        "attenuation_distance": 6
-      }
-    ]
-  },
-  "suelo.cruje": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:suelo_cruje",
-        "attenuation_distance": 12
-      }
-    ]
-  },
-  "suelo.cae": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:suelo_cae",
-        "attenuation_distance": 20
-      }
-    ]
-  },
   "parkour.bolas": {
     "sounds": [
       {
         "name": "backrooms_evento:parkour_bolas",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "parkour.fallo": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:parkour_fallo",
-        "attenuation_distance": 16
-      }
-    ]
-  },
-  "parkour.sube": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:parkour_sube",
         "attenuation_distance": 16
       }
     ]

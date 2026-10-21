@@ -1,8 +1,44 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-20 (hora de Honduras). Mod `backrooms_evento` 0.23.0, launcher 1.0.0
+Última actualización: 2026-10-21 (hora de Honduras). Mod `backrooms_evento` 0.24.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+
+## 0.24.0: panel del staff, el evento de las Backrooms (no solo del Nivel 0) y arreglos (2026-10-21; Bruno)
+
+- **Panel del staff `/backrooms panel`** (`PanelAdmin`, `red/EstadoPanel`, `cliente/PantallaPanel`): pestañas
+  General, Nivel 0, Piscinas y Nivel Fun. En cada una, lo que pasa ahora (jugadores, entidades vivas, luz,
+  inundación, tarjetas...; se refresca cada 5 s), sus entidades (con invocar), sus misiones (texto de
+  `TipoMision`), sus sucesos y accesos («ir a») con botones que mandan los comandos de siempre (el servidor
+  comprueba que eres operador). Los peligrosos (/start, perdonar, abrir o reponer la bóveda) piden dos clics.
+  Abajo sale lo que contesta el servidor.
+- **Fuera los parkours** de la Fiesta (las zonas de debajo del laberinto, los suelos defectuosos que llevaban a
+  ellas y la trampilla): bloques `suelo_defectuoso` y `trampilla_fiesta`, `SueloDefectuoso` y sus sonidos.
+  La piscina de bolas sigue (castillo y sala central).
+- **Rastros de arrastre**: tres manchas de suelo seguidas (`mancha` 5, 6 y 7: del charco a las últimas
+  gotas). En las Piscinas, junto a la mitad de los cadáveres (el rastro llega al cuerpo) y alguno suelto;
+  en el Nivel 0, al azar por la moqueta (más a oscuras). `/backrooms buscar arrastre`.
+- **Todo el evento, no solo el Nivel 0**:
+  - Launcher: al abrir, tras la firma de PeakMC, un **avance** de los tres niveles (Nivel 0 · THE LOBBY,
+    Nivel 37 · Las Piscinas, Nivel Fun · Feeding Rooms), 2,5 s cada uno con su rótulo; un clic o una tecla lo
+    saltan. El fondo recorre ahora también el **Nivel Fun** (shader nuevo en `src/ui/pasillo.js`). Subtítulo
+    «PROYECTO UMBRAL» (antes «NIVEL 0»).
+  - Menús del juego: tema del **Nivel Fun** (`Tema.FIESTA`, shader `assets/backrooms/shaders/core/fiesta.fsh`).
+    Dentro del juego el tema es el del nivel donde estás; en el menú de inicio, `level` del pack (`0`, `37`,
+    `fun` o `todos`: uno al azar, lo nuevo por defecto).
+  - El aviso de eliminación dice el nivel donde ha caído cada uno (antes siempre «el Nivel 0»); la pantalla
+    de muerte da las gracias «por entrar en las Backrooms»; consejos de carga de las Piscinas y la Fiesta;
+    motd del servidor de ejemplo; README y LORE (se baja por el tobogán, no en una cabina).
+- **Arreglos**:
+  - Quien se desconectaba en mitad de la cinemática del tobogán se quedaba **invulnerable para siempre**.
+  - Sin inventario, lo que se cogía con la barra llena iba a huecos invisibles: ahora **solo se coge a la
+    barra** (`SoloBarraMixin`; si está llena, se queda en el suelo).
+  - El menú de pausa decía que las misiones estaban en el inventario (E): ahora apunta a la hoja (M).
+  - La misión de los tickets hablaba de las flechas del techo (ya no están).
+**Probado**: el panel (pestaña General, botones y estado en directo), el tema de la Fiesta en la pausa y su
+shader (compila), los rastros de arrastre en las Piscinas (puestos a mano), la secuencia del avance del
+launcher (en un navegador, sin Electron) y el fondo del Nivel Fun. **Sin probar**: las otras pestañas del
+panel pulsando, los rastros generados solos (en mundo nuevo), el launcher de verdad en Electron.
 
 ## 0.23.0: la bóveda y el tobogán a la Fiesta, y retoques (2026-10-20; Bruno)
 

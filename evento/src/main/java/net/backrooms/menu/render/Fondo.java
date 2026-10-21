@@ -17,9 +17,9 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Fondo de los menus: un pasillo de las Backrooms dibujado en tiempo real por
- * un shader de assets/backrooms/shaders/core/. Hay uno por nivel: el Nivel 0
- * (el mismo pasillo que el launcher) y las Piscinas (Nivel 37, para el
- * proximo evento). Cual se usa lo decide el Tema.
+ * un shader de assets/backrooms/shaders/core/. Hay uno por nivel del evento (los mismos que el
+ * fondo del launcher): el Nivel 0, las Piscinas (Nivel 37) y el Nivel Fun. Cual se usa lo decide
+ * el Tema.
  *
  * El GuiRenderer de 1.21.11 no deja enlazar uniforms propios, asi que el
  * tiempo y la posicion de la camara viajan en las UV de los cuatro vertices
@@ -31,6 +31,8 @@ public final class Fondo {
 	public static final Fondo NIVEL_0 = new Fondo("nivel0", 0.55F, 608.0F);
 	/** Nivel 37: el bucle cierra cada 100 arcos (6.4 m), sin saltos visibles. */
 	public static final Fondo PISCINAS = new Fondo("piscinas", 0.45F, 640.0F);
+	/** Nivel Fun: el pasillo de fiesta (banderines cada 4,5 m, globos cada 5,5: cierra a los 495 m). */
+	public static final Fondo FIESTA = new Fondo("fiesta", 0.5F, 495.0F);
 
 	private static final long INICIO = System.nanoTime();
 

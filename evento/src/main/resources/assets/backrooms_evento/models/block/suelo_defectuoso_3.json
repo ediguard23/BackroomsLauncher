@@ -1,6 +1,0 @@
-{
-  "parent": "minecraft:block/cube_all",
-  "textures": {
-    "all": "backrooms_evento:block/suelo_defectuoso_3"
-  }
-}

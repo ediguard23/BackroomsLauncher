@@ -441,20 +441,26 @@
 
   /* ------------------------------------------ los niveles de las Backrooms */
 
-  // El fondo va pasando por los niveles de las Backrooms (el Nivel 0 y las
-  // Piscinas, Nivel 37), cada uno 40 s, con un salto de cinta entre ellos.
-  const DURACION = { 0: 40000, 37: 40000 };
+  // El fondo va pasando por los niveles del evento (el Nivel 0, las Piscinas y el Nivel Fun),
+  // cada uno 40 s, con un salto de cinta entre ellos.
+  const DURACION = 40000;
+  const CLASES = { 37: 'en-piscinas', fun: 'en-fiesta' };
   let cambiando = false;
 
   function ponerNivel (nivel) {
     pasillo.ponerNivel(nivel);
-    document.body.classList.toggle('en-piscinas', nivel === 37);
+    for (const [n, c] of Object.entries(CLASES)) document.body.classList.toggle(c, String(nivel) === n);
   }
 
-  function saltarNivel () {
+  function siguienteNivel () {
+    const l = pasillo.niveles;
+    const i = l.indexOf(pasillo.nivel);
+    return l[(i + 1) % l.length];
+  }
+
+  function saltarNivel (nuevo = siguienteNivel()) {
     if (cambiando) return;
     cambiando = true;
-    const nuevo = pasillo.nivel === 37 ? 0 : 37;
     document.body.classList.add('cambio-nivel');
     if (sonido) sonido.parpadeo(0.3);
     setTimeout(() => ponerNivel(nuevo), 300);
@@ -462,19 +468,67 @@
   }
 
   function alternarNiveles () {
-    if (!pasillo.conPiscinas) return;
+    if (pasillo.niveles.length < 2) return;
     const paso = () => {
-      const puede = !estado.jugando && estado.config.efectos !== false && !document.hidden && !atravesando;
-      let siguiente = 0;
-      if (puede) {
-        siguiente = pasillo.nivel === 37 ? 0 : 37;
-        saltarNivel();
-      } else if (pasillo.nivel === 37) {
-        ponerNivel(0);
-      }
-      setTimeout(paso, DURACION[siguiente]);
+      const puede = !estado.jugando && estado.config.efectos !== false && !document.hidden && !atravesando && !enAvance;
+      if (puede) saltarNivel();
+      else if (pasillo.nivel !== 0 && !enAvance) ponerNivel(0);
+      setTimeout(paso, DURACION);
     };
-    setTimeout(paso, DURACION[0]);
+    setTimeout(paso, DURACION);
+  }
+
+  /*
+   * El avance: al abrir, despues de la firma del estudio, un fogonazo de cada nivel del evento a
+   * pantalla completa con su rotulo (como el avance de una cinta), y luego la interfaz. Un clic o
+   * una tecla lo saltan.
+   */
+  const AVANCE = [
+    { nivel: 0, num: 'NIVEL 0', nombre: 'THE LOBBY', lema: 'Moqueta húmeda. Zumbido. Pasillos sin fin.' },
+    { nivel: 37, num: 'NIVEL 37', nombre: 'LAS PISCINAS', lema: 'Azulejo blanco y agua que no acaba nunca.' },
+    { nivel: 'fun', num: 'NIVEL FUN', nombre: 'FEEDING ROOMS', lema: 'Alguien ha preparado una fiesta. Para ti.' }
+  ];
+  const PLANO = 2600;
+  let enAvance = false;
+
+  function avance () {
+    return new Promise((fin) => {
+      const planos = AVANCE.filter((a) => pasillo.niveles.includes(a.nivel));
+      if (!pasillo.activo || estado.config.efectos === false || planos.length === 0) { fin(); return; }
+      enAvance = true;
+      document.body.classList.add('en-avance');
+      const rotulo = $('avance');
+      let i = 0;
+      let t = null;
+      const acabar = () => {
+        if (!enAvance) return;
+        enAvance = false;
+        clearTimeout(t);
+        document.body.classList.remove('en-avance');
+        rotulo.classList.remove('visible');
+        ponerNivel(0);
+        document.removeEventListener('keydown', acabar);
+        rotulo.removeEventListener('click', acabar);
+        fin();
+      };
+      const plano = () => {
+        if (!enAvance) return;
+        if (i >= planos.length) { saltarNivel(0); setTimeout(acabar, 350); return; }
+        const a = planos[i++];
+        rotulo.classList.remove('visible');
+        saltarNivel(a.nivel);
+        setTimeout(() => {
+          $('avance-num').textContent = a.num;
+          $('avance-nombre').textContent = a.nombre;
+          $('avance-lema').textContent = a.lema;
+          rotulo.classList.add('visible');
+        }, 420);
+        t = setTimeout(plano, PLANO);
+      };
+      document.addEventListener('keydown', acabar);
+      rotulo.addEventListener('click', acabar);
+      plano();
+    });
   }
   $('efectos').addEventListener('click', async () => {
     estado.config = await L.guardarConfig({ efectos: estado.config.efectos === false });
@@ -626,15 +680,19 @@
     // Los sonidos cargan en paralelo: la intro no los espera.
     const sonidosListos = sonido ? sonido.cargar().catch(() => {}) : Promise.resolve();
     await document.fonts.ready;
-    // La firma de PeakMC Studio dura lo que su animacion; un clic o una tecla la saltan.
+    // La firma de PeakMC Studio dura lo que su animacion; un clic o una tecla la saltan. Despues va
+    // el avance de los niveles (que tambien se salta).
     let abierto = false;
     const abrir = () => {
       if (abierto) return;
       abierto = true;
       document.body.classList.remove('cargando');
-      document.body.classList.add('listo');
-      parpadeoAleatorio();
       sonidosListos.then(() => sonido && sonido.iniciarAmbiente());
+      // el avance de los niveles y luego la interfaz
+      avance().then(() => {
+        document.body.classList.add('listo');
+        parpadeoAleatorio();
+      });
     };
     setTimeout(() => sonidosListos.then(() => !abierto && sonido && sonido.parpadeo(0.2)), 380);
     setTimeout(abrir, 2900);

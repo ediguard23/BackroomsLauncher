@@ -85,6 +85,12 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(EstadoAmbiente.TYPE, (s, ctx) -> AmbienteCliente.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.EstadoInundacion.TYPE, (s, ctx) -> InundacionCliente.recibir(s));
 		net.backrooms.evento.piscinas.Inundacion.nivelCliente = InundacionCliente::agua;
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.EstadoPanel.TYPE, (s, ctx) -> PantallaPanel.recibir(s));
+		net.fabricmc.fabric.api.client.message.v1.ClientReceiveMessageEvents.GAME.register((m, encima) -> {
+			if (!encima) {
+				PantallaPanel.mensaje(m);
+			}
+		});
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.CinematicaTobogan.TYPE, (s, ctx) -> net.backrooms.evento.cliente.cinematica.ToboganCliente.empezar(s));
 		ClientPlayNetworking.registerGlobalReceiver(ViajeAscensor.TYPE, (s, ctx) -> AscensorCliente.empezar(s));
 		ClientPlayNetworking.registerGlobalReceiver(EstadoJugador.TYPE, (s, ctx) -> SupervivenciaCliente.recibir(s));

@@ -9,9 +9,10 @@ Se actualiza solo.
 
 ## La interfaz
 
-- Arranca como una cinta VHS: ▶ PLAY y la firma «PeakMC Studio presenta»
-  (un clic o una tecla la saltan).
-- Los niveles de las Backrooms en tiempo real (el pasillo del Nivel 0 y las Piscinas,
+- Arranca como una cinta VHS: ▶ PLAY, la firma «PeakMC Studio presenta» y un avance de los
+  niveles del evento (un fogonazo de cada uno con su rótulo: Nivel 0, Piscinas y Nivel Fun).
+  Un clic o una tecla lo saltan.
+- Los niveles de las Backrooms en tiempo real de fondo (el Nivel 0, las Piscinas y el Nivel Fun,
   40 s cada uno, con un salto de cinta entre ellos), el logo del evento con glitch de cinta,
   pase de explorador (nick o premium), JUGAR, cuenta atrás, estado del
   servidor, noticias y «Desarrollado por PeakMC Studio» en el pie.
@@ -78,8 +79,8 @@ borra de la release lo que ya no se usa.
 
 ## El mod del evento (`evento/`)
 
-Un solo jar (`backrooms_evento`) que va en el cliente y en el servidor: el Nivel 0
-como mundo procedural, sus bloques y decoración, el traje antirradiación y el
+Un solo jar (`backrooms_evento`) que va en el cliente y en el servidor: los niveles del evento
+(el Nivel 0, las Piscinas y el Nivel Fun) como mundos procedurales, sus bloques y decoración, el traje antirradiación y el
 menú del juego (lo que antes era el mod `backrooms-menu`, en `net.backrooms.menu`).
 
 ### El menú dentro de Minecraft
@@ -87,9 +88,9 @@ menú del juego (lo que antes era el mod `backrooms-menu`, en `net.backrooms.men
 Mod de Fabric propio (`backrooms-menu`, solo cliente) que va dentro del pack en
 `pack/mods/`. Sustituye el menú de inicio por uno con el mismo diseño que el
 launcher, sobre el pasillo del nivel del evento dibujado en tiempo real con un
-shader propio (`assets/backrooms/shaders`): el **Nivel 0** por defecto, el
-mismo que el fondo del launcher, con sus sonidos. **Las Piscinas** (Nivel 37)
-quedan listas para el próximo evento: basta `"level": "37"` en el pack.
+shader propio (`assets/backrooms/shaders`), los mismos que el fondo del launcher: el
+**Nivel 0**, **las Piscinas** (Nivel 37) y el **Nivel Fun**. Dentro del juego, el del nivel
+donde se está; en el menú de inicio, `"level"` del pack (`"0"`, `"37"`, `"fun"` o `"todos"`: uno al azar).
 
 - Botones: JUGAR (entra directo al servidor del manifest, aceptando su resource
   pack), CONFIGURACIÓN, SALIR, DISCORD y TIENDA (con la confirmación de enlace

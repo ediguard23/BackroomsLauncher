@@ -22,9 +22,7 @@ import net.minecraft.world.level.block.state.BlockState;
  *      cuadros y banderines. Por los pasillos, mesas de fiesta con monedas (se cogen con clic derecho)
  *      o comida; las monedas abren las puertas de las habitaciones (60 salas seguras con dos
  *      puertas, para cruzarlas, y el localizador de salida; la memoria, los regalos, la cocina, la siesta, la sala secreta y la de
- *      las mesas). Los tickets no estan tirados: se ganan. Algun suelo esta defectuoso: cede y
- *      lleva a un parkour, y la trampilla del final sube directa al castillo. La salida es una
- *      puerta roja en la pared este (zumba cuando estas cerca).
+ *      las mesas). Los tickets no estan tirados: se ganan. La salida es una puerta roja en la pared este (zumba cuando estas cerca).
  *   3. EL CASTILLO (x 8..56, z -24..24): el parque de bolas, dos pisos de pasillos acolchados
  *      con redes, escaleras de arcoiris y semaforos; se cruza moviendose solo en verde
  *      (JuegoSemaforo). Arriba, al este, el tobogan baja a la sala central con el bote de la vuelta.
@@ -33,15 +31,11 @@ import net.minecraft.world.level.block.state.BlockState;
  *      que se abre con los tickets del objetivo.
  *   5. EL SALON FINAL (x 58..102, z -64..-22): la fiesta de verdad; al fondo, el tobogan por el
  *      que se sale del nivel.
- *
- * Debajo del laberinto (suelo en SUB) estan las tres zonas de parkour.
  */
 public final class PlanoFiesta {
 	public static final int SUELO = 40;
 	/** Techo del laberinto y sus habitaciones (se puede estar de pie de SUELO + 1 a TECHO - 1). */
 	public static final int TECHO = SUELO + 6;
-	/** El suelo de las zonas de parkour (debajo del laberinto): se pisa en SUB + 1. */
-	public static final int SUB = SUELO - 8;
 
 	/* el laberinto: celdas de CELDA (3 de paso y 1 de pared) */
 	public static final int LAB_X = -156;
@@ -143,22 +137,6 @@ public final class PlanoFiesta {
 		}
 	}
 
-	/**
-	 * Una zona de parkour escondida bajo un parche de suelo defectuoso: la caja de dentro, donde
-	 * se cae (debajo del parche), la trampilla del final y adonde sube (el castillo); `premio`
-	 * son los tickets de la primera vez.
-	 */
-	public record Parkour(int id, String nombre, int x0, int z0, int x1, int z1, double llegadaX, double llegadaZ,
-		int finX0, int finZ0, int finX1, int finZ1, double salidaX, double salidaZ, float salidaGiro, int premio) {
-		public boolean dentro(double x, double y, double z) {
-			return x >= this.x0 && x < this.x1 + 1 && z >= this.z0 && z < this.z1 + 1 && y < SUELO && y > SUB - 2;
-		}
-
-		public boolean enFin(double x, double z) {
-			return x >= this.finX0 && x < this.finX1 + 1 && z >= this.finZ0 && z < this.finZ1 + 1;
-		}
-	}
-
 	public static final List<Caja> CAJAS = new ArrayList<>();
 	public static final List<Punto> MONEDAS = new ArrayList<>();
 	public static final List<Punto> TICKETS = new ArrayList<>();
@@ -166,7 +144,6 @@ public final class PlanoFiesta {
 	public static final List<Plato> COMIDA = new ArrayList<>();
 	public static final List<Habitacion> HABITACIONES = new ArrayList<>();
 	public static final List<Sala> SALAS = new ArrayList<>();
-	public static final List<Parkour> PARKOURS = new ArrayList<>();
 	/** Donde aparece quien empieza una vuelta: x, z y giro, en una habitacion de inicio mirando a su puerta. */
 	public static final List<double[]> INICIOS = new ArrayList<>();
 	/** Altavoces (x, y, z): de ahi sale la musica lejana y los anuncios de la megafonia. */
@@ -196,8 +173,6 @@ public final class PlanoFiesta {
 	public static final int Y1;
 
 	private static int siguienteId;
-	/** Las celdas del laberinto con parche de suelo defectuoso (encima de cada parkour). */
-	private static final int[][] PARCHES = {{3, 12}, {10, 4}, {16, 18}, {28, 28}, {30, 6}};
 	/** Puertas pendientes (van al final, para que ningun muro las pise): x, z, mira, coste, tipo y nombre. */
 	private static final List<Object[]> PENDIENTES = new ArrayList<>();
 	/** Por habitacion: la casilla de dentro junto a su puerta (para no taparla con muebles). */
@@ -348,7 +323,6 @@ public final class PlanoFiesta {
 	static {
 		// los pasillos van antes que las salas que unen: sus muros son los de ellas
 		habitaciones();
-		parkours();
 		pasilloCastillo();
 		laberinto();
 		castillo();
@@ -411,15 +385,10 @@ public final class PlanoFiesta {
 		}
 	}
 
-	/** Si cabe una habitacion en esas celdas: con una celda de pasillo alrededor y lejos de la salida y los parches. */
+	/** Si cabe una habitacion en esas celdas: con una celda de pasillo alrededor y lejos de la salida. */
 	private static boolean libre(int cx, int cz, int w, int h) {
 		for (Habitacion o : HABITACIONES) {
 			if (cx - 1 < o.cx() + o.w() && o.cx() < cx + w + 1 && cz - 1 < o.cz() + o.h() && o.cz() < cz + h + 1) {
-				return false;
-			}
-		}
-		for (int[] p : PARCHES) {
-			if (p[0] >= cx - 1 && p[0] <= cx + w && p[1] >= cz - 1 && p[1] <= cz + h) {
 				return false;
 			}
 		}
@@ -687,10 +656,6 @@ public final class PlanoFiesta {
 				}
 				int x0 = LAB_X + cx * CELDA;
 				int z0 = LAB_Z + cz * CELDA;
-				boolean parche = false;
-				for (int[] p : PARCHES) {
-					parche |= p[0] == cx && p[1] == cz;
-				}
 				boolean salida = cx == LAB_W - 1 && cz == SALIDA_CZ;
 				if (azar(cx, cz, 93, 4) == 1) {
 					Direction eje = azar(cx, cz, 94, 2) == 0 ? Direction.NORTH : Direction.EAST;
@@ -703,7 +668,7 @@ public final class PlanoFiesta {
 					RONDA.add(new int[] {x0 + 2, z0 + 2});
 				}
 				// la mesa, contra una pared que no sea de paso (si la celda tiene alguna)
-				if (!parche && !salida && !FRENTES.contains((long) cx << 32 | cz) && azar(cx, cz, 91, 5) == 0) {
+				if (!salida && !FRENTES.contains((long) cx << 32 | cz) && azar(cx, cz, 91, 5) == 0) {
 					int[] pared = null;
 					if (cx == 0 || este[cx - 1][cz]) {
 						pared = new int[] {x0 + 1, z0 + 1, 0, 1};
@@ -936,58 +901,6 @@ public final class PlanoFiesta {
 				RONDA.add(new int[] {x0 + 5, z0 + 3});
 			}
 		}
-	}
-
-	/* ------------------------------------------------------------ parkour */
-
-	/**
-	 * Las tres zonas de parkour, debajo del laberinto (lo primero: el suelo del laberinto, que va
-	 * despues, es su techo). Paredes de papel despegado, una piscina de bolas en el fondo y
-	 * plataformas acolchadas hasta la trampilla, que sube directa al castillo.
-	 */
-	private static void parkours() {
-		for (int i = 0; i < PARCHES.length; i++) {
-			int px = LAB_X + PARCHES[i][0] * CELDA + 1;
-			int pz = LAB_Z + PARCHES[i][1] * CELDA + 1;
-			parkour("parkour_" + (i + 1), px - 2, pz - 3, px + 25, pz + 4, px, pz, px + 21, pz, 100, 11 + i);
-		}
-	}
-
-	/** Una zona de parkour de x0..x1, z0..z1 (interior) con el parche en (px, pz) (2x2), hacia el este, y la trampilla en (fx, fz). */
-	private static void parkour(String nombre, int x0, int z0, int x1, int z1, int px, int pz, int fx, int fz, int premio, long semilla) {
-		SALAS.add(new Sala(nombre, x0, z0, x1, z1));
-		caja(x0 - 1, SUB, z0 - 1, x1 + 1, SUB, z1 + 1, s(Blocks.GRAY_CONCRETE));
-		Patron pared = (x, y, z) -> y == SUB + 1 ? s(BloquesFiesta.ZOCALO) : s(BloquesFiesta.PAPEL_SUCIO);
-		caja(x0 - 1, SUB + 1, z0 - 1, x1 + 1, SUELO - 1, z0 - 1, pared);
-		caja(x0 - 1, SUB + 1, z1 + 1, x1 + 1, SUELO - 1, z1 + 1, pared);
-		caja(x0 - 1, SUB + 1, z0, x0 - 1, SUELO - 1, z1, pared);
-		caja(x1 + 1, SUB + 1, z0, x1 + 1, SUELO - 1, z1, pared);
-		caja(x0, SUB + 1, z0, x1, SUB + 1, z1, s(BloquesFiesta.PISCINA_BOLAS));
-		for (int x = x0 + 3; x <= x1 - 3; x += 7) {
-			bloque(x, SUELO - 1, (z0 + z1) / 2, s(BloquesFiesta.LUZ_PARPADEO));
-		}
-		// las plataformas: de la llegada a la trampilla, a saltos de 2-3, subiendo poco a poco
-		Random azar = new Random(semilla);
-		int x = px + 2;
-		int z = pz;
-		int y = SUB + 1;
-		int fin = fx - 2;
-		while (x < fin) {
-			bloque(x, y, z, s(BloquesFiesta.ACOLCHADOS[Math.floorMod(x + z, BloquesFiesta.ACOLCHADOS.length)]));
-			if (azar.nextInt(4) == 0) {
-				bloque(x, y, z + 1, s(BloquesFiesta.ACOLCHADOS[Math.floorMod(x + z + 1, BloquesFiesta.ACOLCHADOS.length)]));
-			}
-			// como mucho SUB + 3: mas alto, al saltar la cabeza da contra el techo (el suelo de arriba)
-			int altura = Math.max(SUB + 1, Math.min(SUB + 3, y + (azar.nextInt(3) - (y >= SUB + 3 ? 1 : 0))));
-			int salto = altura > y ? 2 : 2 + azar.nextInt(2);
-			x += salto;
-			z = Math.max(z0 + 1, Math.min(z1 - 1, z + azar.nextInt(3) - 1));
-			y = altura;
-		}
-		caja(fx - 1, SUB + 1, fz - 1, fx + 2, SUB + 3, fz + 2, s(BloquesFiesta.ACOLCHADO_AMARILLO));
-		caja(fx, SUB + 3, fz, fx + 1, SUB + 3, fz + 1, s(BloquesFiesta.TRAMPILLA));
-		PARKOURS.add(new Parkour(PARKOURS.size(), nombre, x0, z0, x1, z1, px + 1.0, pz + 1.0, fx, fz, fx + 1, fz + 1,
-			CASTILLO_LLEGADA_X, CASTILLO_LLEGADA_Z, -90.0F, premio));
 	}
 
 	/* ------------------------------------------------------------ el castillo */
@@ -1371,7 +1284,7 @@ public final class PlanoFiesta {
 
 	/**
 	 * Al final, lo que tiene que pisar los muros de las salas: las puertas (de las habitaciones, la
-	 * roja de la salida y la del final), los pasos abiertos y los parches de suelo defectuoso.
+	 * roja de la salida y la del final), y los pasos abiertos.
 	 */
 	private static void conexiones() {
 		for (Object[] p : PENDIENTES) {
@@ -1384,14 +1297,7 @@ public final class PlanoFiesta {
 		aire(CAS_X + CAS_LADO + 1, CAS_P1 + 1, TOB_Z0, CAS_X + CAS_LADO + 1, CAS_P1 + 3, TOB_Z1);
 		puerta(PUERTA_FINAL_X, PUERTA_FINAL_Z, Direction.SOUTH, 0, 2, "la salida de la fiesta");
 		hueco(PUERTA_FINAL_X - 1, FIN_Z1 + 1, PUERTA_FINAL_X + 1, FIN_Z1 + 1);
-		// los parches de suelo defectuoso, del color del damero de su sitio
-		for (int[] c : PARCHES) {
-			int px = LAB_X + c[0] * CELDA + 1;
-			int pz = LAB_Z + c[1] * CELDA + 1;
-			caja(px, SUELO, pz, px + 1, SUELO, pz + 1, (x, y, z) -> BloquesFiesta.SUELO_DEFECTUOSO.defaultBlockState()
-				.setValue(SueloDefectuoso.VARIANTE, 2 + damero(x, z)));
-		}
-		nota(LAB_X + PARCHES[0][0] * CELDA + 3, LAB_Z + PARCHES[0][1] * CELDA + 3, 3);
+		nota(LAB_X + 3 * CELDA + 3, LAB_Z + 12 * CELDA + 3, 3);
 	}
 
 	/** La sala (por nombre) donde esta ese punto, o null. Las de despues (habitaciones) mandan. */

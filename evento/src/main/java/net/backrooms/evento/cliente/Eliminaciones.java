@@ -29,7 +29,7 @@ public final class Eliminaciones {
 	private static final int AMARILLO = 0xFFF2E6A0;
 	private static final int BLANCO = 0xFFFFFFFF;
 
-	private record Aviso(String nombre, int quedan, @Nullable Component cara) {
+	private record Aviso(String nombre, int quedan, @Nullable Component cara, String nivel) {
 	}
 
 	private static final Deque<Aviso> COLA = new ArrayDeque<>();
@@ -58,7 +58,7 @@ public final class Eliminaciones {
 		if (info != null) {
 			cara = Component.object(new PlayerSprite(ResolvableProfile.createResolved(info.getProfile()), true));
 		}
-		COLA.add(new Aviso(e.nombre(), e.quedan(), cara));
+		COLA.add(new Aviso(e.nombre(), e.quedan(), cara, e.nivel()));
 	}
 
 	private static float suave(float a, float b, float x) {
@@ -138,7 +138,7 @@ public final class Eliminaciones {
 		Texto.hud(g, nick, x - corre, yNick, tam, 0.08F, alfa(0x00D2FF, 0.45F * a));
 		Texto.hud(g, nick, x, yNick, tam, 0.08F, alfa(BLANCO, a));
 
-		String sub = "HA CAÍDO EN EL NIVEL 0   ·   QUEDAN " + av.quedan() + (av.quedan() == 1 ? " EXPLORADOR" : " EXPLORADORES");
+		String sub = "HA CAÍDO EN EL " + av.nivel() + "   ·   QUEDAN " + av.quedan() + (av.quedan() == 1 ? " EXPLORADOR" : " EXPLORADORES");
 		Texto.hud(g, sub, (w - Texto.anchoHud(sub, 9, 0.12F)) / 2.0F + dx, cy + mitad - 14, 9, 0.12F, alfa(AMARILLO, 0.85F * a));
 	}
 }

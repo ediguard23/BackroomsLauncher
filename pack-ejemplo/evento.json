@@ -1,6 +1,6 @@
 {
   "name": "BACKROOMS",
-  "level": "0",
+  "level": "todos",
   "minecraft": "1.21.11",
   "loader": "fabric",
   "loaderVersion": "0.19.5",
