@@ -14,6 +14,7 @@ import org.jspecify.annotations.Nullable;
  * Plugin de Simple Voice Chat (entrypoint "voicechat" de fabric.mod.json; solo se carga si
  * esta el mod de voz): quien esta en una cinematica (EnCinematica) ni habla ni oye. Y lo
  * que dice el staff con el megafono encendido (MegafonoStaff) lo oyen todos, sin distancia.
+ * En el cliente, ademas, el eco de las voces lejanas (cliente/EcoVoz).
  */
 public class VozCinematica implements VoicechatPlugin {
 	@Override
@@ -36,6 +37,9 @@ public class VozCinematica implements VoicechatPlugin {
 		registro.registerEvent(EntitySoundPacketEvent.class, VozCinematica::alOir);
 		registro.registerEvent(LocationalSoundPacketEvent.class, VozCinematica::alOir);
 		registro.registerEvent(StaticSoundPacketEvent.class, VozCinematica::alOir);
+		if (net.fabricmc.loader.api.FabricLoader.getInstance().getEnvironmentType() == net.fabricmc.api.EnvType.CLIENT) {
+			net.backrooms.evento.cliente.EcoVoz.registrar(registro);
+		}
 	}
 
 	/** La voz del staff a todos, como sonido sin posicion (en vez de solo a los de cerca). */

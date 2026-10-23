@@ -41,8 +41,9 @@ import org.jspecify.annotations.Nullable;
  * Cuantos hay y cuando salen lo decide AmasijoEstacion (uno por piso con gente; cada central que se
  * activa despierta alguno mas). No se le puede hacer dano y no sube escaleras: cada uno es de su piso.
  *  - Ronda por los pasillos de su laberinto, sin prisa. Las rejas cerradas le cortan el paso.
- *  - Si ve a alguien (sin paredes en medio, a DETECTA bloques) chilla y va a por el. A oscuras (sin
- *    gasolina en el generador) no le hace falta verte: te encuentra a DETECTA_OSCURO bloques. Va a
+ *  - Si ve a alguien (sin paredes en medio, a DETECTA bloques) chilla y va a por el. Si deja de
+ *    acercarse (una reja cerrada en medio, un sitio al que no llega), se calma un rato y vuelve a
+ *    deambular: no se queda esperando en la reja. Va a
  *    por el a VELOCIDAD (algo menos que correr: se le escapa rompiendo la linea de vision en los
  *    cruces). Si no le vuelve a ver en OLVIDA segundos, le deja.
  *  - Si le alcanza le AGARRA: no se puede mover y al segundo muere.
@@ -51,9 +52,12 @@ public class Amasijo extends Monster {
 	private static final double ALCANCE = 1.7;
 	private static final int AGARRE = 22;
 	private static final double DETECTA = 20.0;
-	private static final double DETECTA_OSCURO = 26.0;
-	private static final double VELOCIDAD = 5.0;
-	private static final double RONDA = 2.4;
+	/** Velocidades (bloques/s): un 15 % mas lento que al principio. */
+	private static final double VELOCIDAD = 4.25;
+	private static final double RONDA = 2.04;
+	/** Ticks sin acercarse a la presa hasta que se rinde, y lo que tarda en volver a buscar a nadie. */
+	private static final int ATASCADO = 40;
+	private static final int CALMA = 200;
 	private static final int OLVIDA = 70;
 
 	public static final ResourceKey<DamageType> ESTACION = ResourceKey.create(Registries.DAMAGE_TYPE, BackroomsEvento.id("estacion"));
@@ -62,6 +66,9 @@ public class Amasijo extends Monster {
 	private static final EntityDataAccessor<Boolean> AGARRANDO = SynchedEntityData.defineId(Amasijo.class, EntityDataSerializers.BOOLEAN);
 
 	private @Nullable Vec3 ultimaVista;
+	private double mejorDistancia = Double.MAX_VALUE;
+	private int sinAcercarse;
+	private int calmaHasta;
 	private int vistoEn;
 	private int siguienteRespira;
 	private int ultimoGrito = -1000;
@@ -144,11 +151,13 @@ public class Amasijo extends Monster {
 			this.setTarget(null);
 			t = null;
 		}
-		if (t == null) {
+		if (t == null && this.tickCount >= this.calmaHasta) {
 			ServerPlayer nuevo = this.buscar(nivel);
 			if (nuevo != null) {
 				this.setTarget(nuevo);
 				t = nuevo;
+				this.mejorDistancia = Double.MAX_VALUE;
+				this.sinAcercarse = 0;
 				if (this.tickCount - this.ultimoGrito > 120) {
 					this.ultimoGrito = this.tickCount;
 					nivel.playSound(null, this.getX(), this.getEyeY(), this.getZ(), Sonidos.AMASIJO_GRITO, SoundSource.HOSTILE, 3.5F, 0.9F + this.random.nextFloat() * 0.2F);
@@ -183,8 +192,22 @@ public class Amasijo extends Monster {
 		if (!camino || ruta == null || !ruta.canReach()) {
 			this.setTarget(null);
 			this.ronda = null;
+			this.calmaHasta = this.tickCount + CALMA;
 			this.getNavigation().stop();
 			this.entityData.set(CAZANDO, false);
+			return;
+		}
+		// si no consigue acercarse (la reja cerrada delante), se calma y se va a otro sitio
+		double d = this.distanceTo(t);
+		if (d < this.mejorDistancia - 0.4) {
+			this.mejorDistancia = d;
+			this.sinAcercarse = 0;
+		} else if (++this.sinAcercarse > ATASCADO && d > ALCANCE + 0.5) {
+			this.setTarget(null);
+			this.ronda = null;
+			this.getNavigation().stop();
+			this.entityData.set(CAZANDO, false);
+			this.calmaHasta = this.tickCount + CALMA;
 			return;
 		}
 		this.getLookControl().setLookAt(t, 30.0F, 30.0F);
@@ -210,8 +233,7 @@ public class Amasijo extends Monster {
 
 	/** Le ve: sin paredes en medio y cerca (con luz, mas lejos: la luz te deja expuesto). */
 	private boolean ve(ServerLevel nivel, ServerPlayer j) {
-		boolean oscuro = !JuegoEstacion.get().corriente();
-		return oscuro ? this.distanceTo(j) <= DETECTA_OSCURO : this.distanceTo(j) <= DETECTA && this.hasLineOfSight(j);
+		return this.distanceTo(j) <= DETECTA && this.hasLineOfSight(j);
 	}
 
 	private @Nullable ServerPlayer buscar(ServerLevel nivel) {

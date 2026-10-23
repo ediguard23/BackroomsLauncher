@@ -6,7 +6,7 @@
  *   node tools/texturas/estacion.js   (va en npm run texturas)
  *
  * Una central vieja que nadie mantiene: hormigon con humedad, paredes pintadas de verde palido y
- * desconchadas, franjas con el color de cada sector, chapa estriada, generador naranja, bidones
+ * desconchadas, franjas con el color de cada sector, chapa estriada, marcos de acero de las rejas, bidones
  * amarillos, cuadros electricos con relojes y carteles de mantenimiento con numeros en vez de
  * nombres. Las instrucciones del acceso estan rotas: se leen a medias.
  */
@@ -158,51 +158,18 @@ const lampara = (encendida) => new Lienzo(32).pintar((x, y) => {
 guardar(TEX, 'lampara_estacion', lampara(true));
 guardar(TEX, 'lampara_fundida', lampara(false));
 
-/* ============================================================ generador */
+/* ============================================================ el marco de las rejas */
 
-guardar(TEX, 'generador_carcasa', new Lienzo(32).pintar((x, y) => {
-  let c = metal(x, y, 1110, NARANJA, 32);
-  // rejillas de ventilacion
-  if (y >= 6 && y <= 17 && x >= 5 && x <= 26 && (y - 6) % 3 === 0) c = [36, 30, 26];
-  if (y >= 6 && y <= 17 && x >= 5 && x <= 26 && (y - 6) % 3 === 1) c = escala(NARANJA, 1.12);
-  // franja de aviso abajo
-  if (y >= 26) c = aviso(x, y);
-  // tornillos
-  if ((x === 2 || x === 29) && (y === 2 || y === 23)) c = [190, 190, 186];
+/** Acero pintado de gris: un perfil con sus cantos, remaches y algo de desgaste. */
+const marco = (x, y, canal = 1110) => {
+  let c = escala([92, 96, 100], 0.86 + fbm(x, y, canal, 16) * 0.2 + hash(x, y, canal + 1) * 0.05);
+  if (x <= 1 || x >= 14) c = escala(c, 0.72);                    // los cantos del perfil
+  if (x === 2 || x === 13) c = escala(c, 1.18);                  // el brillo del borde
+  if ((x === 3 || x === 12) && (y === 2 || y === 13)) c = [176, 178, 180]; // remaches
+  if (fbm(x, y * 0.5, canal + 2, 16) > 0.7) c = mezcla(c, [120, 82, 52], 0.35); // oxido
   return c;
-}));
-guardar(TEX, 'generador_radiador', new Lienzo(32).pintar((x, y) => {
-  if (x < 3 || y < 3 || x > 28 || y > 28) return metal(x, y, 1120, NARANJA, 32);
-  // aletas del radiador
-  const aleta = (x - 3) % 2 === 0;
-  return escala(aleta ? [70, 72, 72] : [28, 30, 30], 0.9 + hash(x, y, 1121) * 0.15);
-}));
-guardar(TEX, 'generador_tapa', new Lienzo(32).pintar((x, y) => {
-  let c = metal(x, y, 1130, escala(NARANJA, 0.92), 32);
-  if ((x === 3 || x === 28) && y >= 3 && y <= 28) c = [120, 64, 20];
-  if ((y === 3 || y === 28) && x >= 3 && x <= 28) c = [120, 64, 20];
-  if (x % 8 === 4 && y % 8 === 4) c = [190, 190, 186];
-  return c;
-}));
-guardar(TEX, 'boca_combustible', (() => {
-  const l = new Lienzo(64).pintar((x, y) => metal(x, y, 1140, NARANJA, 64));
-  l.disco(31.5, 26, 13, [60, 60, 58]);
-  l.disco(31.5, 26, 10.5, [168, 168, 160]);
-  l.disco(31.5, 26, 6, [120, 120, 114]);
-  l.rect(21, 25, 42, 27, [90, 90, 86]);
-  // la etiqueta
-  l.rect(10, 44, 53, 56, NEGRO);
-  l.rect(11, 45, 52, 55, [236, 200, 50]);
-  l.texto('GASOIL', 'centro', 47, [20, 20, 20]);
-  return l;
-})());
-guardar(TEX, 'tubo_escape', new Lienzo(16).pintar((x, y) => {
-  let c = escala([88, 84, 80], 0.85 + fbm(x, y, 1150, 16) * 0.25);
-  const calor = fbm(x * 0.5, y * 2, 1151, 16);
-  if (calor > 0.6) c = mezcla(c, [110, 70, 50], (calor - 0.6) * 1.5);
-  if (y % 8 === 0) c = [56, 54, 52];
-  return c;
-}));
+};
+guardar(TEX, 'marco_reja', new Lienzo(16).pintar((x, y) => marco(x, y)));
 
 /* ============================================================ modelos: ayudas */
 
@@ -250,24 +217,13 @@ const FAC = Object.keys(FACINGS);
 /* ============================================================ bloques simples */
 
 for (const n of ['hormigon_estacion', 'pared_pintada', 'suelo_estacion', 'suelo_estacion_manchado', 'chapa_estacion', 'rejilla_estacion',
-  'techo_estacion', 'techo_tubos', 'lampara_estacion', 'lampara_fundida', 'generador_carcasa', 'generador_tapa']) {
+  'techo_estacion', 'techo_tubos', 'lampara_estacion', 'lampara_fundida', 'marco_reja']) {
   cubo(n);
   simple(n);
 }
-json('models/block/macizo_estacion.json', { parent: 'minecraft:block/block', textures: { particle: t('generador_carcasa') }, elements: [] });
-simple('macizo_estacion');
 SECTOR_NOMBRE.forEach((n) => cubo(`franja_sector_${n}`));
 estados('franja_sector', { color: rango(4) }, (e) => `franja_sector_${SECTOR_NOMBRE[e.color]}`, 'franja_sector_rojo');
-for (const n of ['generador_radiador', 'boca_combustible']) {
-  json(`models/block/${n}.json`, { parent: 'minecraft:block/orientable', textures: { front: t(n), side: t('generador_carcasa'), top: t('generador_tapa') } });
-  estados(n, { facing: FAC }, () => n, n);
-}
-json('models/block/tubo_escape.json', mod({ t: t('tubo_escape'), particle: t('tubo_escape') }, [
-  caja([4, 0, 4], [12, 16, 12], '#t'),
-  caja([3, 14, 3], [13, 16, 13], '#t')
-]));
-simple('tubo_escape');
-console.log('  estructura y generador');
+console.log('  estructura');
 
 /* ============================================================ en la pared */
 
@@ -626,10 +582,10 @@ json('models/block/panel_reparado.json', mod({ f: t('panel_cerrado'), m: caja_pa
 ]));
 estados('panel_averiado', { facing: FAC, tipo: rango(8), hecho: [false, true] }, (e) => (e.hecho ? 'panel_reparado' : `panel_averiado_${e.tipo % 3}`), 'panel_averiado_0');
 
-// la caja de fusible de una reja: metida en el muro, se ve por los dos lados; con el fusible, la luz verde
+// la caja de fusible de una reja: en el marco de la derecha, se ve por todos los lados; con el fusible, la luz verde
 for (const hecho of [false, true]) {
   const n = hecho ? 'caja_fusible_puesto' : 'caja_fusible';
-  const l = new Lienzo(16).pintar((x, y) => pintada(x, y, 1550, 16));
+  const l = new Lienzo(16).pintar((x, y) => marco(x, y, 1550));
   l.rect(3, 1, 12, 14, [40, 40, 40]);
   l.rect(4, 2, 11, 13, [96, 100, 104]);
   l.rect(4, 2, 11, 3, AMARILLO);
@@ -637,7 +593,7 @@ for (const hecho of [false, true]) {
   if (hecho) { l.rect(7, 5, 8, 12, [236, 232, 220]); l.rect(7, 7, 8, 9, AMARILLO); }
   l.rect(10, 5, 10, 6, hecho ? [60, 230, 80] : [200, 40, 30]);
   guardar(TEX, n, l);
-  json(`models/block/${n}.json`, { parent: 'minecraft:block/cube', textures: { north: t(n), south: t(n), east: t('pared_pintada'), west: t('pared_pintada'), up: t('hormigon_estacion'), down: t('hormigon_estacion'), particle: t(n) } });
+  json(`models/block/${n}.json`, { parent: 'minecraft:block/cube', textures: { north: t(n), south: t(n), east: t(n), west: t(n), up: t('marco_reja'), down: t('marco_reja'), particle: t(n) } });
 }
 json('blockstates/caja_fusible.json', { variants: { 'hecho=false': { model: t('caja_fusible') }, 'hecho=true': { model: t('caja_fusible_puesto') } } });
 json('items/caja_fusible.json', { model: { type: 'minecraft:model', model: t('caja_fusible') } });
@@ -685,94 +641,6 @@ estados('persiana_estacion', { facing: FAC, parte: rango(9), abierta: [false, tr
     { from: [2.5, 2, 1], to: [3, 14, 10], faces: { west: { texture: '#d', uv: [0, 0, 16, 16] }, east: { texture: '#d', uv: [0, 0, 16, 16] }, north: { texture: '#m' }, south: { texture: '#m' }, up: { texture: '#m' }, down: { texture: '#m' } } }
   ]));
   estados('buzon_estacion', { facing: FAC, abierta: [false, true] }, (e) => (e.abierta ? 'buzon_abierto' : 'buzon_cerrado'), 'buzon_cerrado');
-}
-
-// el generador grande (4 x 3 x 3 bloques): frente con el cuadro de mandos, laterales de radiador, tapa
-{
-  const naranja = (x, y, canal) => metal(x, y, canal, NARANJA, 64);
-  const frente = new Lienzo(64).pintar((x, y) => {
-    if (y >= 48) return null;
-    let c = naranja(x, y, 1700);
-    if (x < 2 || x > 61 || y < 2) c = escala(NARANJA, 0.6);
-    if (y >= 42) c = aviso(x, y, 4);
-    if (x >= 34 && x <= 60 && y >= 17 && y <= 38) c = (y - 17) % 3 === 0 ? [34, 28, 24] : escala(NARANJA, 1.08);   // rejilla
-    return c;
-  });
-  // el cuadro de mandos: relojes, la pantalla, las luces y la seta de parada
-  frente.rect(4, 5, 30, 38, [40, 42, 44]);
-  frente.rect(5, 6, 29, 37, [62, 66, 70]);
-  for (const gx of [10, 18, 26]) {
-    frente.disco(gx, 12, 3.6, [24, 24, 24]);
-    frente.disco(gx, 12, 2.8, [236, 232, 214]);
-    frente.linea(gx, 12, gx + 1.8, 10.5, [200, 30, 30], 1);
-  }
-  frente.rect(7, 19, 27, 25, [16, 30, 20]);
-  frente.texto('050', 9, 18, [90, 230, 120]);
-  frente.disco(9, 31, 1.6, [70, 230, 90]);
-  frente.disco(14, 31, 1.6, [230, 60, 40]);
-  frente.disco(24, 31, 3.6, AMARILLO);
-  frente.disco(24, 31, 2.6, [200, 30, 30]);
-  frente.rect(36, 5, 58, 13, [236, 232, 214]);
-  frente.texto('G-01', 36, 6, [40, 40, 40]);
-  for (const [bx, by] of [[3, 3], [60, 3], [3, 40], [60, 40], [32, 3], [32, 40]]) frente.punto(bx, by, [200, 200, 196]);
-  guardar(TEX, 'generador_frente', frente);
-  const lado = new Lienzo(64).pintar((x, y) => {
-    if (x >= 48 || y >= 48) return null;
-    if (x < 3 || x > 44 || y < 3) return naranja(x, y, 1710);
-    if (y >= 42) return aviso(x, y, 4);
-    if (y > 38) return naranja(x, y, 1711);
-    return escala((x - 3) % 2 === 0 ? [70, 72, 72] : [26, 28, 28], 0.9 + hash(x, y, 1712) * 0.15);
-  });
-  lado.poligono([[38, 5], [43, 13], [33, 13]], AMARILLO);
-  lado.punto(38, 11, NEGRO);
-  lado.rect(38, 8, 38, 9, NEGRO);
-  guardar(TEX, 'generador_lado', lado);
-  const atras = new Lienzo(64).pintar((x, y) => {
-    if (y >= 48) return null;
-    let c = naranja(x, y, 1720);
-    if (y >= 42) c = aviso(x, y, 4);
-    else if (x >= 6 && x <= 57 && y >= 8 && y <= 36 && (y - 8) % 4 < 2) c = [34, 28, 24];
-    return c;
-  });
-  guardar(TEX, 'generador_atras', atras);
-  const tapa = new Lienzo(64).pintar((x, y) => {
-    if (y >= 48) return null;
-    let c = metal(x, y, 1730, escala(NARANJA, 0.92), 64);
-    if ((x === 2 || x === 61) || (y === 2 || y === 45)) c = [120, 64, 20];
-    if (x % 16 === 8 && y % 16 === 8 && !(x === 24 && y === 24)) c = [196, 196, 190];
-    return c;
-  });
-  tapa.disco(24, 24, 6, [50, 48, 46]);
-  tapa.disco(24, 24, 4, [16, 14, 12]);
-  tapa.disco(48, 12, 3, [40, 40, 40]);
-  tapa.disco(48, 12, 2, [170, 170, 164]);
-  tapa.rect(6, 30, 18, 40, [120, 64, 20]);
-  tapa.rect(7, 31, 17, 39, escala(NARANJA, 1.1));
-  guardar(TEX, 'generador_tapa_grande', tapa);
-  // las 36 piezas: cada cara de fuera con su trozo (UV en dieciseisavos de la textura de 64)
-  const trozo = (c, r) => [c * 4, r * 4, c * 4 + 4, r * 4 + 4];
-  const v = {};
-  for (let k = 0; k < 3; k++) {
-    for (let j = 0; j < 3; j++) {
-      for (let i = 0; i < 4; i++) {
-        const n = i + 4 * (j + 3 * k);
-        const caras = {};
-        const pon = (lado2, tex, uv) => { caras[lado2] = { texture: tex, uv, cullface: lado2 }; };
-        pon('south', '#fr', k === 2 ? trozo(i, 2 - j) : trozo(0, 0));
-        pon('north', '#at', k === 0 ? trozo(3 - i, 2 - j) : trozo(0, 0));
-        pon('west', '#la', i === 0 ? trozo(k, 2 - j) : trozo(0, 0));
-        pon('east', '#la', i === 3 ? trozo(2 - k, 2 - j) : trozo(0, 0));
-        pon('up', '#ta', j === 2 ? trozo(i, k) : trozo(0, 0));
-        pon('down', '#ta', trozo(0, 0));
-        json(`models/block/generador_estacion_${n}.json`, { parent: 'minecraft:block/block',
-          textures: { fr: t('generador_frente'), at: t('generador_atras'), la: t('generador_lado'), ta: t('generador_tapa_grande'), particle: t('generador_frente') },
-          elements: [{ from: [0, 0, 0], to: [16, 16, 16], faces: caras }] });
-        v[`pieza=${n}`] = { model: t(`generador_estacion_${n}`) };
-      }
-    }
-  }
-  json('blockstates/generador_estacion.json', { variants: v });
-  json('items/generador_estacion.json', { model: { type: 'minecraft:model', model: t('generador_estacion_9') } });
 }
 
 // las rejas de los laberintos (y la puerta encadenada del final): barrotes de acero con travesanos
@@ -848,14 +716,6 @@ objeto('cinta_aislante', (x, y) => {
   if (x >= 11 && x <= 13 && y >= 9 && y <= 15 && x - 11 <= (y - 9) / 2.5 + 1) return y === 15 ? [20, 20, 24] : [56, 58, 66]; // la punta
   return null;
 });
-objeto('bidon_combustible', (x, y) => {
-  if (y >= 1 && y <= 3 && x >= 5 && x <= 10) return (y === 1 || x === 5 || x === 10) ? [180, 140, 30] : null;
-  if (y >= 1 && y <= 3 && x >= 11 && x <= 12) return [40, 40, 40];
-  if (y < 4 || y > 15 || x < 2 || x > 13) return null;
-  let c = escala(AMARILLO, 0.85 + (x < 6 ? 0.15 : 0));
-  if ((x - 2) === (y - 4) || (13 - x) === (y - 4)) c = escala(c, 0.8); // la X de la chapa
-  return c;
-});
 objeto('fusible', (x, y) => {
   // un fusible de cartucho en diagonal: puntas de metal, cuerpo de ceramica blanco y la banda amarilla
   const t = ((x - 7.5) - (y - 7.5)) / Math.SQRT2;
@@ -878,6 +738,18 @@ for (const viejo of ['fusible_rojo', 'fusible_amarillo', 'fusible_azul', 'fusibl
     if (fs.existsSync(ruta)) fs.unlinkSync(ruta);
   }
 }
+{
+  const fuera = [
+    ...['generador_carcasa', 'generador_radiador', 'generador_tapa', 'boca_combustible', 'tubo_escape', 'generador_frente', 'generador_lado',
+      'generador_atras', 'generador_tapa_grande'].map((n) => path.join(TEX, n + '.png')),
+    path.join(ITEM, 'bidon_combustible.png'), path.join(ASSETS, 'models', 'item', 'bidon_combustible.json'), path.join(ASSETS, 'items', 'bidon_combustible.json')
+  ];
+  for (const n of ['generador_carcasa', 'generador_radiador', 'generador_tapa', 'boca_combustible', 'tubo_escape', 'macizo_estacion', 'generador_estacion']) {
+    fuera.push(path.join(ASSETS, 'models', 'block', n + '.json'), path.join(ASSETS, 'blockstates', n + '.json'), path.join(ASSETS, 'items', n + '.json'));
+  }
+  for (let n = 0; n < 36; n++) fuera.push(path.join(ASSETS, 'models', 'block', `generador_estacion_${n}.json`));
+  for (const ruta of fuera) if (fs.existsSync(ruta)) fs.unlinkSync(ruta);
+}
 console.log('  objetos');
 
 /* ============================================================ nombres */
@@ -894,12 +766,7 @@ const NOMBRES = {
   techo_tubos: ['Techo con bandeja de cables', 'Cable tray ceiling'],
   lampara_estacion: ['Lámpara enjaulada', 'Caged lamp'],
   lampara_fundida: ['Lámpara fundida', 'Burnt-out lamp'],
-  macizo_estacion: ['Macizo', 'Solid'],
-  generador_carcasa: ['Carcasa del generador', 'Generator casing'],
-  generador_radiador: ['Radiador del generador', 'Generator radiator'],
-  generador_tapa: ['Tapa del generador', 'Generator top'],
-  boca_combustible: ['Boca del depósito', 'Fuel inlet'],
-  tubo_escape: ['Tubo de escape', 'Exhaust pipe'],
+  marco_reja: ['Marco de la reja', 'Gate frame'],
   tuberias_pared: ['Tuberías', 'Pipes'],
   cuadro_electrico: ['Cuadro eléctrico', 'Electrical box'],
   senal_estacion: ['Cartel', 'Sign'],
@@ -918,7 +785,6 @@ const NOMBRES = {
   caja_fusible: ['Caja de fusible', 'Fuse box'],
   reja_estacion: ['Reja', 'Gate'],
   buzon_estacion: ['Buzón', 'Mailbox'],
-  generador_estacion: ['Generador', 'Generator'],
   persiana_estacion: ['Persiana metálica', 'Roller shutter'],
   foco_pasarela: ['Foco de la pasarela', 'Catwalk light']
 };
@@ -926,11 +792,10 @@ const OTROS = {
   'item.backrooms_evento.cable_electrico': ['Cable eléctrico', 'Electrical cable'],
   'item.backrooms_evento.cizalla': ['Cizalla', 'Bolt cutters'],
   'item.backrooms_evento.cinta_aislante': ['Cinta aislante', 'Insulating tape'],
-  'item.backrooms_evento.bidon_combustible': ['Bidón de gasoil', 'Fuel can'],
   'item.backrooms_evento.fusible': ['Fusible', 'Fuse'],
   'entity.backrooms_evento.amasijo': ['El Amasijo', 'The Tangle'],
-  'death.attack.backrooms_evento.estacion': ['%1$s se quedó a oscuras en la Estación', '%1$s was left in the dark at the Station'],
-  'death.attack.backrooms_evento.estacion.player': ['%2$s arrastró a %1$s a los pasillos sin luz', '%2$s dragged %1$s into the unlit corridors']
+  'death.attack.backrooms_evento.estacion': ['%1$s no salió de la Estación', '%1$s never left the Station'],
+  'death.attack.backrooms_evento.estacion.player': ['%2$s arrastró a %1$s entre los transformadores', '%2$s dragged %1$s between the transformers']
 };
 for (const [archivo, k] of [['es_es.json', 0], ['en_us.json', 1]]) {
   const f = path.join(ASSETS, 'lang', archivo);
@@ -938,7 +803,9 @@ for (const [archivo, k] of [['es_es.json', 0], ['en_us.json', 1]]) {
   for (const [id, v] of Object.entries(NOMBRES)) lang[`block.${NS}.${id}`] = v[k];
   for (const [id, v] of Object.entries(OTROS)) lang[id] = v[k];
   for (const viejo of ['block.backrooms_evento.interruptor', 'item.backrooms_evento.caja_herramientas', 'item.backrooms_evento.fusible_rojo',
-    'item.backrooms_evento.fusible_amarillo', 'item.backrooms_evento.fusible_azul', 'item.backrooms_evento.fusible_verde']) delete lang[viejo];
+    'item.backrooms_evento.fusible_amarillo', 'item.backrooms_evento.fusible_azul', 'item.backrooms_evento.fusible_verde',
+    'item.backrooms_evento.bidon_combustible', ...['macizo_estacion', 'generador_carcasa', 'generador_radiador', 'generador_tapa', 'boca_combustible',
+      'tubo_escape', 'generador_estacion'].map((n) => `block.backrooms_evento.${n}`)]) delete lang[viejo];
   fs.writeFileSync(f, JSON.stringify(lang, null, 2) + '\n');
 }
 console.log('  lang: la estacion');

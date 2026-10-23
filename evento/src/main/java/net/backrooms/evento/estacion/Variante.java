@@ -50,26 +50,6 @@ public final class Variante {
 		}
 	}
 
-	/** Un bloque entero que mira a un lado (el radiador del generador). */
-	public static class Orientado extends net.minecraft.world.level.block.HorizontalDirectionalBlock {
-		public static final MapCodec<Orientado> CODEC = simpleCodec(Orientado::new);
-
-		public Orientado(BlockBehaviour.Properties p) {
-			super(p);
-			this.registerDefaultState(this.stateDefinition.any().setValue(FACING, net.minecraft.core.Direction.NORTH));
-		}
-
-		@Override
-		protected MapCodec<? extends Orientado> codec() {
-			return CODEC;
-		}
-
-		@Override
-		protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b) {
-			b.add(FACING);
-		}
-	}
-
 	/** Algo en el suelo y orientado (armarios, transformadores, bidones, estanterias...). */
 	public static class Suelo extends EnSuelo {
 		public static final MapCodec<Suelo> CODEC = simpleCodec(p -> new Suelo(p, Block.box(0, 0, 0, 16, 16, 16), Block.box(0, 0, 0, 16, 16, 16)));

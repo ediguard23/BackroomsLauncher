@@ -283,10 +283,7 @@ public final class Comandos {
 				.then(Commands.literal("ir").then(Commands.argument("sala", StringArgumentType.word())
 					.suggests((c, b) -> SharedSuggestionProvider.suggest(net.backrooms.evento.estacion.PlanoEstacion.SALAS.stream().map(s -> s.nombre()).distinct(), b))
 					.executes(c -> estacionIr(c, StringArgumentType.getString(c, "sala")))))
-				.then(Commands.literal("combustible").then(Commands.argument("n", IntegerArgumentType.integer(0, 100)).executes(c -> {
-					net.backrooms.evento.estacion.JuegoEstacion.get().combustible(IntegerArgumentType.getInteger(c, "n"));
-					return estacionVer(c);
-				})))
+				.then(Commands.literal("reja").then(Commands.argument("n", IntegerArgumentType.integer(0)).executes(c -> estacionReja(c, IntegerArgumentType.getInteger(c, "n")))))
 				.then(Commands.literal("avanzar").executes(c -> {
 					net.backrooms.evento.estacion.JuegoEstacion.get().avanzar();
 					return estacionVer(c);
@@ -297,7 +294,7 @@ public final class Comandos {
 					if (n != null) {
 						net.backrooms.evento.estacion.AmasijoEstacion.get().quitarTodos(n);
 					}
-					c.getSource().sendSuccess(() -> Component.literal("Estación como al principio (generador al 40 %, rejas cerradas, centrales sin nada, cadena puesta)."), true);
+					c.getSource().sendSuccess(() -> Component.literal("Estación como al principio (rejas cerradas, centrales sin nada, cadena puesta)."), true);
 					return 1;
 				}))
 				.then(Commands.literal("ver").executes(Comandos::estacionVer)))
@@ -531,12 +528,26 @@ public final class Comandos {
 				double x = esquina ? s.x0() + 1.5 : (s.x0() + s.x1()) / 2.0 + 0.5;
 				double z = esquina ? s.z0() + 1.5 : (s.z0() + s.z1()) / 2.0 + 0.5;
 				j.teleportTo(n, x, s.y() + 1, z, java.util.Set.of(), j.getYRot(), 0.0F, true);
-				net.backrooms.evento.estacion.JuegoEstacion.get().enviar(j);
 				return 1;
 			}
 		}
 		c.getSource().sendFailure(Component.literal("No hay sala " + nombre));
 		return 0;
+	}
+
+	/** Delante de la reja n (por el lado de abajo), mirandola. */
+	private static int estacionReja(CommandContext<CommandSourceStack> c, int n) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		ServerPlayer j = c.getSource().getPlayerOrException();
+		ServerLevel nivel = net.backrooms.evento.estacion.Estacion.nivel();
+		var rejas = net.backrooms.evento.estacion.PlanoEstacion.REJAS;
+		if (nivel == null || n >= rejas.size()) {
+			c.getSource().sendFailure(Component.literal("Hay " + rejas.size() + " rejas (0 a " + (rejas.size() - 1) + ")."));
+			return 0;
+		}
+		var r = rejas.get(n);
+		net.minecraft.core.Direction m = r.mira();
+		j.teleportTo(nivel, r.x() + 0.5 - 2.5 * m.getStepX(), r.y() + 1, r.z() + 0.5 - 2.5 * m.getStepZ(), java.util.Set.of(), m.toYRot(), 10.0F, true);
+		return 1;
 	}
 
 	private static int estacionVer(CommandContext<CommandSourceStack> c) {

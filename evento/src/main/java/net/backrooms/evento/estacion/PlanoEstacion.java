@@ -13,15 +13,15 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * El trazado de la Estacion Electrica (Nivel 3), como la de Backrooms: Escape Together. Todo el nivel
- * sube en diagonal hacia el norte: se empieza abajo, en la sala del GENERADOR (y = 34), se sale por una
- * reja (el tutorial: un fusible en su caja) y se sube una escalera hasta el PISO 1. Cada piso es un
- * laberinto de tres zonas, cada una 4 bloques mas alta que la anterior; entre zona y zona, dos rejas
- * con su escalera (y la caja del fusible al lado, por los dos lados). Arriba del todo, un pasillo largo
+ * sube en diagonal hacia el norte: se aparece en un sitio al azar de la zona de abajo del PISO 1 (SPAWNS).
+ * Cada piso es un laberinto de tres zonas, cada una 4 bloques mas alta que la anterior; entre zona y
+ * zona, dos REJAS (puertas corredizas: la hoja del medio se desliza a la izquierda cuando se pone el
+ * fusible en la caja del marco de la derecha) con su escalera. Arriba del todo, un pasillo largo
  * de lado a lado y, en un costado, la CENTRAL: fusibles, cinta y cable. Activa, abre su puerta y por
  * ahi se pasa, a la misma altura, al piso siguiente. La central del piso 3 abre la PASARELA; al otro
  * lado, la puerta encadenada (la cizalla).
  *
- * Por los laberintos, en los callejones: fusibles, bidones de gasolina, cinta, cable (los materiales,
+ * Por los laberintos, en los callejones: fusibles, cinta, cable (los materiales,
  * sobre todo en las zonas de abajo: hay que volver a por ellos), comida, BUZONES (se abren con un
  * fusible, que se queda dentro, y tienen algo... o nada) y dos TRASTEROS cerrados con reja.
  *
@@ -30,8 +30,6 @@ import net.minecraft.world.level.block.state.BlockState;
  */
 public final class PlanoEstacion {
 	public static final int PISOS = 3;
-	/** El suelo de la sala del generador. */
-	public static final int SUELO = 34;
 	/** La base (zona de abajo) de cada piso: cada zona sube ZONA_SUBE y el piso siguiente empieza donde acaba el anterior. */
 	public static final int[] BASES = {40, 48, 56};
 	public static final int ZONA_SUBE = 4;
@@ -51,7 +49,6 @@ public final class PlanoEstacion {
 	public static final int CABLE = 0;
 	public static final int CIZALLA = 1;
 	public static final int CINTA = 2;
-	public static final int BIDON = 3;
 	public static final int FUSIBLE = 4;
 
 	/** Lo que pide la central de cada piso: {fusibles, cintas, cables}. */
@@ -83,14 +80,24 @@ public final class PlanoEstacion {
 	 * Una puerta de 3x3 (persiana o reja): el bloque de abajo a un lado, hacia donde se extiende
 	 * (`lado`) y hacia donde mira; y = el suelo. Las rejas llevan su caja de fusible (`caja`).
 	 */
-	public record Puerta(int id, int x, int y, int z, Direction mira, Direction lado, int piso, int @org.jspecify.annotations.Nullable [] caja) {
+	public record Puerta(int id, int x, int y, int z, Direction mira, Direction lado, int piso, int @org.jspecify.annotations.Nullable [] caja, int ancho) {
+		/** Cuantos bloques tiene (3 de alto por cada columna). */
+		public int partes() {
+			return this.ancho * 3;
+		}
+
+		/** Si es corrediza (una hoja que se desliza hacia el marco de la izquierda) y no una persiana que sube. */
+		public boolean corrediza() {
+			return this.ancho == 1;
+		}
+
 		public int[] bloque(int parte) {
 			int col = parte / 3;
 			return new int[] {this.x + this.lado.getStepX() * col, this.y + 1 + parte % 3, this.z + this.lado.getStepZ() * col};
 		}
 
 		public boolean es(int bx, int by, int bz) {
-			for (int k = 0; k < 9; k++) {
+			for (int k = 0; k < this.partes(); k++) {
 				int[] b = this.bloque(k);
 				if (b[0] == bx && b[1] == by && b[2] == bz) {
 					return true;
@@ -108,7 +115,7 @@ public final class PlanoEstacion {
 	public static final List<Sala> SALAS = new ArrayList<>();
 	public static final List<Punto> PUNTOS = new ArrayList<>();
 	public static final List<Buzon> BUZONES = new ArrayList<>();
-	/** Las rejas (con su caja de fusible): la del tutorial, las de las escaleras y las de los trasteros. */
+	/** Las rejas (puertas corredizas con su caja de fusible): las de las escaleras y las de los trasteros. */
 	public static final List<Puerta> REJAS = new ArrayList<>();
 	/** La puerta de cada central (al piso siguiente; la del piso 3, a la pasarela). */
 	public static final Puerta[] SALIDAS = new Puerta[PISOS];
@@ -116,14 +123,12 @@ public final class PlanoEstacion {
 	public static final Central[] CENTRALES = new Central[PISOS];
 	/** Los focos de la pasarela, en el orden en que se encienden. */
 	public static final List<int[]> FOCOS = new ArrayList<>();
-	/** El generador: su pieza de abajo al suroeste, la boca y el centro (de ahi sale su zumbido). */
-	public static final int[] GEN = {-2, SUELO + 1, 18};
-	public static final int[] BOCA = {3, SUELO + 1, 21};
-	public static final double[] GENERADOR = {0.0, SUELO + 2.5, 19.5};
 	/** Por donde ronda la entidad: {x, z, piso, y del suelo}, el centro de las celdas de los laberintos. */
 	public static final List<int[]> RONDA = new ArrayList<>();
-	/** Donde se aparece en cada piso: {x, y (los pies), z, giro}. El 0, en la sala del generador. */
+	/** Donde se aparece en cada piso: {x, y (los pies), z, giro}. En el 0, uno de SPAWNS al azar. */
 	public static final double[][] LLEGADAS = new double[PISOS][];
+	/** Los sitios donde se aparece al llegar (la zona de abajo del piso 1): {x, y (los pies), z, giro}. */
+	public static final List<double[]> SPAWNS = new ArrayList<>();
 	/** La comida: {x, z, tipo de Plano.C_*, y (los pies)}. */
 	public static final List<int[]> COMIDA = new ArrayList<>();
 	/** Detras de la puerta del final: quien llega aqui sale del nivel {x0, z0, x1, z1, y}. */
@@ -236,20 +241,29 @@ public final class PlanoEstacion {
 	}
 
 	/** Una persiana (o reja) de 3x3. */
-	private static Puerta puerta(Block b, int id, int x, int y, int z, Direction mira, Direction lado, int piso, int[] caja) {
-		Puerta p = new Puerta(id, x, y, z, mira, lado, piso, caja);
-		for (int k = 0; k < 9; k++) {
+	private static Puerta puerta(Block b, int id, int x, int y, int z, Direction mira, Direction lado, int piso, int[] caja, int ancho) {
+		Puerta p = new Puerta(id, x, y, z, mira, lado, piso, caja, ancho);
+		for (int k = 0; k < p.partes(); k++) {
 			int[] c = p.bloque(k);
 			bloque(c[0], c[1], c[2], mira(b, mira).setValue(Interactivos.PARTE, k));
 		}
 		return p;
 	}
 
-	/** Una reja con su caja de fusible (un bloque entero en el muro: se ve por los dos lados). */
-	private static void reja(int x, int y, int z, Direction lado, int piso, int[] caja) {
+	/**
+	 * Una reja en un hueco de 3 (desde x, z hacia `lado`): el marco de la izquierda fijo (alli se mete la hoja
+	 * al abrirse), la hoja corrediza en medio y el marco de la derecha con la caja del fusible en medio
+	 * (se ve y se usa por los dos lados).
+	 */
+	private static void reja(int x, int y, int z, Direction lado, int piso) {
 		Direction mira = lado == Direction.EAST ? Direction.NORTH : Direction.EAST;
-		REJAS.add(puerta(BloquesEstacion.REJA, REJAS.size(), x, y, z, mira, lado, piso, caja));
+		int dx = lado.getStepX();
+		int dz = lado.getStepZ();
+		caja(x, y + 1, z, x, y + 3, z, s(BloquesEstacion.MARCO_REJA));
+		caja(x + 2 * dx, y + 1, z + 2 * dz, x + 2 * dx, y + 3, z + 2 * dz, s(BloquesEstacion.MARCO_REJA));
+		int[] caja = {x + 2 * dx, y + 2, z + 2 * dz};
 		bloque(caja[0], caja[1], caja[2], s(BloquesEstacion.CAJA_REJA));
+		REJAS.add(puerta(BloquesEstacion.REJA, REJAS.size(), x + dx, y, z + dz, mira, lado, piso, caja, 1));
 	}
 
 	private static void punto(int x, int y, int z, int tipo, Direction mira, int piso) {
@@ -269,7 +283,6 @@ public final class PlanoEstacion {
 	/* ------------------------------------------------------------- el plano */
 
 	static {
-		generador();
 		int s = 0;
 		for (int p = 0; p < PISOS; p++) {
 			INICIO[p] = s;
@@ -292,71 +305,6 @@ public final class PlanoEstacion {
 		Z1 = z1;
 	}
 
-	/**
-	 * La sala del generador (donde se empieza): limpia y simetrica, el generador grande en medio, la
-	 * reja del tutorial al norte (un fusible en la estanteria de al lado) y detras la escalera al piso 1.
-	 */
-	private static void generador() {
-		int y = SUELO;
-		sala("generador", 0, y, -9, 14, 9, 30, 8, (x, yy, z) -> Math.abs(x) <= 4 && z >= 16 && z <= 23 ? s(BloquesEstacion.CHAPA) : s(BloquesEstacion.SUELO), 0, 6);
-		LLEGADAS[0] = new double[] {0.5, y + 1, 27.5, 180.0};
-		// el generador: 4 x 3 x 3 piezas (frente al sur); escape hasta el techo y la boca del deposito al lado
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 3; j++) {
-				for (int k = 0; k < 3; k++) {
-					bloque(GEN[0] + i, GEN[1] + j, GEN[2] + k, BloquesEstacion.GENERADOR_PIEZA.defaultBlockState().setValue(Interactivos.PIEZA, i + 4 * (j + 3 * k)));
-				}
-			}
-		}
-		caja(-1, y + 4, 19, -1, y + 7, 19, s(BloquesEstacion.ESCAPE));
-		bloque(BOCA[0], BOCA[1], BOCA[2], mira(BloquesEstacion.BOCA, Direction.SOUTH));
-		// a los lados: armarios y transformadores en fila, cuadros encima, lamparas en la pared
-		for (int z = 16; z <= 28; z += 3) {
-			bloque(-9, y + 1, z, var(BloquesEstacion.ARMARIO, Direction.EAST, 3));
-			bloque(9, y + 1, z, var(BloquesEstacion.TRANSFORMADOR, Direction.WEST, 0));
-			bloque(-9, y + 3, z, var(BloquesEstacion.CUADRO, Direction.EAST, 4 + Math.floorMod(z, 4)));
-			bloque(9, y + 3, z, var(BloquesEstacion.CUADRO, Direction.WEST, 4 + Math.floorMod(z + 1, 4)));
-			bloque(-10, y + 5, z, s(BloquesEstacion.LAMPARA));
-			bloque(10, y + 5, z, s(BloquesEstacion.LAMPARA));
-		}
-		// el tablon de instrucciones (pared sur, mirando al norte) y los rotulos
-		bloque(-1, y + 2, 30, var(BloquesEstacion.SENAL, Direction.NORTH, 4));
-		bloque(0, y + 2, 30, var(BloquesEstacion.SENAL, Direction.NORTH, 5));
-		bloque(1, y + 2, 30, var(BloquesEstacion.SENAL, Direction.NORTH, 6));
-		rotulo(0, y + 5, 14, Direction.SOUTH, 0, 0);
-		// el agujero por donde se cae (en el techo, al sur)
-		aire(0, y + 8, 26, 1, y + 8, 27);
-		caja(-1, y + 9, 25, 2, y + 9, 28, s(BloquesEstacion.CHAPA));
-		// lo primero: un fusible para la reja, un bidon y algo de comer
-		bloque(-4, y + 1, 14, var(BloquesEstacion.ESTANTERIA, Direction.SOUTH, 1));
-		punto(-3, y, 14, FUSIBLE, Direction.SOUTH, 0);
-		punto(4, y, 14, FUSIBLE, Direction.SOUTH, 0);
-		bloque(5, y + 1, 14, var(BloquesEstacion.ESTANTERIA, Direction.SOUTH, 2));
-		punto(-7, y, 29, BIDON, Direction.NORTH, 0);
-		punto(7, y, 29, BIDON, Direction.NORTH, 0);
-		COMIDA.add(new int[] {-6, 23, net.backrooms.evento.mundo.Plano.C_GALLETAS, y + 1});
-		COMIDA.add(new int[] {6, 23, net.backrooms.evento.mundo.Plano.C_AGUA, y + 1});
-		// la reja del tutorial (muro norte) y detras la escalera de 6 hasta el piso 1
-		int arriba = BASES[0];
-		caja(-2, y, 1, 2, arriba + ALTO, 12, s(BloquesEstacion.HORMIGON));
-		caja(-2, y + 8, 13, 2, arriba + ALTO, 13, s(BloquesEstacion.HORMIGON));
-		aire(-1, y + 1, 1, 1, arriba + ALTO - 1, 12);
-		reja(-1, y, 13, Direction.EAST, 0, new int[] {2, y + 2, 13});
-		bloque(3, y + 3, 14, var(BloquesEstacion.SENAL, Direction.SOUTH, 2));
-		// el hueco junto a la caja, desde la escalera (para abrirla tambien al volver)
-		aire(2, y + 2, 12, 2, y + 4, 12);
-		for (int j = 1; j <= arriba - y; j++) {
-			int z = 13 - j;
-			caja(-1, y + 1, z, 1, y + j - 1, z, s(BloquesEstacion.HORMIGON));
-			caja(-1, y + j, z, 1, y + j, z, Blocks.POLISHED_ANDESITE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.NORTH));
-		}
-		caja(-1, y + 1, 1, 1, arriba, 13 - (arriba - y) - 1, s(BloquesEstacion.SUELO));
-		for (int z = 3; z <= 11; z += 4) {
-			bloque(-2, arriba + 2, z, s(BloquesEstacion.LAMPARA));
-			bloque(2, arriba + 2, z, s(BloquesEstacion.LAMPARA));
-		}
-	}
-
 	/* ------------------------------------------------------------ los pisos */
 
 	/**
@@ -367,9 +315,9 @@ public final class PlanoEstacion {
 	private static int piso(int p, int s, int entrada, boolean este) {
 		Random azar = new Random(9173L + p * 2311L);
 		int[][][] reparto = {
-			{{FUSIBLE, FUSIBLE, CINTA, BIDON}, {FUSIBLE, FUSIBLE, BIDON, CINTA}, {FUSIBLE, FUSIBLE, BIDON}},
-			{{FUSIBLE, FUSIBLE, CABLE, BIDON}, {FUSIBLE, CINTA, FUSIBLE, BIDON}, {FUSIBLE, FUSIBLE, BIDON}},
-			{{FUSIBLE, FUSIBLE, CABLE, CINTA, BIDON}, {FUSIBLE, FUSIBLE, CABLE, CINTA, BIDON}, {FUSIBLE, FUSIBLE, FUSIBLE, BIDON}}
+			{{FUSIBLE, FUSIBLE, CINTA, FUSIBLE}, {FUSIBLE, FUSIBLE, CINTA}, {FUSIBLE, FUSIBLE}},
+			{{FUSIBLE, FUSIBLE, CABLE}, {FUSIBLE, CINTA, FUSIBLE}, {FUSIBLE, FUSIBLE}},
+			{{FUSIBLE, FUSIBLE, CABLE, CINTA}, {FUSIBLE, FUSIBLE, CABLE, CINTA}, {FUSIBLE, FUSIBLE, FUSIBLE}}
 		};
 		int[][] enTrasteros = {{FUSIBLE, CABLE}, {CABLE, CINTA}, {CIZALLA, CABLE}};
 		int[] columnasSubida = null;
@@ -379,7 +327,7 @@ public final class PlanoEstacion {
 			// las columnas por donde se sube a la zona siguiente (dos, separadas)
 			int[] subida = k < 2 ? new int[] {1 + azar.nextInt(MW / 2 - 2), MW / 2 + 1 + azar.nextInt(MW / 2 - 2)} : new int[] {MW / 2};
 			int[] bajada = k == 0 ? new int[] {entrada} : columnasSubida;
-			zona(p, k, sur, y, bajada, subida, k < 2, azar, reparto[p][k], k == 0 ? -1 : enTrasteros[p][k - 1]);
+			zona(p, k, sur, y, bajada, subida, k < 2, azar, reparto[p][k], k == 0 ? -1 : enTrasteros[p][k - 1], !(p == 0 && k == 0));
 			int norte = sur - ZONA_Z;
 			if (k < 2) {
 				escaleras(p, k, norte, y, subida);
@@ -396,7 +344,7 @@ public final class PlanoEstacion {
 	 * Una zona de laberinto: MW x FILAS celdas con su muro sur en `sur` y suelo en y. Se entra por las
 	 * columnas `bajada` (muro sur) y se sale por `subida` (muro norte: rejas si `rejas`, si no hueco).
 	 */
-	private static void zona(int p, int k, int sur, int y, int[] bajada, int[] subida, boolean rejas, Random azar, int[] cosas, int trastero) {
+	private static void zona(int p, int k, int sur, int y, int[] bajada, int[] subida, boolean rejas, Random azar, int[] cosas, int trastero, boolean entrada) {
 		int techo = y + ALTO;
 		int norte = sur - ZONA_Z;
 		SALAS.add(new Sala("piso_" + (p + 1) + "_zona_" + (k + 1), MX0 + 1, norte + 1, MX1 - 1, sur - 1, p, y));
@@ -480,8 +428,9 @@ public final class PlanoEstacion {
 			}
 			return u == 1 ? s(BloquesEstacion.TECHO_TUBOS) : s(BloquesEstacion.TECHO);
 		});
-		// las entradas (muro sur) y, si no hay rejas, las salidas (muro norte)
-		for (int c : bajada) {
+		// las entradas (muro sur; la zona de abajo del piso 1 no tiene: alli se aparece) y, si no hay
+		// rejas, las salidas (muro norte)
+		for (int c : entrada ? bajada : new int[0]) {
 			int x0 = MX0 + 1 + c * CELDA;
 			aire(x0, y + 1, sur, x0 + 2, y + 3, sur);
 		}
@@ -526,19 +475,19 @@ public final class PlanoEstacion {
 			switch (lado) {
 				case 0 -> {
 					caja(x0, techo - 1, z1 - 3, x0 + 2, techo - 1, z1 - 3, pared(p, y));
-					reja(x0, y, z1 - 3, Direction.EAST, p, new int[] {x0 - 1, y + 2, z1 - 3});
+					reja(x0, y, z1 - 3, Direction.EAST, p);
 				}
 				case 2 -> {
 					caja(x0, techo - 1, z1 + 1, x0 + 2, techo - 1, z1 + 1, pared(p, y));
-					reja(x0, y, z1 + 1, Direction.EAST, p, new int[] {x0 - 1, y + 2, z1 + 1});
+					reja(x0, y, z1 + 1, Direction.EAST, p);
 				}
 				case 1 -> {
 					caja(x0 + 3, techo - 1, z1 - 2, x0 + 3, techo - 1, z1, pared(p, y));
-					reja(x0 + 3, y, z1 - 2, Direction.SOUTH, p, new int[] {x0 + 3, y + 2, z1 - 3});
+					reja(x0 + 3, y, z1 - 2, Direction.SOUTH, p);
 				}
 				default -> {
 					caja(x0 - 1, techo - 1, z1 - 2, x0 - 1, techo - 1, z1, pared(p, y));
-					reja(x0 - 1, y, z1 - 2, Direction.SOUTH, p, new int[] {x0 - 1, y + 2, z1 - 3});
+					reja(x0 - 1, y, z1 - 2, Direction.SOUTH, p);
 				}
 			}
 			caja(x0, y, z1 - 2, x0 + 2, y, z1, s(BloquesEstacion.CHAPA));
@@ -570,6 +519,23 @@ public final class PlanoEstacion {
 			int z1 = sur - 1 - c[1] * CELDA;
 			int[] b = pared1(x0, z1, l);
 			buzon(b[0], y + 2, b[1], lados[(l + 2) % 4], p);
+		}
+		if (p == 0 && k == 0) {
+			// ocho sitios repartidos donde aparecer (celdas libres, mirando hacia un pasillo abierto)
+			float[] giros = {180.0F, -90.0F, 0.0F, 90.0F};
+			for (int n = 0; n < 8; n++) {
+				int[] c = celdaLibre(azar, usado, bajada, subida);
+				usado[c[0]][c[1]] = true;
+				int x0 = MX0 + 1 + c[0] * CELDA;
+				int z1 = sur - 1 - c[1] * CELDA;
+				boolean[] ab = abiertos(este, nor, c[0], c[1]);
+				int mira = 0;
+				while (mira < 3 && !ab[mira]) {
+					mira++;
+				}
+				SPAWNS.add(new double[] {x0 + 1.5, y + 1, z1 - 0.5, giros[mira]});
+			}
+			LLEGADAS[0] = SPAWNS.get(0);
 		}
 		// por los pasillos: tuberias de pared a pared, cuadros, senales, rotulos, bidones vacios, cables,
 		// luces rojas y algo de comer (siempre en la celda, pegado a una pared de verdad)
@@ -614,7 +580,7 @@ public final class PlanoEstacion {
 					bloque(x0 + 1, techo - 1, z1 - 1, var(BloquesEstacion.CABLES, Direction.NORTH, 0));
 				} else if (r < 12) {
 					bloque(b[0], y + 3, b[1], var(BloquesEstacion.LUZ_ROJA, dentro, 0));
-				} else if (r < 13) {
+				} else if (r < 13 && azar(cx + 3, f + k * 7 + p * 11, 71, 4) != 0) {
 					COMIDA.add(new int[] {x0 + 1, z1 - 1, azar(cx, f + k, 70, 2) == 0 ? net.backrooms.evento.mundo.Plano.C_AGUA : net.backrooms.evento.mundo.Plano.C_GALLETAS, y + 1});
 				}
 			}
@@ -681,9 +647,9 @@ public final class PlanoEstacion {
 	}
 
 	/**
-	 * La franja entre la zona k y la de arriba: en cada columna de subida, la reja en el muro norte de la
-	 * zona (su caja en el muro de al lado, con un hueco detras para llegar desde la escalera) y una
-	 * escalera de ZONA_SUBE peldanos hasta el muro sur de la zona de arriba.
+	 * La franja entre la zona k y la de arriba: en cada columna de subida, la reja corrediza en el muro
+	 * norte de la zona (la caja del fusible en su marco de la derecha) y una escalera de ZONA_SUBE
+	 * peldanos hasta el muro sur de la zona de arriba.
 	 */
 	private static void escaleras(int p, int k, int norte, int y, int[] columnas) {
 		int arriba = y + ZONA_SUBE;
@@ -691,9 +657,9 @@ public final class PlanoEstacion {
 		caja(MX0, y + ALTO + 1, norte, MX1, arriba + ALTO, norte, s(BloquesEstacion.HORMIGON));
 		for (int c : columnas) {
 			int x0 = MX0 + 1 + c * CELDA;
-			// la reja (con su dintel) y su caja
+			// la reja (con su dintel)
 			caja(x0, y + 4, norte, x0 + 2, y + ALTO - 1, norte, pared(p, y));
-			reja(x0, y, norte, Direction.EAST, p, new int[] {x0 - 1, y + 2, norte});
+			reja(x0, y, norte, Direction.EAST, p);
 			rotulo(x0 + 1, y + 4, norte + 1, Direction.SOUTH, p, 10 + Math.floorMod(c + k * 3, 6));
 			// la escalera: aire hasta el techo de arriba y los peldanos
 			aire(x0, y + 1, norte - FRANJA + 1, x0 + 2, arriba + ALTO - 1, norte - 1);
@@ -704,9 +670,6 @@ public final class PlanoEstacion {
 				}
 				caja(x0, y + j, z, x0 + 2, y + j, z, Blocks.POLISHED_ANDESITE_STAIRS.defaultBlockState().setValue(StairBlock.FACING, Direction.NORTH));
 			}
-			// el hueco junto a la caja, desde la escalera (para poner o sacar el fusible desde arriba)
-			aire(x0 - 1, y + 2, norte - 1, x0 - 1, y + 4, norte - 1);
-			bloque(x0 - 1, y + 1, norte - 1, s(BloquesEstacion.HORMIGON));
 			// una lampara en cada escalera
 			bloque(x0 + 3, y + 5, norte - 2, s(BloquesEstacion.LAMPARA));
 			// la entrada a la zona de arriba (su muro sur)
@@ -765,7 +728,7 @@ public final class PlanoEstacion {
 		bloque(mx, y + 4, cz0, var(BloquesEstacion.LUZ_ROJA, Direction.SOUTH, 0));
 		if (p == PISOS - 1) {
 			pasarela(dx, y, cz0 - 1);
-			SALIDAS[p] = puerta(BloquesEstacion.PERSIANA, p, dx, y, cz0 - 1, Direction.NORTH, Direction.EAST, p, null);
+			SALIDAS[p] = puerta(BloquesEstacion.PERSIANA, p, dx, y, cz0 - 1, Direction.NORTH, Direction.EAST, p, null, 3);
 			return norte;
 		}
 		// el paso al piso siguiente: hacia el norte y luego de lado hasta su columna de entrada
@@ -775,9 +738,8 @@ public final class PlanoEstacion {
 		sala(null, p, y, Math.min(dx, ex0), sig + 1, Math.max(dx + 2, ex0 + 2), sig + 3, ALTO, SUELO_H, p + 1, 4);
 		aire(dx, y + 1, sig + 1, dx + 2, y + ALTO - 1, cz0 - 2);
 		LLEGADAS[p + 1] = new double[] {dx + 1.5, y + 1, sig + 2.5, este ? 90.0 : 270.0};
-		punto(este ? dx + 2 : dx, y, cz0 - 3, BIDON, este ? Direction.WEST : Direction.EAST, p + 1);
 		rotulo(ex0 + 1, y + 4, sig + 1, Direction.SOUTH, p + 1, 0);
-		SALIDAS[p] = puerta(BloquesEstacion.PERSIANA, p, dx, y, cz0 - 1, Direction.NORTH, Direction.EAST, p, null);
+		SALIDAS[p] = puerta(BloquesEstacion.PERSIANA, p, dx, y, cz0 - 1, Direction.NORTH, Direction.EAST, p, null, 3);
 		return sig;
 	}
 
@@ -829,7 +791,7 @@ public final class PlanoEstacion {
 			}
 		}
 		hueco(dx, y, z0 - 1, dx + 2, z0 - 1);
-		puertaFinal = puerta(BloquesEstacion.REJA, 0, dx, y, z0 - 1, Direction.NORTH, Direction.EAST, PISOS - 1, null);
+		puertaFinal = puerta(BloquesEstacion.REJA, 0, dx, y, z0 - 1, Direction.NORTH, Direction.EAST, PISOS - 1, null, 3);
 		caja(dx - 1, y, z0 - 6, dx + 3, y + 4, z0 - 2, s(Blocks.BLACK_CONCRETE));
 		aire(dx, y + 1, z0 - 5, dx + 2, y + 3, z0 - 2);
 		FINAL = new int[] {dx, z0 - 5, dx + 2, z0 - 2, y};

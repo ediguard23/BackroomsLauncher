@@ -60,13 +60,19 @@ public final class Estacion {
 			BackroomsEvento.LOG.error("No existe la dimension de la Estacion ({})", DIMENSION.identifier());
 			return false;
 		}
-		// llega cayendo a la nave del generador; al reaparecer, al piso mas alto que ya este abierto
+		// llega a un sitio al azar de la zona de abajo del piso 1; al reaparecer, al piso mas alto abierto
 		int piso = nueva ? 0 : JuegoEstacion.get().pisoAbierto();
-		double[] l = PlanoEstacion.LLEGADAS[piso];
-		double dx = (j.getRandom().nextDouble() - 0.5) * (piso == 0 ? 4.0 : 2.0);
-		j.teleportTo(nivel, l[0] + dx, l[1], l[2], Set.of(), (float) l[3], 0.0F, true);
+		double[] l = piso == 0 ? PlanoEstacion.SPAWNS.get(j.getRandom().nextInt(PlanoEstacion.SPAWNS.size())) : PlanoEstacion.LLEGADAS[piso];
+		j.teleportTo(nivel, l[0], l[1], l[2], Set.of(), (float) l[3], 0.0F, true);
 		j.resetFallDistance();
 		Equipo.vestir(j);
+		// aqui ya no hace falta la camara: solo la linterna
+		var inv = j.getInventory();
+		for (int i = 0; i < inv.getContainerSize(); i++) {
+			if (inv.getItem(i).is(net.backrooms.evento.objetos.Objetos.CAMARA)) {
+				inv.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
+			}
+		}
 		if (nueva) {
 			net.backrooms.evento.mision.Misiones.get().asignarEstacion(j);
 			j.connection.send(new ClientboundSetTitlesAnimationPacket(20, 80, 30));
@@ -74,7 +80,6 @@ public final class Estacion {
 			j.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(SUBTITULO).withStyle(ChatFormatting.YELLOW)));
 			Sonidos.aJugador(j, Sonidos.ESTACION_RADIO, 0.9F);
 		}
-		JuegoEstacion.get().enviar(j);
 		BackroomsEvento.LOG.info("{} {} a la Estacion", j.getGameProfile().name(), nueva ? "llega" : "vuelve");
 		return true;
 	}

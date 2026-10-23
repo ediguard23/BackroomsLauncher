@@ -58,7 +58,7 @@ public final class Entidades {
 	/** El Amasijo de la Estacion: una masa de cuerpos y brazos con una boca en medio. */
 	public static final EntityType<net.backrooms.evento.estacion.Amasijo> AMASIJO = registrar("amasijo",
 		EntityType.Builder.<net.backrooms.evento.estacion.Amasijo>of(net.backrooms.evento.estacion.Amasijo::new, MobCategory.MONSTER)
-			.sized(1.3F, 2.0F).eyeHeight(1.4F).clientTrackingRange(10));
+			.sized(0.9F, 1.9F).eyeHeight(1.4F).clientTrackingRange(10));
 
 	private Entidades() {
 	}

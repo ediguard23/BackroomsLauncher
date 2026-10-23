@@ -45,7 +45,10 @@ public final class Equipo {
 	/** La linterna y la camara, si no las lleva: en los dos ultimos huecos de la barra si estan libres. */
 	public static void herramientas(ServerPlayer jugador) {
 		dar(jugador, Objetos.LINTERNA, 7);
-		dar(jugador, Objetos.CAMARA, 8);
+		// en la Estacion (el ultimo nivel) la camara ya no hace falta: solo la linterna
+		if (!net.backrooms.evento.estacion.Estacion.es(jugador.level())) {
+			dar(jugador, Objetos.CAMARA, 8);
+		}
 	}
 
 	private static void dar(ServerPlayer jugador, Item objeto, int hueco) {

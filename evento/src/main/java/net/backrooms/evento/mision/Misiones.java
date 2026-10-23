@@ -256,13 +256,12 @@ public final class Misiones {
 		this.quitarCasetes(jugador.getUUID());
 		Estado e = new Estado();
 		e.fase = FASE_ESTACION;
-		e.misiones.add(TipoMision.COMBUSTIBLE);
 		e.misiones.add(TipoMision.PISO1);
 		e.misiones.add(TipoMision.PISO2);
 		e.misiones.add(TipoMision.PISO3);
 		e.misiones.add(TipoMision.PASARELA);
 		int hechas = net.backrooms.evento.estacion.JuegoEstacion.get().etapa();
-		e.actual = Math.min(4, hechas);
+		e.actual = Math.min(3, hechas);
 		this.estados.put(jugador.getUUID(), e);
 		this.sucio = true;
 		this.sincronizar(jugador);

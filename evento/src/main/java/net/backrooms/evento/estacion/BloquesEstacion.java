@@ -21,39 +21,29 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 public final class BloquesEstacion {
 	/* ---------------------------------------------------------- estructura */
 
+	/** Los pasos en el suelo de la estacion: hormigon (o chapa) con un poco de eco (Sonidos). */
+	private static final SoundType PASOS_HORMIGON = new SoundType(0.8F, 1.0F, net.minecraft.sounds.SoundEvents.STONE_BREAK, net.backrooms.evento.Sonidos.ESTACION_PASO,
+		net.minecraft.sounds.SoundEvents.STONE_PLACE, net.minecraft.sounds.SoundEvents.STONE_HIT, net.minecraft.sounds.SoundEvents.STONE_FALL);
+	private static final SoundType PASOS_CHAPA = new SoundType(0.8F, 1.0F, net.minecraft.sounds.SoundEvents.METAL_BREAK, net.backrooms.evento.Sonidos.ESTACION_PASO_CHAPA,
+		net.minecraft.sounds.SoundEvents.METAL_PLACE, net.minecraft.sounds.SoundEvents.METAL_HIT, net.minecraft.sounds.SoundEvents.METAL_FALL);
+
 	/** Hormigon de las paredes, manchado de humedad y hollin. */
 	public static final Block HORMIGON = registrar("hormigon_estacion", propiedades(MapColor.STONE, SoundType.STONE));
 	/** La parte de abajo de las paredes, pintada de verde gris palido y desconchada. */
 	public static final Block PINTADA = registrar("pared_pintada", propiedades(MapColor.COLOR_LIGHT_GREEN, SoundType.STONE));
 	/** La franja pintada con el color del sector (COLOR: 0 rojo, 1 amarillo, 2 azul, 3 verde). */
 	public static final Block FRANJA = conObjeto(Blocks.register(clave("franja_sector"), Interactivos.Franja::new, propiedades(MapColor.COLOR_RED, SoundType.STONE)));
-	public static final Block SUELO = registrar("suelo_estacion", propiedades(MapColor.STONE, SoundType.STONE));
-	public static final Block SUELO_MANCHADO = registrar("suelo_estacion_manchado", propiedades(MapColor.STONE, SoundType.STONE));
-	public static final Block CHAPA = registrar("chapa_estacion", propiedades(MapColor.METAL, SoundType.METAL));
-	public static final Block REJILLA = registrar("rejilla_estacion", propiedades(MapColor.METAL, SoundType.METAL).noOcclusion());
+	public static final Block SUELO = registrar("suelo_estacion", propiedades(MapColor.STONE, PASOS_HORMIGON));
+	public static final Block SUELO_MANCHADO = registrar("suelo_estacion_manchado", propiedades(MapColor.STONE, PASOS_HORMIGON));
+	public static final Block CHAPA = registrar("chapa_estacion", propiedades(MapColor.METAL, PASOS_CHAPA));
+	public static final Block REJILLA = registrar("rejilla_estacion", propiedades(MapColor.METAL, PASOS_CHAPA).noOcclusion());
 	public static final Block TECHO = registrar("techo_estacion", propiedades(MapColor.COLOR_GRAY, SoundType.STONE));
 	/** El techo con la bandeja de cables y una tuberia por debajo. */
 	public static final Block TECHO_TUBOS = registrar("techo_tubos", propiedades(MapColor.COLOR_GRAY, SoundType.METAL));
 	public static final Block LAMPARA = registrar("lampara_estacion", propiedades(MapColor.SNOW, SoundType.GLASS).lightLevel(e -> 14));
 	public static final Block LAMPARA_FUNDIDA = registrar("lampara_fundida", propiedades(MapColor.COLOR_GRAY, SoundType.GLASS));
-	public static final Block MACIZO = conObjeto(Blocks.register(clave("macizo_estacion"), Interactivos.Macizo::new,
-		propiedades(MapColor.METAL, SoundType.METAL).noOcclusion()));
-
-	/* ---------------------------------------------------------- generador */
-
-	/** El generador grande: 4 x 3 x 3 piezas (Interactivos.PIEZA), cada una con su trozo del dibujo. */
-	public static final Block GENERADOR_PIEZA = conObjeto(Blocks.register(clave("generador_estacion"), Interactivos.PiezaGenerador::new,
-		propiedades(MapColor.COLOR_ORANGE, SoundType.METAL)));
-
-	/** La carcasa del generador: chapa naranja con rejillas de ventilacion y franjas de aviso. */
-	public static final Block GENERADOR = registrar("generador_carcasa", propiedades(MapColor.COLOR_ORANGE, SoundType.METAL));
-	/** El radiador de los extremos del generador. */
-	public static final Block GENERADOR_RADIADOR = conObjeto(Blocks.register(clave("generador_radiador"), Variante.Orientado::new, propiedades(MapColor.COLOR_ORANGE, SoundType.METAL)));
-	public static final Block GENERADOR_TAPA = registrar("generador_tapa", propiedades(MapColor.COLOR_ORANGE, SoundType.METAL));
-	public static final Block BOCA = conObjeto(Blocks.register(clave("boca_combustible"), Interactivos.Boca::new, propiedades(MapColor.COLOR_ORANGE, SoundType.METAL)));
-	/** El tubo de escape del generador (vertical, hasta el techo). */
-	public static final Block ESCAPE = conObjeto(Blocks.register(clave("tubo_escape"), Block::new,
-		propiedades(MapColor.COLOR_GRAY, SoundType.METAL).noOcclusion()));
+	/** El marco fijo a los lados de una reja corrediza (la hoja se mete en el de la izquierda al abrirse). */
+	public static final Block MARCO_REJA = registrar("marco_reja", propiedades(MapColor.METAL, SoundType.METAL));
 
 	/* ---------------------------------------------------------- decorado */
 
@@ -103,10 +93,9 @@ public final class BloquesEstacion {
 	/** Para la cadena de la puerta del final (solo hay una en todo el nivel). */
 	public static final Item CIZALLA = objeto("cizalla", 1);
 	public static final Item CINTA = objeto("cinta_aislante", 4);
-	public static final Item BIDON = objeto("bidon_combustible", 1);
 	public static final Item FUSIBLE = objeto("fusible", 4);
-	/** Lo que da cada punto de recogida (PlanoEstacion.CABLE, CIZALLA, CINTA, BIDON, FUSIBLE). */
-	private static final Item[] POR_TIPO = {CABLE, CIZALLA, CINTA, BIDON, FUSIBLE};
+	/** Lo que da cada punto de recogida (PlanoEstacion.CABLE, CIZALLA, CINTA, -, FUSIBLE). */
+	private static final Item[] POR_TIPO = {CABLE, CIZALLA, CINTA, FUSIBLE, FUSIBLE};
 
 	private BloquesEstacion() {
 	}
@@ -131,7 +120,7 @@ public final class BloquesEstacion {
 
 	/** Los que se ven a traves (rejilla, cables, barandilla...): para el cliente, capa CUTOUT. */
 	public static Block[] recortados() {
-		return new Block[] {REJILLA, TUBERIAS, CUADRO, SENAL, LUZ_ROJA, ROTULO, CABLES, BARANDILLA, PUNTO, PANEL, REJA, BUZON, ESCAPE,
+		return new Block[] {REJILLA, TUBERIAS, CUADRO, SENAL, LUZ_ROJA, ROTULO, CABLES, BARANDILLA, PUNTO, PANEL, REJA, BUZON,
 			ESTANTERIA, CONSOLA, ARMARIO, TRANSFORMADOR, MAQUINA, BIDONES, LAMPARA, LAMPARA_FUNDIDA};
 	}
 

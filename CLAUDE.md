@@ -51,10 +51,10 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
                                  JuegoMemoria, JuegoRegalos, el Anfitrion y sus apagones
                                  (AnfitrionFiesta), ConfigFiesta
       estacion/                  la Estacion Electrica (Nivel 3), despues de la Fiesta, como la de Escape Together:
-                                 PlanoEstacion (sala del generador con la reja del tutorial y tres pisos que suben en
-                                 diagonal: laberintos de 3 zonas con escaleras y rejas, pasillo final y central, cuya
+                                 PlanoEstacion (se aparece al azar en el piso 1; tres pisos que suben en diagonal:
+                                 laberintos de 3 zonas con escaleras y rejas corredizas, pasillo final y central, cuya
                                  puerta da al piso siguiente; arriba la pasarela y la puerta encadenada), GeneradorEstacion,
-                                 BloquesEstacion (Interactivos, Variante), JuegoEstacion (gasolina, rejas con fusible y su
+                                 BloquesEstacion (Interactivos, Variante), JuegoEstacion (rejas con fusible y su
                                  animacion, buzones, centrales, cadena; todo compartido), el Amasijo (2/3/4 por piso)
       expedicion/                el /start (cinemática de la firma y el ascensor y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
@@ -123,7 +123,7 @@ servidor-ejemplo/                configuración del servidor del evento
   oir <sonido> <jugador>], tarjetas [reponer|abrir], recepcion, vestibulo,
   muerte, escapados, invocar bacteria|smiler|serpiente, megafono (tu voz para todos), reparar [radio],
   inundacion [segundos|parar], piscinas cadaveres, fiesta [jugador|ir <sala>|apagon|aparicion|tickets|monedas|ver|juegos|recargar],
-  estacion [jugador|ir <sala>|combustible <n>|avanzar|reponer|ver], invocar amasijo,
+  estacion [jugador|ir <sala>|reja <n>|avanzar|reponer|ver], invocar amasijo,
   acechadores, cordura, comida reponer, misiones...). Ver `Comandos.java`. La lista del evento (quién puede
   entrar): `/brwhitelist agregar|quitar|ver|lista|recargar` (`acceso/Whitelist.java`; la lista vive
   en la tienda, ver `VENTA.md`).

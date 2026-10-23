@@ -104,7 +104,7 @@ public class GeneradorEstacion extends ChunkGenerator {
 
 	@Override
 	public int getSpawnHeight(LevelHeightAccessor alturas) {
-		return PlanoEstacion.SUELO + 1;
+		return PlanoEstacion.BASES[0] + 1;
 	}
 
 	@Override

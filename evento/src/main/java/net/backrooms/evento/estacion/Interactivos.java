@@ -35,8 +35,6 @@ public final class Interactivos {
 	public static final IntegerProperty TIPO = IntegerProperty.create("tipo", 0, 7);
 	public static final IntegerProperty COLOR = IntegerProperty.create("color", 0, 3);
 	public static final IntegerProperty PARTE = IntegerProperty.create("parte", 0, 8);
-	/** La pieza del generador grande (4 x 3 x 3). */
-	public static final IntegerProperty PIEZA = IntegerProperty.create("pieza", 0, 35);
 	/** Una puerta que se esta moviendo: no se dibuja (la dibuja la animacion) pero sigue chocando. */
 	public static final BooleanProperty OCULTA = BooleanProperty.create("oculta");
 	public static final BooleanProperty VACIO = BooleanProperty.create("vacio");
@@ -81,39 +79,6 @@ public final class Interactivos {
 		protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b) {
 			super.createBlockStateDefinition(b);
 			b.add(TIPO, VACIO);
-		}
-	}
-
-	/** La boca del deposito del generador: se le vacia un bidon con clic derecho. */
-	public static class Boca extends HorizontalDirectionalBlock {
-		public static final MapCodec<Boca> CODEC = simpleCodec(Boca::new);
-
-		public Boca(BlockBehaviour.Properties p) {
-			super(p);
-			this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
-		}
-
-		@Override
-		protected MapCodec<? extends Boca> codec() {
-			return CODEC;
-		}
-
-		@Override
-		protected InteractionResult useWithoutItem(BlockState e, Level nivel, BlockPos pos, Player j, BlockHitResult golpe) {
-			if (j instanceof ServerPlayer sp) {
-				JuegoEstacion.get().repostar(sp);
-			}
-			return InteractionResult.SUCCESS;
-		}
-
-		@Override
-		protected InteractionResult useItemOn(ItemStack s, BlockState e, Level nivel, BlockPos pos, Player j, InteractionHand mano, BlockHitResult golpe) {
-			return this.useWithoutItem(e, nivel, pos, j, golpe);
-		}
-
-		@Override
-		protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b) {
-			b.add(FACING);
 		}
 	}
 
@@ -325,26 +290,6 @@ public final class Interactivos {
 		}
 	}
 
-	/** Una pieza del generador grande (PIEZA = i + 4 * (alto + 3 * fondo)): un bloque entero con su trozo de dibujo. */
-	public static class PiezaGenerador extends Block {
-		public static final MapCodec<PiezaGenerador> CODEC = simpleCodec(PiezaGenerador::new);
-
-		public PiezaGenerador(BlockBehaviour.Properties p) {
-			super(p);
-			this.registerDefaultState(this.stateDefinition.any().setValue(PIEZA, 0));
-		}
-
-		@Override
-		protected MapCodec<? extends PiezaGenerador> codec() {
-			return CODEC;
-		}
-
-		@Override
-		protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b) {
-			b.add(PIEZA);
-		}
-	}
-
 	/** Un foco de la pasarela: apagado hasta que la pasarela tiene corriente. */
 	public static class Foco extends Block {
 		public static final MapCodec<Foco> CODEC = simpleCodec(Foco::new);
@@ -362,25 +307,6 @@ public final class Interactivos {
 		@Override
 		protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b) {
 			b.add(LIT);
-		}
-	}
-
-	/** Lo macizo que no se ve (el bulto del generador, que se dibuja con sus bloques de fuera). */
-	public static class Macizo extends Block {
-		public static final MapCodec<Macizo> CODEC = simpleCodec(Macizo::new);
-
-		public Macizo(BlockBehaviour.Properties p) {
-			super(p);
-		}
-
-		@Override
-		protected MapCodec<? extends Macizo> codec() {
-			return CODEC;
-		}
-
-		@Override
-		protected RenderShape getRenderShape(BlockState e) {
-			return RenderShape.INVISIBLE;
 		}
 	}
 

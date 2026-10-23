@@ -146,14 +146,11 @@ public final class Sonidos {
 	public static final SoundEvent REGALOS_RELOJ = registrar("regalos.reloj");
 	public static final SoundEvent REGALOS_FIN = registrar("regalos.fin");
 
-	/* la Estacion Electrica (Nivel 3): el generador, lo que se hace y el Amasijo */
-	public static final SoundEvent ESTACION_GENERADOR = registrar("estacion.generador");
+	/* la Estacion Electrica (Nivel 3): la maquinaria, lo que se hace, los pasos y el Amasijo */
 	public static final SoundEvent ESTACION_AMBIENTE = registrar("estacion.ambiente");
 	public static final SoundEvent ESTACION_ARRANCA = registrar("estacion.arranca");
-	public static final SoundEvent ESTACION_PARADA = registrar("estacion.parada");
-	public static final SoundEvent ESTACION_RESERVA = registrar("estacion.reserva");
-	public static final SoundEvent ESTACION_REPOSTAR = registrar("estacion.repostar");
-	public static final SoundEvent ESTACION_BIDON = registrar("estacion.bidon");
+	public static final SoundEvent ESTACION_PASO = registrar("estacion.paso");
+	public static final SoundEvent ESTACION_PASO_CHAPA = registrar("estacion.paso_chapa");
 	public static final SoundEvent ESTACION_COGER = registrar("estacion.coger");
 	public static final SoundEvent ESTACION_REPARAR = registrar("estacion.reparar");
 	public static final SoundEvent ESTACION_PERSIANA = registrar("estacion.persiana");

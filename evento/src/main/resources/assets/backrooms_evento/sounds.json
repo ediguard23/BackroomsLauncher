@@ -1275,14 +1275,6 @@
       }
     ]
   },
-  "estacion.generador": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:estacion_generador",
-        "attenuation_distance": 40
-      }
-    ]
-  },
   "estacion.estruendo": {
     "sounds": [
       {
@@ -1323,30 +1315,6 @@
       }
     ]
   },
-  "estacion.parada": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:estacion_parada",
-        "attenuation_distance": 64
-      }
-    ]
-  },
-  "estacion.reserva": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:estacion_reserva",
-        "attenuation_distance": 48
-      }
-    ]
-  },
-  "estacion.repostar": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:estacion_repostar",
-        "attenuation_distance": 16
-      }
-    ]
-  },
   "estacion.fallo": {
     "sounds": [
       {
@@ -1360,14 +1328,6 @@
       {
         "name": "backrooms_evento:estacion_pasarela",
         "attenuation_distance": 64
-      }
-    ]
-  },
-  "estacion.bidon": {
-    "sounds": [
-      {
-        "name": "backrooms_evento:estacion_bidon",
-        "attenuation_distance": 12
       }
     ]
   },
@@ -1432,6 +1392,10 @@
       {
         "name": "backrooms_evento:amasijo_pasos3",
         "attenuation_distance": 28
+      },
+      {
+        "name": "backrooms_evento:amasijo_pasos4",
+        "attenuation_distance": 28
       }
     ]
   },
@@ -1460,6 +1424,62 @@
       {
         "name": "backrooms_evento:amasijo_ataque",
         "attenuation_distance": 24
+      }
+    ]
+  },
+  "estacion.paso": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_paso1",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:estacion_paso2",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:estacion_paso3",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:estacion_paso4",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:estacion_paso5",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:estacion_paso6",
+        "attenuation_distance": 16
+      }
+    ]
+  },
+  "estacion.paso_chapa": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_paso_chapa1",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:estacion_paso_chapa2",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:estacion_paso_chapa3",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:estacion_paso_chapa4",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:estacion_paso_chapa5",
+        "attenuation_distance": 16
+      },
+      {
+        "name": "backrooms_evento:estacion_paso_chapa6",
+        "attenuation_distance": 16
       }
     ]
   }

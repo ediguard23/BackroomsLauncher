@@ -415,9 +415,8 @@ Nadie sabe si abajo está la salida... o la cocina.
 
 ## Nivel 3 — la Estación Eléctrica
 
-Abajo no está la cocina. El tobogán escupe a quien lo baja por un agujero del techo de la sala del
-generador: un generador de gasolina naranja enorme, armarios, una radio que se enciende sola y un tablón de
-instrucciones medio quemado. La única salida de la sala es una reja que se abre con un fusible.
+Abajo no está la cocina. El tobogán escupe a cada uno en un pasillo distinto del primer piso, solo, con la
+linterna y nada más: la cámara se queda en la fiesta. Las lámparas enjauladas no se apagan nunca.
 
 Una central eléctrica vieja que sigue funcionando sin nadie, construida en cuesta: todo sube. Tres pisos,
 cada uno con su franja pintada en las paredes (rojo, amarillo, azul), y cada piso un laberinto de pasillos de
@@ -426,14 +425,12 @@ todo, un pasillo largo de lado a lado y, en un costado, la central del piso. Sol
 abre su puerta, y detrás empieza el piso siguiente. En lo alto, una pasarela sobre un pozo lleva a la única
 salida.
 
-Las instrucciones del tablón se leen a medias: GASOIL AL GENERADOR. FUSIBLE EN LAS REJAS. LA CENTRAL DE
-CADA PISO. SUBIR. El resto está quemado. Todo es de todos: lo que uno arregla, sirve para los demás.
+En las paredes, carteles medio quemados: FUSIBLE EN LAS REJAS. LA CENTRAL DE CADA PISO. SUBIR. Todo es de
+todos: lo que uno arregla, sirve para los demás. Y el hormigón devuelve cada paso, y cada voz lejana llega
+con eco.
 
-- **La gasolina.** El generador de abajo traga sin parar. Hay bidones por los laberintos; alguien tiene
-  que bajarlos. Si se vacía, la estación entera se queda a oscuras: nada responde y lo que vive en los
-  pasillos ya no necesita verte para encontrarte.
-- **Las rejas.** Se abren con un fusible en su caja, empotrada en el muro de al lado. Si alguien saca el
-  fusible, la reja baja. Sirven para avanzar... y para dejar algo encerrado al otro lado.
+- **Las rejas.** Puertas correderas de barrotes entre dos marcos de acero; la caja del fusible está en el de
+  la derecha. Con el fusible, la hoja se mete en el marco de la izquierda; si alguien lo saca, vuelve. Sirven para avanzar... y para dejar algo encerrado al otro lado.
 - **Los buzones.** Cajas de chapa con una ranura: el fusible que se mete no vuelve. Dentro puede haber cinta,
   cable, comida... o solo polvo y un papel con un número tachado.
 - **Las centrales.** Piden fusibles, cinta aislante y cable. Con todo puesto y corriente, la central del piso

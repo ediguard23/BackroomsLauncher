@@ -3,10 +3,10 @@
   "textures": {
     "north": "backrooms_evento:block/caja_fusible",
     "south": "backrooms_evento:block/caja_fusible",
-    "east": "backrooms_evento:block/pared_pintada",
-    "west": "backrooms_evento:block/pared_pintada",
-    "up": "backrooms_evento:block/hormigon_estacion",
-    "down": "backrooms_evento:block/hormigon_estacion",
+    "east": "backrooms_evento:block/caja_fusible",
+    "west": "backrooms_evento:block/caja_fusible",
+    "up": "backrooms_evento:block/marco_reja",
+    "down": "backrooms_evento:block/marco_reja",
     "particle": "backrooms_evento:block/caja_fusible"
   }
 }

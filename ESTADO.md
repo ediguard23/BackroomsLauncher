@@ -1,8 +1,40 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-21 (hora de Honduras). Mod `backrooms_evento` 0.27.0, launcher 1.0.0
+Última actualización: 2026-10-23 (hora de Honduras). Mod `backrooms_evento` 0.28.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+
+## 0.28.0: el Nivel 3 sin generador, rejas corredizas, eco en la voz (2026-10-23; Bruno)
+
+Bruno pidió otra tanda para el Nivel 3:
+- **Fuera el generador**: sin sala del generador, sin gasolina, sin bidones, sin apagones y **sin HUD** (se
+  borraron `EstacionCliente` y el paquete `EstadoEstacion`, la misión COMBUSTIBLE, `estacion combustible`, los
+  bloques del generador, la boca, el escape y el macizo, con sus texturas y sonidos). El nivel siempre tiene luz.
+- **Se aparece** en uno de **8 sitios al azar** de la zona de abajo del piso 1 (`PlanoEstacion.SPAWNS`, mirando a
+  un pasillo abierto). Al reaparecer, al piso más alto abierto, como antes.
+- **Sin cámara** en la Estación: al llegar se quita y `Equipo.herramientas` ya no la da allí (solo la linterna).
+- **Rejas corredizas**: un marco fijo a cada lado (`marco_reja`, acero) y la caja del fusible en el de la
+  derecha; la hoja del medio (1 de ancho, 3 de alto) se desliza a la izquierda al poner el fusible y vuelve al
+  quitarlo. Fuera el hueco del costado. La animación dura **1 s**.
+- **Amasijo** un 15 % más lento (4,25 y 2,04 bloques/s), más estrecho (0,9 para caber por la reja) y, si en 2 s
+  no consigue acercarse (una reja cerrada delante), **se rinde**, se calma 10 s y vuelve a deambular. Solo
+  detecta viendo (ya no hay «a oscuras»).
+- **Comida** un 25 % menos en todo el nivel (también en los buzones).
+- **Sonidos**: pasos de los jugadores en la Estación con algo de eco de nave (`estacion_paso1-6` en hormigón,
+  `estacion_paso_chapa1-6` en chapa y rejilla; menos que en las Piscinas); pasos del Amasijo rehechos, blandos
+  y húmedos (`amasijo_pasos1-4`); `estacion_arranca` ya no es un diésel (contactores y zumbido).
+- **Eco en el chat de voz** (`cliente/EcoVoz`, hecho por nosotros con la API de Simple Voice Chat, solo en el
+  cliente): cuanto más lejos habla alguien, más reverberación y más apagada la voz (desde 6 bloques; entera a 32;
+  algo más en la Estación). Sin mods nuevos en el pack.
+- Staff: `backrooms estacion reja <n>` lleva delante de la reja n. El panel de la Estación ya no tiene botones
+  del generador; «Ir a» con las salas nuevas.
+
+**Probado**: compila; aparición al azar mirando a un pasillo, sin HUD y sin cámara; la reja corrediza se ve bien
+cerrada (marcos y caja a la derecha); el Amasijo caza y agarra. **Sin probar**: ver la hoja deslizándose (las
+pruebas se cortaron: el Amasijo me mataba al apuntar a la caja), que el Amasijo se rinda delante de una reja
+cerrada, cómo suenan los pasos nuevos en el juego y el eco de la voz (hace falta otra persona hablando).
+Para probar la reja sin que moleste: `kill @e[type=backrooms_evento:amasijo]` y, por RCON, los `tp` con
+`execute in backrooms_evento:estacion run` (si no, te manda al overworld).
 
 ## 0.27.0: el Nivel 3 por zonas que suben, rejas animadas, buzones y arreglos de la Fiesta (2026-10-23; Bruno)
 

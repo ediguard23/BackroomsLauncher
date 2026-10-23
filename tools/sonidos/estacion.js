@@ -10,26 +10,24 @@
  *  Ambiente (AmbienteEstacion, en el cliente)
  *   estacion_ambiente      la maquinaria en bucle: transformadores a 50 Hz, ventilacion y un
  *                          tictac metalico lejano (estereo, sin posicion)
- *   estacion_generador     el diesel al ralenti en bucle, desde el generador (mono)
  *   estacion_estruendo1-3  algo metalico que cae lejos, en una nave enorme
  *   estacion_chispas1-3    el chisporroteo de un panel roto
- *  El generador y la corriente
- *   estacion_arranca       motor de arranque, el diesel que prende y sube; las luces vuelven (rele)
- *   estacion_parada        tose, se ahoga y se para; los reles caen y el zumbido se muere
- *   estacion_reserva       la alarma del deposito en reserva: dos tonos de zumbador
- *   estacion_repostar      el gasoil que cae por la boca, a borbotones
+ *  La corriente
+ *   estacion_arranca       una central que vuelve: contactores que caen y el zumbido que sube
  *   estacion_fallo         cortocircuito: estallido, chispas y todo que se apaga con un quejido
  *   estacion_pasarela      los focos de la pasarela, uno tras otro: contactores que caen
  *  Lo que se hace
- *   estacion_bidon         coger una garrafa: el golpe de la chapa y el liquido que se mueve
  *   estacion_coger         coger un material: un roce y un tintineo
  *   estacion_reparar       chispazos, la carraca del destornillador y el rele que entra
  *   estacion_persiana      la persiana metalica que sube traqueteando
  *   estacion_fusible       el fusible que encaja y el zumbido que vuelve a su circuito
  *   estacion_palanca       la palanca grande del interruptor
  *   estacion_radio         la radio del acceso: sintonia, ruido, la voz por el altavoz y el corte
+ *  Los pasos (el SoundType de los suelos de la estacion)
+ *   estacion_paso1-6       pasos sobre hormigon, con un poco de eco de nave (menos que las Piscinas)
+ *   estacion_paso_chapa1-6 pasos sobre chapa y rejilla: el golpe y la chapa que vibra un poco
  *  El Amasijo
- *   amasijo_pasos1-3       muchas manos que golpean el suelo, deprisa y humedas
+ *   amasijo_pasos1-4       carne que se arrastra y se apoya: blando, humedo, con algo de cola
  *   amasijo_grito          un coro de gargantas que gritan a la vez, con algo que burbujea
  *   amasijo_respira1-2     resuello humedo de varias bocas
  *   amasijo_ataque         el mordisco: crujido humedo y un rugido ahogado
@@ -102,27 +100,6 @@ function chispas (dur, densidad, semilla) {
   return out;
 }
 
-/** El diesel: explosiones a `rpm`, con el traqueteo de las valvulas y el escape. */
-function diesel (dur, rpm, semilla, { escape = 0.6, valvulas = 0.25 } = {}) {
-  const rnd = D.azar(semilla);
-  const out = mono(dur);
-  const lp = new D.Biquad('lp', 260, 0.8);
-  const bp = new D.Biquad('bp', 1800, 3);
-  let fase = 0;
-  let pulso = 0;
-  for (let i = 0; i < out.length; i++) {
-    const t = i / SR;
-    const f = (typeof rpm === 'function' ? rpm(t) : rpm) / 60 * 2; // 4 cilindros, 4 tiempos
-    fase += f / SR;
-    if (fase >= 1) { fase -= 1; pulso = 0.7 + rnd() * 0.3; }
-    pulso *= 0.9985;
-    const exp = Math.exp(-fase * 9) * pulso;
-    const ruido = rnd() * 2 - 1;
-    out[i] = lp.paso(exp * 2 + ruido * 0.15) * escape + bp.paso(ruido) * valvulas * (0.4 + Math.exp(-fase * 20)) + Math.sin(TAU * f * t) * 0.08;
-  }
-  return out;
-}
-
 /* ============================================================== ambiente */
 
 function ambiente () {
@@ -157,21 +134,6 @@ function ambiente () {
   return D.masterizar(D.cerrarBucle([l, r], dur - 1), { rmsDb: -28, picoDb: -6 });
 }
 
-function generador () {
-  // un bucle de 4 s: el ralenti a 750 rpm (25 explosiones/s: 100 exactas en 4 s)
-  const dur = 5;
-  const m = diesel(dur, 750, 311);
-  // el silbido del turbo y un traqueteo de chapa suelta
-  const rnd = D.azar(312);
-  const bp = new D.Biquad('bp', 3200, 8);
-  for (let i = 0; i < m.length; i++) {
-    const t = i / SR;
-    m[i] += bp.paso(rnd() * 2 - 1) * 0.05 + Math.sin(TAU * 25 * t) * 0.05 * (rnd() < 0.02 ? 3 : 0);
-  }
-  const [a] = D.cerrarBucle([m, Float32Array.from(m)], 4);
-  return nivel(a, -2);
-}
-
 function estruendo (semilla) {
   const out = mono(4);
   const rnd = D.azar(semilla);
@@ -188,99 +150,20 @@ function estruendo (semilla) {
   return pico(nave(lejos, 0.7, 0.92), -2);
 }
 
-/* ============================================================== el generador y la corriente */
+/* ============================================================== la corriente */
 
+/** Una central que vuelve: tres contactores grandes y el zumbido de 50 Hz que sube. */
 function arranca () {
-  const out = mono(4.5);
-  // el motor de arranque: un quejido electrico que gira a tirones
-  const rnd = D.azar(321);
-  let fase = 0;
-  poner(out, 0, 1.4, (t) => {
-    const f = 180 + Math.sin(TAU * 7 * t) * 30;
-    fase += f / SR;
-    return (D.sierra(fase % 1, f / SR) * 0.25 + (rnd() - 0.5) * 0.1) * (0.6 + 0.4 * Math.abs(Math.sin(TAU * 3.5 * t)));
+  const out = mono(3.5);
+  for (const [t0, f] of [[0.0, 150], [0.22, 130], [0.5, 120]]) poner(out, t0, 0.4, golpe(f, 60, 0.06, 0.9, Math.floor(t0 * 100) + 321));
+  poner(out, 0.0, 0.5, chapa(260, 0.08, 322));
+  // el zumbido: 100 Hz y sus armonicos, que sube y se queda
+  poner(out, 0.5, 3.0, (t) => {
+    const env = Math.min(1, t * 1.5) * Math.min(1, (3.0 - t) * 2);
+    return (Math.sin(TAU * 100 * t) * 0.3 + Math.sin(TAU * 200 * t) * 0.12 + Math.sin(TAU * 300 * t) * 0.05) * env;
   });
-  // el diesel que prende: de 200 a 1100 rpm y baja a 800
-  const rpm = (t) => (t < 1.2 ? 0 : t < 2.2 ? 200 + (t - 1.2) * 900 : 1100 - Math.min(1, (t - 2.2) / 1.2) * 300);
-  const d = diesel(4.5, (t) => Math.max(60, rpm(t)), 322, { escape: 0.8 });
-  for (let i = 0; i < out.length; i++) { const t = i / SR; out[i] += d[i] * Math.min(1, Math.max(0, (t - 1.1) * 2)); }
-  // los reles: la corriente vuelve
-  for (const t0 of [3.0, 3.15, 3.35]) poner(out, t0, 0.3, golpe(140, 60, 0.05, 0.8, Math.floor(t0 * 100)));
-  poner(out, 3.0, 1.5, (t) => Math.sin(TAU * 100 * t) * 0.15 * Math.min(1, t * 3));
+  pegar(out, chispas(0.4, 2, 323), 0.05, 0.4);
   return pico(nave(out, 0.3), -1);
-}
-
-function parada () {
-  const out = mono(4);
-  const rpm = (t) => Math.max(40, 800 - t * 350 + Math.sin(TAU * 2.5 * t) * 120 * Math.min(1, t));
-  const d = diesel(4, rpm, 331, { escape: 0.8 });
-  for (let i = 0; i < out.length; i++) { const t = i / SR; out[i] += d[i] * Math.max(0, 1 - t / 2.4); }
-  // tose dos veces
-  poner(out, 0.6, 0.3, golpe(80, 40, 0.08, 1, 332));
-  poner(out, 1.2, 0.3, golpe(70, 35, 0.1, 1, 333));
-  // reles que caen y el zumbido que se muere
-  for (const t0 of [2.2, 2.35]) poner(out, t0, 0.3, golpe(130, 50, 0.05, 0.8, Math.floor(t0 * 100)));
-  let f = 0;
-  poner(out, 2.2, 1.8, (t) => { f += (100 * (1 - t / 1.8) + 10) / SR; return Math.sin(TAU * f) * 0.25 * (1 - t / 1.8); });
-  return pico(nave(out, 0.4), -1);
-}
-
-function reserva () {
-  const out = mono(1.6);
-  for (let k = 0; k < 4; k++) {
-    const f = k % 2 ? 620 : 780;
-    poner(out, k * 0.36, 0.3, (t) => Math.tanh(Math.sin(TAU * f * t) * 4) * 0.4 * Math.min(1, t * 200) * Math.min(1, (0.3 - t) * 200));
-  }
-  return pico(nave(filtrar(out, 'bp', 900, 0.8), 0.25), -2);
-}
-
-/**
- * Echar gasolina con la garrafa: el tapon, el chorro que cae en el deposito (muchas burbujas
- * pequenas que suben de tono, como el agua de verdad) y los glu-glu de la garrafa cuando le entra
- * aire, cada vez mas agudos porque el deposito se va llenando. Al final, el chorro se corta.
- */
-function repostar () {
-  const dur = 3.2;
-  const out = mono(dur);
-  const rnd = D.azar(341);
-  const ini = 0.35;
-  const fin = 2.75;
-  // el tapon que se desenrosca
-  poner(out, 0.0, 0.12, clic(2600, 0.012, 342));
-  poner(out, 0.12, 0.25, chapa(900, 0.04, 343));
-  // el chorro: un siseo suave y muchas burbujas (senos que suben de tono y se apagan rapido)
-  const siseo = new D.Biquad('bp', 1800, 0.6);
-  const graves = new D.Biquad('lp', 500, 0.7);
-  poner(out, ini, fin - ini, (t) => {
-    const env = Math.min(1, t * 8) * Math.min(1, (fin - ini - t) * 6);
-    const n = rnd() * 2 - 1;
-    return (siseo.paso(n) * 0.12 + graves.paso(n) * 0.35) * env;
-  });
-  let t = ini;
-  while (t < fin - 0.05) {
-    const lleno = (t - ini) / (fin - ini);
-    const f0 = (500 + rnd() * 1300) * (1 + lleno * 0.35);
-    const tau = 0.006 + rnd() * 0.02;
-    const a = 0.15 + rnd() * 0.35;
-    poner(out, t, tau * 6, (u) => Math.sin(TAU * f0 * (1 + u * 9) * u) * Math.exp(-u / tau) * a);
-    t += 0.006 + rnd() * 0.03;
-  }
-  // los glu-glu: la garrafa traga aire (burbujas grandes y graves) y el chorro tiembla un instante
-  let g = ini + 0.3;
-  while (g < fin - 0.2) {
-    const lleno = (g - ini) / (fin - ini);
-    for (let k = 0; k < 3; k++) {
-      const f0 = (140 + rnd() * 90) * (1 + lleno * 0.5);
-      poner(out, g + k * 0.045, 0.16, (u) => Math.sin(TAU * f0 * (1 + u * 3) * u) * Math.exp(-u * 22) * (0.9 - k * 0.2));
-    }
-    g += 0.42 + rnd() * 0.18;
-  }
-  // el chorro se corta: las ultimas gotas
-  for (let k = 0; k < 4; k++) {
-    const f0 = 900 + rnd() * 700;
-    poner(out, fin + 0.05 + k * (0.08 + rnd() * 0.08), 0.06, (u) => Math.sin(TAU * f0 * (1 + u * 12) * u) * Math.exp(-u * 70) * 0.35);
-  }
-  return pico(reverb(filtrar(out, 'hp', 80), 0.35, 0.18), -2);
 }
 
 function fallo () {
@@ -308,16 +191,6 @@ function pasarela () {
 }
 
 /* ============================================================== lo que se hace */
-
-function bidon () {
-  const out = mono(0.9);
-  poner(out, 0, 0.6, chapa(220, 0.12, 371));
-  // el liquido que se mueve dentro
-  const rnd = D.azar(372);
-  const bp = new D.Biquad('bp', 700, 2);
-  poner(out, 0.05, 0.7, (t) => bp.paso(rnd() * 2 - 1) * Math.exp(-t * 4) * (0.5 + 0.5 * Math.sin(TAU * 7 * t)) * 0.8);
-  return pico(out, -2);
-}
 
 function coger () {
   const out = mono(0.5);
@@ -413,25 +286,72 @@ function radio () {
   return pico(out, -1);
 }
 
+/* ============================================================== los pasos */
+
+/** Un eco corto de nave: menos que en las Piscinas (que es todo azulejo y agua). */
+const ecoPaso = (buf) => ecos(reverb(buf, 0.62, 0.22, { amortiguacion: 0.45, predelayMs: 18 }), [0.16, 0.33], 0.16, 2200);
+
+/** Un paso sobre hormigon: el tacon sordo, la suela que roza y la nave que responde un poco. */
+function pasoEstacion (k) {
+  const rnd = D.azar(5100 + k);
+  const buf = mono(1.2);
+  const g = 0.85 + rnd() * 0.3;
+  const lp = new D.Biquad('lp', 700 + rnd() * 350, 0.7);
+  poner(buf, 0.01, 0.12, (t) => (lp.paso(rnd() * 2 - 1) * 1.3 + Math.sin(TAU * (95 + rnd() * 30) * t) * 0.7) * Math.min(1, t / 0.002) * Math.exp(-t / 0.026) * g);
+  if (rnd() < 0.7) {
+    const bp = new D.Biquad('bp', 2400 + rnd() * 1500, 1.8);
+    poner(buf, 0.045 + rnd() * 0.03, 0.08, (t) => bp.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 0.08) * 0.35);
+  }
+  poner(buf, 0.07, 0.08, (t) => lp.paso(rnd() * 2 - 1) * Math.exp(-t / 0.02) * 0.45 * g);
+  return pico(ecoPaso(buf), -1);
+}
+
+/** Un paso sobre chapa: el golpe, la plancha que vibra grave y el eco. */
+function pasoChapa (k) {
+  const rnd = D.azar(5200 + k);
+  const buf = mono(1.2);
+  const g = 0.85 + rnd() * 0.3;
+  const lp = new D.Biquad('lp', 1100 + rnd() * 400, 0.7);
+  poner(buf, 0.01, 0.1, (t) => lp.paso(rnd() * 2 - 1) * Math.min(1, t / 0.0015) * Math.exp(-t / 0.02) * 1.3 * g);
+  poner(buf, 0.01, 0.5, (() => { const c = chapa(140 + rnd() * 90, 0.09, 5210 + k, 0.7); return (t) => c(t) * 0.45 * g; })());
+  if (rnd() < 0.5) poner(buf, 0.06, 0.12, (() => { const c = chapa(600 + rnd() * 400, 0.03, 5220 + k, 1.2); return (t) => c(t) * 0.12; })());
+  return pico(ecoPaso(buf), -1);
+}
+
 /* ============================================================== el Amasijo */
 
-/** Muchas manos que golpean el suelo de chapa: palmadas humedas casi a la vez. */
+/**
+ * El paso del Amasijo: una masa blanda que se apoya y se arrastra. Golpes graves y lentos de
+ * ataque (nada de chasquidos), un chof humedo que se despega, un roce de carne y algo de cola de
+ * nave, para que no suene seco.
+ */
 function amasijoPasos (semilla) {
-  const out = mono(0.5);
+  const out = mono(1.1);
   const rnd = D.azar(semilla);
-  for (let k = 0; k < 6; k++) {
-    const t0 = rnd() * 0.18;
-    const g = 0.5 + rnd() * 0.5;
-    // la palmada: ruido corto, con cuerpo grave y la chapa que suena un poco
-    const bp = new D.Biquad('bp', 900 + rnd() * 900, 1.2);
+  // el apoyo: dos o tres masas que caen casi juntas, graves y blandas
+  for (let k = 0; k < 3; k++) {
+    const t0 = k * (0.05 + rnd() * 0.06);
+    const g = (0.6 + rnd() * 0.4) * (1 - k * 0.2);
+    const lp = new D.Biquad('lp', 260 + rnd() * 160, 0.8);
     const r2 = D.azar(semilla * 7 + k);
-    poner(out, t0, 0.12, (t) => (bp.paso(r2() * 2 - 1) * 2 + Math.sin(TAU * 120 * t) * 0.6) * Math.exp(-t * 55) * g);
-    if (k % 2 === 0) poner(out, t0, 0.2, (() => { const c = chapa(320 + rnd() * 200, 0.05, semilla + k); return (t) => c(t) * 0.15 * g; })());
+    const f0 = 55 + rnd() * 25;
+    poner(out, t0, 0.3, (t) => (lp.paso(r2() * 2 - 1) * 1.6 + Math.sin(TAU * f0 * t) * 0.9) * Math.min(1, t / 0.012) * Math.exp(-t / 0.07) * g);
   }
-  // el chof humedo
-  const wet = new D.Biquad('bp', 1500, 3);
-  poner(out, 0.05, 0.2, (t) => wet.paso(rnd() * 2 - 1) * Math.exp(-t * 25) * 0.8);
-  return pico(out, -1);
+  // el chof que se despega: ruido medio que sube de tono y se corta suave
+  const wet = new D.Biquad('bp', 700, 2.2);
+  poner(out, 0.08 + rnd() * 0.05, 0.22, (t) => {
+    wet.ajustar ? wet.ajustar(700 + t * 2500) : 0;
+    return wet.paso(rnd() * 2 - 1) * Math.sin(Math.PI * Math.min(1, t / 0.22)) * 0.7;
+  });
+  // unas burbujas pequenas, humedas
+  for (let m = 0; m < 4; m++) {
+    const f0 = 250 + rnd() * 350;
+    poner(out, 0.1 + rnd() * 0.25, 0.08, (u) => Math.sin(TAU * f0 * (1 + u * 6) * u) * Math.exp(-u * 35) * 0.3);
+  }
+  // el roce de la carne contra el suelo
+  const roce = new D.Biquad('bp', 1200, 0.9);
+  poner(out, 0.12, 0.35, (t) => roce.paso(rnd() * 2 - 1) * Math.sin(Math.PI * t / 0.35) * 0.18);
+  return pico(reverb(filtrar(out, 'lp', 3500), 0.55, 0.2, { amortiguacion: 0.5, predelayMs: 15 }), -1);
 }
 
 function amasijoGrito () {
@@ -491,39 +411,38 @@ function amasijoAtaque () {
 /* ============================================================== todo */
 
 const SONIDOS = [
-  ['estacion_generador', generador],
   ['estacion_estruendo1', () => estruendo(461)], ['estacion_estruendo2', () => estruendo(462)], ['estacion_estruendo3', () => estruendo(463)],
   ['estacion_chispas1', () => pico(chispas(0.5, 2, 471), -3)], ['estacion_chispas2', () => pico(chispas(0.4, 1.4, 472), -3)], ['estacion_chispas3', () => pico(chispas(0.6, 3, 473), -3)],
-  ['estacion_arranca', arranca], ['estacion_parada', parada], ['estacion_reserva', reserva], ['estacion_repostar', repostar],
-  ['estacion_fallo', fallo], ['estacion_pasarela', pasarela], ['estacion_bidon', bidon], ['estacion_coger', coger],
+  ['estacion_arranca', arranca],
+  ['estacion_fallo', fallo], ['estacion_pasarela', pasarela], ['estacion_coger', coger],
   ['estacion_reparar', reparar], ['estacion_persiana', persiana], ['estacion_fusible', fusible], ['estacion_palanca', palanca],
   ['estacion_radio', radio],
   ['amasijo_pasos1', () => amasijoPasos(481)], ['amasijo_pasos2', () => amasijoPasos(482)], ['amasijo_pasos3', () => amasijoPasos(483)],
+  ['amasijo_pasos4', () => amasijoPasos(484)],
   ['amasijo_grito', amasijoGrito],
   ['amasijo_respira1', () => amasijoRespira(491)], ['amasijo_respira2', () => amasijoRespira(492)],
   ['amasijo_ataque', amasijoAtaque]
 ];
+for (let k = 0; k < 6; k++) SONIDOS.push([`estacion_paso${k + 1}`, () => pasoEstacion(k)]);
+for (let k = 0; k < 6; k++) SONIDOS.push([`estacion_paso_chapa${k + 1}`, () => pasoChapa(k)]);
 
 /** Entradas de sounds.json: evento -> [archivos, distancia de atenuacion]. */
 const EVENTOS = {
   'estacion.ambiente': [['estacion_ambiente'], 16],
-  'estacion.generador': [['estacion_generador'], 40],
   'estacion.estruendo': [['estacion_estruendo1', 'estacion_estruendo2', 'estacion_estruendo3'], 80],
   'estacion.chispas': [['estacion_chispas1', 'estacion_chispas2', 'estacion_chispas3'], 12],
   'estacion.arranca': [['estacion_arranca'], 64],
-  'estacion.parada': [['estacion_parada'], 64],
-  'estacion.reserva': [['estacion_reserva'], 48],
-  'estacion.repostar': [['estacion_repostar'], 16],
   'estacion.fallo': [['estacion_fallo'], 48],
   'estacion.pasarela': [['estacion_pasarela'], 64],
-  'estacion.bidon': [['estacion_bidon'], 12],
   'estacion.coger': [['estacion_coger'], 12],
   'estacion.reparar': [['estacion_reparar'], 20],
   'estacion.persiana': [['estacion_persiana'], 32],
   'estacion.fusible': [['estacion_fusible'], 16],
   'estacion.palanca': [['estacion_palanca'], 20],
   'estacion.radio': [['estacion_radio'], 16],
-  'amasijo.pasos': [['amasijo_pasos1', 'amasijo_pasos2', 'amasijo_pasos3'], 28],
+  'amasijo.pasos': [['amasijo_pasos1', 'amasijo_pasos2', 'amasijo_pasos3', 'amasijo_pasos4'], 28],
+  'estacion.paso': [[1, 2, 3, 4, 5, 6].map((k) => 'estacion_paso' + k), 16],
+  'estacion.paso_chapa': [[1, 2, 3, 4, 5, 6].map((k) => 'estacion_paso_chapa' + k), 16],
   'amasijo.grito': [['amasijo_grito'], 64],
   'amasijo.respira': [['amasijo_respira1', 'amasijo_respira2'], 20],
   'amasijo.ataque': [['amasijo_ataque'], 24]
@@ -541,6 +460,7 @@ if (require.main === module) (async () => {
   const texto = fs.readFileSync(f, 'utf8');
   const crlf = texto.includes('\r\n');
   const j = JSON.parse(texto);
+  for (const viejo of ['estacion.generador', 'estacion.parada', 'estacion.reserva', 'estacion.repostar', 'estacion.bidon']) delete j[viejo];
   for (const [evento, [archivos, distancia]] of Object.entries(EVENTOS)) {
     j[evento] = { sounds: archivos.map((a) => ({ name: `backrooms_evento:${a}`, attenuation_distance: distancia })) };
   }

@@ -26,7 +26,6 @@ public enum TipoMision {
 	PREMIO("Sal de la fiesta", "Con tus tickets, la puerta del norte de la sala central se abre. Al fondo del salón, el tobogán: quédate en su boca."),
 
 	/* las de la Estacion Electrica (Nivel 3): son de todos (las va cumpliendo JuegoEstacion) y la ultima, cruzar */
-	COMBUSTIBLE("Echa gasolina al generador", "El generador (en la sala donde se empieza) gasta sin parar. Busca bidones de gasolina por los pasillos y vacíalos en su boca (clic derecho). Sin gasolina, apagón: nada funciona y lo que vive aquí se pone nervioso."),
 	PISO1("Activa la central del piso 1", "Cruza el laberinto: las rejas se abren con un fusible en su caja (en el muro de al lado); si alguien lo saca, se cierran. El laberinto sube por escaleras: arriba del todo, un pasillo largo y en un costado la central. Ponle 2 fusibles y 1 cinta aislante: se abre su puerta al piso 2."),
 	PISO2("Activa la central del piso 2", "Otro laberinto, otra central: 2 fusibles, 1 cinta y 1 cable. Las rejas también sirven para cerrarle el paso a lo que te persigue. En los buzones, con un fusible, puede haber algo útil... o nada."),
 	PISO3("Activa la central del piso 3", "La última: 3 fusibles, 2 cintas y 2 cables. Da corriente a la pasarela. En algún trastero de este piso hay una cizalla: hará falta."),
