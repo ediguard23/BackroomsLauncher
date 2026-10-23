@@ -36,13 +36,12 @@ import org.jspecify.annotations.Nullable;
  * redonda con la sonrisa cosida, gorrito, pajarita, guantes blancos) demasiado alto y demasiado
  * flaco; dentro hay alguien que fue un participante y recuerda muy bien como atraer a la gente.
  *
- * Siempre hay alguno en el laberinto (AnfitrionFiesta: uno por cada ConfigFiesta.anfitrionPorJugadores
- * jugadores de la Fiesta, como minimo uno). No se va ni se le puede hacer dano.
+ * Siempre hay dos o tres dando vueltas por el laberinto (AnfitrionFiesta). No se va ni se le puede hacer dano.
  *  - Con LUZ: merodea despacio por la ronda del laberinto (PlanoFiesta.RONDA). No caza a nadie.
  *  - En un APAGON: un anfitrionApagon mas rapido; si te ve (a anfitrionDetecta bloques, sin paredes en
  *    medio) va a por ti a anfitrionVelocidad. Va a donde te vio por ultima vez; si no te vuelve a ver en
  *    anfitrionOlvida segundos, te deja y sigue rondando. Si te alcanza te ABRAZA: no te puedes mover y
- *    al segundo y medio mueres. En las salas seguras y las de inicio no te persigue.
+ *    al segundo y medio mueres. Dentro de una habitacion no te persigue: es donde uno se salva.
  *  - APARICION (solo con /backrooms fiesta aparicion): de pie, lejos, mirandote; se va si le apuntas
  *    con la linterna encendida, o a los pocos segundos.
  */
@@ -244,10 +243,10 @@ public class Anfitrion extends Monster {
 		return j.isAlive() && !j.isCreative() && !j.isSpectator() && j.level() == this.level() && Misiones.get().enExpedicion(j) && !aSalvo(j);
 	}
 
-	/** En una sala segura o de inicio (detras de una puerta) no se le persigue. */
+	/** Dentro de una habitacion (cualquiera que no sea el pasillo del laberinto) no se le persigue. */
 	private static boolean aSalvo(ServerPlayer j) {
 		PlanoFiesta.Sala s = PlanoFiesta.sala(j.getX(), j.getZ());
-		return s != null && (s.nombre().startsWith("segura") || s.nombre().startsWith("inicio"));
+		return s != null && !s.nombre().equals("laberinto");
 	}
 
 	private boolean ve(ServerPlayer j) {

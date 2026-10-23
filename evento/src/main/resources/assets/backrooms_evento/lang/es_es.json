@@ -207,5 +207,7 @@
   "death.attack.backrooms_evento.estacion.player": "%2$s arrastró a %1$s a los pasillos sin luz",
   "block.backrooms_evento.reja_estacion": "Reja",
   "item.backrooms_evento.cizalla": "Cizalla",
-  "item.backrooms_evento.fusible": "Fusible"
+  "item.backrooms_evento.fusible": "Fusible",
+  "block.backrooms_evento.buzon_estacion": "Buzón",
+  "block.backrooms_evento.generador_estacion": "Generador"
 }

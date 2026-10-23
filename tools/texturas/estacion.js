@@ -368,16 +368,19 @@ CARTELES.forEach((l, v) => {
 });
 estados('senal_estacion', { facing: FAC, variante: rango(8) }, (e) => `senal_estacion_${e.variante}`, 'senal_estacion_0');
 
-// la luz roja de emergencia, enjaulada
+// la luz roja de emergencia: placa de chapa, tulipa roja encendida y la jaula delante
 guardar(TEX, 'luz_roja', new Lienzo(16).pintar((x, y) => {
-  const d = Math.hypot(x - 7.5, y - 7.5) / 8;
-  return mezcla([255, 120, 100], [200, 20, 16], d);
+  const d = Math.hypot(x - 8, y - 7) / 4;
+  let c = mezcla([255, 150, 120], [196, 24, 18], Math.min(1, d));
+  if (x === 6 && y === 5) c = [255, 236, 226];
+  return c;
 }));
 json('models/block/luz_roja.json', mod({ l: t('luz_roja'), m: t('tuberia_soporte'), particle: t('luz_roja') }, [
-  caja([5, 4, 14], [11, 10, 16], '#m'),
-  { ...caja([5.5, 4.5, 11], [10.5, 9.5, 14], '#l'), shade: false, light_emission: 15 },
-  caja([5, 4, 10.5], [5.5, 10, 14], '#m'), caja([10.5, 4, 10.5], [11, 10, 14], '#m'),
-  caja([5, 9.5, 10.5], [11, 10, 14], '#m'), caja([7.75, 4, 10.5], [8.25, 10, 11], '#m')
+  caja([4, 3, 15], [12, 11, 16], '#m'),
+  caja([4.5, 3.5, 14], [11.5, 10.5, 15], '#m'),
+  { ...caja([5, 4, 10.5], [11, 10, 14], '#l'), shade: false, light_emission: 15 },
+  caja([6.5, 3.5, 10], [7, 10.5, 10.5], '#m'), caja([9, 3.5, 10], [9.5, 10.5, 10.5], '#m'),
+  caja([4.5, 6.75, 10], [11.5, 7.25, 10.5], '#m')
 ]));
 estados('luz_roja', { facing: FAC, variante: rango(8) }, () => 'luz_roja', 'luz_roja');
 
@@ -567,11 +570,11 @@ const objetoPunto = [
   [caja([3, 2, 3], [8, 4, 8], '#o'), caja([8, 2, 8], [13, 4, 13], '#o'), caja([5, 4, 5], [11, 6, 11], '#o')],
   // 3 bidon: la garrafa amarilla con su asa y su tapon
   [caja([4, 2, 5], [12, 13, 11], '#o'), caja([5, 13, 7], [11, 15, 8.5], '#o'), caja([9, 13, 9], [11, 15, 11], '#g')],
-  // 4 fusibles: tres de pie en su soporte, con la banda amarilla
-  [caja([3, 2, 5], [13, 3, 11], '#g'),
-    caja([4, 3, 7], [6, 9, 9], '#c'), caja([3.9, 5, 6.9], [6.1, 7, 9.1], '#o'),
-    caja([7, 3, 7], [9, 9, 9], '#c'), caja([6.9, 5, 6.9], [9.1, 7, 9.1], '#o'),
-    caja([10, 3, 7], [12, 9, 9], '#c'), caja([9.9, 5, 6.9], [12.1, 7, 9.1], '#o')]
+  // 4 fusibles: tres cartuchos tumbados en su bandeja (cuerpo de ceramica, banda amarilla, puntas de metal)
+  [caja([2, 2, 4], [14, 3, 12], '#g'),
+    caja([4, 3, 4.5], [12, 5, 6.5], '#c'), caja([7, 3, 4.4], [9, 5.1, 6.6], '#o'), caja([3, 3, 4.6], [4, 5, 6.4], '#g'), caja([12, 3, 4.6], [13, 5, 6.4], '#g'),
+    caja([4, 3, 7], [12, 5, 9], '#c'), caja([7, 3, 6.9], [9, 5.1, 9.1], '#o'), caja([3, 3, 7.1], [4, 5, 8.9], '#g'), caja([12, 3, 7.1], [13, 5, 8.9], '#g'),
+    caja([4, 3, 9.5], [12, 5, 11.5], '#c'), caja([7, 3, 9.4], [9, 5.1, 11.6], '#o'), caja([3, 3, 9.6], [4, 5, 11.4], '#g'), caja([12, 3, 9.6], [13, 5, 11.4], '#g')]
 ];
 const texPunto = [naranjaCable, mangos, cinta, BID[0], bandaFusible];
 for (let tipo = 0; tipo < 5; tipo++) {
@@ -659,8 +662,118 @@ pinta('persiana_alta', 16, (x, y) => (y < 4 ? escala([90, 94, 96], 0.85 + hash(x
   ]));
 });
 json('models/block/persiana_abierta.json', { parent: 'minecraft:block/block', textures: { particle: t('persiana_lamas') }, elements: [] });
-estados('persiana_estacion', { facing: FAC, parte: rango(9), abierta: [false, true] },
+estados('persiana_estacion', { facing: FAC, parte: rango(9), abierta: [false, true], oculta: [false, true] },
   (e) => (e.abierta ? 'persiana_abierta' : ['persiana_baja', 'persiana_lamas', 'persiana_alta'][e.parte % 3]), 'persiana_lamas');
+
+// los buzones: cerrados, con la ranura del fusible; abiertos, vacios con la puerta abierta
+{
+  const cerrado = new Lienzo(16).pintar((x, y) => metal(x, y, 1600, [128, 132, 138]));
+  cerrado.rect(2, 2, 10, 4, [232, 228, 214]);
+  cerrado.rect(3, 3, 9, 3, [40, 40, 40]);
+  cerrado.rect(12, 5, 13, 10, [36, 36, 36]);
+  cerrado.rect(3, 11, 8, 14, AMARILLO);
+  cerrado.rect(4, 12, 7, 13, [22, 22, 22]);
+  cerrado.punto(10, 13, [200, 40, 30]);
+  guardar(TEX, 'buzon_cerrado', cerrado);
+  const vacio = new Lienzo(16).pintar((x, y) => (x < 1 || y < 1 || x > 14 || y > 14 ? [90, 94, 98] : escala([28, 28, 30], 0.8 + hash(x, y, 1601) * 0.3)));
+  guardar(TEX, 'buzon_vacio', vacio);
+  json('models/block/buzon_cerrado.json', mod({ f: t('buzon_cerrado'), m: t('armario_lado'), particle: t('buzon_cerrado') }, [
+    cajaFrente([3, 2, 10], [13, 14, 16], '#f', '#m')
+  ]));
+  json('models/block/buzon_abierto.json', mod({ f: t('buzon_vacio'), d: t('buzon_cerrado'), m: t('armario_lado'), particle: t('buzon_cerrado') }, [
+    cajaFrente([3, 2, 10], [13, 14, 16], '#f', '#m'),
+    { from: [2.5, 2, 1], to: [3, 14, 10], faces: { west: { texture: '#d', uv: [0, 0, 16, 16] }, east: { texture: '#d', uv: [0, 0, 16, 16] }, north: { texture: '#m' }, south: { texture: '#m' }, up: { texture: '#m' }, down: { texture: '#m' } } }
+  ]));
+  estados('buzon_estacion', { facing: FAC, abierta: [false, true] }, (e) => (e.abierta ? 'buzon_abierto' : 'buzon_cerrado'), 'buzon_cerrado');
+}
+
+// el generador grande (4 x 3 x 3 bloques): frente con el cuadro de mandos, laterales de radiador, tapa
+{
+  const naranja = (x, y, canal) => metal(x, y, canal, NARANJA, 64);
+  const frente = new Lienzo(64).pintar((x, y) => {
+    if (y >= 48) return null;
+    let c = naranja(x, y, 1700);
+    if (x < 2 || x > 61 || y < 2) c = escala(NARANJA, 0.6);
+    if (y >= 42) c = aviso(x, y, 4);
+    if (x >= 34 && x <= 60 && y >= 17 && y <= 38) c = (y - 17) % 3 === 0 ? [34, 28, 24] : escala(NARANJA, 1.08);   // rejilla
+    return c;
+  });
+  // el cuadro de mandos: relojes, la pantalla, las luces y la seta de parada
+  frente.rect(4, 5, 30, 38, [40, 42, 44]);
+  frente.rect(5, 6, 29, 37, [62, 66, 70]);
+  for (const gx of [10, 18, 26]) {
+    frente.disco(gx, 12, 3.6, [24, 24, 24]);
+    frente.disco(gx, 12, 2.8, [236, 232, 214]);
+    frente.linea(gx, 12, gx + 1.8, 10.5, [200, 30, 30], 1);
+  }
+  frente.rect(7, 19, 27, 25, [16, 30, 20]);
+  frente.texto('050', 9, 18, [90, 230, 120]);
+  frente.disco(9, 31, 1.6, [70, 230, 90]);
+  frente.disco(14, 31, 1.6, [230, 60, 40]);
+  frente.disco(24, 31, 3.6, AMARILLO);
+  frente.disco(24, 31, 2.6, [200, 30, 30]);
+  frente.rect(36, 5, 58, 13, [236, 232, 214]);
+  frente.texto('G-01', 36, 6, [40, 40, 40]);
+  for (const [bx, by] of [[3, 3], [60, 3], [3, 40], [60, 40], [32, 3], [32, 40]]) frente.punto(bx, by, [200, 200, 196]);
+  guardar(TEX, 'generador_frente', frente);
+  const lado = new Lienzo(64).pintar((x, y) => {
+    if (x >= 48 || y >= 48) return null;
+    if (x < 3 || x > 44 || y < 3) return naranja(x, y, 1710);
+    if (y >= 42) return aviso(x, y, 4);
+    if (y > 38) return naranja(x, y, 1711);
+    return escala((x - 3) % 2 === 0 ? [70, 72, 72] : [26, 28, 28], 0.9 + hash(x, y, 1712) * 0.15);
+  });
+  lado.poligono([[38, 5], [43, 13], [33, 13]], AMARILLO);
+  lado.punto(38, 11, NEGRO);
+  lado.rect(38, 8, 38, 9, NEGRO);
+  guardar(TEX, 'generador_lado', lado);
+  const atras = new Lienzo(64).pintar((x, y) => {
+    if (y >= 48) return null;
+    let c = naranja(x, y, 1720);
+    if (y >= 42) c = aviso(x, y, 4);
+    else if (x >= 6 && x <= 57 && y >= 8 && y <= 36 && (y - 8) % 4 < 2) c = [34, 28, 24];
+    return c;
+  });
+  guardar(TEX, 'generador_atras', atras);
+  const tapa = new Lienzo(64).pintar((x, y) => {
+    if (y >= 48) return null;
+    let c = metal(x, y, 1730, escala(NARANJA, 0.92), 64);
+    if ((x === 2 || x === 61) || (y === 2 || y === 45)) c = [120, 64, 20];
+    if (x % 16 === 8 && y % 16 === 8 && !(x === 24 && y === 24)) c = [196, 196, 190];
+    return c;
+  });
+  tapa.disco(24, 24, 6, [50, 48, 46]);
+  tapa.disco(24, 24, 4, [16, 14, 12]);
+  tapa.disco(48, 12, 3, [40, 40, 40]);
+  tapa.disco(48, 12, 2, [170, 170, 164]);
+  tapa.rect(6, 30, 18, 40, [120, 64, 20]);
+  tapa.rect(7, 31, 17, 39, escala(NARANJA, 1.1));
+  guardar(TEX, 'generador_tapa_grande', tapa);
+  // las 36 piezas: cada cara de fuera con su trozo (UV en dieciseisavos de la textura de 64)
+  const trozo = (c, r) => [c * 4, r * 4, c * 4 + 4, r * 4 + 4];
+  const v = {};
+  for (let k = 0; k < 3; k++) {
+    for (let j = 0; j < 3; j++) {
+      for (let i = 0; i < 4; i++) {
+        const n = i + 4 * (j + 3 * k);
+        const caras = {};
+        const pon = (lado2, tex, uv) => { caras[lado2] = { texture: tex, uv, cullface: lado2 }; };
+        pon('south', '#fr', k === 2 ? trozo(i, 2 - j) : trozo(0, 0));
+        pon('north', '#at', k === 0 ? trozo(3 - i, 2 - j) : trozo(0, 0));
+        pon('west', '#la', i === 0 ? trozo(k, 2 - j) : trozo(0, 0));
+        pon('east', '#la', i === 3 ? trozo(2 - k, 2 - j) : trozo(0, 0));
+        pon('up', '#ta', j === 2 ? trozo(i, k) : trozo(0, 0));
+        pon('down', '#ta', trozo(0, 0));
+        json(`models/block/generador_estacion_${n}.json`, { parent: 'minecraft:block/block',
+          textures: { fr: t('generador_frente'), at: t('generador_atras'), la: t('generador_lado'), ta: t('generador_tapa_grande'), particle: t('generador_frente') },
+          elements: [{ from: [0, 0, 0], to: [16, 16, 16], faces: caras }] });
+        v[`pieza=${n}`] = { model: t(`generador_estacion_${n}`) };
+      }
+    }
+  }
+  json('blockstates/generador_estacion.json', { variants: v });
+  json('items/generador_estacion.json', { model: { type: 'minecraft:model', model: t('generador_estacion_9') } });
+}
 
 // las rejas de los laberintos (y la puerta encadenada del final): barrotes de acero con travesanos
 const barrotes = (x, y) => {
@@ -677,7 +790,7 @@ pinta('reja_alta', 16, (x, y) => (y < 3 ? escala([70, 72, 74], 0.85 + hash(x, y,
   ]));
 });
 json('models/block/reja_abierta.json', { parent: 'minecraft:block/block', textures: { particle: t('reja_barrotes') }, elements: [] });
-estados('reja_estacion', { facing: FAC, parte: rango(9), abierta: [false, true] },
+estados('reja_estacion', { facing: FAC, parte: rango(9), abierta: [false, true], oculta: [false, true] },
   (e) => (e.abierta ? 'reja_abierta' : ['reja_baja', 'reja_barrotes', 'reja_alta'][e.parte % 3]), 'reja_barrotes');
 
 // los focos de la pasarela, en el suelo junto a ella
@@ -717,10 +830,23 @@ objeto('cizalla', (x, y) => {
   return null;
 });
 objeto('cinta_aislante', (x, y) => {
-  const d = Math.hypot(x - 7.5, y - 7.5);
-  if (d > 6.5 || d < 3) return null;
-  if (d < 3.8) return [200, 190, 160];
-  return escala([40, 40, 46], 0.9 + (x < 7 && y < 7 ? 0.4 : 0));
+  // un rollo visto un poco de lado: la cara (negra y brillante), el canto debajo, el carton del centro
+  // y la punta de la cinta colgando
+  const cx = 7.5;
+  const cy = 6.5;
+  const d = Math.hypot(x - cx, (y - cy) * 1.15);
+  const dc = Math.hypot(x - cx, (y - cy - 2) * 1.15);
+  if (d <= 6.2) {
+    if (d < 1.6) return [40, 34, 28];                              // el agujero
+    if (d < 2.9) return escala([206, 178, 128], d < 2.3 ? 0.8 : 1); // el carton
+    let c = escala([44, 46, 54], 0.95 + (x < cx && y < cy ? 0.25 : 0));
+    if (Math.abs(d - 4.6) < 0.5 && x < cx + 2 && y < cy) c = [120, 124, 140]; // el brillo
+    if (d > 5.6) c = [20, 20, 24];
+    return c;
+  }
+  if (dc <= 6.2 && y > cy) return escala([28, 28, 34], 0.8 + (dc < 5.4 ? 0.2 : 0)); // el canto
+  if (x >= 11 && x <= 13 && y >= 9 && y <= 15 && x - 11 <= (y - 9) / 2.5 + 1) return y === 15 ? [20, 20, 24] : [56, 58, 66]; // la punta
+  return null;
 });
 objeto('bidon_combustible', (x, y) => {
   if (y >= 1 && y <= 3 && x >= 5 && x <= 10) return (y === 1 || x === 5 || x === 10) ? [180, 140, 30] : null;
@@ -731,11 +857,21 @@ objeto('bidon_combustible', (x, y) => {
   return c;
 });
 objeto('fusible', (x, y) => {
-  if (x < 5 || x > 10) return null;
-  if (y < 1 || y > 14) return null;
-  if (y <= 2 || y >= 13) return [180, 180, 176];
-  if (y >= 6 && y <= 9) return AMARILLO;
-  return escala([236, 232, 220], x === 5 ? 0.85 : 1);
+  // un fusible de cartucho en diagonal: puntas de metal, cuerpo de ceramica blanco y la banda amarilla
+  const t = ((x - 7.5) - (y - 7.5)) / Math.SQRT2;
+  const w = ((x - 7.5) + (y - 7.5)) / Math.SQRT2;
+  const L = 7.4;
+  const R = 2.3;
+  if (Math.abs(t) > L || Math.abs(w) > R) return null;
+  const borde = Math.abs(w) > R - 0.8 || Math.abs(t) > L - 0.7;
+  const luz = 1.1 - (w + R) / (2 * R) * 0.45;
+  let c;
+  if (Math.abs(t) > L - 2.6) c = escala([196, 200, 206], luz);          // las puntas de metal
+  else if (Math.abs(t) < 1.4) c = escala(AMARILLO, luz);                 // la banda
+  else c = escala([240, 236, 226], luz);                                 // la ceramica
+  if (Math.abs(Math.abs(t) - (L - 2.6)) < 0.5) c = escala(c, 0.6);        // el canto de la punta
+  if (borde) c = escala(c, 0.55);
+  return c;
 });
 for (const viejo of ['fusible_rojo', 'fusible_amarillo', 'fusible_azul', 'fusible_verde', 'caja_herramientas']) {
   for (const ruta of [path.join(ITEM, viejo + '.png'), path.join(ASSETS, 'models', 'item', viejo + '.json'), path.join(ASSETS, 'items', viejo + '.json')]) {
@@ -781,6 +917,8 @@ const NOMBRES = {
   panel_averiado: ['Central eléctrica', 'Power terminal'],
   caja_fusible: ['Caja de fusible', 'Fuse box'],
   reja_estacion: ['Reja', 'Gate'],
+  buzon_estacion: ['Buzón', 'Mailbox'],
+  generador_estacion: ['Generador', 'Generator'],
   persiana_estacion: ['Persiana metálica', 'Roller shutter'],
   foco_pasarela: ['Foco de la pasarela', 'Catwalk light']
 };

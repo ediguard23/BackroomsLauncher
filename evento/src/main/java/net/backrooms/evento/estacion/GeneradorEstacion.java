@@ -109,7 +109,7 @@ public class GeneradorEstacion extends ChunkGenerator {
 
 	@Override
 	public int getBaseHeight(int x, int z, Heightmap.Types tipo, LevelHeightAccessor alturas, RandomState estado) {
-		return PlanoEstacion.TECHO_POZO + 1;
+		return PlanoEstacion.BASES[PlanoEstacion.PISOS - 1] + 2 * PlanoEstacion.ZONA_SUBE + 14;
 	}
 
 	@Override
@@ -121,7 +121,7 @@ public class GeneradorEstacion extends ChunkGenerator {
 	@Override
 	public void addDebugScreenInfo(List<String> lineas, RandomState estado, BlockPos pos) {
 		PlanoEstacion.Sala s = PlanoEstacion.sala(pos.getX(), pos.getY(), pos.getZ());
-		lineas.add("Estacion: " + PlanoEstacion.PISO[PlanoEstacion.piso(pos.getY())] + " · " + (s == null ? "fuera" : s.nombre()));
+		lineas.add("Estacion: " + PlanoEstacion.PISO[PlanoEstacion.piso(pos.getZ())] + " · " + (s == null ? "fuera" : s.nombre()));
 	}
 
 	@Override

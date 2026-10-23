@@ -41,6 +41,10 @@ public final class BloquesEstacion {
 
 	/* ---------------------------------------------------------- generador */
 
+	/** El generador grande: 4 x 3 x 3 piezas (Interactivos.PIEZA), cada una con su trozo del dibujo. */
+	public static final Block GENERADOR_PIEZA = conObjeto(Blocks.register(clave("generador_estacion"), Interactivos.PiezaGenerador::new,
+		propiedades(MapColor.COLOR_ORANGE, SoundType.METAL)));
+
 	/** La carcasa del generador: chapa naranja con rejillas de ventilacion y franjas de aviso. */
 	public static final Block GENERADOR = registrar("generador_carcasa", propiedades(MapColor.COLOR_ORANGE, SoundType.METAL));
 	/** El radiador de los extremos del generador. */
@@ -54,16 +58,19 @@ public final class BloquesEstacion {
 	/* ---------------------------------------------------------- decorado */
 
 	/** En la pared: tuberias (0..3), cuadros electricos con relojes (4..7). */
-	public static final Block TUBERIAS = pared("tuberias_pared", 0);
-	public static final Block CUADRO = pared("cuadro_electrico", 1);
+	public static final Block TUBERIAS = pared("tuberias_pared", 0, Block.box(0, 4, 10, 16, 15, 16));
+	public static final Block CUADRO = pared("cuadro_electrico", 1, Block.box(1, 1, 12, 15, 15, 16));
 	/** Senales y carteles: PELIGRO ALTA TENSION, sector, salida, prohibido, extintor, combustible... */
-	public static final Block SENAL = pared("senal_estacion", 0);
+	public static final Block SENAL = pared("senal_estacion", 0, Block.box(0, 0, 15, 16, 16, 16));
 	/** Luz roja de emergencia enjaulada, en la pared. */
-	public static final Block LUZ_ROJA = pared("luz_roja", 8);
+	public static final Block LUZ_ROJA = pared("luz_roja", 8, Block.box(4, 3, 9, 12, 11, 16));
 	public static final Block ROTULO = conObjeto(Blocks.register(clave("rotulo_sector"), Interactivos.Rotulo::new,
-		propiedades(MapColor.COLOR_YELLOW, SoundType.METAL).noCollision().noOcclusion()));
+		propiedades(MapColor.COLOR_YELLOW, SoundType.METAL).noOcclusion()));
+	/** Un buzon de chapa en la pared: con un fusible (que se queda dentro) se abre y da lo que tenga. */
+	public static final Block BUZON = conObjeto(Blocks.register(clave("buzon_estacion"), Interactivos.Buzon::new,
+		propiedades(MapColor.COLOR_GRAY, SoundType.METAL).noOcclusion()));
 	/** Cables que cuelgan del techo (no chocan). */
-	public static final Block CABLES = suelo("cables_colgando", Block.box(2, 0, 2, 14, 16, 14), Shapes.empty());
+	public static final Block CABLES = suelo("cables_colgando", Block.box(2, 0, 2, 14, 16, 14), Block.box(4, 0, 4, 12, 16, 12));
 	/** En el suelo, macizos: armario electrico, transformador, maquina, bidones, estanteria, carro, banco, consola. */
 	public static final Block ARMARIO = suelo("armario_electrico", Block.box(0, 0, 2, 16, 16, 16), Block.box(0, 0, 2, 16, 16, 16));
 	public static final Block TRANSFORMADOR = suelo("transformador", Block.box(1, 0, 1, 15, 16, 15), Block.box(1, 0, 1, 15, 16, 15));
@@ -124,13 +131,13 @@ public final class BloquesEstacion {
 
 	/** Los que se ven a traves (rejilla, cables, barandilla...): para el cliente, capa CUTOUT. */
 	public static Block[] recortados() {
-		return new Block[] {REJILLA, TUBERIAS, CUADRO, SENAL, LUZ_ROJA, ROTULO, CABLES, BARANDILLA, PUNTO, PANEL, REJA, ESCAPE,
+		return new Block[] {REJILLA, TUBERIAS, CUADRO, SENAL, LUZ_ROJA, ROTULO, CABLES, BARANDILLA, PUNTO, PANEL, REJA, BUZON, ESCAPE,
 			ESTANTERIA, CONSOLA, ARMARIO, TRANSFORMADOR, MAQUINA, BIDONES, LAMPARA, LAMPARA_FUNDIDA};
 	}
 
-	private static Block pared(String id, int luz) {
-		return conObjeto(Blocks.register(clave(id), Variante.Pared::new,
-			propiedades(MapColor.COLOR_GRAY, SoundType.METAL).noCollision().noOcclusion().lightLevel(e -> luz)));
+	private static Block pared(String id, int luz, VoxelShape forma) {
+		return conObjeto(Blocks.register(clave(id), p -> new Variante.Pared(p, forma),
+			propiedades(MapColor.COLOR_GRAY, SoundType.METAL).noOcclusion().lightLevel(e -> luz)));
 	}
 
 	private static Block suelo(String id, VoxelShape forma, VoxelShape choque) {

@@ -61,14 +61,17 @@ public final class JuegoEstacion {
 	/** Gasolina: el maximo, lo que da un bidon, el gasto por segundo y con lo que se empieza. */
 	public static final float MAXIMO = 100.0F;
 	private static final float BIDON = 30.0F;
-	private static final float CONSUMO = 100.0F / (10 * 60);
+	private static final float CONSUMO = 100.0F / (10 * 60 * 1.15F);
 	private static final float INICIAL = 40.0F;
 	/** Por debajo de esto, la alarma del deposito. */
 	private static final float RESERVA = 15.0F;
 	/** Segundos que tarda en reponerse cada cosa (por tipo: cable, cizalla, cinta, bidon, fusible). */
 	private static final int[] REPONER = {90, 60, 90, 120, 100};
 	private static final String[] NOMBRE = {"un cable", "la cizalla", "cinta aislante", "un bidón de gasolina", "un fusible"};
-	private static final String[] PIEZA = {"fusible", "cinta", "cable"};
+	private static final String[] PIEZA = {"fusible", "cinta aislante", "cable"};
+	private static final String[] PIEZAS = {"fusibles", "cintas aislantes", "cables"};
+	/** Lo que tarda en subir o bajar una reja o una persiana (ticks). */
+	private static final int ANIMA = 30;
 	private static final ChatFormatting[] TINTAS = {ChatFormatting.RED, ChatFormatting.YELLOW, ChatFormatting.AQUA};
 
 	private static final class Estado {
@@ -81,6 +84,8 @@ public final class JuegoEstacion {
 		boolean[] activa = new boolean[PlanoEstacion.PISOS];
 		/** La cadena de la puerta del final, cortada. */
 		boolean cadena;
+		/** Los buzones ya abiertos (vacios). */
+		Set<Integer> buzones = new HashSet<>();
 	}
 
 	private final Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -93,6 +98,22 @@ public final class JuegoEstacion {
 	/** Cuando se vacio cada punto (tick), para reponerlo. */
 	private final Map<Integer, Long> vacios = new HashMap<>();
 	private final Display.TextDisplay[] pantallas = new Display.TextDisplay[PlanoEstacion.PISOS];
+	/** Las puertas que se estan moviendo (subiendo o bajando), con sus piezas dibujadas. */
+	private final Map<PlanoEstacion.Puerta, Animacion> animando = new HashMap<>();
+	private final java.util.Random azar = new java.util.Random();
+
+	/** Una puerta subiendo (abriendose) o bajando: sus 9 piezas como BlockDisplay que se deslizan. */
+	private static final class Animacion {
+		final boolean abriendo;
+		final long inicio;
+		final List<Display.BlockDisplay> piezas = new ArrayList<>();
+		boolean lanzada;
+
+		Animacion(boolean abriendo, long inicio) {
+			this.abriendo = abriendo;
+			this.inicio = inicio;
+		}
+	}
 	private boolean apagonPuesto;
 
 	private JuegoEstacion() {
@@ -131,6 +152,9 @@ public final class JuegoEstacion {
 					this.e = l;
 					if (this.e.rejas == null) {
 						this.e.rejas = new HashSet<>();
+					}
+					if (this.e.buzones == null) {
+						this.e.buzones = new HashSet<>();
 					}
 				}
 			}
@@ -218,7 +242,7 @@ public final class JuegoEstacion {
 
 	/** Lo que cuenta la hoja de misiones ahora para ese jugador: {hechos, total} (la central de su piso). */
 	public int[] cuenta(ServerPlayer j) {
-		int p = PlanoEstacion.piso(j.getY());
+		int p = PlanoEstacion.piso(j.getZ());
 		if (!this.e.arrancado && this.centrales() == 0) {
 			return new int[] {Math.round(this.e.combustible), 100};
 		}
@@ -228,42 +252,12 @@ public final class JuegoEstacion {
 		return new int[] {this.puestos(p), necesarios(p)};
 	}
 
-	/** Adonde lleva el radar: {x, z}, o null. */
+	/**
+	 * Adonde lleva el radar: en la Estacion, a ningun sitio (como en Escape Together: hay que
+	 * encontrar la central y los materiales sin ayuda).
+	 */
 	public int @Nullable [] objetivo(ServerPlayer j) {
-		int p = PlanoEstacion.piso(j.getY());
-		if (this.e.combustible <= 0 || !this.e.arrancado && this.centrales() == 0 && p == 0 && this.e.combustible < 25) {
-			return new int[] {PlanoEstacion.BOCA[0], PlanoEstacion.BOCA[2]};
-		}
-		if (this.pasarela()) {
-			PlanoEstacion.Puerta f = PlanoEstacion.puertaFinal;
-			if (this.e.cadena || this.tiene(j, BloquesEstacion.CIZALLA)) {
-				return new int[] {PlanoEstacion.FINAL[0], PlanoEstacion.FINAL[1] + 1};
-			}
-			int[] c = this.puntoCercano(j, 2, new int[] {PlanoEstacion.CIZALLA});
-			return c != null ? c : new int[] {f.x(), f.z()};
-		}
-		if (this.e.activa[p]) {
-			PlanoEstacion.Puerta s = PlanoEstacion.ESCALERAS[p];
-			return new int[] {s.x(), s.z()};
-		}
-		PlanoEstacion.Central c = PlanoEstacion.CENTRALES[p];
-		if (this.completa(p)) {
-			return new int[] {c.x(), c.z()};
-		}
-		// lo que falta en su central: si lo lleva, a la central; si no, al sitio mas cercano donde haya
-		List<Integer> faltan = new ArrayList<>();
-		Item[] piezas = {BloquesEstacion.FUSIBLE, BloquesEstacion.CINTA, BloquesEstacion.CABLE};
-		int[] tipos = {PlanoEstacion.FUSIBLE, PlanoEstacion.CINTA, PlanoEstacion.CABLE};
-		for (int t = 0; t < 3; t++) {
-			if (this.e.puestos[p][t] < PlanoEstacion.NECESITA[p][t]) {
-				if (this.tiene(j, piezas[t])) {
-					return new int[] {c.x(), c.z()};
-				}
-				faltan.add(tipos[t]);
-			}
-		}
-		int[] cerca = this.puntoCercano(j, p, faltan.stream().mapToInt(Integer::intValue).toArray());
-		return cerca != null ? cerca : new int[] {c.x(), c.z()};
+		return null;
 	}
 
 	private int @Nullable [] puntoCercano(ServerPlayer j, int piso, int[] tipos) {
@@ -317,6 +311,7 @@ public final class JuegoEstacion {
 		if (this.ticks % 40 == 0) {
 			this.limpiarFuera();
 		}
+		this.animar(nivel);
 		if (this.ticks % 10 == 0 && alguien) {
 			// una central con todo puesto se activa en cuanto hay corriente
 			for (int p = 0; p < PlanoEstacion.PISOS; p++) {
@@ -410,9 +405,12 @@ public final class JuegoEstacion {
 		for (int p = 0; p < PlanoEstacion.PISOS; p++) {
 			PlanoEstacion.Central c = PlanoEstacion.CENTRALES[p];
 			this.poner(nivel, c.x(), c.y(), c.z(), Interactivos.HECHO, this.e.activa[p]);
-			this.abrir(nivel, PlanoEstacion.ESCALERAS[p], this.e.activa[p]);
+			this.abrir(nivel, PlanoEstacion.SALIDAS[p], this.e.activa[p]);
 		}
 		this.abrir(nivel, PlanoEstacion.puertaFinal, this.e.cadena);
+		for (PlanoEstacion.Buzon b : PlanoEstacion.BUZONES) {
+			this.poner(nivel, b.x(), b.y(), b.z(), Interactivos.ABIERTA, this.e.buzones.contains(b.id()));
+		}
 		// los focos de la pasarela, de dos en dos desde que hay corriente
 		for (int i = 0; i < PlanoEstacion.FOCOS.size(); i++) {
 			int[] f = PlanoEstacion.FOCOS.get(i);
@@ -421,10 +419,102 @@ public final class JuegoEstacion {
 		}
 	}
 
+	/**
+	 * Que la puerta acabe abierta o cerrada. Si esta a la vista de alguien, se mueve: ANIMA ticks
+	 * subiendo (sigue chocando hasta arriba) o bajando (se puede pasar hasta que llega abajo). Si no
+	 * hay nadie cerca, se pone sin mas.
+	 */
 	private void abrir(ServerLevel nivel, PlanoEstacion.Puerta p, boolean abierta) {
+		Animacion a = this.animando.get(p);
+		if (a != null) {
+			if (a.abriendo == abierta) {
+				return;
+			}
+			// cambia de idea a medio camino: se para y empieza al reves
+			a.piezas.forEach(Display.BlockDisplay::discard);
+			this.animando.remove(p);
+		}
+		int[] b0 = p.bloque(0);
+		BlockPos pos = new BlockPos(b0[0], b0[1], b0[2]);
+		if (!nivel.isLoaded(pos)) {
+			return;
+		}
+		BlockState s0 = nivel.getBlockState(pos);
+		if (!s0.hasProperty(Interactivos.ABIERTA)) {
+			return;
+		}
+		if (s0.getValue(Interactivos.ABIERTA) == abierta && !s0.getValue(Interactivos.OCULTA)) {
+			return;
+		}
+		boolean visto = nivel.getNearestPlayer(b0[0] + 0.5, b0[1], b0[2] + 0.5, 40, false) != null;
+		if (!visto || !nivel.isPositionEntityTicking(pos)) {
+			this.fijar(nivel, p, abierta);
+			return;
+		}
+		Animacion n = new Animacion(abierta, this.ticks);
 		for (int k = 0; k < 9; k++) {
 			int[] b = p.bloque(k);
-			this.poner(nivel, b[0], b[1], b[2], Interactivos.ABIERTA, abierta);
+			BlockPos bp = new BlockPos(b[0], b[1], b[2]);
+			BlockState st = nivel.getBlockState(bp);
+			if (!st.hasProperty(Interactivos.PARTE)) {
+				continue;
+			}
+			// abriendose: sigue chocando, sin dibujarse; bajando: ya se puede pasar hasta que llega
+			nivel.setBlock(bp, st.setValue(Interactivos.ABIERTA, !abierta).setValue(Interactivos.OCULTA, true), Block.UPDATE_CLIENTS);
+			Display.BlockDisplay d = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, nivel) {
+				@Override
+				public boolean shouldBeSaved() {
+					return false;
+				}
+			};
+			d.setBlockState(st.setValue(Interactivos.ABIERTA, false).setValue(Interactivos.OCULTA, false));
+			d.setPos(b[0], b[1], b[2]);
+			d.setViewRange(1.0F);
+			d.setBrightnessOverride(new net.minecraft.util.Brightness(nivel.getBrightness(net.minecraft.world.level.LightLayer.BLOCK, bp), 0));
+			d.setTransformation(new com.mojang.math.Transformation(new org.joml.Vector3f(0.0F, abierta ? 0.0F : 3.0F, 0.0F), null, null, null));
+			nivel.addFreshEntity(d);
+			n.piezas.add(d);
+		}
+		this.animando.put(p, n);
+	}
+
+	/** Cada tick: lanza el movimiento de las piezas (un tick despues de crearlas) y acaba los que han llegado. */
+	private void animar(ServerLevel nivel) {
+		if (this.animando.isEmpty()) {
+			return;
+		}
+		for (var en : new ArrayList<>(this.animando.entrySet())) {
+			Animacion a = en.getValue();
+			long edad = this.ticks - a.inicio;
+			if (!a.lanzada && edad >= 2) {
+				a.lanzada = true;
+				for (Display.BlockDisplay d : a.piezas) {
+					d.setTransformationInterpolationDelay(0);
+					d.setTransformationInterpolationDuration(ANIMA);
+					d.setTransformation(new com.mojang.math.Transformation(new org.joml.Vector3f(0.0F, a.abriendo ? 3.0F : 0.0F, 0.0F), null, null, null));
+				}
+			}
+			if (edad >= ANIMA + 3) {
+				this.fijar(nivel, en.getKey(), a.abriendo);
+				a.piezas.forEach(Display.BlockDisplay::discard);
+				this.animando.remove(en.getKey());
+			}
+		}
+	}
+
+	/** Pone la puerta abierta o cerrada del todo (sin animacion). */
+	private void fijar(ServerLevel nivel, PlanoEstacion.Puerta p, boolean abierta) {
+		for (int k = 0; k < 9; k++) {
+			int[] b = p.bloque(k);
+			BlockPos bp = new BlockPos(b[0], b[1], b[2]);
+			if (!nivel.isLoaded(bp)) {
+				continue;
+			}
+			BlockState st = nivel.getBlockState(bp);
+			if (st.hasProperty(Interactivos.ABIERTA)
+				&& (st.getValue(Interactivos.ABIERTA) != abierta || st.getValue(Interactivos.OCULTA))) {
+				nivel.setBlock(bp, st.setValue(Interactivos.ABIERTA, abierta).setValue(Interactivos.OCULTA, false), Block.UPDATE_CLIENTS);
+			}
 		}
 	}
 
@@ -501,7 +591,7 @@ public final class JuegoEstacion {
 		}
 		int[] f = PlanoEstacion.FINAL;
 		for (ServerPlayer j : new ArrayList<>(nivel.players())) {
-			if (j.isSpectator() || j.isCreative() || !j.isAlive() || j.getY() < PlanoEstacion.SUELOS[2]
+			if (j.isSpectator() || j.isCreative() || !j.isAlive() || j.getY() < f[4]
 				|| j.getX() < f[0] || j.getX() > f[2] + 1 || j.getZ() < f[1] || j.getZ() > f[3] + 1) {
 				continue;
 			}
@@ -529,9 +619,9 @@ public final class JuegoEstacion {
 			this.anunciar(nivel, Component.literal("CENTRAL DEL PISO 3 ACTIVA. La pasarela tiene corriente: crúzala. Al otro lado, una puerta encadenada.")
 				.withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), Sonidos.ESTACION_PASARELA);
 		} else {
-			this.anunciar(nivel, Component.literal("CENTRAL DEL " + PlanoEstacion.PISO[p] + " ACTIVA. Se abre la escalera al " + PlanoEstacion.PISO[p + 1] + ".")
+			this.anunciar(nivel, Component.literal("CENTRAL DEL " + PlanoEstacion.PISO[p] + " ACTIVA. Se abre la puerta al " + PlanoEstacion.PISO[p + 1] + ".")
 				.withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), Sonidos.ESTACION_ARRANCA);
-			PlanoEstacion.Puerta s = PlanoEstacion.ESCALERAS[p];
+			PlanoEstacion.Puerta s = PlanoEstacion.SALIDAS[p];
 			nivel.playSound(null, s.x() + 0.5, s.y() + 2, s.z() + 0.5, Sonidos.ESTACION_PERSIANA, SoundSource.BLOCKS, 2.0F, 1.0F);
 		}
 		BackroomsEvento.LOG.info("Estacion: central del piso {} activa{}", p + 1, quien == null ? "" : " (" + quien.getGameProfile().name() + ")");
@@ -605,6 +695,10 @@ public final class JuegoEstacion {
 		}
 		ServerLevel nivel = j.level();
 		int[] c = r.bloque(4);
+		if (this.animando.containsKey(r)) {
+			j.displayClientMessage(Component.literal("La reja se está moviendo.").withStyle(ChatFormatting.GRAY), true);
+			return;
+		}
 		if (this.e.rejas.contains(r.id())) {
 			// sacarlo: la reja baja (si no hay nadie debajo)
 			int[] a = r.bloque(0);
@@ -651,7 +745,7 @@ public final class JuegoEstacion {
 		}
 		ServerLevel nivel = j.level();
 		if (this.e.activa[p]) {
-			j.displayClientMessage(Component.literal(p < PlanoEstacion.PISOS - 1 ? "Esta central ya funciona: la escalera está abierta." : "Esta central ya funciona: la pasarela tiene corriente.")
+			j.displayClientMessage(Component.literal(p < PlanoEstacion.PISOS - 1 ? "Esta central ya funciona: su puerta está abierta." : "Esta central ya funciona: la pasarela tiene corriente.")
 				.withStyle(ChatFormatting.GREEN), true);
 			return;
 		}
@@ -672,10 +766,11 @@ public final class JuegoEstacion {
 		List<String> l = new ArrayList<>();
 		for (int t = 0; t < 3; t++) {
 			if (puso[t] > 0) {
-				l.add(puso[t] + " " + PIEZA[t] + (puso[t] > 1 ? "s" : ""));
+				l.add(puso[t] + " " + (puso[t] > 1 ? PIEZAS[t] : PIEZA[t]));
 			}
 		}
-		this.anunciar(nivel, Component.literal(j.getGameProfile().name() + " pone " + String.join(" y ", l) + " en la central del " + PlanoEstacion.PISO[p]
+		String lista = l.size() > 1 ? String.join(", ", l.subList(0, l.size() - 1)) + " y " + l.get(l.size() - 1) : l.get(0);
+		this.anunciar(nivel, Component.literal(j.getGameProfile().name() + " ha colocado " + lista + " en la central del " + PlanoEstacion.PISO[p].toLowerCase()
 			+ " (" + this.puestos(p) + "/" + necesarios(p) + ").").withStyle(TINTAS[p]), null);
 		if (this.completa(p)) {
 			if (this.corriente()) {
@@ -693,7 +788,7 @@ public final class JuegoEstacion {
 		for (int t = 0; t < 3; t++) {
 			int n = PlanoEstacion.NECESITA[p][t] - this.e.puestos[p][t];
 			if (n > 0) {
-				l.add(n + " " + PIEZA[t] + (n > 1 ? "s" : ""));
+				l.add(n + " " + (n > 1 ? PIEZAS[t] : PIEZA[t]));
 			}
 		}
 		return String.join(", ", l);
@@ -711,8 +806,8 @@ public final class JuegoEstacion {
 			}
 		}
 		for (int p = 0; p < PlanoEstacion.PISOS; p++) {
-			if (PlanoEstacion.ESCALERAS[p].es(x, y, z)) {
-				String m = p < PlanoEstacion.PISOS - 1 ? "Cerrada. Se abre al activar la central de este piso."
+			if (PlanoEstacion.SALIDAS[p].es(x, y, z)) {
+				String m = p < PlanoEstacion.PISOS - 1 ? "Cerrada. Se abre al activar esta central."
 					: "Cerrada. La pasarela no tiene corriente: hace falta la central de este piso.";
 				j.displayClientMessage(Component.literal(m).withStyle(ChatFormatting.GRAY), true);
 				return;
@@ -732,6 +827,64 @@ public final class JuegoEstacion {
 				.withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), Sonidos.ESTACION_PERSIANA);
 			this.abrir(nivel, PlanoEstacion.puertaFinal, true);
 		}
+	}
+
+	/**
+	 * Un buzon: con un fusible (que se queda dentro) se abre y da lo que tenga. No siempre hay
+	 * material: a veces comida, a veces un fusible, a veces nada.
+	 */
+	public void buzon(ServerPlayer j, BlockPos pos) {
+		PlanoEstacion.Buzon b = null;
+		for (PlanoEstacion.Buzon q : PlanoEstacion.BUZONES) {
+			if (q.x() == pos.getX() && q.y() == pos.getY() && q.z() == pos.getZ()) {
+				b = q;
+			}
+		}
+		if (b == null) {
+			return;
+		}
+		if (this.e.buzones.contains(b.id())) {
+			j.displayClientMessage(Component.literal("Este buzón ya está abierto y vacío.").withStyle(ChatFormatting.GRAY), true);
+			return;
+		}
+		if (!this.quitar(j, BloquesEstacion.FUSIBLE)) {
+			j.displayClientMessage(Component.literal("Un buzón con una ranura para fusible. El fusible se queda dentro: no se recupera.").withStyle(ChatFormatting.GRAY), true);
+			return;
+		}
+		ServerLevel nivel = j.level();
+		this.e.buzones.add(b.id());
+		this.sucio = true;
+		this.poner(nivel, pos.getX(), pos.getY(), pos.getZ(), Interactivos.ABIERTA, true);
+		nivel.playSound(null, pos, Sonidos.ESTACION_FUSIBLE, SoundSource.BLOCKS, 1.0F, 1.1F);
+		nivel.playSound(null, pos, Sonidos.ESTACION_PALANCA, SoundSource.BLOCKS, 0.8F, 1.5F);
+		int r = this.azar.nextInt(100);
+		ItemStack premio;
+		String que;
+		if (r < 15) {
+			premio = new ItemStack(BloquesEstacion.CINTA);
+			que = "cinta aislante";
+		} else if (r < 30) {
+			premio = new ItemStack(BloquesEstacion.CABLE);
+			que = "un cable";
+		} else if (r < 40) {
+			premio = new ItemStack(BloquesEstacion.FUSIBLE);
+			que = "un fusible";
+		} else if (r < 75) {
+			int c = this.azar.nextInt(4);
+			premio = new ItemStack(c == 0 ? net.backrooms.evento.objetos.Objetos.AGUA_ALMENDRAS : c == 1 ? net.backrooms.evento.objetos.Objetos.PIZZA : net.backrooms.evento.objetos.Objetos.GALLETAS);
+			que = c == 0 ? "agua de almendras" : c == 1 ? "pizza" : "galletas";
+		} else {
+			premio = ItemStack.EMPTY;
+			que = null;
+		}
+		if (premio.isEmpty()) {
+			j.displayClientMessage(Component.literal("El buzón está vacío. Solo hay polvo y un papel con un número tachado.").withStyle(ChatFormatting.GRAY), true);
+			return;
+		}
+		if (!j.getInventory().add(premio)) {
+			j.drop(premio, false);
+		}
+		j.displayClientMessage(Component.literal("Dentro del buzón había " + que + ".").withStyle(ChatFormatting.YELLOW), true);
 	}
 
 	/* ------------------------------------------------------------- utilidades */
@@ -773,7 +926,7 @@ public final class JuegoEstacion {
 	public void enviar(ServerPlayer j) {
 		EstadoEstacion m = EstadoEstacion.FUERA;
 		if (Estacion.es(j.level())) {
-			int p = PlanoEstacion.piso(j.getY());
+			int p = PlanoEstacion.piso(j.getZ());
 			m = new EstadoEstacion(this.e.combustible, p, this.puestos(p), necesarios(p), this.centrales(), this.corriente(), this.e.cadena);
 		}
 		if (ServerPlayNetworking.canSend(j, EstadoEstacion.TYPE)) {
@@ -794,6 +947,8 @@ public final class JuegoEstacion {
 		this.e = new Estado();
 		this.vacios.clear();
 		this.focosDesde = -1;
+		this.animando.values().forEach(a -> a.piezas.forEach(Display.BlockDisplay::discard));
+		this.animando.clear();
 		this.guardar();
 	}
 
@@ -838,7 +993,8 @@ public final class JuegoEstacion {
 			sb.append("  ").append(PlanoEstacion.PISO[p]).append(' ').append(this.e.activa[p] ? "ACTIVA" : this.puestos(p) + "/" + necesarios(p));
 		}
 		l.add(sb.toString());
-		l.add("Rejas abiertas: " + this.e.rejas.size() + "/" + PlanoEstacion.REJAS.size() + "   ·   cadena del final: " + (this.e.cadena ? "cortada" : "puesta"));
+		l.add("Rejas abiertas: " + this.e.rejas.size() + "/" + PlanoEstacion.REJAS.size() + "   ·   buzones abiertos: " + this.e.buzones.size() + "/" + PlanoEstacion.BUZONES.size()
+			+ "   ·   cadena del final: " + (this.e.cadena ? "cortada" : "puesta"));
 		return l;
 	}
 }

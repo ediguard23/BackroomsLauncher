@@ -64,7 +64,7 @@ public final class Estacion {
 		int piso = nueva ? 0 : JuegoEstacion.get().pisoAbierto();
 		double[] l = PlanoEstacion.LLEGADAS[piso];
 		double dx = (j.getRandom().nextDouble() - 0.5) * (piso == 0 ? 4.0 : 2.0);
-		j.teleportTo(nivel, l[0] + dx, PlanoEstacion.SUELOS[piso] + 1, l[1], Set.of(), (float) l[2], 0.0F, true);
+		j.teleportTo(nivel, l[0] + dx, l[1], l[2], Set.of(), (float) l[3], 0.0F, true);
 		j.resetFallDistance();
 		Equipo.vestir(j);
 		if (nueva) {

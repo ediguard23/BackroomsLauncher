@@ -56,7 +56,18 @@ public final class FiestaCliente {
 		return !estado.fuera();
 	}
 
+	/** El marcador, un 18 % mas grande que como se dibuja (escalado desde la esquina de arriba a la izquierda). */
+	private static final float ESCALA = 1.18F;
+
 	public static void render(GuiGraphics g, DeltaTracker delta) {
+		org.joml.Matrix3x2fStack p = g.pose();
+		p.pushMatrix();
+		p.scale(ESCALA, ESCALA);
+		dibujar(g, delta);
+		p.popMatrix();
+	}
+
+	private static void dibujar(GuiGraphics g, DeltaTracker delta) {
 		Minecraft mc = Minecraft.getInstance();
 		if (estado.fuera() || mc.player == null || mc.options.hideGui || CinematicaCliente.activa() || HerramientasCliente.subida(1.0F) > 0.5F) {
 			return;
@@ -65,7 +76,7 @@ public final class FiestaCliente {
 		if (Math.abs(estado.tickets() - ticketsVistos) < 0.5F) {
 			ticketsVistos = estado.tickets();
 		}
-		int w = g.guiWidth();
+		int w = (int) (g.guiWidth() / ESCALA);
 		long ms = net.minecraft.util.Util.getMillis();
 		// destello al cambiar
 		float brillo = Mth.clamp(1.0F - (ms - cambio) / 900.0F, 0.0F, 1.0F);
@@ -79,13 +90,13 @@ public final class FiestaCliente {
 		g.renderOutline(x0, y0, ancho, alto, 0xCCF2D46B);
 		// monedas
 		moneda(g, x0 + 9, y0 + 9);
-		Texto.hud(g, String.valueOf(estado.monedas()), x0 + 17, y0 + 4, 11.0F, 0.04F, mezcla(0xFFF2D46B, 0xFFFFFFFF, brillo));
+		Texto.hud(g, String.valueOf(estado.monedas()), x0 + 17, y0 + 5, 9.0F, 0.05F, mezcla(0xFFF2D46B, 0xFFFFFFFF, brillo));
 		// tickets, con el objetivo en pequeno
 		int tx = x0 + 44;
 		ticket(g, tx, y0 + 9);
 		int t = Math.round(ticketsVistos);
-		float an = Texto.hud(g, String.valueOf(t), tx + 14, y0 + 4, 11.0F, 0.04F, mezcla(0xFFFFE6EA, 0xFFFFFFFF, brillo));
-		Texto.hud(g, "/" + estado.objetivo(), tx + 14 + an + 1, y0 + 8, 6.5F, 0.06F, 0xFFB7A3B0);
+		float an = Texto.hud(g, String.valueOf(t), tx + 14, y0 + 5, 9.0F, 0.05F, mezcla(0xFFFFE6EA, 0xFFFFFFFF, brillo));
+		Texto.hud(g, "/" + estado.objetivo(), tx + 14 + an, y0 + 5, 9.0F, 0.05F, 0xFFB7A3B0);
 		// la barra hasta la puerta del final, fina, con el porcentaje a la derecha
 		float k = estado.objetivo() <= 0 ? 0 : Mth.clamp(ticketsVistos / estado.objetivo(), 0.0F, 1.0F);
 		String pct = Math.round(k * 100) + "%";

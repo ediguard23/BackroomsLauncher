@@ -35,6 +35,10 @@ public final class Interactivos {
 	public static final IntegerProperty TIPO = IntegerProperty.create("tipo", 0, 7);
 	public static final IntegerProperty COLOR = IntegerProperty.create("color", 0, 3);
 	public static final IntegerProperty PARTE = IntegerProperty.create("parte", 0, 8);
+	/** La pieza del generador grande (4 x 3 x 3). */
+	public static final IntegerProperty PIEZA = IntegerProperty.create("pieza", 0, 35);
+	/** Una puerta que se esta moviendo: no se dibuja (la dibuja la animacion) pero sigue chocando. */
+	public static final BooleanProperty OCULTA = BooleanProperty.create("oculta");
 	public static final BooleanProperty VACIO = BooleanProperty.create("vacio");
 	public static final BooleanProperty HECHO = BooleanProperty.create("hecho");
 	public static final BooleanProperty ABIERTA = BooleanProperty.create("abierta");
@@ -216,15 +220,17 @@ public final class Interactivos {
 	}
 
 	/**
-	 * Una persiana metalica de 3x3 (PARTE = columna * 3 + fila): cerrada choca; ABIERTA esta
-	 * enrollada arriba y no se ve ni choca.
+	 * Una persiana metalica (o una reja) de 3x3 (PARTE = columna * 3 + fila): cerrada choca; ABIERTA esta
+	 * recogida arriba y no se ve ni choca. OCULTA: se esta moviendo (la dibuja la animacion de
+	 * JuegoEstacion) y sigue chocando como cerrada. Es fina (4 px): no tapa la caja de al lado.
 	 */
 	public static class Persiana extends HorizontalDirectionalBlock {
 		public static final MapCodec<Persiana> CODEC = simpleCodec(Persiana::new);
+		private static final java.util.Map<Direction, VoxelShape> FINA = Shapes.rotateHorizontal(Block.box(0, 0, 6, 16, 16, 10));
 
 		public Persiana(BlockBehaviour.Properties p) {
 			super(p);
-			this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(PARTE, 0).setValue(ABIERTA, false));
+			this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(PARTE, 0).setValue(ABIERTA, false).setValue(OCULTA, false));
 		}
 
 		@Override
@@ -234,17 +240,17 @@ public final class Interactivos {
 
 		@Override
 		protected VoxelShape getCollisionShape(BlockState e, BlockGetter n, BlockPos pos, CollisionContext ctx) {
-			return e.getValue(ABIERTA) ? Shapes.empty() : Shapes.block();
+			return e.getValue(ABIERTA) ? Shapes.empty() : FINA.get(e.getValue(FACING));
 		}
 
 		@Override
 		protected VoxelShape getShape(BlockState e, BlockGetter n, BlockPos pos, CollisionContext ctx) {
-			return e.getValue(ABIERTA) ? Shapes.empty() : Shapes.block();
+			return e.getValue(ABIERTA) ? Shapes.empty() : FINA.get(e.getValue(FACING));
 		}
 
 		@Override
 		protected RenderShape getRenderShape(BlockState e) {
-			return e.getValue(ABIERTA) ? RenderShape.INVISIBLE : RenderShape.MODEL;
+			return e.getValue(ABIERTA) || e.getValue(OCULTA) ? RenderShape.INVISIBLE : RenderShape.MODEL;
 		}
 
 		@Override
@@ -261,8 +267,81 @@ public final class Interactivos {
 		}
 
 		@Override
+		protected InteractionResult useItemOn(ItemStack s, BlockState e, Level nivel, BlockPos pos, Player j, InteractionHand mano, BlockHitResult golpe) {
+			return this.useWithoutItem(e, nivel, pos, j, golpe);
+		}
+
+		@Override
 		protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b) {
-			b.add(FACING, PARTE, ABIERTA);
+			b.add(FACING, PARTE, ABIERTA, OCULTA);
+		}
+	}
+
+	/**
+	 * Un buzon de chapa en la pared, con una ranura para fusible. Con un fusible (que se queda dentro:
+	 * no se recupera) se abre y da lo que tenga dentro (JuegoEstacion#buzon). ABIERTA: ya vacio.
+	 */
+	public static class Buzon extends EnPared {
+		public static final MapCodec<Buzon> CODEC = simpleCodec(Buzon::new);
+		private static final java.util.Map<Direction, VoxelShape> FORMA = Shapes.rotateHorizontal(Block.box(3, 2, 10, 13, 14, 16));
+
+		public Buzon(BlockBehaviour.Properties p) {
+			super(p);
+			this.registerDefaultState(this.defaultBlockState().setValue(ABIERTA, false));
+		}
+
+		@Override
+		protected MapCodec<? extends Buzon> codec() {
+			return CODEC;
+		}
+
+		@Override
+		protected VoxelShape getShape(BlockState e, BlockGetter n, BlockPos pos, CollisionContext ctx) {
+			return FORMA.get(e.getValue(FACING));
+		}
+
+		@Override
+		protected VoxelShape getCollisionShape(BlockState e, BlockGetter n, BlockPos pos, CollisionContext ctx) {
+			return FORMA.get(e.getValue(FACING));
+		}
+
+		@Override
+		protected InteractionResult useWithoutItem(BlockState e, Level nivel, BlockPos pos, Player j, BlockHitResult golpe) {
+			if (j instanceof ServerPlayer sp) {
+				JuegoEstacion.get().buzon(sp, pos);
+			}
+			return InteractionResult.SUCCESS;
+		}
+
+		@Override
+		protected InteractionResult useItemOn(ItemStack s, BlockState e, Level nivel, BlockPos pos, Player j, InteractionHand mano, BlockHitResult golpe) {
+			return this.useWithoutItem(e, nivel, pos, j, golpe);
+		}
+
+		@Override
+		protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b) {
+			super.createBlockStateDefinition(b);
+			b.add(ABIERTA);
+		}
+	}
+
+	/** Una pieza del generador grande (PIEZA = i + 4 * (alto + 3 * fondo)): un bloque entero con su trozo de dibujo. */
+	public static class PiezaGenerador extends Block {
+		public static final MapCodec<PiezaGenerador> CODEC = simpleCodec(PiezaGenerador::new);
+
+		public PiezaGenerador(BlockBehaviour.Properties p) {
+			super(p);
+			this.registerDefaultState(this.stateDefinition.any().setValue(PIEZA, 0));
+		}
+
+		@Override
+		protected MapCodec<? extends PiezaGenerador> codec() {
+			return CODEC;
+		}
+
+		@Override
+		protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> b) {
+			b.add(PIEZA);
 		}
 	}
 

@@ -118,7 +118,7 @@ final class OrdenesPrueba {
 		if (orden.startsWith("usar")) {
 			String s = orden.substring(4).trim();
 			mc.options.keyUse.setDown(true);
-			usar = s.isEmpty() ? 4 : 20 * Integer.parseInt(s);
+			usar = s.isEmpty() ? 4 : Math.max(1, Math.round(20 * Float.parseFloat(s)));
 			return;
 		}
 		if (orden.startsWith("agacharse")) {

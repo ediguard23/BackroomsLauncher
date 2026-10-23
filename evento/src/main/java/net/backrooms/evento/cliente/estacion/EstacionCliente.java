@@ -47,7 +47,18 @@ public final class EstacionCliente {
 		return !estado.fuera();
 	}
 
+	/** El marcador, un 18 % mas grande que como se dibuja (escalado desde la esquina de arriba a la izquierda). */
+	private static final float ESCALA = 1.18F;
+
 	public static void render(GuiGraphics g, DeltaTracker delta) {
+		org.joml.Matrix3x2fStack p = g.pose();
+		p.pushMatrix();
+		p.scale(ESCALA, ESCALA);
+		dibujar(g, delta);
+		p.popMatrix();
+	}
+
+	private static void dibujar(GuiGraphics g, DeltaTracker delta) {
 		Minecraft mc = Minecraft.getInstance();
 		if (estado.fuera() || mc.player == null || mc.level == null || !net.backrooms.evento.estacion.Estacion.es(mc.level) || mc.options.hideGui || CinematicaCliente.activa() || HerramientasCliente.subida(1.0F) > 0.5F) {
 			return;
@@ -58,7 +69,7 @@ public final class EstacionCliente {
 		boolean parpadeo = ms / 400 % 2 == 0;
 		int ancho = 124;
 		int alto = 33;
-		int x1 = g.guiWidth() - 6;
+		int x1 = (int) (g.guiWidth() / ESCALA) - 6;
 		int x0 = x1 - ancho;
 		int y0 = 6;
 		g.fill(x0, y0, x1, y0 + alto, 0xC0101511);

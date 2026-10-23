@@ -530,7 +530,7 @@ public final class Comandos {
 				boolean esquina = s.nombre().startsWith("central");
 				double x = esquina ? s.x0() + 1.5 : (s.x0() + s.x1()) / 2.0 + 0.5;
 				double z = esquina ? s.z0() + 1.5 : (s.z0() + s.z1()) / 2.0 + 0.5;
-				j.teleportTo(n, x, net.backrooms.evento.estacion.PlanoEstacion.SUELOS[s.piso()] + 1, z, java.util.Set.of(), j.getYRot(), 0.0F, true);
+				j.teleportTo(n, x, s.y() + 1, z, java.util.Set.of(), j.getYRot(), 0.0F, true);
 				net.backrooms.evento.estacion.JuegoEstacion.get().enviar(j);
 				return 1;
 			}

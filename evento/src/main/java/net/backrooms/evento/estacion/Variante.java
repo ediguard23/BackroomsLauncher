@@ -17,13 +17,25 @@ public final class Variante {
 	private Variante() {
 	}
 
-	/** Algo pegado a la pared (tuberias, cuadros electricos, senales...). */
+	/** Algo pegado a la pared (tuberias, cuadros electricos, senales...), con su forma y su colision. */
 	public static class Pared extends EnPared {
-		public static final MapCodec<Pared> CODEC = simpleCodec(Pared::new);
+		public static final MapCodec<Pared> CODEC = simpleCodec(p -> new Pared(p, Block.box(0, 0, 15, 16, 16, 16)));
+		private final java.util.Map<net.minecraft.core.Direction, VoxelShape> forma;
 
-		public Pared(BlockBehaviour.Properties p) {
+		public Pared(BlockBehaviour.Properties p, VoxelShape forma) {
 			super(p);
+			this.forma = net.minecraft.world.phys.shapes.Shapes.rotateHorizontal(forma);
 			this.registerDefaultState(this.defaultBlockState().setValue(VARIANTE, 0));
+		}
+
+		@Override
+		protected VoxelShape getShape(BlockState e, net.minecraft.world.level.BlockGetter n, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext ctx) {
+			return this.forma.get(e.getValue(FACING));
+		}
+
+		@Override
+		protected VoxelShape getCollisionShape(BlockState e, net.minecraft.world.level.BlockGetter n, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext ctx) {
+			return this.forma.get(e.getValue(FACING));
 		}
 
 		@Override

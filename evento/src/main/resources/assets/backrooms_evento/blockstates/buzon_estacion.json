@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,abierta=false": {
+      "model": "backrooms_evento:block/buzon_cerrado"
+    },
+    "facing=north,abierta=true": {
+      "model": "backrooms_evento:block/buzon_abierto"
+    },
+    "facing=east,abierta=false": {
+      "model": "backrooms_evento:block/buzon_cerrado",
+      "y": 90
+    },
+    "facing=east,abierta=true": {
+      "model": "backrooms_evento:block/buzon_abierto",
+      "y": 90
+    },
+    "facing=south,abierta=false": {
+      "model": "backrooms_evento:block/buzon_cerrado",
+      "y": 180
+    },
+    "facing=south,abierta=true": {
+      "model": "backrooms_evento:block/buzon_abierto",
+      "y": 180
+    },
+    "facing=west,abierta=false": {
+      "model": "backrooms_evento:block/buzon_cerrado",
+      "y": 270
+    },
+    "facing=west,abierta=true": {
+      "model": "backrooms_evento:block/buzon_abierto",
+      "y": 270
+    }
+  }
+}

@@ -51,10 +51,11 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
                                  JuegoMemoria, JuegoRegalos, el Anfitrion y sus apagones
                                  (AnfitrionFiesta), ConfigFiesta
       estacion/                  la Estacion Electrica (Nivel 3), despues de la Fiesta, como la de Escape Together:
-                                 PlanoEstacion (nave del generador y tres pisos que se suben: laberinto con rejas,
-                                 pasillo final, central y escalera; arriba la pasarela y la puerta encadenada),
-                                 GeneradorEstacion, BloquesEstacion (Interactivos, Variante), JuegoEstacion (gasolina,
-                                 rejas con fusible, centrales, cadena; todo compartido), el Amasijo (uno por piso: AmasijoEstacion)
+                                 PlanoEstacion (sala del generador con la reja del tutorial y tres pisos que suben en
+                                 diagonal: laberintos de 3 zonas con escaleras y rejas, pasillo final y central, cuya
+                                 puerta da al piso siguiente; arriba la pasarela y la puerta encadenada), GeneradorEstacion,
+                                 BloquesEstacion (Interactivos, Variante), JuegoEstacion (gasolina, rejas con fusible y su
+                                 animacion, buzones, centrales, cadena; todo compartido), el Amasijo (2/3/4 por piso)
       expedicion/                el /start (cinemática de la firma y el ascensor y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas

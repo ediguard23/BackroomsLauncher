@@ -415,15 +415,16 @@ Nadie sabe si abajo está la salida... o la cocina.
 
 ## Nivel 3 — la Estación Eléctrica
 
-Abajo no está la cocina. El tobogán escupe a quien lo baja por un agujero del techo de una nave de
-hormigón: un generador de gasolina naranja, taquillas, una radio que se enciende sola y un tablón de
-instrucciones medio quemado.
+Abajo no está la cocina. El tobogán escupe a quien lo baja por un agujero del techo de la sala del
+generador: un generador de gasolina naranja enorme, armarios, una radio que se enciende sola y un tablón de
+instrucciones medio quemado. La única salida de la sala es una reja que se abre con un fusible.
 
-Una central eléctrica vieja que sigue funcionando sin nadie, construida hacia arriba: tres pisos, uno
-encima de otro, cada uno con su franja pintada en las paredes (rojo, amarillo, azul). Cada piso es un
-laberinto de pasillos de hormigón cortado por rejas. Al final de cada uno, un pasillo largo de lado a lado
-y, en un costado, la puerta de la central del piso. Solo con la central funcionando se abre la escalera al
-piso de arriba. En lo alto, una pasarela sobre un pozo lleva a la única salida.
+Una central eléctrica vieja que sigue funcionando sin nadie, construida en cuesta: todo sube. Tres pisos,
+cada uno con su franja pintada en las paredes (rojo, amarillo, azul), y cada piso un laberinto de pasillos de
+hormigón que trepa por escaleras cortadas por rejas: cuantas más escaleras subes, más cerca estás. Arriba del
+todo, un pasillo largo de lado a lado y, en un costado, la central del piso. Solo con la central funcionando se
+abre su puerta, y detrás empieza el piso siguiente. En lo alto, una pasarela sobre un pozo lleva a la única
+salida.
 
 Las instrucciones del tablón se leen a medias: GASOIL AL GENERADOR. FUSIBLE EN LAS REJAS. LA CENTRAL DE
 CADA PISO. SUBIR. El resto está quemado. Todo es de todos: lo que uno arregla, sirve para los demás.
@@ -433,8 +434,10 @@ CADA PISO. SUBIR. El resto está quemado. Todo es de todos: lo que uno arregla, 
   pasillos ya no necesita verte para encontrarte.
 - **Las rejas.** Se abren con un fusible en su caja, empotrada en el muro de al lado. Si alguien saca el
   fusible, la reja baja. Sirven para avanzar... y para dejar algo encerrado al otro lado.
+- **Los buzones.** Cajas de chapa con una ranura: el fusible que se mete no vuelve. Dentro puede haber cinta,
+  cable, comida... o solo polvo y un papel con un número tachado.
 - **Las centrales.** Piden fusibles, cinta aislante y cable. Con todo puesto y corriente, la central del piso
-  se enciende y la persiana de la escalera sube.
+  se enciende y su persiana sube. Lo que piden está casi siempre abajo: hay que volver a por ello.
 - **La pasarela.** La central del tercer piso le da corriente: los focos se encienden uno detrás de otro. Al
   otro lado, una puerta con una cadena gruesa. En algún trastero del tercer piso hay una cizalla.
 
@@ -442,9 +445,9 @@ Cada sistema que vuelve hace ruido. Y en los pasillos hay algo que lo oye.
 
 **El Amasijo** es una masa de carne pálida del tamaño de una persona agachada: brazos y más brazos, unos para
 andar y otros que tantean el aire, y una boca enorme llena de dientes donde debería estar la cara. Nadie sabe
-de cuántos participantes está hecho. Hay uno en cada piso donde hay alguien, y no sube escaleras. Corre en
-cuanto ve a alguien y no se cansa; pero no ve a través de las paredes, y una reja cerrada lo para. Romper la
-línea de visión es la única forma de despistarlo... mientras haya luz.
+de cuántos participantes está hecho. Hay dos en el primer piso, tres en el segundo y cuatro en el tercero, y
+ninguno sale del suyo. Deambulan sin parar; en cuanto ven a alguien, corren derechos a por él. Si no pueden
+llegar (una reja cerrada a tiempo), se calman y vuelven a deambular. A oscuras no les hace falta verte.
 
 Es el primer nivel donde se ve que alguien estudia las Backrooms desde dentro: los carteles de mantenimiento
 llevan números de documento en lugar de nombres y la radio de la nave repite un mensaje de alguien que se

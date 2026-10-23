@@ -176,8 +176,17 @@ public class Amasijo extends Monster {
 			this.ronda = this.ultimaVista;
 			return;
 		}
-		Vec3 a2 = this.ultimaVista != null ? this.ultimaVista : t.position();
-		this.getNavigation().moveTo(a2.x, a2.y, a2.z, 1.0);
+		// corre derecho a por el; si no hay camino (una reja cerrada en medio), se calma y sigue rondando
+		Vec3 a2 = this.ve(nivel, t) ? t.position() : this.ultimaVista != null ? this.ultimaVista : t.position();
+		boolean camino = this.getNavigation().moveTo(a2.x, a2.y, a2.z, 1.0);
+		net.minecraft.world.level.pathfinder.Path ruta = this.getNavigation().getPath();
+		if (!camino || ruta == null || !ruta.canReach()) {
+			this.setTarget(null);
+			this.ronda = null;
+			this.getNavigation().stop();
+			this.entityData.set(CAZANDO, false);
+			return;
+		}
 		this.getLookControl().setLookAt(t, 30.0F, 30.0F);
 		double dx = t.getX() - this.getX();
 		double dz = t.getZ() - this.getZ();
@@ -196,7 +205,7 @@ public class Amasijo extends Monster {
 
 	private boolean valido(ServerPlayer j) {
 		return j.isAlive() && !j.isCreative() && !j.isSpectator() && j.level() == this.level() && Misiones.get().enExpedicion(j)
-			&& PlanoEstacion.piso(j.getY()) == this.piso();
+			&& PlanoEstacion.piso(j.getZ()) == this.piso();
 	}
 
 	/** Le ve: sin paredes en medio y cerca (con luz, mas lejos: la luz te deja expuesto). */
@@ -225,9 +234,12 @@ public class Amasijo extends Monster {
 		return mejor;
 	}
 
-	/** Su piso (el de donde salio: no sube escaleras). */
+	/** El piso donde salio (lo pone AmasijoEstacion): no va a otros pisos. -1: el de donde este. */
+	public int pisoOrigen = -1;
+
+	/** Su piso. */
 	public int piso() {
-		return PlanoEstacion.piso(this.getY());
+		return this.pisoOrigen >= 0 ? this.pisoOrigen : PlanoEstacion.piso(this.getZ());
 	}
 
 	/** Sin presa: de un sitio de la ronda de su laberinto a otro. */
@@ -246,7 +258,7 @@ public class Amasijo extends Monster {
 					mejor = p;
 				}
 			}
-			this.ronda = new Vec3(mejor[0] + 0.5, PlanoEstacion.SUELOS[mejor[2]] + 1, mejor[1] + 0.5);
+			this.ronda = new Vec3(mejor[0] + 0.5, mejor[3] + 1, mejor[1] + 0.5);
 		}
 		if (this.getNavigation().isDone()) {
 			this.getNavigation().moveTo(this.ronda.x, this.ronda.y, this.ronda.z, 1.0);

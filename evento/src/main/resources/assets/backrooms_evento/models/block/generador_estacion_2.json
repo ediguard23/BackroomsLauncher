@@ -1,0 +1,86 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "fr": "backrooms_evento:block/generador_frente",
+    "at": "backrooms_evento:block/generador_atras",
+    "la": "backrooms_evento:block/generador_lado",
+    "ta": "backrooms_evento:block/generador_tapa_grande",
+    "particle": "backrooms_evento:block/generador_frente"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "south": {
+          "texture": "#fr",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ],
+          "cullface": "south"
+        },
+        "north": {
+          "texture": "#at",
+          "uv": [
+            4,
+            8,
+            8,
+            12
+          ],
+          "cullface": "north"
+        },
+        "west": {
+          "texture": "#la",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ],
+          "cullface": "west"
+        },
+        "east": {
+          "texture": "#la",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ],
+          "cullface": "east"
+        },
+        "up": {
+          "texture": "#ta",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ],
+          "cullface": "up"
+        },
+        "down": {
+          "texture": "#ta",
+          "uv": [
+            0,
+            0,
+            4,
+            4
+          ],
+          "cullface": "down"
+        }
+      }
+    }
+  ]
+}

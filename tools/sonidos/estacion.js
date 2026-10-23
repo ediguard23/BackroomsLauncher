@@ -234,23 +234,53 @@ function reserva () {
   return pico(nave(filtrar(out, 'bp', 900, 0.8), 0.25), -2);
 }
 
+/**
+ * Echar gasolina con la garrafa: el tapon, el chorro que cae en el deposito (muchas burbujas
+ * pequenas que suben de tono, como el agua de verdad) y los glu-glu de la garrafa cuando le entra
+ * aire, cada vez mas agudos porque el deposito se va llenando. Al final, el chorro se corta.
+ */
 function repostar () {
-  const out = mono(2.8);
+  const dur = 3.2;
+  const out = mono(dur);
   const rnd = D.azar(341);
-  // el chorro: ruido grave y burbujeante, con borbotones
-  const bp = new D.Biquad('bp', 500, 1.5);
-  poner(out, 0.1, 2.5, (t) => {
-    const env = Math.min(1, t * 6) * Math.min(1, (2.5 - t) * 4);
-    const borbo = 0.6 + 0.4 * Math.sin(TAU * (5 + Math.sin(t * 3)) * t);
-    return bp.paso(rnd() * 2 - 1) * env * borbo * 1.5;
+  const ini = 0.35;
+  const fin = 2.75;
+  // el tapon que se desenrosca
+  poner(out, 0.0, 0.12, clic(2600, 0.012, 342));
+  poner(out, 0.12, 0.25, chapa(900, 0.04, 343));
+  // el chorro: un siseo suave y muchas burbujas (senos que suben de tono y se apagan rapido)
+  const siseo = new D.Biquad('bp', 1800, 0.6);
+  const graves = new D.Biquad('lp', 500, 0.7);
+  poner(out, ini, fin - ini, (t) => {
+    const env = Math.min(1, t * 8) * Math.min(1, (fin - ini - t) * 6);
+    const n = rnd() * 2 - 1;
+    return (siseo.paso(n) * 0.12 + graves.paso(n) * 0.35) * env;
   });
-  // gluglus: burbujas que suben de tono
-  for (let t = 0.3; t < 2.5; t += 0.12 + rnd() * 0.25) {
-    const f0 = 180 + rnd() * 200;
-    poner(out, t, 0.08, (u) => Math.sin(TAU * (f0 + u * 3000) * u) * Math.exp(-u * 40) * 0.5);
+  let t = ini;
+  while (t < fin - 0.05) {
+    const lleno = (t - ini) / (fin - ini);
+    const f0 = (500 + rnd() * 1300) * (1 + lleno * 0.35);
+    const tau = 0.006 + rnd() * 0.02;
+    const a = 0.15 + rnd() * 0.35;
+    poner(out, t, tau * 6, (u) => Math.sin(TAU * f0 * (1 + u * 9) * u) * Math.exp(-u / tau) * a);
+    t += 0.006 + rnd() * 0.03;
   }
-  poner(out, 0, 0.4, chapa(300, 0.1, 342));
-  return pico(reverb(out, 0.5, 0.2), -2);
+  // los glu-glu: la garrafa traga aire (burbujas grandes y graves) y el chorro tiembla un instante
+  let g = ini + 0.3;
+  while (g < fin - 0.2) {
+    const lleno = (g - ini) / (fin - ini);
+    for (let k = 0; k < 3; k++) {
+      const f0 = (140 + rnd() * 90) * (1 + lleno * 0.5);
+      poner(out, g + k * 0.045, 0.16, (u) => Math.sin(TAU * f0 * (1 + u * 3) * u) * Math.exp(-u * 22) * (0.9 - k * 0.2));
+    }
+    g += 0.42 + rnd() * 0.18;
+  }
+  // el chorro se corta: las ultimas gotas
+  for (let k = 0; k < 4; k++) {
+    const f0 = 900 + rnd() * 700;
+    poner(out, fin + 0.05 + k * (0.08 + rnd() * 0.08), 0.06, (u) => Math.sin(TAU * f0 * (1 + u * 12) * u) * Math.exp(-u * 70) * 0.35);
+  }
+  return pico(reverb(filtrar(out, 'hp', 80), 0.35, 0.18), -2);
 }
 
 function fallo () {

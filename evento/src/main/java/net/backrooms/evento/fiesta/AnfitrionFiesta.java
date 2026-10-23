@@ -21,8 +21,7 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * Los Anfitriones de la Fiesta y sus apagones:
- *  - SIEMPRE hay en el laberinto uno por cada ConfigFiesta.anfitrionPorJugadores jugadores de la
- *    Fiesta (como minimo uno). Salen en la ronda del laberinto, lejos de todos (24 bloques), de uno en
+ *  - SIEMPRE hay en el laberinto dos (tres con 10 jugadores o mas en la Fiesta). Salen en la ronda del laberinto, lejos de todos (24 bloques), de uno en
  *    uno y riendose alto para que se les oiga; si sobran (se van jugadores), se quitan los mas lejanos.
  *    Con luz merodean y no cazan (Anfitrion).
  *  - APAGONES: cada ConfigFiesta.apagonCada minutos (con alguien jugando) se va la luz durante
@@ -136,7 +135,7 @@ public final class AnfitrionFiesta {
 	 */
 	private void poblacion(ServerLevel nivel, List<ServerPlayer> jugando, int jugadores) {
 		List<Anfitrion> vivos = vivos(nivel);
-		int quiero = jugadores <= 0 ? 0 : Math.max(1, (int) Math.ceil(jugadores / (double) Math.max(1, ConfigFiesta.get().anfitrionPorJugadores)));
+		int quiero = jugadores <= 0 ? 0 : jugadores >= 10 ? 3 : 2;
 		if (vivos.size() > quiero) {
 			vivos.sort(Comparator.comparingDouble(a -> -cercania(a.position(), jugando)));
 			vivos.get(0).discard();

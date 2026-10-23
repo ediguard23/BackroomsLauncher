@@ -1,10 +1,49 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-21 (hora de Honduras). Mod `backrooms_evento` 0.26.0, launcher 1.0.0
+Última actualización: 2026-10-21 (hora de Honduras). Mod `backrooms_evento` 0.27.0, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
 pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
 
-## 0.26.0: el Nivel 3 rehecho como el de Escape Together (2026-10-21; Bruno)
+## 0.27.0: el Nivel 3 por zonas que suben, rejas animadas, buzones y arreglos de la Fiesta (2026-10-23; Bruno)
+
+Bruno explicó cómo es de verdad el nivel 3 de Escape Together y pidió una tanda de cambios:
+- **El trazado** (`PlanoEstacion`, rehecho): todo el nivel sube en diagonal hacia el norte (-z).
+  - **Sala del generador** (y = 34, donde se cae): limpia y simétrica, **generador grande** de 4x3x3 bloques
+    (`generador_estacion`, 36 piezas con frente de mandos, laterales de radiador y tapa con el escape), la boca
+    del depósito al lado, el tablón, dos fusibles, dos bidones y comida. Se sale por la **reja del tutorial**
+    (fusible en su caja) y una escalera de 6 hasta el piso 1.
+  - **Cada piso** = laberinto de 15x4 celdas por zona y **tres zonas, cada una 4 bloques más alta**; entre zona y
+    zona, **dos rejas con su escalera** (la caja de la reja se alcanza también desde la escalera). Arriba del
+    todo, el **pasillo largo** (se sale por el medio) y en un costado la **central**; su **puerta** (persiana) da a
+    un pasillo al **piso siguiente, a la misma altura** (piso 1 → 2 → 3: y 40, 48, 56). Fuera las escaleras largas.
+    Los materiales están sobre todo en las zonas de abajo; dos trasteros con reja por piso (el del piso 3, la cizalla).
+  - La **pasarela** sale de la central del piso 3 hacia el norte; al final, la puerta encadenada.
+- **Rejas animadas**: suben o bajan en 1,5 s (`JuegoEstacion#abrir/animar`: 9 BlockDisplay que se deslizan; el
+  bloque queda OCULTA mientras tanto: subiendo sigue chocando, bajando ya se pasa). Lo mismo las persianas de las
+  centrales. Mientras se mueve, la caja no hace caso. La reja es **fina** (4 px): ya no tapa su caja.
+- **Buzones** (`buzon_estacion`, 2 por zona): con un fusible (que se queda dentro) se abren: 15 % cinta, 15 %
+  cable, 10 % fusible, 35 % comida, 25 % nada.
+- **Colisión** en todo lo de la Estación (tuberías, cuadros, señales, luz roja, rótulos, cables), con su forma.
+- **Sin radar** en la Estación (la flecha de la hoja no apunta a nada).
+- Mensaje de la central: «X ha colocado 2 fusibles y 1 cinta aislante en la central del piso 1 (3/3).»
+- **Gasolina** un 15 % más lenta. **Amasijos**: 2, 3 y 4 por piso, siempre; no salen de su piso; corren derechos
+  y, si no hay camino (reja cerrada), se calman y vuelven a deambular.
+- Texturas: **luz roja** rehecha (era la «textura glitcheada»), **cinta** y **fusible** nuevos (cartucho), los
+  fusibles del punto tumbados en su bandeja. Decoración siempre dentro de la celda (antes había cuadros y rótulos
+  metidos en la pared, que dejaban agujeros); las tuberías van de pared a pared.
+- **Sonido de repostar** rehecho: el tapón, el chorro con burbujas que suben de tono y los glu-glu de la garrafa.
+- **HUD** de la Estación y de la Fiesta un 18 % más grande; en la Fiesta, tickets y «/1500» del mismo tamaño.
+- **Fiesta**: el número de las puertas, centrado en su moneda; **2 Anfitriones** (3 con 10 jugadores o más);
+  a salvo dentro de **cualquier habitación** (no solo las seguras y las de inicio).
+- Pruebas: la orden `usar` acepta decimales (con `usar 0.15` se quedaba el clic pulsado).
+
+**Probado**: sala del generador (generador grande, HUD), la reja del tutorial (poner el fusible: sube animada),
+una reja entre zonas y su escalera, la central 1 (se abre su puerta al piso 2, franja amarilla), centrales 2 y 3
+con `avanzar`, la pasarela, la cadena con la cizalla y salir; Amasijos 2 en el piso 1 y 3 en el piso 2.
+**Sin probar**: recorrer los laberintos enteros a pie, los buzones en el juego, que el Amasijo se calme ante una
+reja cerrada, el sonido nuevo de repostar (generado, no escuchado), la Fiesta (HUD, puertas, Anfitriones).
+
+## 0.26.0: el Nivel 3 rehecho como el de Escape Together (2026-10-21; Bruno) — sustituido por la 0.27.0
 
 Bruno pidió que la Estación fuera como el nivel 3 de **Backrooms: Escape Together** (se buscó en los foros
 de Steam: subestación, generador de gasolina, rejas que se abren y cierran con fusibles, cinta, cable,

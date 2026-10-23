@@ -207,5 +207,7 @@
   "death.attack.backrooms_evento.estacion.player": "%2$s dragged %1$s into the unlit corridors",
   "block.backrooms_evento.reja_estacion": "Gate",
   "item.backrooms_evento.cizalla": "Bolt cutters",
-  "item.backrooms_evento.fusible": "Fuse"
+  "item.backrooms_evento.fusible": "Fuse",
+  "block.backrooms_evento.buzon_estacion": "Mailbox",
+  "block.backrooms_evento.generador_estacion": "Generator"
 }

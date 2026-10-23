@@ -223,10 +223,11 @@ PUERTAS.forEach(([n, col], tipo) => {
       }
       if (mitad === 1 && tipo === 0 && coste > 0) {
         // una moneda de oro pequena con la cifra grabada (letra de 3x5)
-        l.disco(7.5, 7.5, 3.9, [150, 104, 20]);
-        l.disco(7.5, 7.5, 3.1, [242, 197, 58]);
-        l.punto(5, 5, [255, 236, 150]);
-        l.punto(6, 4, [255, 236, 150]);
+        // centrada en (7, 7): la cifra de 3x5 (x 6..8, y 5..9) queda justo en medio
+        l.disco(7, 7, 3.9, [150, 104, 20]);
+        l.disco(7, 7, 3.1, [242, 197, 58]);
+        l.punto(4, 5, [255, 236, 150]);
+        l.punto(5, 4, [255, 236, 150]);
         CIFRAS[coste].forEach((fila, fy) => [...fila].forEach((v, fx) => { if (v === '#') l.punto(6 + fx, 5 + fy, [96, 58, 8]); }));
       }
       if (mitad === 1 && tipo === 1) l.rect(4, 6, 11, 7, [240, 230, 210]);
