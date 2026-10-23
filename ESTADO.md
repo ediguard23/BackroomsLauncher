@@ -1,8 +1,9 @@
 # Estado del proyecto (para la siguiente sesión)
 
 Última actualización: 2026-10-23 (hora de Honduras). Mod `backrooms_evento` 0.28.0, launcher 1.0.0
-(con arreglos sin publicar) y un launcher aparte para la beta. **La beta está en pausa**: ni el
-pack-beta ni el zip del servidor se han vuelto a publicar desde la 0.17.1 (Bruno lo pedirá).
+(con arreglos sin publicar) y un launcher aparte para la beta. **Beta #3** (2026-10-23): pack-beta
+2026.10.23-a5f1fa08 con la 0.28.0 y `Downloads/Backrooms-servidor-beta3-0.28.0.zip` (el de la beta #2 con el mod
+nuevo, sin Krypton). El mismo hosting 66.51.99.171:25626.
 
 ## 0.28.0: el Nivel 3 sin generador, rejas corredizas, eco en la voz (2026-10-23; Bruno)
 
