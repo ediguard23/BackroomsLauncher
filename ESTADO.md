@@ -31,6 +31,7 @@ Todo está en `tools/rodaje/`, **que sigue sin subirse al repo** (es local, como
   - **música de tráiler épica** (`tools/rodaje/musica-trailer.js`: cuerdas, ostinato, taikos, braams y coro en re menor, que crecen hasta la Estación y el logo);
   - compresor en la mezcla;
   - la Bacteria del Nivel 0 ya no atraviesa la pared (va por x = 62).
+- Tercera versión: **solo música**, sin los sonidos de los niveles (`--solo-musica`): `trailer-musica-1080p.mp4` y `trailer-musica-discord.mp4`, más `trailer-sin-sonido-1080p.mp4` para ponerle otra música en un editor. La canción de Minecraft que pidió Bruno no se mete (sin licencia).
 - **Sin escuchar**: la banda sonora (solo revisada con medidores y espectrograma).
 
 ## 0.28.0: el Nivel 3 sin generador, rejas corredizas, eco en la voz (2026-10-23; Bruno)
