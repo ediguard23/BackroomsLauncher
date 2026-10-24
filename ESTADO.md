@@ -27,6 +27,10 @@ Todo está en `tools/rodaje/`, **que sigue sin subirse al repo** (es local, como
   - no más de 2 lecturas de GPU pendientes (con la gráfica integrada se ahogaba);
   - cada plano graba sus fotogramas exactos;
   - no minimizar el juego mientras graba (deja de dar fotogramas).
+- 2026-10-24, segunda versión:
+  - **música de tráiler épica** (`tools/rodaje/musica-trailer.js`: cuerdas, ostinato, taikos, braams y coro en re menor, que crecen hasta la Estación y el logo);
+  - compresor en la mezcla;
+  - la Bacteria del Nivel 0 ya no atraviesa la pared (va por x = 62).
 - **Sin escuchar**: la banda sonora (solo revisada con medidores y espectrograma).
 
 ## 0.28.0: el Nivel 3 sin generador, rejas corredizas, eco en la voz (2026-10-23; Bruno)
