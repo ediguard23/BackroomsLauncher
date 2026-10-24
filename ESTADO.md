@@ -32,6 +32,10 @@ Todo está en `tools/rodaje/`, **que sigue sin subirse al repo** (es local, como
   - compresor en la mezcla;
   - la Bacteria del Nivel 0 ya no atraviesa la pared (va por x = 62).
 - Tercera versión: **solo música**, sin los sonidos de los niveles (`--solo-musica`): `trailer-musica-1080p.mp4` y `trailer-musica-discord.mp4`, más `trailer-sin-sonido-1080p.mp4` para ponerle otra música en un editor. La canción de Minecraft que pidió Bruno no se mete (sin licencia).
+- **Versión 2 con historia** (2026-10-24):
+  - Steve ve el cartel del Proyecto Umbral en una calle de noche, abre su billetera vacía, arranca una tira, firma (la cinemática del /start con «Steve» en el contrato), cae en el ascensor y recorre los niveles huyendo de lo que se intuye. Dura 2:12.
+  - Datapack de la calle solo en el mundo de pruebas. Ver `tools/rodaje/LEEME-TRAILER.md`.
+  - **Faltan las voces** (Higgsfield: hay que iniciar sesión).
 - **Sin escuchar**: la banda sonora (solo revisada con medidores y espectrograma).
 
 ## 0.28.0: el Nivel 3 sin generador, rejas corredizas, eco en la voz (2026-10-23; Bruno)
