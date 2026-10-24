@@ -5,6 +5,23 @@
 2026.10.23-a5f1fa08 con la 0.28.0 y `Downloads/Backrooms-servidor-beta3-0.28.0.zip` (el de la beta #2 con el mod
 nuevo, sin Krypton). El mismo hosting 66.51.99.171:25626.
 
+## Tráiler de los cuatro niveles (2026-10-23, noche; Bruno) — a medias
+
+Bruno pidió un tráiler cinematográfico de los cuatro niveles (Nivel 0, Pool Rooms, Funny Rooms y Nivel 3), sin spoilers.
+Todo está en `tools/rodaje/`, **que sigue sin subirse al repo** (es local, como el rodaje de la Bacteria):
+- **Modo «trailer» del mod de rodaje** (`Trailer`, `Captura`, `FotogramaMixin`):
+  - planos en cualquier dimensión, leídos de `tools/rodaje/trailer.json`;
+  - teletransporta al jugador y precarga los chunks de todo el recorrido;
+  - figuras solo de cliente y comandos;
+  - graba **fotograma a fotograma** a ffmpeg (1080p30, fluido aunque el PC vaya lento), con `/tick rate` ajustado al ritmo del vídeo.
+- **`montaje-trailer.js`**:
+  - banda sonora con los sonidos del mod y música sintetizada;
+  - montaje con ffmpeg: fundidos, parpadeos, apagón, títulos de nivel, franjas de cine, grano, montaje rápido final y logo;
+  - salida en 1080p y en una versión para Discord de menos de 10 MB.
+- Guion técnico plano a plano en `tools/rodaje/LEEME-TRAILER.md`. 15 planos revisados con capturas; 77,8 s.
+- **Sin hacer**: la grabación completa y el montaje final. La primera grabación se cortó a los 5 s porque el PC (7 GB) se quedó sin memoria con otro Minecraft abierto. Hay que grabar con el PC libre (~20 min).
+- **Sin escuchar**: la banda sonora (solo revisada con medidores y espectrograma).
+
 ## 0.28.0: el Nivel 3 sin generador, rejas corredizas, eco en la voz (2026-10-23; Bruno)
 
 Bruno pidió otra tanda para el Nivel 3:
