@@ -37,6 +37,13 @@ Todo está en `tools/rodaje/`, **que sigue sin subirse al repo** (es local, como
   - Datapack de la calle solo en el mundo de pruebas. Ver `tools/rodaje/LEEME-TRAILER.md`.
   - **Faltan las voces** (Higgsfield: hay que iniciar sesión).
 - **Versión 3** (misma tarde), con los cambios que pidió Bruno: movimientos de jugador, Steve sin flotar en la pasarela, traje en los niveles con planos de cara, el cartel pequeño en un poste e inserto de la tira guardada en la billetera, y la lluvia más baja. Dura 2:14.
+- **Versión 4** (2026-10-24, noche):
+  - Steve se coloca en cada fotograma, sin interpolar entre ticks (antes iba a saltos en la calle), y las piernas las mueve el guion.
+  - Flyer pequeño de anuncio (: textura del mod de rodaje con el papel y custom_model_data «cartel») en un poste de hormigón.
+  - Fuera el plano de la habitación vacía de la Fiesta (parecía que Steve se teletransportaba); Steve se gira al oír la risa.
+  - La central se graba más alta, mirando a los controles.
+  - Pasos reales de Minecraft (piedra, moqueta, agua y rejilla), rasgado de papel más realista, la risa del payaso que se corta con el apagón y la música continua hasta el logo.
+  - **Voces de Higgsfield** (Chrome): radio y megafonía (Marisol), «Es un estudio sencillo» y «Le veremos al otro lado» (Juan), en .
 - **Sin escuchar**: la banda sonora (solo revisada con medidores y espectrograma).
 
 ## 0.28.0: el Nivel 3 sin generador, rejas corredizas, eco en la voz (2026-10-23; Bruno)
