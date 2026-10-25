@@ -1240,11 +1240,13 @@ void partesInvestigador(inout Obj o, vec3 ro, vec3 rd, Pose q) {
     caja(m, po, pd, vec3(-2.0, -12.0, -2.0), vec3(2.0, 0.0, 2.0), 20 + k);
     if (m.t < l.t) { l = m; nl = rotF(m.n, a); parte = 20 + k; }
   }
-  // los faldones de la bata
-  {
+  // los faldones de la bata: cada mitad va con su pierna (si no, al andar las piernas la atraviesan)
+  for (int k = 0; k < 2; k++) {
+    float a = k == 0 ? sw : -sw;
+    vec3 po = rotF(bo - vec3(0.0, 12.0, 0.0), -a), pd = rotF(bd, -a);
     Obj m = l;
-    caja(m, bo, bd, vec3(-4.3, 6.0, -2.3), vec3(4.3, 12.0, 2.3), 22);
-    if (m.t < l.t) { l = m; nl = m.n; parte = 22; }
+    caja(m, po, pd, k == 0 ? vec3(0.0, -6.0, -2.3) : vec3(-4.3, -6.0, -2.3), k == 0 ? vec3(4.3, 0.0, 2.3) : vec3(0.0, 0.0, 2.3), 22);
+    if (m.t < l.t) { l = m; nl = rotF(m.n, a); parte = 22; }
   }
   // de cintura para arriba, inclinado hacia delante
   vec3 H = vec3(0.0, 12.0, 0.0);

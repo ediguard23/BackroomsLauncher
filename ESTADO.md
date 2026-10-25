@@ -45,6 +45,16 @@ Todo está en `tools/rodaje/`, **que sigue sin subirse al repo** (es local, como
   - La central se graba más alta, mirando a los controles.
   - Pasos reales de Minecraft (piedra, moqueta, agua y rejilla), rasgado de papel más realista, la risa del payaso que se corta con el apagón y la música continua hasta el logo.
   - **Voces de Higgsfield** (Chrome): radio y megafonía (Marisol), «Es un estudio sencillo» y «Le veremos al otro lado» (Juan), en Desktop/BackRooms/trailer/voces.
+- **Versión 6** (2026-10-25), con los cambios que pidió Bruno al ver la v5:
+  - **Entrada al edificio en primera persona** (`umbral_pov`): desde los ojos de Steve, mira arriba al rótulo UMBRAL, baja la vista a las puertas, las empuja y se funde a negro; se abre en la sala de la firma. Fuera el plano del vestíbulo.
+  - Las puertas de hierro de la entrada tenían las bisagras al revés: al abrirse, las dos hojas se juntaban en el centro (por eso en la v5 parecía que Steve las atravesaba).
+  - **Fuera los coches** de la calle.
+  - **Sin apariciones a mitad de plano**: las figuras están desde el primer fotograma (antes salían en el primer tick; en la piscina se veía el agua y luego aparecía Steve).
+  - **Final en primera persona** (`e_caza`): Steve corre por la pasarela con el traje (se le ven los guantes y las mangas al correr), mira atrás, ve al Amasijo, corre más (la cámara tiembla cada vez más), vuelve a mirar y el Amasijo le salta encima; corte a negro y la línea plana del monitor. Sin la muerte de Minecraft.
+  - Modo `pov` del rodaje: la cámara va en la cabeza de una figura (que no se dibuja: `CabezaMixin`; y sin casco), con balanceo al andar y sacudida por tramos; `cuello` configurable por figura.
+  - **Desenfoque de movimiento**: se graba a 60 fps y el montaje funde cada dos fotogramas (`"mezcla": 2`); sale a 30.
+  - **Mod 0.28.1**: en la cinemática de la firma, los faldones de la bata del doctor van con cada pierna (al andar, las piernas la atravesaban). Shader `cinematica.fsh`. **Sin publicar** (ni pack ni servidor beta): hace falta permiso para publicar el pack.
+  - Probado: las tomas nuevas grabadas y revisadas por fotogramas (entrada, puerta abierta, carrera, salto del Amasijo, bata al andar, piscina sin aparición).
 - **Sin escuchar**: la banda sonora (solo revisada con medidores y espectrograma).
 
 ## 0.28.0: el Nivel 3 sin generador, rejas corredizas, eco en la voz (2026-10-23; Bruno)
