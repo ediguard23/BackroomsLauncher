@@ -55,6 +55,12 @@ Todo está en `tools/rodaje/`, **que sigue sin subirse al repo** (es local, como
   - **Desenfoque de movimiento**: se graba a 60 fps y el montaje funde cada dos fotogramas (`"mezcla": 2`); sale a 30.
   - **Mod 0.28.1**: en la cinemática de la firma, los faldones de la bata del doctor van con cada pierna (al andar, las piernas la atravesaban). Shader `cinematica.fsh`. **Sin publicar** (ni pack ni servidor beta): hace falta permiso para publicar el pack.
   - Probado: las tomas nuevas grabadas y revisadas por fotogramas (entrada, puerta abierta, carrera, salto del Amasijo, bata al andar, piscina sin aparición).
+- **Versión 7** (2026-10-26):
+  - el edificio de Umbral es simétrico respecto a las dos puertas y por dentro está vacío y negro (al abrir la puerta, fundido a negro y la firma);
+  - los rótulos «PROYECTO UMBRAL» (centrado sobre la puerta) y «UMBRAL» (más grande y más bajo, sobre un panel oscuro) tienen relieve;
+  - la cámara en primera persona va amortiguada y sin los saltos del paso;
+  - el vídeo principal sale a más calidad (CRF 13).
+  - Ver tools/rodaje/LEEME-TRAILER.md.
 - **Sin escuchar**: la banda sonora (solo revisada con medidores y espectrograma).
 
 ## 0.28.0: el Nivel 3 sin generador, rejas corredizas, eco en la voz (2026-10-23; Bruno)
