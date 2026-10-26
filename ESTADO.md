@@ -60,6 +60,7 @@ Todo está en `tools/rodaje/`, **que sigue sin subirse al repo** (es local, como
   - los rótulos «PROYECTO UMBRAL» (centrado sobre la puerta) y «UMBRAL» (más grande y más bajo, sobre un panel oscuro) tienen relieve;
   - la cámara en primera persona va amortiguada y sin los saltos del paso;
   - el vídeo principal sale a más calidad (CRF 13).
+  - 7b: los rótulos quedan centrados con la puerta (las coordenadas enteras de los comandos van al centro del bloque), el fundido a negro empieza 0,3 s antes y se borraron los tráileres y pruebas viejos de Desktop/BackRooms/trailer.
   - Ver tools/rodaje/LEEME-TRAILER.md.
 - **Sin escuchar**: la banda sonora (solo revisada con medidores y espectrograma).
 
