@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class OcultarJugadoresMixin {
 	@Inject(method = "shouldRender", at = @At("HEAD"), cancellable = true)
 	private <E extends Entity> void backrooms$sinJugadores(E entidad, Frustum frustum, double x, double y, double z, CallbackInfoReturnable<Boolean> cir) {
-		if (entidad instanceof Player && ToboganCliente.activa()) {
+		if (entidad instanceof Player && (ToboganCliente.activa() || net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.activa())) {
 			cir.setReturnValue(false);
 		}
 	}

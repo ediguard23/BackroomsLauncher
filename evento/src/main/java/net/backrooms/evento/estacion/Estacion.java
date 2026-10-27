@@ -73,6 +73,16 @@ public final class Estacion {
 				inv.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
 			}
 		}
+		// y la linterna, al ultimo hueco de la barra (el 9): lo que hubiera alli pasa a su hueco
+		int ultimo = net.minecraft.world.entity.player.Inventory.getSelectionSize() - 1;
+		for (int i = 0; i < net.minecraft.world.entity.player.Inventory.getSelectionSize(); i++) {
+			if (i != ultimo && inv.getItem(i).is(net.backrooms.evento.objetos.Objetos.LINTERNA)) {
+				net.minecraft.world.item.ItemStack otro = inv.getItem(ultimo);
+				inv.setItem(ultimo, inv.getItem(i));
+				inv.setItem(i, otro);
+				break;
+			}
+		}
 		if (nueva) {
 			net.backrooms.evento.mision.Misiones.get().asignarEstacion(j);
 			j.connection.send(new ClientboundSetTitlesAnimationPacket(20, 80, 30));

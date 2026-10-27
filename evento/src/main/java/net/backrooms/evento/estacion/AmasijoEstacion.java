@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Cuantos Amasijos hay en la Estacion y donde salen: siempre POR_PISO (2 en el piso 1, 3 en el 2 y 4
+ * Cuantos Amasijos hay en la Estacion y donde salen: siempre POR_PISO (6 en el piso 1, 8 en el 2 y 10
  * en el 3), dando vueltas por su laberinto. Salen lejos de todos, en los pasillos de su piso, y nunca
  * de golpe: de uno en uno. No pasan a otro piso: el que se sale del suyo, se va.
  *
@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
  */
 public final class AmasijoEstacion {
 	private static final AmasijoEstacion INSTANCIA = new AmasijoEstacion();
-	private static final int[] POR_PISO = {2, 3, 4};
+	private static final int[] POR_PISO = {6, 8, 10};
 	/** La etiqueta de los que pone el staff (invocar amasijo): no cuentan ni se quitan solos. */
 	public static final String INVOCADO = "invocado";
 	private static final List<List<int[]>> RONDAS = new ArrayList<>();

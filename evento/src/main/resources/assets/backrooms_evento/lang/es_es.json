@@ -202,5 +202,10 @@
   "item.backrooms_evento.cizalla": "Cizalla",
   "item.backrooms_evento.fusible": "Fusible",
   "block.backrooms_evento.buzon_estacion": "Buzón",
-  "block.backrooms_evento.marco_reja": "Marco de la reja"
+  "block.backrooms_evento.marco_reja": "Marco de la reja",
+  "block.backrooms_evento.peluche_roto": "Peluche destrozado",
+  "block.backrooms_evento.sangre_fiesta": "Sangre",
+  "block.backrooms_evento.sangre_pared": "Sangre en la pared",
+  "block.backrooms_evento.rack_servidor": "Rack de servidores",
+  "block.backrooms_evento.cables_suelo": "Cables por el suelo"
 }

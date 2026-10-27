@@ -35,7 +35,8 @@ public final class Variante {
 
 		@Override
 		protected VoxelShape getCollisionShape(BlockState e, net.minecraft.world.level.BlockGetter n, net.minecraft.core.BlockPos pos, net.minecraft.world.phys.shapes.CollisionContext ctx) {
-			return this.forma.get(e.getValue(FACING));
+			// lo de la pared no choca (tuberias, cuadros, senales, luces): el Amasijo se quedaba enganchado
+			return net.minecraft.world.phys.shapes.Shapes.empty();
 		}
 
 		@Override

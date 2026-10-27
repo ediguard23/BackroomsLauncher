@@ -368,7 +368,7 @@ const ANFITRION = {
 /*
  * El Amasijo (la Estacion Electrica): una masa de carne palida del tamano de una persona
  * agachada, con una boca enorme llena de dientes delante. Anda sobre seis brazos (las patas)
- * y agita otros ocho hacia delante, con codo, como si buscara a tientas. Cabe en los pasillos
+ * y agita otros ocho hacia delante, con codo y una mano abierta al final, como si buscara a tientas. Cabe en los pasillos
  * de la Estacion (2 bloques de alto).
  */
 const pataAma = (i, x, z, rx) => [`pata_${i}`, 'cuerpo', [x, 3, z], [rx, 0, 0], [
@@ -377,9 +377,13 @@ const pataAma = (i, x, z, rx) => [`pata_${i}`, 'cuerpo', [x, 3, z], [rx, 0, 0], 
 ]];
 const brazoAma = (i, x, y, z, rx, ry) => [
   [`brazo_${i}`, 'cuerpo', [x, y, z], [rx, ry, 0], [[-1.25, -1.25, -8, 2.5, 2.5, 8, 'carne']]],
+  // al final del brazo, una mano: la palma, cuatro dedos largos y el pulgar (antes era una bola de carne)
   [`ante_${i}`, `brazo_${i}`, [0, 0, -8], [30, 0, 0], [
     [-1, -1, -8, 2, 2, 8, 'carne'],
-    [-2, -1.5, -11, 4, 3, 3, 'mano']
+    [-2, -0.75, -12, 4, 1.5, 4, 'mano'],
+    [-1.9, -0.5, -15.5, 0.8, 1, 3.5, 'mano'], [-0.9, -0.5, -16, 0.8, 1, 4, 'mano'],
+    [0.1, -0.5, -16, 0.8, 1, 4, 'mano'], [1.1, -0.5, -15.2, 0.8, 1, 3.2, 'mano'],
+    [2, -0.5, -11.5, 1.6, 1, 1, 'mano']
   ]]
 ];
 const AMASIJO = {

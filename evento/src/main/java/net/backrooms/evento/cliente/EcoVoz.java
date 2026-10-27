@@ -14,7 +14,8 @@ import net.minecraft.world.phys.Vec3;
 /**
  * El eco de la voz de los demas en el cliente (lo registra VozCinematica, solo si hay Simple Voice
  * Chat): cuanto mas lejos esta quien habla, mas reverberacion de sala grande y un poco mas apagada
- * se oye su voz. De cerca, limpia. En la Estacion (una nave de hormigon) el eco es algo mayor.
+ * se oye su voz. De cerca, limpia. Solo hay eco en las Piscinas y en la Estacion (una nave de hormigon,
+ * algo mas); en el vestibulo, el Nivel 0 y la Fiesta la voz va limpia.
  *
  * El audio llega por el hilo de la voz: las posiciones las copia tick() en el hilo del juego y
  * aqui solo se leen. Cada canal (cada jugador) tiene su propia reverberacion, con su cola.
@@ -29,6 +30,8 @@ public final class EcoVoz {
 	private static volatile Map<UUID, Vec3> posiciones = Map.of();
 	private static volatile Vec3 yo;
 	private static volatile boolean estacion;
+	/** Si el nivel donde estoy tiene eco (las Piscinas y la Estacion). */
+	private static volatile boolean conEco;
 	private static volatile boolean activo;
 	private static final Map<UUID, Sala> SALAS = new ConcurrentHashMap<>();
 
@@ -57,6 +60,7 @@ public final class EcoVoz {
 		posiciones = m;
 		yo = mc.player.getEyePosition();
 		estacion = Estacion.es(mc.level);
+		conEco = estacion || net.backrooms.evento.piscinas.Piscinas.es(mc.level);
 		activo = true;
 		// los canales que llevan un rato callados se olvidan
 		long ahora = System.currentTimeMillis();
@@ -65,7 +69,7 @@ public final class EcoVoz {
 
 	private static void procesar(ClientReceiveSoundEvent e, Vec3 donde) {
 		Vec3 aqui = yo;
-		if (!activo || donde == null || aqui == null) {
+		if (!activo || !conEco || donde == null || aqui == null) {
 			return;
 		}
 		double d = donde.distanceTo(aqui);

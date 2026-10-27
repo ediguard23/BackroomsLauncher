@@ -54,8 +54,8 @@ import org.jspecify.annotations.Nullable;
  */
 public final class JuegoEstacion {
 	private static final JuegoEstacion INSTANCIA = new JuegoEstacion();
-	/** Segundos que tarda en reponerse cada cosa (por tipo: cable, cizalla, cinta, -, fusible). */
-	private static final int[] REPONER = {90, 60, 90, 100, 100};
+	/** Segundos que tarda en reponerse cada cosa (por tipo: cable, cizalla, cinta, -, fusible): 5 minutos. */
+	private static final int[] REPONER = {300, 300, 300, 300, 300};
 	private static final String[] NOMBRE = {"un cable", "la cizalla", "cinta aislante", "un fusible", "un fusible"};
 	private static final String[] PIEZA = {"fusible", "cinta aislante", "cable"};
 	private static final String[] PIEZAS = {"fusibles", "cintas aislantes", "cables"};
@@ -610,7 +610,8 @@ public final class JuegoEstacion {
 				return;
 			}
 			if (!j.getInventory().add(new ItemStack(BloquesEstacion.FUSIBLE))) {
-				j.displayClientMessage(Component.literal("No te cabe el fusible: haz sitio en la barra.").withStyle(ChatFormatting.GRAY), true);
+				j.displayClientMessage(Component.literal(LimiteFusibles.fusibles(j.getInventory()) >= LimiteFusibles.MAX
+					? "Ya llevas " + LimiteFusibles.MAX + " fusibles: no puedes llevar más." : "No te cabe el fusible: haz sitio en la barra.").withStyle(ChatFormatting.GRAY), true);
 				return;
 			}
 			this.e.rejas.remove(r.id());

@@ -18,19 +18,23 @@ import net.minecraft.world.level.block.state.BlockState;
  * la niebla no se vuelva negra. Como en Backrooms: Escape Together, una vuelta es:
  *
  *   1. LAS HABITACIONES DE INICIO: se empieza en un cuartito con una puerta (uno de doce, al azar).
- *   2. EL LABERINTO (x -156..-4, z -76..76, 152 x 152): pasillos blancos con columnas de colores, suelo a
+ *   2. EL LABERINTO (x -196..-4, z -96..96, 192 x 192): pasillos blancos con columnas de colores, suelo a
  *      cuadros y banderines. Por los pasillos, mesas de fiesta con monedas (se cogen con clic derecho)
  *      o comida; las monedas abren las puertas de las habitaciones (60 salas seguras con dos
  *      puertas, para cruzarlas, y el localizador de salida; la memoria, los regalos, la cocina, la siesta, la sala secreta y la de
  *      las mesas). Los tickets no estan tirados: se ganan. La salida es una puerta roja en la pared este (zumba cuando estas cerca).
- *   3. EL CASTILLO (x 8..56, z -24..24): el parque de bolas, dos pisos de pasillos acolchados
+ *   3. EL CASTILLO (x 96..156, z -30..30): el parque de bolas, dos pisos de pasillos acolchados
  *      con redes, escaleras de arcoiris y semaforos; se cruza moviendose solo en verde
  *      (JuegoSemaforo). Arriba, al este, el tobogan baja a la sala central con el bote de la vuelta.
- *   4. LA SALA CENTRAL (x 66..94, z -12..12): el marcador de tickets, el bote, los cuadrados de
+ *   4. LA SALA CENTRAL (x 242..270, z -12..12): el marcador de tickets, el bote, los cuadrados de
  *      noclip (por ahi se vuelve a empezar, en otra habitacion de inicio) y la puerta del final,
  *      que se abre con los tickets del objetivo.
- *   5. EL SALON FINAL (x 58..102, z -64..-22): la fiesta de verdad; al fondo, el tobogan por el
+ *   5. EL SALON FINAL (x 351..395, z -64..-22): la fiesta de verdad; al fondo, el tobogan por el
  *      que se sale del nivel.
+ *
+ * Entre zona y zona hay al menos SEPARACION bloques de vacio (que no se oigan ni se vean unas desde
+ * otras, tampoco por el chat de voz): las puertas que las unen (la roja de la salida del laberinto y
+ * la del final) llevan al otro lado de verdad (destino), y el tobogan del castillo, a la central.
  */
 public final class PlanoFiesta {
 	public static final int SUELO = 40;
@@ -38,27 +42,29 @@ public final class PlanoFiesta {
 	public static final int TECHO = SUELO + 6;
 
 	/* el laberinto: celdas de CELDA (3 de paso y 1 de pared) */
-	public static final int LAB_X = -156;
-	public static final int LAB_Z = -76;
-	public static final int LAB_W = 38;
-	public static final int LAB_H = 38;
+	/** Bloques de vacio, como minimo, entre una zona y la siguiente. */
+	public static final int SEPARACION = 80;
+	public static final int LAB_X = -196;
+	public static final int LAB_Z = -96;
+	public static final int LAB_W = 48;
+	public static final int LAB_H = 48;
 	public static final int CELDA = 4;
 	/** La celda de la salida (en el borde este) y su puerta roja, en la pared de fuera. */
-	public static final int SALIDA_CZ = 19;
+	public static final int SALIDA_CZ = 24;
 	public static final int SALIDA_X = LAB_X + LAB_W * CELDA;
 	public static final int SALIDA_Z = LAB_Z + SALIDA_CZ * CELDA + 2;
 
 	/* el castillo de bolas: CAS_N x CAS_N celdas en dos pisos */
-	public static final int CAS_X = 8;
-	public static final int CAS_Z = -24;
-	public static final int CAS_N = 12;
+	public static final int CAS_X = SALIDA_X + SEPARACION + 20;
+	public static final int CAS_Z = -30;
+	public static final int CAS_N = 15;
 	public static final int CAS_LADO = CAS_N * CELDA;
 	/** El suelo del piso de arriba (se pisa en CAS_P1 + 1) y el tejado de lona. */
 	public static final int CAS_P1 = SUELO + 4;
 	public static final int CAS_TEJADO = SUELO + 8;
 	public static final int TECHO_CASTILLO = SUELO + 14;
 	/** La fila de celdas de la entrada (oeste, abajo) y de la salida al tobogan (este, arriba). */
-	public static final int CAS_FILA = 6;
+	public static final int CAS_FILA = 7;
 	public static final double CASTILLO_LLEGADA_X = CAS_X + 2.5;
 	public static final double CASTILLO_LLEGADA_Z = CAS_Z + CAS_FILA * CELDA + 2.5;
 	/** La boca del tobogan, fuera del castillo por el este, a la altura del piso de arriba. */
@@ -66,10 +72,13 @@ public final class PlanoFiesta {
 	public static final int TOB_X1 = TOB_X0 + 2;
 	public static final int TOB_Z0 = CAS_Z + CAS_FILA * CELDA + 1;
 	public static final int TOB_Z1 = TOB_Z0 + 2;
+	/** La puerta roja de llegada al castillo: al oeste de su pasillo (la otra cara de la salida del laberinto). */
+	public static final int CAS_PUERTA_X = CAS_X - 13;
+	public static final int CAS_PUERTA_Z = TOB_Z0 + 1;
 
 	/* la sala central */
-	public static final int CEN_X0 = 66;
-	public static final int CEN_X1 = 94;
+	public static final int CEN_X0 = TOB_X1 + 2 + SEPARACION;
+	public static final int CEN_X1 = CEN_X0 + 28;
 	public static final int CEN_Z0 = -12;
 	public static final int CEN_Z1 = 12;
 	public static final int TECHO_CENTRAL = SUELO + 7;
@@ -77,19 +86,22 @@ public final class PlanoFiesta {
 	public static final double CENTRAL_LLEGADA_X = CEN_X0 + 1.5;
 	public static final double CENTRAL_LLEGADA_Z = 0.5;
 	/** La puerta del final, en la pared norte de la sala central. */
-	public static final int PUERTA_FINAL_X = 80;
+	public static final int PUERTA_FINAL_X = CEN_X0 + 14;
 	public static final int PUERTA_FINAL_Z = CEN_Z0 - 1;
 
 	/* el salon final y su tobogan (la salida del nivel) */
-	public static final int FIN_X0 = 58;
-	public static final int FIN_X1 = 102;
+	public static final int FIN_X0 = CEN_X1 + 1 + SEPARACION;
+	public static final int FIN_X1 = FIN_X0 + 44;
 	public static final int FIN_Z0 = -64;
 	public static final int FIN_Z1 = -22;
 	public static final int TECHO_FINAL = SUELO + 12;
-	public static final int FINAL_TOB_X0 = 79;
-	public static final int FINAL_TOB_X1 = 81;
+	public static final int FINAL_TOB_X0 = FIN_X0 + 21;
+	public static final int FINAL_TOB_X1 = FIN_X0 + 23;
 	public static final int FINAL_TOB_Z0 = FIN_Z0 - 4;
 	public static final int FINAL_TOB_Z1 = FIN_Z0 - 2;
+	/** La puerta morada de llegada al salon: al sur de su pasillo (la otra cara de la del final). */
+	public static final int FIN_PUERTA_X = FIN_X0 + 22;
+	public static final int FIN_PUERTA_Z = FIN_Z1 + 9;
 
 	@FunctionalInterface
 	public interface Patron {
@@ -350,7 +362,7 @@ public final class PlanoFiesta {
 	}
 
 	/** Cuantas salas seguras hay (cada una con su localizador de salida). */
-	public static final int SEGURAS = 60;
+	public static final int SEGURAS = 90;
 
 	/**
 	 * Las habitaciones del laberinto (en celdas). Ninguna toca a otra, ni en diagonal: entre ellas
@@ -358,17 +370,17 @@ public final class PlanoFiesta {
 	 * solas (semilla fija) por el sitio que queda.
 	 */
 	private static void habitaciones() {
-		int[][] inicios = {{0, 5}, {0, 16}, {0, 28}, {8, 0}, {19, 0}, {30, 0}, {8, 37}, {19, 37}, {30, 37}, {12, 13}, {25, 9}, {22, 27},
-			{5, 31}, {33, 22}, {16, 6}, {28, 33}};
+		int[][] inicios = {{0, 6}, {0, 20}, {0, 35}, {10, 0}, {24, 0}, {38, 0}, {10, 47}, {24, 47}, {38, 47}, {15, 16}, {32, 11}, {28, 34},
+			{6, 39}, {42, 28}, {20, 8}, {35, 42}};
 		for (int i = 0; i < inicios.length; i++) {
 			HABITACIONES.add(new Habitacion("inicio", "inicio_" + (i + 1), inicios[i][0], inicios[i][1], 1, 1, 0));
 		}
-		HABITACIONES.add(new Habitacion("memoria", "memoria", 8, 20, 3, 3, 2));
-		HABITACIONES.add(new Habitacion("regalos", "regalos", 24, 15, 4, 3, 2));
-		HABITACIONES.add(new Habitacion("cocina", "cocina", 9, 3, 3, 2, 2));
-		HABITACIONES.add(new Habitacion("siesta", "siesta", 21, 3, 3, 2, 2));
-		HABITACIONES.add(new Habitacion("secreta", "secreta", 33, 32, 2, 2, 3));
-		HABITACIONES.add(new Habitacion("mesas", "mesas", 14, 24, 3, 2, 1));
+		HABITACIONES.add(new Habitacion("memoria", "memoria", 10, 25, 3, 3, 2));
+		HABITACIONES.add(new Habitacion("regalos", "regalos", 30, 19, 4, 3, 2));
+		HABITACIONES.add(new Habitacion("cocina", "cocina", 11, 4, 3, 2, 2));
+		HABITACIONES.add(new Habitacion("siesta", "siesta", 27, 4, 3, 2, 2));
+		HABITACIONES.add(new Habitacion("secreta", "secreta", 42, 40, 2, 2, 3));
+		HABITACIONES.add(new Habitacion("mesas", "mesas", 18, 30, 3, 2, 1));
 		Random azar = new Random(777);
 		int seguras = 0;
 		for (int intento = 0; intento < 20000 && seguras < SEGURAS; intento++) {
@@ -503,7 +515,7 @@ public final class PlanoFiesta {
 		Random azar = new Random(1337);
 		boolean[][] llega = recorrido(LAB_W, LAB_H, reservada, este, sur, LAB_W - 1, SALIDA_CZ, azar, null);
 		// atajos: quita algunas paredes entre pasillos para que haya vueltas
-		for (int i = 0; i < 70; i++) {
+		for (int i = 0; i < 110; i++) {
 			int cx = azar.nextInt(LAB_W - 1);
 			int cz = azar.nextInt(LAB_H - 1);
 			if (azar.nextBoolean()) {
@@ -905,11 +917,11 @@ public final class PlanoFiesta {
 
 	/* ------------------------------------------------------------ el castillo */
 
-	/** El pasillo de la puerta roja al castillo. */
+	/** El pasillo de la puerta roja (la de llegada, CAS_PUERTA) al castillo. */
 	private static void pasilloCastillo() {
-		sala("pasillo_castillo", SALIDA_X + 1, SALIDA_Z - 1, CAS_X - 2, SALIDA_Z + 1, TECHO, BloquesFiesta.DAMEROS[0], BloquesFiesta.ZOCALO_LAB,
+		sala("pasillo_castillo", CAS_PUERTA_X + 1, TOB_Z0, CAS_X - 2, TOB_Z1, TECHO, BloquesFiesta.DAMEROS[0], BloquesFiesta.ZOCALO_LAB,
 			BloquesFiesta.PARED_LAB, 1, 4);
-		caja(SALIDA_X + 1, SUELO, SALIDA_Z - 1, CAS_X - 2, SUELO, SALIDA_Z + 1, (x, y, z) -> s(BloquesFiesta.DAMEROS[damero(x, z)]));
+		caja(CAS_PUERTA_X + 1, SUELO, TOB_Z0, CAS_X - 2, SUELO, TOB_Z1, (x, y, z) -> s(BloquesFiesta.DAMEROS[damero(x, z)]));
 	}
 
 	/**
@@ -934,7 +946,7 @@ public final class PlanoFiesta {
 		caja(x0 - 1, TECHO_CASTILLO, z0 - 1, x0 + lado + 1, TECHO_CASTILLO, z0 + lado + 1,
 			(x, y, z) -> (Math.floorMod(x - x0, 12) == 6 && Math.floorMod(z - z0, 12) == 6) ? s(BloquesFiesta.LUZ_PARPADEO) : s(BloquesFiesta.TECHO_LAB));
 		// las escaleras: celda de abajo (sube hacia el este) y, arriba, la celda a la que llega
-		int[][] escaleras = {{3, 2}, {6, 9}, {8, 4}, {2, 9}};
+		int[][] escaleras = {{4, 2}, {7, 11}, {10, 5}, {2, 11}, {12, 9}};
 		boolean[][] hueco = new boolean[n][n];
 		for (int[] e : escaleras) {
 			hueco[e[0]][e[1]] = true;
@@ -951,7 +963,7 @@ public final class PlanoFiesta {
 		for (int[] e : escaleras) {
 			este1[e[0]][e[1]] = false;
 		}
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 14; i++) {
 			int cx = azar.nextInt(n - 1);
 			int cz = azar.nextInt(n - 1);
 			if (!hueco[cx][cz] && !hueco[cx + 1][cz] && !hueco[cx][cz + 1]) {
@@ -1019,7 +1031,7 @@ public final class PlanoFiesta {
 		});
 		// los semaforos: en el medio de algunas redes, a la altura de los ojos, mirando a un pasillo
 		Random r = new Random(99);
-		for (int k = 0; k < 220 && SEMAFOROS.size() < 22; k++) {
+		for (int k = 0; k < 340 && SEMAFOROS.size() < 32; k++) {
 			boolean enX = r.nextBoolean();
 			int i = 1 + r.nextInt(n - 1);
 			int c = r.nextInt(n);
@@ -1071,19 +1083,19 @@ public final class PlanoFiesta {
 		// el marcador de tickets encima de la puerta y el bote a la izquierda, con su nube
 		for (int k = 0; k < 3; k++) {
 			bloque(PUERTA_FINAL_X - 1 + k, SUELO + 4, CEN_Z0, mira(BloquesFiesta.MARCADOR, Direction.SOUTH).setValue(Marcador.PARTE, k).setValue(Marcador.TIPO, 0));
-			bloque(70 + k, SUELO + 3, CEN_Z0, mira(BloquesFiesta.MARCADOR, Direction.SOUTH).setValue(Marcador.PARTE, k).setValue(Marcador.TIPO, 1));
-			bloque(70 + k, SUELO + 5, CEN_Z0, variante(BloquesFiesta.NUBE, Direction.SOUTH, k));
+			bloque(CEN_X0 + 4 + k, SUELO + 3, CEN_Z0, mira(BloquesFiesta.MARCADOR, Direction.SOUTH).setValue(Marcador.PARTE, k).setValue(Marcador.TIPO, 1));
+			bloque(CEN_X0 + 4 + k, SUELO + 5, CEN_Z0, variante(BloquesFiesta.NUBE, Direction.SOUTH, k));
 		}
 		// a los lados de la puerta, el escaparate de premios: mostrador con peluches y regalos encima
-		for (int x : new int[] {76, 77, 83, 84}) {
+		for (int x : new int[] {CEN_X0 + 10, CEN_X0 + 11, CEN_X0 + 17, CEN_X0 + 18}) {
 			bloque(x, SUELO + 1, CEN_Z0, s(Blocks.STRIPPED_CHERRY_LOG));
 			bloque(x, SUELO + 2, CEN_Z0, variante(x % 2 == 0 ? BloquesFiesta.PELUCHE : BloquesFiesta.REGALO, Direction.SOUTH, Math.floorMod(x, 4)));
 		}
-		racimo(75, CEN_Z0 + 1, SUELO + 1, 0);
-		racimo(85, CEN_Z0 + 1, SUELO + 1, 3);
+		racimo(CEN_X0 + 9, CEN_Z0 + 1, SUELO + 1, 0);
+		racimo(CEN_X0 + 19, CEN_Z0 + 1, SUELO + 1, 3);
 		// los cuadrados de noclip, al sur: un pozo oscuro sin suelo, con su franja de aviso alrededor (y las
 		// particulas de portal del cliente, AmbienteFiesta)
-		int[][] noclip = {{70, 7}, {79, 8}, {88, 7}};
+		int[][] noclip = {{CEN_X0 + 4, 7}, {CEN_X0 + 13, 8}, {CEN_X0 + 22, 7}};
 		for (int[] c : noclip) {
 			NOCLIPS.add(c);
 			caja(c[0] - 1, SUELO, c[1] - 1, c[0] + 2, SUELO, c[1] + 2, s(BloquesFiesta.FRANJA));
@@ -1092,7 +1104,7 @@ public final class PlanoFiesta {
 			caja(c[0], SUELO, c[1], c[0] + 1, SUELO, c[1] + 1, s(BloquesFiesta.NOCLIP));
 		}
 		// mesas de fiesta con sus sillitas y tartas
-		for (int[] m : new int[][] {{71, -6}, {86, -6}, {78, 0}}) {
+		for (int[] m : new int[][] {{CEN_X0 + 5, -6}, {CEN_X0 + 20, -6}, {CEN_X0 + 12, 0}}) {
 			mesa(m[0], m[1], Direction.EAST, Math.floorMod(m[0], 4));
 			bloque(m[0] + 1, SUELO + 2, m[1], variante(BloquesFiesta.TARTA, Direction.SOUTH, Math.floorMod(m[0] + m[1], 4)));
 			bloque(m[0], SUELO + 1, m[1] - 1, variante(BloquesFiesta.SILLITA, Direction.SOUTH, 0));
@@ -1115,7 +1127,7 @@ public final class PlanoFiesta {
 			bloque(CEN_X0 + 4, SUELO + 1, CEN_Z0 + k, mira(BloquesFiesta.VALLA, Direction.EAST));
 		}
 		// piezas de goma por el suelo, ramos de globos, carteles y dibujos
-		int[][] goma = {{74, 3}, {83, 3}, {90, -2}};
+		int[][] goma = {{CEN_X0 + 8, 3}, {CEN_X0 + 17, 3}, {CEN_X0 + 24, -2}};
 		for (int[] g : goma) {
 			caja(g[0], SUELO, g[1], g[0] + 2, SUELO, g[1] + 1, s(BloquesFiesta.SUELO_GOMA));
 		}
@@ -1123,19 +1135,19 @@ public final class PlanoFiesta {
 		racimo(CEN_X1 - 2, CEN_Z1 - 1, SUELO + 1, 2);
 		racimo(CEN_X0 + 6, CEN_Z0 + 1, SUELO + 1, 3);
 		bloque(CEN_X1, SUELO + 4, 7, variante(BloquesFiesta.CARTEL, Direction.WEST, 1));
-		bloque(78, SUELO + 3, CEN_Z1, variante(BloquesFiesta.CARTEL, Direction.NORTH, 3));
-		bloque(88, SUELO + 3, CEN_Z1, variante(BloquesFiesta.DIBUJO, Direction.NORTH, 5));
-		bloque(70, SUELO + 3, CEN_Z1, variante(BloquesFiesta.DIBUJO, Direction.NORTH, 2));
-		nota(74, -3, 1);
+		bloque(CEN_X0 + 12, SUELO + 3, CEN_Z1, variante(BloquesFiesta.CARTEL, Direction.NORTH, 3));
+		bloque(CEN_X0 + 22, SUELO + 3, CEN_Z1, variante(BloquesFiesta.DIBUJO, Direction.NORTH, 5));
+		bloque(CEN_X0 + 4, SUELO + 3, CEN_Z1, variante(BloquesFiesta.DIBUJO, Direction.NORTH, 2));
+		nota(CEN_X0 + 8, -3, 1);
 		bloque(CEN_X1, SUELO + 5, 8, variante(BloquesFiesta.ALTAVOZ, Direction.WEST, 0));
 		ALTAVOCES.add(new int[] {CEN_X1 - 1, SUELO + 5, 8});
 	}
 
-	/** El pasillo de la puerta del final al salon. */
+	/** El pasillo de la puerta morada de llegada (FIN_PUERTA) al salon. */
 	private static void pasilloFinal() {
-		sala("pasillo_final", PUERTA_FINAL_X - 1, FIN_Z1 + 2, PUERTA_FINAL_X + 1, PUERTA_FINAL_Z - 1, TECHO, BloquesFiesta.MOQUETA_CONFETI,
+		sala("pasillo_final", FIN_PUERTA_X - 1, FIN_Z1 + 2, FIN_PUERTA_X + 1, FIN_PUERTA_Z - 1, TECHO, BloquesFiesta.MOQUETA_CONFETI,
 			BloquesFiesta.PAPEL, 3);
-		nota(PUERTA_FINAL_X + 1, FIN_Z1 + 3, 7);
+		nota(FIN_PUERTA_X + 1, FIN_Z1 + 3, 7);
 	}
 
 	/**
@@ -1154,7 +1166,7 @@ public final class PlanoFiesta {
 			return Math.floorMod(a - b, 4) < 2 ? s(BloquesFiesta.DAMERO_ROJO) : s(BloquesFiesta.DAMERO_MORADO);
 		});
 		// mesas largas con mantel, tartas y sillitas
-		for (int mx : new int[] {64, 70, 90, 96}) {
+		for (int mx : new int[] {FIN_X0 + 6, FIN_X0 + 12, FIN_X0 + 32, FIN_X0 + 38}) {
 			for (int z = FIN_Z0 + 8; z <= FIN_Z1 - 6; z++) {
 				bloque(mx, SUELO + 1, z, variante(BloquesFiesta.MESA, Direction.NORTH, Math.floorMod(mx, 4)));
 				if (z % 4 == 0) {
@@ -1167,13 +1179,13 @@ public final class PlanoFiesta {
 			}
 		}
 		// la piscina de bolas con su valla blanca
-		int bx0 = 75;
-		int bx1 = 85;
+		int bx0 = FIN_X0 + 17;
+		int bx1 = FIN_X0 + 27;
 		int bz0 = -44;
 		int bz1 = -36;
 		caja(bx0, SUELO, bz0, bx1, SUELO, bz1, s(BloquesFiesta.PISCINA_BOLAS));
 		for (int x = bx0 - 1; x <= bx1 + 1; x++) {
-			if (Math.abs(x - 80) > 1) {
+			if (Math.abs(x - (FIN_X0 + 22)) > 1) {
 				bloque(x, SUELO + 1, bz0 - 1, mira(BloquesFiesta.VALLA, Direction.NORTH));
 				bloque(x, SUELO + 1, bz1 + 1, mira(BloquesFiesta.VALLA, Direction.NORTH));
 			}
@@ -1198,23 +1210,48 @@ public final class PlanoFiesta {
 				}
 			}
 		}
-		racimo(62, -26, SUELO + 1, 0);
-		racimo(99, -60, SUELO + 1, 2);
+		racimo(FIN_X0 + 4, -26, SUELO + 1, 0);
+		racimo(FIN_X0 + 41, -60, SUELO + 1, 2);
 		for (int x = FIN_X0 + 2; x <= FIN_X1 - 2; x += 4) {
 			bloque(x, SUELO + 8, FIN_Z1, variante(BloquesFiesta.GUIRNALDA, Direction.NORTH, Math.floorMod(x, 2)));
 		}
-		bloque(66, SUELO + 3, FIN_Z1, variante(BloquesFiesta.CARTEL, Direction.NORTH, 0));
-		bloque(94, SUELO + 3, FIN_Z1, variante(BloquesFiesta.DIBUJO, Direction.NORTH, 1));
+		bloque(FIN_X0 + 8, SUELO + 3, FIN_Z1, variante(BloquesFiesta.CARTEL, Direction.NORTH, 0));
+		bloque(FIN_X0 + 36, SUELO + 3, FIN_Z1, variante(BloquesFiesta.DIBUJO, Direction.NORTH, 1));
 		bloque(FIN_X1, SUELO + 4, -40, variante(BloquesFiesta.CARTEL, Direction.WEST, 5));
 		bloque(FIN_X1, SUELO + 3, -52, variante(BloquesFiesta.DIBUJO, Direction.WEST, 3));
 		// confeti por todo el suelo y regalos sueltos (lo primero: lo de despues lo pisa)
 		for (int i = 0; i < 140; i++) {
 			int x = FIN_X0 + 1 + azar(i, 1, 161, FIN_X1 - FIN_X0 - 1);
 			int z = FIN_Z0 + 1 + azar(i, 2, 161, FIN_Z1 - FIN_Z0 - 1);
-			boolean mesa = x == 63 || x == 64 || x == 65 || x == 69 || x == 70 || x == 71 || x == 89 || x == 90 || x == 91 || x == 95 || x == 96 || x == 97;
-			boolean ocupado = mesa || x <= FIN_X0 + 3 && z >= -50 && z <= -38 || x >= 74 && x <= 86 && z >= -45 && z <= -35;
+			int rx = x - FIN_X0 + 58;
+			boolean mesa = rx == 63 || rx == 64 || rx == 65 || rx == 69 || rx == 70 || rx == 71 || rx == 89 || rx == 90 || rx == 91 || rx == 95 || rx == 96 || rx == 97;
+			boolean ocupado = mesa || x <= FIN_X0 + 3 && z >= -50 && z <= -38 || rx >= 74 && rx <= 86 && z >= -45 && z <= -35;
 			if (!ocupado) {
 				bloque(x, SUELO + 1, z, variante(i % 9 == 0 ? BloquesFiesta.REGALO : BloquesFiesta.CONFETI, Direction.from2DDataValue(i % 4), i % 4));
+			}
+		}
+		// lo de miedo: sangre por el suelo y peluches destrozados entre el confeti (lo de despues los pisa)
+		for (int i = 0; i < 120; i++) {
+			int x = FIN_X0 + 1 + azar(i, 3, 181, FIN_X1 - FIN_X0 - 1);
+			int z = FIN_Z0 + 1 + azar(i, 4, 181, FIN_Z1 - FIN_Z0 - 1);
+			Block b = i % 3 == 0 ? BloquesFiesta.PELUCHE_ROTO : BloquesFiesta.SANGRE;
+			bloque(x, SUELO + 1, z, variante(b, Direction.from2DDataValue(azar(i, 5, 182, 4)), azar(i, 6, 183, 4)));
+		}
+		// y en las paredes: salpicaduras, chorretones y manos que resbalan
+		for (int i = 0; i < 44; i++) {
+			int lado = i % 4;
+			int y = SUELO + 1 + azar(i, 7, 184, 3);
+			int v = azar(i, 8, 185, 4);
+			if (lado < 2) {
+				int x = FIN_X0 + 1 + azar(i, 9, 186, FIN_X1 - FIN_X0 - 1);
+				// ni en la boca del tobogan ni en el paso del pasillo (quedarian flotando)
+				if (Math.abs(x - FIN_PUERTA_X) <= 2) {
+					continue;
+				}
+				bloque(x, y, lado == 0 ? FIN_Z0 : FIN_Z1, variante(BloquesFiesta.SANGRE_PARED, lado == 0 ? Direction.SOUTH : Direction.NORTH, v));
+			} else {
+				int z = FIN_Z0 + 1 + azar(i, 9, 186, FIN_Z1 - FIN_Z0 - 1);
+				bloque(lado == 2 ? FIN_X0 : FIN_X1, y, z, variante(BloquesFiesta.SANGRE_PARED, lado == 2 ? Direction.EAST : Direction.WEST, v));
 			}
 		}
 		// banderines de lado a lado del techo, cada 6 bloques
@@ -1224,7 +1261,7 @@ public final class PlanoFiesta {
 			}
 		}
 		// columnas de colores con su racimo de globos arriba, en dos filas por el centro
-		for (int x : new int[] {67, 75, 85, 93}) {
+		for (int x : new int[] {FIN_X0 + 9, FIN_X0 + 17, FIN_X0 + 27, FIN_X0 + 35}) {
 			for (int z : new int[] {-30, -50}) {
 				caja(x, SUELO + 1, z, x, TECHO_FINAL - 1, z, s(BloquesFiesta.COLUMNAS[Math.floorMod(x + z, BloquesFiesta.COLUMNAS.length)]));
 				bloque(x + 1, TECHO_FINAL - 1, z, variante(BloquesFiesta.GLOBO, Direction.NORTH, Math.floorMod(x + z, 4)));
@@ -1257,29 +1294,41 @@ public final class PlanoFiesta {
 			caja(FIN_X0, SUELO + 3, z, FIN_X0, SUELO + 3, z + 1, s(BloquesFiesta.LUZ));
 			bloque(FIN_X0 + 2, SUELO + 1, z, variante(BloquesFiesta.SILLITA, Direction.WEST, Math.floorMod(z, 4)));
 		}
-		// la tarta gigante delante del tobogan: tres pisos con velas encendidas
-		caja(76, SUELO + 1, FIN_Z0 + 6, 84, SUELO + 2, FIN_Z0 + 12, s(Blocks.PINK_TERRACOTTA));
-		caja(77, SUELO + 3, FIN_Z0 + 7, 83, SUELO + 4, FIN_Z0 + 11, s(Blocks.WHITE_TERRACOTTA));
-		caja(78, SUELO + 5, FIN_Z0 + 8, 82, SUELO + 5, FIN_Z0 + 10, s(Blocks.PINK_TERRACOTTA));
-		for (int[] v : new int[][] {{78, FIN_Z0 + 8}, {80, FIN_Z0 + 8}, {82, FIN_Z0 + 8}, {78, FIN_Z0 + 10}, {80, FIN_Z0 + 10}, {82, FIN_Z0 + 10}, {80, FIN_Z0 + 9}}) {
-			bloque(v[0], SUELO + 6, v[1], Blocks.RED_CANDLE.defaultBlockState().setValue(net.minecraft.world.level.block.CandleBlock.LIT, true));
+		// delante del tobogan, donde estaba la tarta: un monton de peluches destrozados en un charco
+		for (int x = FIN_X0 + 18; x <= FIN_X0 + 26; x++) {
+			for (int z = FIN_Z0 + 6; z <= FIN_Z0 + 11; z++) {
+				int h = azar(x, z, 171, 10);
+				if (h < 4) {
+					bloque(x, SUELO + 1, z, variante(BloquesFiesta.PELUCHE_ROTO, Direction.from2DDataValue(azar(x, z, 172, 4)), azar(x, z, 173, 4)));
+				} else if (h < 8) {
+					bloque(x, SUELO + 1, z, variante(BloquesFiesta.SANGRE, Direction.from2DDataValue(azar(x, z, 174, 4)), azar(x, z, 175, 4)));
+				}
+			}
 		}
 		// dos ramos de globos a los lados de la boca del tobogan
-		racimo(77, FIN_Z0, SUELO + 1, 1);
-		racimo(83, FIN_Z0, SUELO + 1, 2);
-		// el tobogan del final: un tubo rojo en la pared norte, con el cartel encima
-		caja(FINAL_TOB_X0 - 1, SUELO, FINAL_TOB_Z0 - 1, FINAL_TOB_X1 + 1, SUELO + 4, FIN_Z0 - 1, s(BloquesFiesta.TOBOGAN));
+		racimo(FIN_X0 + 19, FIN_Z0, SUELO + 1, 1);
+		racimo(FIN_X0 + 25, FIN_Z0, SUELO + 1, 2);
+		// la salida: un ascensor viejo de servicio en la pared norte (cabina de acero de 3x3x3 con su luz,
+		// abierta al salon; las puertas que se cierran las pone la cinematica, SalidaFiestaCliente)
+		caja(FINAL_TOB_X0 - 1, SUELO, FINAL_TOB_Z0 - 1, FINAL_TOB_X1 + 1, SUELO + 4, FIN_Z0 - 1, s(net.backrooms.evento.bloques.Bloques.ACERO));
 		aire(FINAL_TOB_X0, SUELO + 1, FINAL_TOB_Z0, FINAL_TOB_X1, SUELO + 3, FIN_Z0 - 1);
-		caja(FINAL_TOB_X0, SUELO + 1, FINAL_TOB_Z0 - 1, FINAL_TOB_X1, SUELO + 3, FINAL_TOB_Z0 - 1, s(Blocks.BLACK_CONCRETE));
-		bloque(80, SUELO + 5, FIN_Z0, variante(BloquesFiesta.LETRERO, Direction.SOUTH, 1));
+		caja(FINAL_TOB_X0, SUELO, FINAL_TOB_Z0, FINAL_TOB_X1, SUELO, FIN_Z0 - 1, s(Blocks.POLISHED_DEEPSLATE));
+		bloque(FINAL_TOB_X0 + 1, SUELO + 4, FINAL_TOB_Z0 + 1, s(BloquesFiesta.LUZ_PARPADEO));
+		bloque(FINAL_TOB_X1, SUELO + 2, FINAL_TOB_Z0, Blocks.STONE_BUTTON.defaultBlockState()
+			.setValue(net.minecraft.world.level.block.ButtonBlock.FACING, Direction.SOUTH));
+		// el marco de las puertas del ascensor, a ras de la pared del salon
+		caja(FINAL_TOB_X0 - 1, SUELO + 1, FIN_Z0 - 1, FINAL_TOB_X0 - 1, SUELO + 4, FIN_Z0 - 1, s(Blocks.POLISHED_DEEPSLATE));
+		caja(FINAL_TOB_X1 + 1, SUELO + 1, FIN_Z0 - 1, FINAL_TOB_X1 + 1, SUELO + 4, FIN_Z0 - 1, s(Blocks.POLISHED_DEEPSLATE));
+		caja(FINAL_TOB_X0 - 1, SUELO + 4, FIN_Z0 - 1, FINAL_TOB_X1 + 1, SUELO + 4, FIN_Z0 - 1, s(Blocks.POLISHED_DEEPSLATE));
+		bloque(FIN_X0 + 22, SUELO + 5, FIN_Z0, variante(BloquesFiesta.LETRERO, Direction.SOUTH, 1));
 		bloque(FIN_X0, SUELO + 5, -30, variante(BloquesFiesta.ALTAVOZ, Direction.EAST, 0));
 		bloque(FIN_X1, SUELO + 5, -58, variante(BloquesFiesta.ALTAVOZ, Direction.WEST, 0));
 		ALTAVOCES.add(new int[] {FIN_X0 + 1, SUELO + 5, -30});
 		ALTAVOCES.add(new int[] {FIN_X1 - 1, SUELO + 5, -58});
-		RONDA.add(new int[] {80, -30});
-		RONDA.add(new int[] {67, -56});
-		RONDA.add(new int[] {93, -48});
-		RONDA.add(new int[] {80, -58});
+		RONDA.add(new int[] {FIN_X0 + 22, -30});
+		RONDA.add(new int[] {FIN_X0 + 9, -56});
+		RONDA.add(new int[] {FIN_X0 + 35, -48});
+		RONDA.add(new int[] {FIN_X0 + 22, -58});
 	}
 
 	/**
@@ -1292,11 +1341,13 @@ public final class PlanoFiesta {
 		}
 		puerta(SALIDA_X, SALIDA_Z, Direction.WEST, 0, 1, "la salida del laberinto");
 		bloque(SALIDA_X - 1, SUELO + 3, SALIDA_Z, variante(BloquesFiesta.LETRERO, Direction.WEST, 0));
+		puerta(CAS_PUERTA_X, CAS_PUERTA_Z, Direction.WEST, 0, 1, "el laberinto");
 		// la entrada del castillo (abajo, oeste) y su salida al tobogan (arriba, este)
 		hueco(CAS_X - 1, TOB_Z0, CAS_X - 1, TOB_Z1);
 		aire(CAS_X + CAS_LADO + 1, CAS_P1 + 1, TOB_Z0, CAS_X + CAS_LADO + 1, CAS_P1 + 3, TOB_Z1);
 		puerta(PUERTA_FINAL_X, PUERTA_FINAL_Z, Direction.SOUTH, 0, 2, "la salida de la fiesta");
-		hueco(PUERTA_FINAL_X - 1, FIN_Z1 + 1, PUERTA_FINAL_X + 1, FIN_Z1 + 1);
+		puerta(FIN_PUERTA_X, FIN_PUERTA_Z, Direction.SOUTH, 0, 2, "la salida de la fiesta");
+		hueco(FIN_PUERTA_X - 1, FIN_Z1 + 1, FIN_PUERTA_X + 1, FIN_Z1 + 1);
 		nota(LAB_X + 3 * CELDA + 3, LAB_Z + 12 * CELDA + 3, 3);
 	}
 
@@ -1315,6 +1366,24 @@ public final class PlanoFiesta {
 			if (p.x() == x && p.y() == y && p.z() == z) {
 				return p;
 			}
+		}
+		return null;
+	}
+
+	/**
+	 * Las puertas que unen zonas lejanas (la salida del laberinto con la del pasillo del castillo; la
+	 * del final con la del pasillo del salon): si se cruza la de (x, z) hacia `hacia`, donde se
+	 * aparece {x, z, giro}; null si es una puerta normal (se pasa al otro lado de la misma).
+	 */
+	public static double[] destino(int x, int z, Direction hacia) {
+		if (x == SALIDA_X && z == SALIDA_Z && hacia == Direction.EAST) {
+			return new double[] {CAS_PUERTA_X + 1.8, CAS_PUERTA_Z + 0.5, -90.0};
+		}
+		if (x == CAS_PUERTA_X && z == CAS_PUERTA_Z && hacia == Direction.WEST) {
+			return new double[] {SALIDA_X - 0.8, SALIDA_Z + 0.5, 90.0};
+		}
+		if (x == PUERTA_FINAL_X && z == PUERTA_FINAL_Z && hacia == Direction.NORTH) {
+			return new double[] {FIN_PUERTA_X + 0.5, FIN_PUERTA_Z - 0.8, 180.0};
 		}
 		return null;
 	}

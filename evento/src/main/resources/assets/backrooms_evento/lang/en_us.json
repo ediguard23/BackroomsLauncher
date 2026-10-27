@@ -202,5 +202,10 @@
   "item.backrooms_evento.cizalla": "Bolt cutters",
   "item.backrooms_evento.fusible": "Fuse",
   "block.backrooms_evento.buzon_estacion": "Mailbox",
-  "block.backrooms_evento.marco_reja": "Gate frame"
+  "block.backrooms_evento.marco_reja": "Gate frame",
+  "block.backrooms_evento.peluche_roto": "Torn plush toy",
+  "block.backrooms_evento.sangre_fiesta": "Blood",
+  "block.backrooms_evento.sangre_pared": "Blood on the wall",
+  "block.backrooms_evento.rack_servidor": "Server rack",
+  "block.backrooms_evento.cables_suelo": "Floor cables"
 }

@@ -43,6 +43,7 @@ public final class Cadaveres {
 			servidor = null;
 			vivos.clear();
 			vivos0.clear();
+			steve = null;
 			calculados0.clear();
 		});
 		ServerTickEvents.END_SERVER_TICK.register(s -> tick());
@@ -57,6 +58,7 @@ public final class Cadaveres {
 				nivel0(n, gen.plano(n.getChunkSource().randomState()));
 			}
 		}
+		estacion();
 		ServerLevel nivel = servidor.getLevel(Piscinas.DIMENSION);
 		PlanoPiscinas p = nivel == null ? null : Valvulas.plano(nivel);
 		if (p == null) {
@@ -93,6 +95,31 @@ public final class Cadaveres {
 			}
 		}
 		quitarLejos(nivel, vivos, PlanoPiscinas.PISO);
+	}
+
+	/** Steve (el del trailer), muerto en la pasarela de la Estacion. */
+	private static CadaverEntidad steve;
+
+	/** Con alguien cerca de la pasarela, Steve esta tirado en ella; sin nadie, se quita. */
+	private static void estacion() {
+		ServerLevel nivel = net.backrooms.evento.estacion.Estacion.nivel();
+		double[] s = net.backrooms.evento.estacion.PlanoEstacion.STEVE;
+		if (nivel == null || s == null) {
+			return;
+		}
+		if (steve != null && (steve.isRemoved() || nivel.getEntity(steve.getId()) != steve)) {
+			steve = null;
+		}
+		boolean cerca = nivel.players().stream().anyMatch(j -> j.distanceToSqr(s[0], s[1], s[2]) < (double) RADIO * RADIO);
+		if (cerca && steve == null && nivel.isPositionEntityTicking(BlockPos.containing(s[0], s[1], s[2]))) {
+			CadaverEntidad c = new CadaverEntidad(Entidades.CADAVER, nivel);
+			c.preparar(new PlanoPiscinas.Cadaver(s[0], s[1], s[2], PlanoPiscinas.PIEL_STEVE, PlanoPiscinas.BOCA_ARRIBA, (float) s[3], 0, 0.0F));
+			nivel.addFreshEntity(c);
+			steve = c;
+		} else if (steve != null && nivel.players().stream().noneMatch(j -> j.distanceToSqr(s[0], s[1], s[2]) < (double) QUITAR * QUITAR)) {
+			steve.discard();
+			steve = null;
+		}
 	}
 
 	/** Quita los que ya no tienen a nadie a menos de QUITAR. */

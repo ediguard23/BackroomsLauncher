@@ -185,17 +185,17 @@ estados('nube_fiesta', 8, (i) => `nube_fiesta_${i % 3}`);
 
 /* ============================================================ las puertas */
 
-// la hoja de la puerta (16 x 32 en dos texturas de 16): marco, seis cuarterones, el pomo de laton
+// la hoja de la puerta (16 x 32 en dos texturas de 16), de lado a lado del bloque: marco, seis cuarterones
+// (simetricos respecto al centro, x = 7,5), el pomo de laton
 // y, en la de abajo de las verdes, nada; en la de arriba, la placa con lo que cuesta (monedas)
 const PUERTAS = [['verde', [44, 120, 62]], ['roja', [168, 36, 40]], ['final', [92, 46, 130]]];
 const hoja = (col, x, y, mitad) => {
   const yy = y + (mitad === 1 ? 0 : 16);
-  if (x < 1 || x > 14) return escala([226, 224, 214], 0.9 + hash(x, yy, 471) * 0.08);
   let c = escala(col, 0.92 + fbm(x, yy, 472, 32) * 0.08);
   // cuarterones: dos columnas, tres filas (de arriba a abajo en 32)
   const filas = [[2, 9], [12, 19], [22, 30]];
   for (const [y0, y1] of filas) {
-    for (const [x0, x1] of [[3, 7], [9, 13]]) {
+    for (const [x0, x1] of [[2, 6], [9, 13]]) {
       if (x >= x0 && x <= x1 && yy >= y0 && yy <= y1) {
         c = escala(col, (x === x0 || yy === y0) ? 0.7 : (x === x1 || yy === y1) ? 1.15 : 0.98);
       }
@@ -222,12 +222,14 @@ PUERTAS.forEach(([n, col], tipo) => {
         l.punto(12, 1, [255, 236, 150]);
       }
       if (mitad === 1 && tipo === 0 && coste > 0) {
-        // una moneda de oro pequena con la cifra grabada (letra de 3x5)
-        // centrada en (7, 7): la cifra de 3x5 (x 6..8, y 5..9) queda justo en medio
-        l.disco(7, 7, 3.9, [150, 104, 20]);
-        l.disco(7, 7, 3.1, [242, 197, 58]);
-        l.punto(4, 5, [255, 236, 150]);
-        l.punto(5, 4, [255, 236, 150]);
+        // una moneda de oro pequena con la cifra grabada (letra de 3x5), centrada en el bloque (7,5; 7,5):
+        // la cifra va en x 6..8 e y 5..9 con su brillo un pixel abajo a la derecha, asi que el grabado
+        // entero ocupa x 6..9 e y 5..10, justo en medio
+        l.disco(7.5, 7.5, 3.9, [150, 104, 20]);
+        l.disco(7.5, 7.5, 3.1, [242, 197, 58]);
+        l.punto(5, 5, [255, 236, 150]);
+        l.punto(10, 10, [196, 150, 40]);
+        CIFRAS[coste].forEach((fila, fy) => [...fila].forEach((v, fx) => { if (v === '#') l.punto(7 + fx, 6 + fy, [255, 226, 120]); }));
         CIFRAS[coste].forEach((fila, fy) => [...fila].forEach((v, fx) => { if (v === '#') l.punto(6 + fx, 5 + fy, [96, 58, 8]); }));
       }
       if (mitad === 1 && tipo === 1) l.rect(4, 6, 11, 7, [240, 230, 210]);

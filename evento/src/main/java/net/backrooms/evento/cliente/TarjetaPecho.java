@@ -18,7 +18,10 @@ import net.minecraft.world.entity.player.Player;
  * La acreditacion del Proyecto Umbral en el pecho del traje: una tarjetita blanca con una
  * franja cian y el nick de quien lo lleva. Sustituye al nombre flotante (que se quita a quien
  * lleva la chaqueta del traje: NombreTrajeMixin). Sin traje, en la recepcion, el nombre de
- * siempre.
+ * siempre. En la espalda, su numero de participante (Participantes), como un dorsal.
+ *
+ * La tarjeta es estrecha (5 pixeles): las mangas del traje van infladas un pixel y empiezan a 3
+ * del centro; si fuera mas ancha, al andar o agacharse las mangas la taparian.
  */
 public class TarjetaPecho extends RenderLayer<AvatarRenderState, PlayerModel> {
 	/** Un pixel del modelo, en bloques. */
@@ -26,6 +29,13 @@ public class TarjetaPecho extends RenderLayer<AvatarRenderState, PlayerModel> {
 	private static final int PAPEL = 0xFFECEBE4;
 	private static final int TINTA = 0xFF1E2224;
 	private static final int FRANJA = 0xFF1F7F86;
+
+	private static volatile java.util.Map<java.util.UUID, Integer> numeros = java.util.Map.of();
+
+	/** Los numeros de participante (del servidor). */
+	public static void numeros(java.util.Map<java.util.UUID, Integer> n) {
+		numeros = java.util.Map.copyOf(n);
+	}
 
 	public TarjetaPecho(RenderLayerParent<AvatarRenderState, PlayerModel> padre) {
 		super(padre);
@@ -49,8 +59,8 @@ public class TarjetaPecho extends RenderLayer<AvatarRenderState, PlayerModel> {
 		this.getParentModel().body.translateAndRotate(pose);
 		// en medio del pecho, bajo el cuello, sobre la tela de la chaqueta (que va inflada un pixel)
 		pose.translate(0.0F, 3.4F * PX, -3.15F * PX);
-		// el nick mide 1,7 pixeles de alto y cabe en 7,4 de ancho (los largos, mas pequenos)
-		float esc = Math.min(PX * 1.7F / 8.0F, PX * 7.4F / ancho);
+		// el nick mide 1,5 pixeles de alto y cabe en 5 de ancho (los largos, mas pequenos)
+		float esc = Math.min(PX * 1.5F / 8.0F, PX * 5.0F / ancho);
 		float escCab = PX * 0.8F / 8.0F / esc;
 		int anchoCab = font.width(cabecera);
 		// dos pasadas: primero los fondos (la tarjeta blanca y la franja cian) y luego las letras un
@@ -70,5 +80,28 @@ public class TarjetaPecho extends RenderLayer<AvatarRenderState, PlayerModel> {
 			pose.popPose();
 		}
 		pose.popPose();
+		// el dorsal: el numero de participante en la espalda, en un parche blanco
+		Integer n = numeros.get(jugador.getUUID());
+		if (n != null && n > 0) {
+			FormattedCharSequence dorsal = Component.literal(String.format(java.util.Locale.ROOT, "%03d", n)).getVisualOrderText();
+			int anchoD = Math.max(font.width(dorsal), 1);
+			pose.pushPose();
+			this.getParentModel().body.translateAndRotate(pose);
+			// arriba de la espalda (sobre el simbolo del traje), mirando hacia atras
+			pose.translate(0.0F, 0.9F * PX, 3.15F * PX);
+			pose.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180.0F));
+			float escD = Math.min(PX * 2.6F / 8.0F, PX * 5.2F / anchoD);
+			for (int pasada = 0; pasada < 2; pasada++) {
+				pose.pushPose();
+				if (pasada == 1) {
+					pose.translate(0.0F, 0.0F, -0.06F * PX);
+				}
+				pose.scale(escD, escD, escD);
+				cola.submitText(pose, -anchoD / 2.0F, 0, dorsal, false, Font.DisplayMode.POLYGON_OFFSET, luz,
+					pasada == 0 ? 0x00000000 : TINTA, pasada == 0 ? PAPEL : 0, 0);
+				pose.popPose();
+			}
+			pose.popPose();
+		}
 	}
 }

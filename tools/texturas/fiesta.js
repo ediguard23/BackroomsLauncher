@@ -489,7 +489,89 @@ COLORES.forEach((col, i) => {
   ]));
 });
 estados('camita', 4, (i) => `camita_${i}`);
-console.log('  decoracion: globos, guirnaldas, carteles, dibujos, mesas, tartas, regalos, sillitas, confeti, peluches, cocina, camitas');
+
+// lo de miedo del salon final: peluches destrozados, sangre en el suelo y en las paredes
+const SANGRE = [112, 10, 14];
+const SANGRE_SECA = [70, 10, 12];
+/** Una mancha de sangre: unos cuantos discos y gotas alrededor (null fuera). */
+const salpicadura = (x, y, semilla, cx, cy, r) => {
+  const d = Math.hypot(x - cx, y - cy);
+  const borde = r * (0.75 + fbm(Math.atan2(y - cy, x - cx) * 3, semilla, semilla, 8) * 0.5);
+  if (d < borde) return escala(d < borde * 0.55 ? SANGRE_SECA : SANGRE, 0.85 + hash(x, y, semilla) * 0.2);
+  if (d < r * 2.2 && hash(x, y, semilla + 1) > 0.9) return escala(SANGRE, 0.9);
+  return null;
+};
+guardar(TEX, 'relleno', new Lienzo(16).pintar((x, y) => escala([236, 232, 222], 0.84 + fbm(x, y, 301, 8) * 0.2)));
+[[150, 100, 60], ROSA, [150, 100, 60], AZUL].forEach((col, i) => {
+  guardar(TEX, `peluche_roto_${i}`, new Lienzo(16).pintar((x, y) => {
+    let c = escala(col, 0.86 + hash(x, y, 311 + i) * 0.14);
+    // la costura rota y la sangre por encima
+    if (Math.abs(x - 8) < 1 && y > 5) c = [236, 226, 210];
+    const m = salpicadura(x, y, 320 + i, 6 + i * 2, 9, 3.2);
+    if (m) c = m;
+    if (y === 4 && (x === 5 || x === 10)) c = i === 2 && x === 10 ? [236, 226, 210] : [20, 18, 18];
+    return c;
+  }));
+}
+);
+const pel = (i) => ({ p: t(`peluche_roto_${i}`), r: t('relleno'), particle: t(`peluche_roto_${i}`) });
+// 0: sin cabeza, con el relleno saliendo del cuello
+json('models/block/peluche_roto_0.json', mod(pel(0), [
+  caja([5, 0, 6], [11, 6, 10], '#p'), caja([6, 6, 7], [10, 7.5, 9], '#r'), caja([6.5, 7.5, 7.5], [8.5, 8.5, 8.5], '#r'),
+  caja([3.5, 2, 7], [5, 5.5, 9], '#p'), caja([11, 2, 7], [12.5, 5.5, 9], '#p')
+]));
+// 1: tumbado boca arriba, ensangrentado
+json('models/block/peluche_roto_1.json', mod(pel(1), [
+  caja([3, 0, 6], [9, 3.5, 10], '#p'), caja([9, 0, 5.5], [13.5, 4, 10.5], '#p'),
+  caja([12, 3.5, 5.5], [13.5, 5, 7], '#p'), caja([12, 3.5, 9], [13.5, 5, 10.5], '#p'),
+  caja([4, 0, 3.5], [7, 2, 5.5], '#p'), caja([4, 0, 10.5], [7, 2, 12.5], '#p')
+]));
+// 2: solo la cabeza, con el relleno por donde la arrancaron
+json('models/block/peluche_roto_2.json', mod(pel(2), [
+  caja([5, 0, 6], [10, 4.5, 10.5], '#p'), caja([5, 4.5, 7.5], [6.5, 6, 9], '#p'), caja([8.5, 4.5, 7.5], [10, 6, 9], '#p'),
+  caja([6, 0, 10.5], [9, 2, 12], '#r'), caja([6.5, 0, 12], [8, 1, 13], '#r')
+]));
+// 3: sin un brazo (tirado al lado) y el relleno asomando del hombro
+json('models/block/peluche_roto_3.json', mod(pel(3), [
+  caja([5, 0, 6], [11, 6, 10], '#p'), caja([5.5, 6, 6.5], [10.5, 10.5, 10], '#p'),
+  caja([5, 10, 7.5], [6.5, 11.5, 9], '#p'), caja([9.5, 10, 7.5], [11, 11.5, 9], '#p'),
+  caja([3.5, 2, 7], [5, 5.5, 9], '#p'), caja([11, 4, 7], [12, 5.5, 9], '#r'),
+  caja([11, 0, 11], [14.5, 1.5, 12.5], '#p'), caja([10.5, 0, 11.2], [11, 1.2, 12.3], '#r')
+]));
+estados('peluche_roto', 4, (i) => `peluche_roto_${i}`);
+// sangre en el suelo: un charco, salpicaduras, un rastro arrastrado y gotas
+for (let v = 0; v < 4; v++) {
+  guardar(TEX, `sangre_fiesta_${v}`, new Lienzo(16).pintar((x, y) => {
+    if (v === 0) return salpicadura(x, y, 331, 8, 8, 5);
+    if (v === 1) return salpicadura(x, y, 332, 5, 6, 2.6) || salpicadura(x, y, 333, 11, 11, 2.2);
+    if (v === 2) return Math.abs(y - 8 - Math.sin(x * 0.5) * 1.2) < 2.2 - x * 0.08 && hash(x, y, 334) > 0.12 ? escala(SANGRE, 0.75 + hash(x, y, 335) * 0.3) : null;
+    return hash(x, y, 336) > 0.93 ? escala(SANGRE, 0.9) : salpicadura(x, y, 337, 9, 7, 1.4);
+  }));
+  json(`models/block/sangre_fiesta_${v}.json`, mod({ c: t(`sangre_fiesta_${v}`), particle: t(`sangre_fiesta_${v}`) }, [{
+    from: [0, 0.1, 0], to: [16, 0.1, 16], faces: { up: { texture: '#c', uv: [0, 0, 16, 16] } }
+  }]));
+}
+estados('sangre_fiesta', 4, (i) => `sangre_fiesta_${i}`);
+// sangre en la pared: salpicadura, chorretones, una mano y dos manos que resbalan
+for (let v = 0; v < 4; v++) {
+  guardar(TEX, `sangre_pared_${v}`, new Lienzo(16).pintar((x, y) => {
+    const chorro = (x0) => Math.abs(x - x0) < 0.8 && y > 6 && y < 6 + 6 * hash(x0, 0, 341 + v) + 3;
+    if (v === 0) return salpicadura(x, y, 342, 8, 6, 4) || (chorro(6) || chorro(10) ? escala(SANGRE, 0.85) : null);
+    if (v === 1) return (chorro(3) || chorro(7) || chorro(12) || y < 4 && hash(x, y, 343) > 0.3) ? escala(SANGRE, 0.8 + hash(x, y, 344) * 0.25) : null;
+    // una mano: la palma y cinco dedos
+    const mano = (cx, cy) => {
+      const palma = Math.hypot((x - cx) / 2.2, (y - cy) / 2.6) < 1;
+      let dedo = false;
+      [[-2, -4], [-0.8, -4.8], [0.6, -4.8], [1.9, -4], [3, -1]].forEach(([dx, dy]) => { dedo = dedo || Math.hypot(x - cx - dx, (y - cy - dy) / 1.6) < 0.7; });
+      return palma || dedo;
+    };
+    if (v === 2) return mano(8, 9) ? escala(SANGRE, 0.8 + hash(x, y, 345) * 0.25) : null;
+    return (mano(5, 6) || mano(11, 10) || (Math.abs(x - 5) < 1.5 && y > 8 && y < 14)) ? escala(SANGRE, 0.75 + hash(x, y, 346) * 0.3) : null;
+  }));
+  json(`models/block/sangre_pared_${v}.json`, enPared(`sangre_pared_${v}`));
+}
+estados('sangre_pared', 4, (i) => `sangre_pared_${i}`);
+console.log('  decoracion: globos, guirnaldas, carteles, dibujos, mesas, tartas, regalos, sillitas, confeti, peluches, cocina, camitas, peluches rotos y sangre');
 
 /* ============================================================ para jugar */
 
@@ -633,6 +715,9 @@ const NOMBRES = {
   sillita: ['Sillita', 'Little chair'],
   confeti: ['Confeti', 'Confetti'],
   peluche: ['Peluche', 'Plush toy'],
+  peluche_roto: ['Peluche destrozado', 'Torn plush toy'],
+  sangre_fiesta: ['Sangre', 'Blood'],
+  sangre_pared: ['Sangre en la pared', 'Blood on the wall'],
   olla: ['Olla', 'Pot'],
   bandeja: ['Bandeja', 'Tray'],
   camita: ['Camita', 'Nap bed'],

@@ -402,6 +402,54 @@ for (let v = 0; v < 3; v++) {
 }
 estados('transformador', { facing: FAC, variante: rango(8) }, (e) => `transformador_${e.variante % 3}`, 'transformador_0');
 
+// racks de servidores abandonados (para llenar las centrales): bahias de discos, ventiladores y pilotos
+// apagados; uno con un par de pilotos rojos, uno abierto sin discos y con cables, uno con la rejilla
+pinta('rack_lado', 16, (x, y) => {
+  let c = metal(x, y, 1430, [44, 46, 50]);
+  if (y % 4 === 0) c = escala(c, 0.75);
+  return c;
+});
+for (let v = 0; v < 4; v++) {
+  const l = new Lienzo(16).pintar((x, y) => {
+    let c = metal(x, y, 1431 + v, [38, 40, 44]);
+    if (x === 0 || x === 15) c = [70, 72, 76];                              // los rieles
+    return c;
+  });
+  for (let fila = 0; fila < 7; fila++) {
+    const y0 = 1 + fila * 2;
+    if (v === 2 && fila % 2 === 1) continue;                                // le faltan discos
+    l.rect(2, y0, 13, y0, fila % 3 === 2 ? [70, 74, 80] : [24, 24, 26]);  // un servidor (o un hueco)
+    l.punto(3, y0, v === 1 && fila % 3 === 0 ? [230, 40, 30] : [40, 46, 40]); // su piloto (casi todos apagados)
+    if (v !== 3) l.rect(9, y0, 12, y0, [56, 58, 62]);                      // las bahias
+  }
+  if (v === 2) {
+    // cables que cuelgan por delante
+    for (let y = 2; y < 16; y++) { l.punto(6 + Math.round(Math.sin(y * 0.6)), y, [20, 20, 20]); l.punto(10 + Math.round(Math.cos(y * 0.5)), y, [150, 30, 30]); }
+  }
+  if (v === 3) {
+    // la rejilla del ventilador
+    l.disco(8, 8, 5.5, [26, 26, 28]);
+    for (let y = 3; y <= 13; y += 2) l.rect(3, y, 13, y, [66, 68, 72]);
+  }
+  guardar(TEX, `rack_servidor_${v}`, l);
+  json(`models/block/rack_servidor_${v}.json`, mod({ f: t(`rack_servidor_${v}`), s: t('rack_lado'), particle: t('rack_lado') }, [
+    cajaFrente([1, 0, 1], [15, 16, 15], '#f', '#s')
+  ]));
+}
+estados('rack_servidor', { facing: FAC, variante: rango(8) }, (e) => `rack_servidor_${e.variante % 4}`, 'rack_servidor_0');
+
+// cables gruesos tirados por el suelo (de las maquinas al panel): rectos, en curva, un haz y uno con empalme
+pinta('cable_grueso', 16, (x, y) => escala(y % 4 === 0 ? [36, 36, 38] : [22, 22, 24], 0.9 + hash(x, y, 1440) * 0.15));
+pinta('cable_grueso_rojo', 16, (x, y) => escala(y % 4 === 0 ? [120, 34, 30] : [92, 24, 22], 0.9 + hash(x, y, 1441) * 0.15));
+const CABLES_SUELO = [
+  [caja([3, 0, 0], [5, 1.5, 16], '#n'), caja([9, 0, 0], [11, 1.5, 16], '#r')],
+  [caja([3, 0, 0], [5, 1.5, 9], '#n'), caja([3, 0, 7], [16, 1.5, 9], '#n'), caja([10, 0, 0], [12, 1.5, 4], '#r')],
+  [caja([2, 0, 0], [4, 1.5, 16], '#n'), caja([4, 0, 0], [6, 1.5, 16], '#r'), caja([6, 0, 0], [8, 1.5, 16], '#n'), caja([4.5, 1.5, 0], [6.5, 3, 16], '#n')],
+  [caja([6, 0, 0], [8, 1.5, 16], '#n'), caja([5, 0, 6], [9, 3, 10], '#r')]
+];
+CABLES_SUELO.forEach((els, v) => json(`models/block/cables_suelo_${v}.json`, mod({ n: t('cable_grueso'), r: t('cable_grueso_rojo'), particle: t('cable_grueso') }, els)));
+estados('cables_suelo', { facing: FAC, variante: rango(8) }, (e) => `cables_suelo_${e.variante % 4}`, 'cables_suelo_0');
+
 const MAQUINAS = [
   // bomba: carcasa gris con un motor y una rueda
   (l) => { l.disco(8, 8, 6, [50, 54, 56]); l.disco(8, 8, 4, [100, 106, 108]); l.disco(8, 8, 1.5, [30, 30, 30]); },
@@ -775,6 +823,8 @@ const NOMBRES = {
   cables_colgando: ['Cables colgando', 'Hanging cables'],
   armario_electrico: ['Armario eléctrico', 'Electrical cabinet'],
   transformador: ['Transformador', 'Transformer'],
+  rack_servidor: ['Rack de servidores', 'Server rack'],
+  cables_suelo: ['Cables por el suelo', 'Floor cables'],
   maquina_estacion: ['Máquina', 'Machine'],
   bidones: ['Bidones', 'Drums'],
   estanteria_estacion: ['Estantería', 'Shelf'],

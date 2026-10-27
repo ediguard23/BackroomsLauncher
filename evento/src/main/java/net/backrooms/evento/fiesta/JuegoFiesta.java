@@ -62,8 +62,6 @@ public final class JuegoFiesta {
 	/** Fichas puestas (entidades) a esta distancia de alguien; se quitan a QUITAR. */
 	private static final double VER = 40.0;
 	private static final double QUITAR = 56.0;
-	/** Ticks en la boca del tobogan del final hasta irse. */
-	private static final int TOBOGAN = 30;
 
 	public static JuegoFiesta get() {
 		return INSTANCIA;
@@ -413,7 +411,15 @@ public final class JuegoFiesta {
 		Direction d = lado > 0 ? mira.getOpposite() : mira;
 		double x = pos.getX() + 0.5 + d.getStepX() * 1.3;
 		double z = pos.getZ() + 0.5 + d.getStepZ() * 1.3;
-		j.teleportTo(j.level(), x, pos.getY(), z, Set.of(), j.getYRot(), j.getXRot(), true);
+		float giro = j.getYRot();
+		// las puertas que unen zonas lejanas llevan a su pareja (PlanoFiesta.destino)
+		double[] lejos = PlanoFiesta.destino(pos.getX(), pos.getZ(), d);
+		if (lejos != null) {
+			x = lejos[0];
+			z = lejos[1];
+			giro = (float) lejos[2];
+		}
+		j.teleportTo(j.level(), x, pos.getY(), z, Set.of(), giro, j.getXRot(), true);
 		j.level().playSound(null, pos, Sonidos.FIESTA_TORNO, SoundSource.BLOCKS, 0.9F, 0.95F + j.getRandom().nextFloat() * 0.1F);
 	}
 
@@ -505,20 +511,9 @@ public final class JuegoFiesta {
 			this.enTobogan.remove(j.getUUID());
 			return;
 		}
-		int n = this.enTobogan.merge(j.getUUID(), 4, Integer::sum);
-		if (n == 4) {
-			nivel.playSound(null, j.blockPosition(), Sonidos.FIESTA_REGALO, SoundSource.BLOCKS, 1.0F, 1.0F);
-		}
-		if (n >= TOBOGAN) {
-			this.enTobogan.remove(j.getUUID());
-			nivel.playSound(null, j.blockPosition(), Sonidos.FIESTA_TOBOGAN, SoundSource.PLAYERS, 1.2F, 0.8F);
-			Misiones.get().completar(j, TipoMision.PREMIO);
-			BackroomsEvento.LOG.info("{} sale de la Fiesta por el tobogan", j.getGameProfile().name());
-			// al Nivel 3 (la Estacion Electrica); si el servidor no la tiene, salir es escapar
-			if (!net.backrooms.evento.estacion.Estacion.llegar(j, true)) {
-				net.backrooms.evento.fase.Fases.get().escapar(j);
-			}
-		}
+		// dentro del ascensor del salon: la cinematica de la salida (SalidaFiesta) y, al acabar, al Nivel 3
+		this.enTobogan.remove(j.getUUID());
+		SalidaFiesta.get().empezar(j);
 	}
 
 	/* ---------------------------------------------------------------- envio */

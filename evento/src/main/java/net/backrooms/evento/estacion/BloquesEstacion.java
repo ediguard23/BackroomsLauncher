@@ -64,6 +64,9 @@ public final class BloquesEstacion {
 	/** En el suelo, macizos: armario electrico, transformador, maquina, bidones, estanteria, carro, banco, consola. */
 	public static final Block ARMARIO = suelo("armario_electrico", Block.box(0, 0, 2, 16, 16, 16), Block.box(0, 0, 2, 16, 16, 16));
 	public static final Block TRANSFORMADOR = suelo("transformador", Block.box(1, 0, 1, 15, 16, 15), Block.box(1, 0, 1, 15, 16, 15));
+	/** Lo de las centrales: racks de servidores abandonados y cables gruesos tirados por el suelo (no chocan). */
+	public static final Block RACK = suelo("rack_servidor", Block.box(1, 0, 1, 15, 16, 15), Block.box(1, 0, 1, 15, 16, 15));
+	public static final Block CABLES_SUELO = suelo("cables_suelo", Block.box(0, 0, 0, 16, 3, 16), net.minecraft.world.phys.shapes.Shapes.empty());
 	public static final Block MAQUINA = suelo("maquina_estacion", Block.box(0, 0, 0, 16, 16, 16), Block.box(0, 0, 0, 16, 16, 16));
 	public static final Block BIDONES = suelo("bidones", Block.box(1, 0, 1, 15, 14, 15), Block.box(1, 0, 1, 15, 14, 15));
 	public static final Block ESTANTERIA = suelo("estanteria_estacion", Block.box(0, 0, 4, 16, 16, 16), Block.box(0, 0, 4, 16, 16, 16));

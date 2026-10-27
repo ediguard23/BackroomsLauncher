@@ -28,8 +28,10 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 
 /**
  * La puerta de la salida de emergencia de las Piscinas: el hueco de 3x3 de la boveda en la pared
- * (PARTE = columna * 3 + fila, PlanoPiscinas#detallesSalida). Estos bloques no se ven (la boveda
- * que se ve y se abre girando es Boveda) y dejan pasar la luz; solo chocan. Con las tres tarjetas
+ * (PARTE = columna * 3 + fila, PlanoPiscinas#detallesSalida). La hoja redonda que se ve y se abre
+ * girando es Boveda; estos bloques son el marco de acero que rellena lo que la hoja no tapa (las
+ * esquinas del hueco cuadrado y un borde), con un umbral abajo que choca como una losa. Dejan pasar
+ * la luz y no tapan las caras de la pared de al lado. Con las tres tarjetas
  * metidas se abre (ABIERTA, la abre Tarjetas): pasa quien ha hecho sus misiones; los demas se
  * topan con ella. Quien entra en el pasillo de detras ve la cinematica y se tira por el tobogan
  * a la Fiesta (TransicionFiesta).
@@ -59,11 +61,17 @@ public class PuertaSalida extends HorizontalDirectionalBlock {
 		return p instanceof ServerPlayer sp ? net.backrooms.evento.mision.Misiones.get().todasHechas(sp) : pasaCliente.test(p);
 	}
 
-	/** Abierta solo deja de ser pared para quien puede cruzar; para los demas (y la Serpiente), sigue cerrada. */
+	/** El umbral del marco: 6 pixeles (se pasa por encima sin saltar, como una losa). */
+	private static final VoxelShape UMBRAL = Block.box(0, 0, 0, 16, 6, 16);
+
+	/**
+	 * Abierta solo deja de ser pared para quien puede cruzar (salvo el umbral, abajo); para los
+	 * demas (y la Serpiente), sigue cerrada.
+	 */
 	@Override
 	protected VoxelShape getCollisionShape(BlockState estado, BlockGetter nivel, BlockPos pos, CollisionContext ctx) {
 		if (estado.getValue(ABIERTA) && ctx instanceof EntityCollisionContext ec && ec.getEntity() instanceof Player p && pasa(p)) {
-			return Shapes.empty();
+			return estado.getValue(PARTE) % 3 == 0 ? UMBRAL : Shapes.empty();
 		}
 		return Shapes.block();
 	}
@@ -79,12 +87,6 @@ public class PuertaSalida extends HorizontalDirectionalBlock {
 			}
 		}
 		return InteractionResult.SUCCESS;
-	}
-
-	/** No se ve nunca: la puerta que se ve es la de la boveda (Boveda). */
-	@Override
-	protected net.minecraft.world.level.block.RenderShape getRenderShape(BlockState estado) {
-		return net.minecraft.world.level.block.RenderShape.INVISIBLE;
 	}
 
 	@Override

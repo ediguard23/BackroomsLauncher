@@ -267,7 +267,8 @@ public final class Interactivos {
 
 		@Override
 		protected VoxelShape getCollisionShape(BlockState e, BlockGetter n, BlockPos pos, CollisionContext ctx) {
-			return FORMA.get(e.getValue(FACING));
+			// no choca: el Amasijo se quedaba enganchado en los buzones al ir pegado a la pared
+			return Shapes.empty();
 		}
 
 		@Override

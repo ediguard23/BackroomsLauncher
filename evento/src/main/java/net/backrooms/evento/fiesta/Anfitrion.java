@@ -111,6 +111,11 @@ public class Anfitrion extends Monster {
 		return this.entityData.get(MODO);
 	}
 
+	/** Para las cinematicas (un Anfitrion solo de cliente): la pose de caza, sin pasar por el servidor. */
+	public void cazandoCliente(boolean si) {
+		this.entityData.set(CAZANDO, si);
+	}
+
 	public boolean abrazando() {
 		return this.entityData.get(ABRAZANDO);
 	}

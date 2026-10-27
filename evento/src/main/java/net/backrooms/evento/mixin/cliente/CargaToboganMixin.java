@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class CargaToboganMixin {
 	@Inject(method = "render", at = @At("HEAD"), cancellable = true)
 	private void backrooms$negro(GuiGraphics g, int x, int y, float parcial, CallbackInfo ci) {
-		if (ToboganCliente.activa()) {
+		if ((ToboganCliente.activa() || net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.activa())) {
 			g.fill(0, 0, g.guiWidth(), g.guiHeight(), 0xFF000000);
 			ci.cancel();
 		}
@@ -21,7 +21,7 @@ public abstract class CargaToboganMixin {
 
 	@Inject(method = "renderBackground", at = @At("HEAD"), cancellable = true)
 	private void backrooms$sinFondo(GuiGraphics g, int x, int y, float parcial, CallbackInfo ci) {
-		if (ToboganCliente.activa()) {
+		if ((ToboganCliente.activa() || net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.activa())) {
 			g.fill(0, 0, g.guiWidth(), g.guiHeight(), 0xFF000000);
 			ci.cancel();
 		}

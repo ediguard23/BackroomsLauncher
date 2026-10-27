@@ -9,6 +9,7 @@
  *   cadaver_2  todo negro, ojos y sonrisa rojos, costuras rojas
  *   cadaver_3  explorador con el traje amarillo, el visor roto
  *   cadaver_4  explorador con el traje rasgado y la cara al aire
+ *   cadaver_5  Steve, el del trailer: traje abierto en el pecho, en la pasarela de la Estacion
  *
  *   node tools/texturas/cadaveres.js
  */
@@ -189,4 +190,55 @@ for (const [nombre, rasgado, canal] of [['cadaver_3', false, 1300], ['cadaver_4'
   });
 }
 
-console.log('Cadaveres: 5 pieles');
+/* ---- 5: Steve, el del trailer, muerto en la pasarela de la Estacion: el traje abierto en el pecho
+ * (se ven la camiseta cian y la herida), la capucha arrancada y la cara al aire. Dibujado aqui. */
+{
+  const AMARILLO = [214, 172, 40];
+  const PIEL = [190, 140, 104];
+  const PELO = [64, 42, 24];
+  const CAMISETA = [40, 168, 176];
+  const traje = (x, y, k) => {
+    let c = escala(AMARILLO, 0.82 + fbm(x, y, 1500 + k, 16) * 0.3);
+    if (fbm(x * 2, y * 2, 1501 + k, 32) > 0.66) c = mezcla(c, [96, 84, 54], 0.5);
+    return c;
+  };
+  // el desgarro del pecho: borde irregular de tela, debajo la camiseta y la herida
+  const desgarro = (x, y) => {
+    const borde = 2.2 + fbm(y * 1.3, 0, 1502, 16) * 1.6;
+    return Math.abs(x - 3.5) < borde && y >= 1 && y <= 9;
+  };
+  piel('cadaver_5', {
+    cabeza: (cara, x, y) => {
+      if (cara === 'arriba' || cara === 'atras') return escala(PELO, 0.85 + hash(x, y, 1503) * 0.25);
+      if (cara === 'der' || cara === 'izq') return y < 3 ? escala(PELO, 0.9) : escala(PIEL, 0.9);
+      if (cara === 'abajo') return PIEL;
+      if (y < 2) return escala(PELO, 0.9 + hash(x, y, 1504) * 0.2);
+      let c = escala(PIEL, 0.94 + hash(x, y, 1505) * 0.08);
+      if (y === 4 && (x === 1 || x === 6)) c = [236, 236, 236];
+      if (y === 4 && (x === 2 || x === 5)) c = [52, 64, 140];
+      if (y === 6 && x >= 2 && x <= 5) c = [110, 70, 50];
+      if (y === 7 && x >= 3 && x <= 4) c = [120, 30, 26];
+      return sangre(c, x, y, 1506, 0.3);
+    },
+    // los restos de la capucha, colgando por detras
+    sombrero: (cara, x, y) => (cara === 'atras' || (cara !== 'abajo' && cara !== 'frente' && cara !== 'arriba' && y > 4 && hash(x, y, 1507) > 0.3)
+      ? roto2(traje(x, y, 8), x, y) : null),
+    cuerpo: (cara, x, y) => {
+      let c = traje(x, y, 9);
+      if (y === 8) c = [30, 30, 30];
+      if (cara === 'frente' && desgarro(x, y)) {
+        c = escala(CAMISETA, 0.85 + hash(x, y, 1508) * 0.15);
+        if (Math.abs(x - 3.5) < 1.6 && y >= 3 && y <= 7) c = mezcla([150, 16, 14], [70, 10, 10], hash(x, y, 1509));
+      }
+      return sangre(c, x, y, 1510, cara === 'frente' ? 0.5 : 0.2);
+    },
+    chaqueta: (cara, x, y) => (cara === 'frente' && desgarro(x, y) && !desgarro(x + (x < 4 ? 1 : -1), y) ? escala(AMARILLO, 0.7) : null),
+    brazoD: (cara, x, y, W, H) => (y >= H - 3 ? [36, 36, 38] : y < 5 ? sangre(escala(PIEL, 0.9), x, y, 1511, 0.6) : sangre(traje(x, y, 12), x, y, 1512, 0.45)),
+    brazoI: (cara, x, y, W, H) => (y >= H - 3 ? [36, 36, 38] : sangre(traje(x, y, 13), x, y, 1513, 0.25)),
+    piernaD: (cara, x, y, W, H) => (y >= H - 3 ? [36, 36, 38] : sangre(traje(x, y, 14), x, y, 1514, 0.3)),
+    piernaI: (cara, x, y, W, H) => (y >= H - 3 ? [36, 36, 38] : sangre(traje(x, y, 15), x, y, 1515, 0.15))
+  });
+  function roto2 (c, x, y) { return fbm(x * 1.6, y * 1.6, 1516, 64) > 0.6 ? mezcla([140, 40, 34], [70, 14, 12], hash(x, y, 1517)) : c; }
+}
+
+console.log('Cadaveres: 6 pieles');

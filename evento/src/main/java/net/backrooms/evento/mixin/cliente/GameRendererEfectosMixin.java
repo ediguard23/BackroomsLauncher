@@ -45,6 +45,7 @@ public abstract class GameRendererEfectosMixin {
 
 	@ModifyReturnValue(method = "getFov", at = @At("RETURN"))
 	private float backrooms$zoomCamara(float fov) {
-		return fov * (1.0F - 0.18F * HerramientasCliente.subida(1.0F));
+		// y el zoom de la cinematica de la salida de la Fiesta (como un teleobjetivo, a la puerta morada)
+		return fov * (1.0F - 0.18F * HerramientasCliente.subida(1.0F)) * net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.zoom(1.0F);
 	}
 }

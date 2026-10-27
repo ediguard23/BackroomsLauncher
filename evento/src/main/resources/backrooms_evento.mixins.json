@@ -14,7 +14,9 @@
     "ColaLoginMixin",
     "InundacionAguaMixin",
     "SoltarObjetoMixin",
-    "SoloBarraMixin"
+    "SoloBarraMixin",
+    "LimiteFusiblesMixin",
+    "RecogerMixin"
   ],
   "client": [
     "cliente.CinematicaBlurMixin",

@@ -61,6 +61,10 @@ public final class BloquesFiesta {
 	public static final Block SILLITA = suelo("sillita", MapColor.COLOR_BLUE, SoundType.WOOD, Block.box(3, 0, 3, 13, 14, 13), Block.box(3, 0, 3, 13, 8, 13));
 	public static final Block CONFETI = suelo("confeti", MapColor.NONE, SoundType.WOOL, Block.box(0, 0, 0, 16, 0.5, 16), Shapes.empty());
 	public static final Block PELUCHE = suelo("peluche", MapColor.COLOR_BROWN, SoundType.WOOL, Block.box(4, 0, 4, 12, 10, 12), Shapes.empty());
+	/** Lo de miedo del salon final: peluches destrozados y sangre en el suelo y en las paredes (4 variantes cada uno). */
+	public static final Block PELUCHE_ROTO = suelo("peluche_roto", MapColor.COLOR_BROWN, SoundType.WOOL, Block.box(3, 0, 4, 13, 8, 12), Shapes.empty());
+	public static final Block SANGRE = suelo("sangre_fiesta", MapColor.COLOR_RED, SoundType.WOOL, Block.box(0, 0, 0, 16, 0.5, 16), Shapes.empty());
+	public static final Block SANGRE_PARED = pared("sangre_pared", MapColor.COLOR_RED, SoundType.WOOL, 0);
 	public static final Block OLLA = suelo("olla", MapColor.METAL, SoundType.METAL, Block.box(1, 0, 1, 15, 14, 15), Block.box(1, 0, 1, 15, 14, 15));
 	public static final Block BANDEJA = suelo("bandeja", MapColor.METAL, SoundType.METAL, Block.box(1, 0, 3, 15, 2, 13), Shapes.empty());
 	public static final Block CAMITA = suelo("camita", MapColor.COLOR_LIGHT_BLUE, SoundType.WOOL, Block.box(0, 0, 0, 16, 7, 16), Block.box(0, 0, 0, 16, 6, 16));
@@ -154,7 +158,7 @@ public final class BloquesFiesta {
 	/** Los que se ven a traves (redes, banderines, flechas, puertas...): para el cliente, capa CUTOUT. */
 	public static Block[] recortados() {
 		return new Block[] {GUIRNALDA, CARTEL, DIBUJO, ALTAVOZ, CONFETI, GLOBO, NOTA, PUERTA, SEMAFORO, LOCALIZADOR, MARCADOR, NOCLIP,
-			BANDERINES, FLECHA, LETRERO, NUBE, POSTE, RED, VALLA, RAMO_GLOBOS, REGALO};
+			BANDERINES, FLECHA, LETRERO, NUBE, POSTE, RED, VALLA, RAMO_GLOBOS, REGALO, SANGRE, SANGRE_PARED};
 	}
 
 	private static ResourceKey<Block> clave(String id) {

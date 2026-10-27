@@ -1482,5 +1482,19 @@
         "attenuation_distance": 16
       }
     ]
+  },
+  "cinematica.salida_fiesta": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica_salida_fiesta"
+      }
+    ]
+  },
+  "cinematica.salida_fiesta.despues": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica_salida_fiesta_despues"
+      }
+    ]
   }
 }

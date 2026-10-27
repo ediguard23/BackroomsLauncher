@@ -44,7 +44,7 @@ import org.jspecify.annotations.Nullable;
  *  - Si ve a alguien (sin paredes en medio, a DETECTA bloques) chilla y va a por el. Si deja de
  *    acercarse (una reja cerrada en medio, un sitio al que no llega), se calma un rato y vuelve a
  *    deambular: no se queda esperando en la reja. Va a
- *    por el a VELOCIDAD (algo menos que correr: se le escapa rompiendo la linea de vision en los
+ *    por el a VELOCIDAD (mas rapido que correr: hay que cerrarle una reja o romper la linea de vision en los
  *    cruces). Si no le vuelve a ver en OLVIDA segundos, le deja.
  *  - Si le alcanza le AGARRA: no se puede mover y al segundo muere.
  */
@@ -52,8 +52,8 @@ public class Amasijo extends Monster {
 	private static final double ALCANCE = 1.7;
 	private static final int AGARRE = 22;
 	private static final double DETECTA = 20.0;
-	/** Velocidades (bloques/s): un 15 % mas lento que al principio. */
-	private static final double VELOCIDAD = 4.25;
+	/** Velocidades (bloques/s): cazando, 7 (mas que correr: hay que darle esquinazo con las rejas). */
+	private static final double VELOCIDAD = 7.0;
 	private static final double RONDA = 2.04;
 	/** Ticks sin acercarse a la presa hasta que se rinde, y lo que tarda en volver a buscar a nadie. */
 	private static final int ATASCADO = 40;
@@ -220,7 +220,8 @@ public class Amasijo extends Monster {
 
 	private void respirar(ServerLevel nivel, boolean cazando) {
 		if (this.tickCount >= this.siguienteRespira) {
-			this.siguienteRespira = this.tickCount + (cazando ? 40 : 120) + this.random.nextInt(60);
+			// el sonido dura 2,2 s: entre una respiracion y otra, de 3 a 5 s de silencio (cazando) o mas
+			this.siguienteRespira = this.tickCount + (cazando ? 104 : 144) + this.random.nextInt(cazando ? 40 : 80);
 			nivel.playSound(null, this.getX(), this.getEyeY(), this.getZ(), Sonidos.AMASIJO_RESPIRA, SoundSource.HOSTILE, cazando ? 2.0F : 1.2F,
 				0.9F + this.random.nextFloat() * 0.2F);
 		}

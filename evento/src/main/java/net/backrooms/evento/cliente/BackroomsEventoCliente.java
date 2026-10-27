@@ -104,10 +104,13 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.SonidoPiscinas.TYPE,
 			(s, ctx) -> net.backrooms.evento.cliente.piscinas.AmbientePiscinas.forzar(ctx.client(), s.que()));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Evidencia.TYPE, (s, ctx) -> MisionesCliente.evidencia());
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.NumerosParticipantes.TYPE, (p, ctx) -> TarjetaPecho.numeros(p.numeros()));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Mordisco.TYPE,
 			(s, ctx) -> net.backrooms.evento.cliente.piscinas.MordiscoCliente.empezar(s));
 		HerramientasCliente.registrar();
 		net.backrooms.evento.cliente.cinematica.ToboganCliente.registrar();
+		net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.registrar();
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.CinematicaSalidaFiesta.TYPE, (p, ctx) -> net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.empezar());
 		HuecoCliente.registrar();
 		AccesoCliente.registrar();
 		ColaCliente.registrar();
@@ -165,6 +168,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			InundacionCliente.olvidar();
 			CinematicaCliente.olvidar();
 			net.backrooms.evento.cliente.cinematica.ToboganCliente.olvidar();
+			net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.olvidar();
 			AmbienteCliente.olvidar();
 			HerramientasCliente.olvidar();
 			AscensorCliente.olvidar();

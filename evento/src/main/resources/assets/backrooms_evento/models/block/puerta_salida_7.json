@@ -1,0 +1,60 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "m": "backrooms_evento:block/boveda_marco",
+    "c": "backrooms_evento:block/boveda_canto",
+    "particle": "backrooms_evento:block/boveda_canto"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        -1.5
+      ],
+      "to": [
+        2,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#m",
+          "uv": [
+            14,
+            0,
+            16,
+            16
+          ]
+        },
+        "south": {
+          "texture": "#c",
+          "uv": [
+            0,
+            0,
+            2,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#c"
+        },
+        "west": {
+          "texture": "#c"
+        },
+        "up": {
+          "texture": "#m",
+          "uv": [
+            0,
+            0,
+            2,
+            16
+          ]
+        },
+        "down": {
+          "texture": "#c"
+        }
+      }
+    }
+  ]
+}

@@ -1,9 +1,73 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-23 (hora de Honduras). Mod `backrooms_evento` 0.28.0, launcher 1.0.0
+Última actualización: 2026-10-27 (hora de Honduras). Mod `backrooms_evento` **0.29.0 (sin publicar)**, launcher 1.0.0
 (con arreglos sin publicar) y un launcher aparte para la beta. **Beta #3** (2026-10-23): pack-beta
 2026.10.23-a5f1fa08 con la 0.28.0 y `Downloads/Backrooms-servidor-beta3-0.28.0.zip` (el de la beta #2 con el mod
 nuevo, sin Krypton). El mismo hosting 66.51.99.171:25626.
+
+## 0.29.0: tanda de cambios en todos los niveles (2026-10-27; Bruno)
+
+**Sin publicar** (ni pack ni servidor beta). Al ponerla en un servidor con mundo ya jugado, **hay que borrar las
+dimensiones `backrooms_evento/piscinas`, `fiesta` y `estacion`** (y `backrooms/estacion.json`, `fiesta.json` y
+`tarjetas.json`): la Fiesta y la Estación cambian de trazado y las Piscinas, el túnel de la salida.
+
+General:
+- **Eco del chat de voz** solo en las Piscinas y la Estación (`EcoVoz`); en el vestíbulo, el Nivel 0 y la Fiesta, limpio.
+- **Traje**: la tarjeta del pecho es más estrecha (5 px; las mangas infladas ya no la tapan al andar o agacharse)
+  y en la espalda va el **número de participante** (001, 002...: `expedicion/Participantes`, por orden de llegada,
+  guardado en `backrooms/participantes.json`; paquete `NumerosParticipantes`).
+- **Recoger con la barra llena**: lo que no cabe se queda en el suelo y avisa «Tienes las manos llenas»
+  (`RecogerMixin`; la barra ya la limitaba `SoloBarraMixin`, en creativo no). Lo de «se pierden los objetos» solo
+  pasa en creativo (el staff tiene el inventario entero).
+- Los sonidos para un solo jugador (`Sonidos.aJugador`: voces y avisos) van pegados al jugador: no se quedan atrás
+  al andar.
+
+Piscinas:
+- La puerta de salida tiene **marco**: los bloques del hueco (`PuertaSalida`, antes invisibles) dibujan un marco de
+  acero que tapa las esquinas del hueco cuadrado alrededor de la hoja redonda, con un **umbral** de 6 px que choca
+  como una losa (`tools/texturas/piscinas.js`, `puerta_salida_0..8`).
+- El pozo del tobogán de la salida ya no deja ver el rojo desde una sala vecina: su capa de fuera (lados bajo el
+  suelo, fondo y pared del fondo) se queda con la pared de las Piscinas (`PlanoPiscinas#salidaBloque`).
+
+Fiesta:
+- Puertas a todo el ancho del bloque y la moneda centrada (`laberinto.js`).
+- **80 bloques entre zonas** (`PlanoFiesta.SEPARACION`): laberinto (x −196..−4), castillo (96..156), central
+  (242..270), salón final (351..395). La puerta roja de la salida del laberinto y la del final llevan a su pareja
+  (`PlanoFiesta.destino`): la roja de llegada al pasillo del castillo y la morada al pasillo del salón.
+- **Laberintos un 25 % más grandes**: el principal 48×48 celdas (90 salas seguras), el castillo 15×15 (32 semáforos).
+- Salón final: fuera la tarta; peluches destrozados (`peluche_roto`), sangre en el suelo (`sangre_fiesta`) y en las
+  paredes (`sangre_pared`), con un montón delante de la salida.
+- **La salida es un ascensor** con cinemática (`SalidaFiesta` + `cliente/cinematica/SalidaFiestaCliente`, 13 s):
+  zoom a la puerta morada, el Anfitrión la revienta a golpes y entra («No te pierdas la fiesta...»), se cierran las
+  puertas del ascensor, gritos y golpes, corta los cables, cae y se estrella; llega a la Estación mareado (náusea y
+  lentitud). Sonido: `tools/sonidos/salida-fiesta.js`. **Falta la frase propia** («¿Ya te vas? La fiesta todavía
+  no ha terminado»): si se pone `tools/sonidos/voces/anfitrion_salida.wav` (Higgsfield, voz del Anfitrión) y se
+  vuelve a pasar el script, la usa; mientras, suena `anfitrion_voz_2`.
+
+Nivel 3 (Estación):
+- **Pisos de unos 400×250**: cada zona, 100×19 celdas (`PlanoEstacion.MW`, `FILAS`); 4 escaleras con reja entre
+  zonas y 3 salidas al pasillo final. **Rejas también dentro del laberinto** (1 de cada 50 pasos, nunca en la zona
+  donde se aparece): 293 rejas en total, frente a 630 puntos de fusible.
+- Las centrales piden **15F+5C / 30F+20C+10K / 50F+30C+20K** (F fusibles, C cintas, K cables). Puntos por zona:
+  60/70/80 fusibles, 4/10/14 cintas, 0/6/9 cables; 20 buzones por zona; 24 sitios donde aparecer.
+- **Máximo 5 fusibles por jugador** (`LimiteFusiblesMixin`: del suelo, buzones o cajas; lo que sobra se queda).
+- Los puntos de recogida se reponen cada **5 minutos**.
+- **Amasijo**: 7 bloques/s cazando; la respiración con 3–5 s de silencio entre una y otra; 6/8/10 por piso; en
+  la punta de los tentáculos, **manos** (`entidades.js`); ya no se engancha en los buzones ni en lo de las paredes
+  (sin colisión).
+- **Steve muerto en la pasarela** (piel `cadaver_5`, traje abierto y ensangrentado; lo pone `Cadaveres`).
+- **Centrales decoradas**: racks de servidores abandonados (`rack_servidor`), transformadores, bidones, cables por el
+  suelo (`cables_suelo`) y colgando.
+- Al llegar, la **linterna pasa al hueco 9** (intercambiándose con lo que hubiera).
+
+**Probado en el juego** (capturas, servidor de pruebas con las tres dimensiones regeneradas): el marco de la
+puerta de las Piscinas; el número en la espalda y la tarjeta; el límite de 5 fusibles (de 8, entran 5); no se
+coge con la barra llena; la linterna en el hueco 9; puertas de la Fiesta, salón final, pasillo de llegada al
+castillo, tobogán a la central, la puerta del final con 1500 tickets y la cinemática del ascensor entera; la
+central del piso 1 decorada (pide 15/5); Steve en la pasarela; las manos del Amasijo; 293 rejas y 180 buzones.
+**Sin probar**: el eco con dos personas hablando, ver una sala grande detrás del pozo de la salida (depende del
+mapa), una reja dentro del laberinto vista de cerca, el Amasijo persiguiendo a 7 b/s y que ya no se atasque, la
+respiración espaciada y cómo suena la cinemática.
 
 ## Tráiler de los cuatro niveles (2026-10-23/24; Bruno)
 

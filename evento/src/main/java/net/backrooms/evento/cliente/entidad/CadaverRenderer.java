@@ -23,7 +23,7 @@ import net.minecraft.world.phys.AABB;
  */
 public class CadaverRenderer extends EntityRenderer<CadaverEntidad, CadaverRenderer.Estado> {
 	public static final ModelLayerLocation CAPA = new ModelLayerLocation(BackroomsEvento.id("cadaver"), "main");
-	private static final Identifier[] PIELES = new Identifier[PlanoPiscinas.PIELES];
+	private static final Identifier[] PIELES = new Identifier[PlanoPiscinas.PIELES + 1];
 
 	static {
 		for (int i = 0; i < PIELES.length; i++) {

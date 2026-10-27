@@ -885,12 +885,49 @@ guardar(TEX, 'valvula_tubo', new Lienzo(16).pintar((x, y) => {
     elements: els
   });
   json('blockstates/puerta_boveda.json', { variants: { '': { model: t('puerta_boveda') } } });
-  // los bloques de la puerta no se ven (solo su particula)
-  json('models/block/puerta_salida.json', { textures: { particle: t('boveda_canto') }, elements: [] });
+  // el marco del hueco (los bloques de la puerta, PuertaSalida): el hueco es cuadrado (3x3) y la hoja,
+  // redonda; el marco rellena lo que la hoja no tapa (las esquinas y un borde de 2 alrededor), en todo el
+  // grueso de la pared y asomando 1,5 por delante, y abajo un umbral de 6 de alto (choca como una losa).
+  // En coordenadas del hueco (0..48 en X e Y; la hoja es el octogono de Boveda: X 1..47 Y 9..39,
+  // X 9..39 Y 1..47 y X 4..44 Y 4..44). Lado de las piscinas: north (-z), como los lectores.
+  guardar(TEX, 'boveda_marco', new Lienzo(16).pintar((x, y) => {
+    let c = escala([74, 78, 86], 0.86 + hash(x, y, 950) * 0.12);
+    if (x === 0 || y === 0) c = escala(c, 1.25);
+    if (x === 15 || y === 15) c = escala(c, 0.7);
+    if ((x === 3 || x === 12) && (y === 3 || y === 12)) c = [176, 182, 190];
+    return c;
+  }));
+  const marco = [
+    [0, 0, 2, 48], [46, 0, 48, 48], [0, 46, 48, 48], [0, 0, 48, 6],
+    // las esquinas, escalonadas como el octogono
+    ...[[0, 1], [1, 0], [1, 1], [0, 0]].flatMap(([mx, my]) => {
+      const X = (x0, x1) => (mx ? [48 - x1, 48 - x0] : [x0, x1]);
+      const Y = (y0, y1) => (my ? [48 - y1, 48 - y0] : [y0, y1]);
+      const r = (x0, y0, x1, y1) => { const [a0, a1] = X(x0, x1); const [b0, b1] = Y(y0, y1); return [a0, b0, a1, b1]; };
+      return [r(0, 0, 4, 9), r(0, 0, 9, 4)];
+    })
+  ];
+  for (let p = 0; p < 9; p++) {
+    const col = Math.floor(p / 3);
+    const fila = p % 3;
+    const els = [];
+    for (const [x0, y0, x1, y1] of marco) {
+      const a0 = Math.max(x0, col * 16) - col * 16;
+      const a1 = Math.min(x1, col * 16 + 16) - col * 16;
+      const b0 = Math.max(y0, fila * 16) - fila * 16;
+      const b1 = Math.min(y1, fila * 16 + 16) - fila * 16;
+      if (a1 <= a0 || b1 <= b0) continue;
+      // las columnas del hueco van al reves que la x del modelo: la pieza se refleja en su bloque
+      els.push({ from: [16 - a1, b0, -1.5], to: [16 - a0, b1, 16], faces: {
+        north: { texture: '#m', uv: [a0, 16 - b1, a1, 16 - b0] }, south: { texture: '#c', uv: [16 - a1, 16 - b1, 16 - a0, 16 - b0] },
+        east: { texture: '#c' }, west: { texture: '#c' }, up: { texture: '#m', uv: [16 - a1, 0, 16 - a0, 16] }, down: { texture: '#c' } } });
+    }
+    json(`models/block/puerta_salida_${p}.json`, { parent: 'minecraft:block/block', textures: { m: t('boveda_marco'), c: t('boveda_canto'), particle: t('boveda_canto') }, elements: els });
+  }
   const v = {};
   for (const [f, y] of Object.entries(FACINGS)) {
     for (let p = 0; p < 9; p++) {
-      for (const ab of ['false', 'true']) v[`abierta=${ab},facing=${f},parte=${p}`] = { model: t('puerta_salida'), ...(y ? { y } : {}) };
+      for (const ab of ['false', 'true']) v[`abierta=${ab},facing=${f},parte=${p}`] = { model: t(`puerta_salida_${p}`), ...(y ? { y } : {}) };
     }
   }
   json('blockstates/puerta_salida.json', { variants: v });

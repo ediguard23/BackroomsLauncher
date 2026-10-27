@@ -1462,12 +1462,18 @@ public final class PlanoPiscinas {
 			return y == PISO + 1 && a != 2 ? SAL_ACERO : SAL_AIRE;
 		}
 		if (d == POZO) {
-			if (lado || y >= PISO + 2 || y == FONDO_POZO) {
+			// la cara de fuera del pozo se queda como estaba (la pared de las piscinas): si al lado,
+			// debajo o encima hay una sala, no se ve el rojo del tobogan desde ella
+			if (y == FONDO_POZO || y == PISO + 3 || lado && y < PISO - 1) {
+				return SAL_FUERA;
+			}
+			if (lado || y >= PISO + 2) {
 				return SAL_TOBOGAN;
 			}
 			return y == FONDO_POZO + 1 && a == 2 ? SAL_TENUE : SAL_AIRE;
 		}
-		return SAL_TOBOGAN;
+		// la pared del fondo del pozo, igual: la de siempre (detras puede haber una sala grande)
+		return SAL_FUERA;
 	}
 
 	private java.util.List<Detalle> detallesSalida(Salida s) {
@@ -1600,6 +1606,8 @@ public final class PlanoPiscinas {
 
 	/** Cuantas pieles de cadaver hay (texturas cadaver_0..; las dibuja tools/texturas/cadaveres.js). */
 	public static final int PIELES = 5;
+	/** La piel de Steve (el del trailer), solo para el de la pasarela de la Estacion: no sale al azar. */
+	public static final int PIEL_STEVE = PIELES;
 	public static final int BOCA_ARRIBA = 0;
 	public static final int BOCA_ABAJO = 1;
 	public static final int SENTADO = 2;

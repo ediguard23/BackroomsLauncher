@@ -173,9 +173,11 @@ public final class Sonidos {
 
 	/** Un sonido solo para este jugador, sin posicion (megafonia, avisos). */
 	public static void aJugador(net.minecraft.server.level.ServerPlayer j, SoundEvent sonido, float volumen) {
-		j.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(
+		// pegado al propio jugador (se mueve con el): se oye como en los oidos, aunque ande; si se
+		// pusiera en el sitio donde estaba, al moverse se quedaria atras y se apagaria
+		j.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundEntityPacket(
 			net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.wrapAsHolder(sonido), net.minecraft.sounds.SoundSource.AMBIENT,
-			j.getX(), j.getEyeY(), j.getZ(), volumen, 1.0F, j.getRandom().nextLong()));
+			j, volumen, 1.0F, j.getRandom().nextLong()));
 	}
 
 	public static void iniciar() {

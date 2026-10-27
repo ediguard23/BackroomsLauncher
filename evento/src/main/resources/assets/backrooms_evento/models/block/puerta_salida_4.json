@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "m": "backrooms_evento:block/boveda_marco",
+    "c": "backrooms_evento:block/boveda_canto",
+    "particle": "backrooms_evento:block/boveda_canto"
+  },
+  "elements": []
+}

@@ -70,6 +70,8 @@ public class BackroomsEvento implements ModInitializer {
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Evidencia.TYPE, net.backrooms.evento.red.Evidencia.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.EstadoFiesta.TYPE, net.backrooms.evento.red.EstadoFiesta.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Semaforo.TYPE, net.backrooms.evento.red.Semaforo.CODEC);
+		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.NumerosParticipantes.TYPE, net.backrooms.evento.red.NumerosParticipantes.CODEC);
+		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.CinematicaSalidaFiesta.TYPE, net.backrooms.evento.red.CinematicaSalidaFiesta.CODEC);
 		PayloadTypeRegistry.playC2S().register(AccionJugador.TYPE, AccionJugador.CODEC);
 		Misiones.registrar();
 		net.backrooms.evento.expedicion.Expedicion.registrar();
@@ -78,6 +80,7 @@ public class BackroomsEvento implements ModInitializer {
 		Ambiente.registrar();
 		HerramientasServidor.registrar();
 		Fases.registrar();
+		net.backrooms.evento.expedicion.Participantes.registrar();
 		Vestibulo.registrar();
 		net.backrooms.evento.piscinas.Piscinas.registrar();
 		net.backrooms.evento.piscinas.Habitantes.registrar();
@@ -91,6 +94,7 @@ public class BackroomsEvento implements ModInitializer {
 		net.backrooms.evento.estacion.JuegoEstacion.registrar();
 		net.backrooms.evento.estacion.AmasijoEstacion.registrar();
 		net.backrooms.evento.fiesta.JuegoFiesta.registrar();
+		net.backrooms.evento.fiesta.SalidaFiesta.registrar();
 		net.backrooms.evento.fiesta.JuegoSemaforo.registrar();
 		net.backrooms.evento.fiesta.AnfitrionFiesta.registrar();
 		net.backrooms.evento.fiesta.JuegoMemoria.registrar();
