@@ -1,7 +1,7 @@
 {
   "name": "backrooms-launcher",
   "productName": "Backrooms Launcher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Launcher cerrado del evento Backrooms de PeakMC Studio: nick o premium, JUGAR y dentro.",
   "main": "main.js",
