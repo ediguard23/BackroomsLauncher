@@ -167,6 +167,9 @@
 
   /* ----------------------------------------------------------------- JUGAR */
 
+  // true justo después de canjear el código, para que ese JUGAR no lo vuelva a pedir
+  let codigoListo = false;
+
   function puedeJugar () {
     if (estado.jugando || estado.preparando || !estado.manifest) return false;
     if (estado.config.premium) return Boolean(estado.cuenta);
@@ -186,6 +189,13 @@
 
   $('btn-jugar').addEventListener('click', async () => {
     if (!puedeJugar()) return;
+    // El código se pide SIEMPRE al querer jugar: el pase guardado no basta.
+    // Canjearlo otra vez desde este PC no cuenta como cambio de PC en la tienda.
+    if (estado.manifest.requiereCodigo && !codigoListo) {
+      abrirEntrada();
+      return;
+    }
+    codigoListo = false;
     sonido && sonido.jugar();
     estado.preparando = true;
     actualizarJugar();
@@ -245,6 +255,7 @@
     }
     cerrarEntrada();
     aviso(`Entrada activada para ${r.datos}. ¡Suerte ahí dentro!`, false, 8000);
+    codigoListo = true;   // solo para este intento de JUGAR
     $('btn-jugar').click();
   });
   $('codigo-comprar').addEventListener('click', () => L.abrirEnlace('comprar'));

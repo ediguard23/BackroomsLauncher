@@ -7,6 +7,18 @@ mismo jar y el LEEME al día: borrar el mundo anterior y dejar un solo backrooms
 66.51.99.171:25626. Los probadores no reinstalan nada: el launcher de la beta baja el pack al pulsar JUGAR. Del
 pack se quitó el mod de rodaje (tools/rodaje), que se había colado en pack/mods al grabar el tráiler.
 
+## Launcher: el código de entrada se pide SIEMPRE al pulsar JUGAR (2026-10-28; Edi)
+
+Lo pidió el organizador: no basta el pase guardado en el PC, hay que meter el código cada vez que
+se quiere jugar. `manifest.publico()` da `requiereCodigo` (si el manifest tiene `acceso.api`) y en
+`src/ui/app.js` JUGAR abre la ventana del código antes de nada; tras canjearlo bien, ese mismo JUGAR
+sigue (`codigoListo`, solo para ese intento). Canjear otra vez el mismo código desde el mismo PC
+reutiliza la clave del dispositivo, así que la tienda no lo cuenta como cambio de PC. Vale también
+para el staff (el launcher ya les exigía pase). **Sin probar en el launcher real** (solo `node
+--check`) y **sin publicar**: llega a los jugadores con la próxima versión del launcher (pedir
+permiso antes de publicarla). En la tienda, las plazas gratis sí se guardan (27 el 2026-10-28) y el
+bot de Discord no las anunciaba porque a su `.env` le faltaba `BACKROOMS_BOT_TOKEN` (ya puesto).
+
 ## 0.29.0 (cont. 2): el final del evento, la cadena del Nivel 3 y el esqueleto articulado (2026-10-28; Bruno)
 
 **Sin publicar.** Cambian de trazado la **Estación** (el ascensor del final) y el **vestíbulo** (el ascensor de

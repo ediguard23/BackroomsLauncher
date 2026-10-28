@@ -74,7 +74,9 @@ function publico (m) {
     links: { discord: (m.links && m.links.discord) || '', tienda: (m.links && m.links.tienda) || '' },
     eventStart: m.eventStart || null,
     news: Array.isArray(m.news) ? m.news.slice(0, 20) : [],
-    ram: m.ram || null
+    ram: m.ram || null,
+    // con tienda de entradas, el código se pide cada vez que se quiere jugar (no basta el pase guardado)
+    requiereCodigo: Boolean(m.acceso && m.acceso.api)
   };
 }
 
