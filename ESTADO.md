@@ -18,7 +18,12 @@ para el staff (el launcher ya les exigía pase). Probado en modo desarrollo: JUG
 del código dos veces seguidas y no arranca sin él; el canje con un código real, sin probar.
 **Publicado en la 1.0.1** (release v1.0.1, 2026-10-28, con permiso del organizador): los launchers
 instalados se actualizan solos al abrirse. Lleva también todo lo del launcher sin publicar desde la
-1.0.0. En la tienda, las plazas gratis sí se guardan (27 el 2026-10-28) y el
+1.0.0. **Pack normal (release "pack") igualado al de la beta #4** (2026-10-28, con permiso del
+organizador): el normal llevaba un mod del evento viejo (`ac15767f…`) contra el servidor 0.29.0 y salía
+«31 entradas de registro desconocidas». Ahora su manifest es el de pack-beta (packVersion
+2026.10.28-ca9d49cc: mod 0.29.0 `6c990580…` + BadOptimizations de Modrinth), con su noticia y su
+`acceso` de siempre; el jar se copió a la release "pack". Se hizo sin `publicar-pack.js` (desde los
+manifests publicados). En la tienda, las plazas gratis sí se guardan (27 el 2026-10-28) y el
 bot de Discord no las anunciaba porque a su `.env` le faltaba `BACKROOMS_BOT_TOKEN` (ya puesto).
 
 ## 0.29.0 (cont. 2): el final del evento, la cadena del Nivel 3 y el esqueleto articulado (2026-10-28; Bruno)
