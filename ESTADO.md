@@ -1,7 +1,7 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-28 (hora de Honduras). Mod `backrooms_evento` **0.29.0**, launcher 1.0.0 (con arreglos sin
-publicar) y un launcher aparte para la beta. **Beta #4** (2026-10-28): pack-beta **2026.10.28-ca9d49cc** con la 0.29.0
+Última actualización: 2026-10-28 (hora de Honduras). Mod `backrooms_evento` **0.29.0**, launcher **1.0.1**
+(publicado) y un launcher aparte para la beta. **Beta #4** (2026-10-28): pack-beta **2026.10.28-ca9d49cc** con la 0.29.0
 (jar sha1 6c9908058d61…; noticia «Beta #4») y `Downloads/Backrooms-servidor-beta4-0.29.0.zip` (el de la beta #3 con el
 mismo jar y el LEEME al día: borrar el mundo anterior y dejar un solo backrooms-evento en mods/). El mismo hosting
 66.51.99.171:25626. Los probadores no reinstalan nada: el launcher de la beta baja el pack al pulsar JUGAR. Del
@@ -14,9 +14,11 @@ se quiere jugar. `manifest.publico()` da `requiereCodigo` (si el manifest tiene 
 `src/ui/app.js` JUGAR abre la ventana del código antes de nada; tras canjearlo bien, ese mismo JUGAR
 sigue (`codigoListo`, solo para ese intento). Canjear otra vez el mismo código desde el mismo PC
 reutiliza la clave del dispositivo, así que la tienda no lo cuenta como cambio de PC. Vale también
-para el staff (el launcher ya les exigía pase). **Sin probar en el launcher real** (solo `node
---check`) y **sin publicar**: llega a los jugadores con la próxima versión del launcher (pedir
-permiso antes de publicarla). En la tienda, las plazas gratis sí se guardan (27 el 2026-10-28) y el
+para el staff (el launcher ya les exigía pase). Probado en modo desarrollo: JUGAR abre la ventana
+del código dos veces seguidas y no arranca sin él; el canje con un código real, sin probar.
+**Publicado en la 1.0.1** (release v1.0.1, 2026-10-28, con permiso del organizador): los launchers
+instalados se actualizan solos al abrirse. Lleva también todo lo del launcher sin publicar desde la
+1.0.0. En la tienda, las plazas gratis sí se guardan (27 el 2026-10-28) y el
 bot de Discord no las anunciaba porque a su `.env` le faltaba `BACKROOMS_BOT_TOKEN` (ya puesto).
 
 ## 0.29.0 (cont. 2): el final del evento, la cadena del Nivel 3 y el esqueleto articulado (2026-10-28; Bruno)
