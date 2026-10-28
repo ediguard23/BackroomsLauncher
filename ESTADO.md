@@ -1,9 +1,11 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-27 (hora de Honduras). Mod `backrooms_evento` **0.29.0 (sin publicar)**, launcher 1.0.0
-(con arreglos sin publicar) y un launcher aparte para la beta. **Beta #3** (2026-10-23): pack-beta
-2026.10.23-a5f1fa08 con la 0.28.0 y `Downloads/Backrooms-servidor-beta3-0.28.0.zip` (el de la beta #2 con el mod
-nuevo, sin Krypton). El mismo hosting 66.51.99.171:25626.
+Última actualización: 2026-10-28 (hora de Honduras). Mod `backrooms_evento` **0.29.0**, launcher 1.0.0 (con arreglos sin
+publicar) y un launcher aparte para la beta. **Beta #4** (2026-10-28): pack-beta **2026.10.28-ca9d49cc** con la 0.29.0
+(jar sha1 6c9908058d61…; noticia «Beta #4») y `Downloads/Backrooms-servidor-beta4-0.29.0.zip` (el de la beta #3 con el
+mismo jar y el LEEME al día: borrar el mundo anterior y dejar un solo backrooms-evento en mods/). El mismo hosting
+66.51.99.171:25626. Los probadores no reinstalan nada: el launcher de la beta baja el pack al pulsar JUGAR. Del
+pack se quitó el mod de rodaje (tools/rodaje), que se había colado en pack/mods al grabar el tráiler.
 
 ## 0.29.0 (cont. 2): el final del evento, la cadena del Nivel 3 y el esqueleto articulado (2026-10-28; Bruno)
 
