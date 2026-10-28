@@ -1,0 +1,47 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "f": "backrooms_evento:block/ascensor_fiesta_indicador_0",
+    "m": "backrooms_evento:block/ascensor_fiesta_marco",
+    "particle": "backrooms_evento:block/ascensor_fiesta_marco"
+  },
+  "elements": [
+    {
+      "from": [
+        2,
+        3,
+        15
+      ],
+      "to": [
+        14,
+        13,
+        16
+      ],
+      "shade": false,
+      "light_emission": 8,
+      "faces": {
+        "north": {
+          "texture": "#f",
+          "uv": [
+            2,
+            3,
+            14,
+            13
+          ]
+        },
+        "east": {
+          "texture": "#m"
+        },
+        "west": {
+          "texture": "#m"
+        },
+        "up": {
+          "texture": "#m"
+        },
+        "down": {
+          "texture": "#m"
+        }
+      }
+    }
+  ]
+}

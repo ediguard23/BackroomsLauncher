@@ -17,7 +17,7 @@ public abstract class CinematicaBlurMixin {
 		at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlobalSettingsUniform;update(IIDJLnet/minecraft/client/DeltaTracker;ILnet/minecraft/client/Camera;Z)V"),
 		index = 5)
 	private int backrooms$radioBlur(int radio) {
-		int r = CinematicaCliente.desenfoque();
+		int r = Math.max(CinematicaCliente.desenfoque(), net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.desenfoque());
 		return r > 0 ? r : radio;
 	}
 }

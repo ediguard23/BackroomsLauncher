@@ -65,6 +65,19 @@ public final class BloquesFiesta {
 	public static final Block PELUCHE_ROTO = suelo("peluche_roto", MapColor.COLOR_BROWN, SoundType.WOOL, Block.box(3, 0, 4, 13, 8, 12), Shapes.empty());
 	public static final Block SANGRE = suelo("sangre_fiesta", MapColor.COLOR_RED, SoundType.WOOL, Block.box(0, 0, 0, 16, 0.5, 16), Shapes.empty());
 	public static final Block SANGRE_PARED = pared("sangre_pared", MapColor.COLOR_RED, SoundType.WOOL, 0);
+	/** El ascensor de la salida del salon final: cabina, marco, viga, botonera, indicador de piso y pasamanos. */
+	public static final Block PARED_ASCENSOR = registrar("ascensor_fiesta_pared", propiedades(MapColor.METAL, SoundType.METAL, 1.5F));
+	public static final Block SUELO_ASCENSOR = registrar("ascensor_fiesta_suelo", propiedades(MapColor.METAL, SoundType.METAL, 1.5F));
+	public static final Block TECHO_ASCENSOR = registrar("ascensor_fiesta_techo", propiedades(MapColor.SNOW, SoundType.GLASS, 1.0F).lightLevel(e -> 13));
+	public static final Block MARCO_ASCENSOR = registrar("ascensor_fiesta_marco", propiedades(MapColor.METAL, SoundType.METAL, 1.5F));
+	public static final Block VIGA_ASCENSOR = registrar("ascensor_fiesta_viga", propiedades(MapColor.METAL, SoundType.METAL, 1.5F));
+	public static final Block PANEL_ASCENSOR = pared("ascensor_fiesta_panel", MapColor.METAL, SoundType.METAL, 2);
+	/** El indicador: VARIANTE 0..5 el piso, 6 un guion, 7 apagado (la cinematica lo va cambiando). */
+	public static final Block INDICADOR_ASCENSOR = pared("ascensor_fiesta_indicador", MapColor.METAL, SoundType.METAL, 5);
+	public static final Block BARANDILLA_ASCENSOR = pared("ascensor_fiesta_barandilla", MapColor.METAL, SoundType.METAL, 0);
+	/** Una hoja de las puertas del ascensor: no se pone nunca; la dibujan las entidades de la cinematica. */
+	public static final Block HOJA_ASCENSOR = Blocks.register(clave("ascensor_fiesta_hoja"), Block::new,
+		propiedades(MapColor.METAL, SoundType.METAL, -1.0F).noCollision().noOcclusion());
 	public static final Block OLLA = suelo("olla", MapColor.METAL, SoundType.METAL, Block.box(1, 0, 1, 15, 14, 15), Block.box(1, 0, 1, 15, 14, 15));
 	public static final Block BANDEJA = suelo("bandeja", MapColor.METAL, SoundType.METAL, Block.box(1, 0, 3, 15, 2, 13), Shapes.empty());
 	public static final Block CAMITA = suelo("camita", MapColor.COLOR_LIGHT_BLUE, SoundType.WOOL, Block.box(0, 0, 0, 16, 7, 16), Block.box(0, 0, 0, 16, 6, 16));

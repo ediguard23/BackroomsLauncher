@@ -22,18 +22,23 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 /**
  * La salida de la Fiesta al Nivel 3. Quien se mete en el ascensor del salon final (con el premio
  * cobrado) se queda quieto e invulnerable y su cliente pone la cinematica (SalidaFiestaCliente):
- * el Anfitrion revienta a golpes la puerta morada del final y entra («la fiesta no ha terminado»),
- * las puertas del ascensor se cierran, golpes, le corta los cables y el ascensor cae y se estrella.
- * A los DURACION ticks, ya a oscuras, el servidor le lleva a la Estacion, mareado (nausea y
- * lentitud un rato); si el servidor no la tiene, escapa.
+ * el Anfitrion revienta a golpes la puerta morada del final y corre hacia el ascensor, las puertas
+ * se cierran a tiempo, grita, golpea, amenaza, corta los cables y el ascensor cae y se estrella.
+ * A los DURACION ticks, ya a oscuras, el servidor le lleva a la Estacion (sin el titulo de
+ * Minecraft: lo pone el cliente) y sigue quieto DESPIERTA ticks mientras vuelve en si; al
+ * acabar, la radio. Si el servidor no tiene la Estacion, escapa.
  */
 public final class SalidaFiesta {
 	private static final SalidaFiesta INSTANCIA = new SalidaFiesta();
 	/** Cuando le lleva a la Estacion (el cliente sigue a oscuras un poco mas). */
-	public static final int DURACION = 262;
+	public static final int DURACION = 1172;
+	/** Lo que tarda en despertar en la Estacion (tumbado, abre los ojos, se levanta, el titulo). */
+	public static final int DESPIERTA = 345;
 	private static final Identifier QUIETO = BackroomsEvento.id("salida_fiesta_quieto");
 
 	private final Map<UUID, Integer> en = new HashMap<>();
+	/** Los que ya estan en la Estacion despertando: cuantos ticks llevan. */
+	private final Map<UUID, Integer> despertando = new HashMap<>();
 	private final Map<UUID, Boolean> invulnerable = new HashMap<>();
 	private MinecraftServer servidor;
 
@@ -49,6 +54,7 @@ public final class SalidaFiesta {
 		ServerLifecycleEvents.SERVER_STOPPED.register(s -> {
 			INSTANCIA.servidor = null;
 			INSTANCIA.en.clear();
+			INSTANCIA.despertando.clear();
 			INSTANCIA.invulnerable.clear();
 		});
 		ServerTickEvents.END_SERVER_TICK.register(s -> INSTANCIA.tick());
@@ -61,7 +67,7 @@ public final class SalidaFiesta {
 	}
 
 	public boolean enCurso(ServerPlayer j) {
-		return this.en.containsKey(j.getUUID());
+		return this.en.containsKey(j.getUUID()) || this.despertando.containsKey(j.getUUID());
 	}
 
 	/** Empieza la cinematica para ese jugador (ya dentro del ascensor). Sin el mod en el cliente, se va ya. */
@@ -82,8 +88,19 @@ public final class SalidaFiesta {
 	}
 
 	private void tick() {
-		if (this.servidor == null || this.en.isEmpty()) {
+		if (this.servidor == null || this.en.isEmpty() && this.despertando.isEmpty()) {
 			return;
+		}
+		for (UUID id : new java.util.ArrayList<>(this.despertando.keySet())) {
+			ServerPlayer j = this.servidor.getPlayerList().getPlayer(id);
+			int t = this.despertando.merge(id, 1, Integer::sum);
+			if (j == null || t >= DESPIERTA || !j.isAlive()) {
+				this.despertando.remove(id);
+				if (j != null) {
+					this.soltar(j);
+					net.backrooms.evento.Sonidos.aJugador(j, net.backrooms.evento.Sonidos.ESTACION_RADIO, 0.9F);
+				}
+			}
 		}
 		for (UUID id : new java.util.ArrayList<>(this.en.keySet())) {
 			ServerPlayer j = this.servidor.getPlayerList().getPlayer(id);
@@ -100,26 +117,34 @@ public final class SalidaFiesta {
 	}
 
 	private void terminar(ServerPlayer j, boolean viajar) {
-		UUID id = j.getUUID();
-		this.en.remove(id);
-		Boolean antes = this.invulnerable.remove(id);
-		j.setInvulnerable(antes != null && antes);
-		quieto(j, false);
-		if (viajar) {
-			this.viajar(j);
+		this.en.remove(j.getUUID());
+		if (viajar && this.viajar(j)) {
+			// sigue quieto e invulnerable mientras despierta
+			this.despertando.put(j.getUUID(), 0);
+			return;
 		}
+		this.despertando.remove(j.getUUID());
+		this.soltar(j);
 	}
 
-	private void viajar(ServerPlayer j) {
+	private void soltar(ServerPlayer j) {
+		Boolean antes = this.invulnerable.remove(j.getUUID());
+		j.setInvulnerable(antes != null && antes);
+		quieto(j, false);
+	}
+
+	/** Le lleva a la Estacion (true) o, si el servidor no la tiene, escapa (false). */
+	private boolean viajar(ServerPlayer j) {
 		Misiones.get().completar(j, TipoMision.PREMIO);
 		BackroomsEvento.LOG.info("{} sale de la Fiesta en el ascensor", j.getGameProfile().name());
 		// al Nivel 3 (la Estacion Electrica), mareado por el golpe; si el servidor no la tiene, salir es escapar
-		if (net.backrooms.evento.estacion.Estacion.llegar(j, true)) {
-			j.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 200, 0, false, false));
-			j.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, 100, 1, false, false));
-		} else {
-			net.backrooms.evento.fase.Fases.get().escapar(j);
+		if (net.backrooms.evento.estacion.Estacion.llegar(j, true, false)) {
+			// al levantarse aun va algo torpe
+			j.addEffect(new MobEffectInstance(MobEffects.SLOWNESS, DESPIERTA + 100, 0, false, false));
+			return true;
 		}
+		net.backrooms.evento.fase.Fases.get().escapar(j);
+		return false;
 	}
 
 	/** Sin andar ni saltar (modificadores que no se guardan: si se desconecta, se van). */

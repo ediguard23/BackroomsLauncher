@@ -67,6 +67,9 @@ public class MenuBackrooms extends Screen {
 		if (pantalla == null && net.backrooms.evento.cliente.cinematica.ToboganCliente.activa()) {
 			return new net.backrooms.evento.cliente.cinematica.PantallaTobogan(); // ni la del tobogan
 		}
+		if (pantalla == null && net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.activa()) {
+			return new net.backrooms.evento.cliente.cinematica.PantallaSalidaFiesta(); // ni la del ascensor de la Fiesta
+		}
 		if (pantalla == null) {
 			return hayMundo ? null : new MenuBackrooms();
 		}

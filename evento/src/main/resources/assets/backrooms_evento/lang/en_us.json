@@ -207,5 +207,13 @@
   "block.backrooms_evento.sangre_fiesta": "Blood",
   "block.backrooms_evento.sangre_pared": "Blood on the wall",
   "block.backrooms_evento.rack_servidor": "Server rack",
-  "block.backrooms_evento.cables_suelo": "Floor cables"
+  "block.backrooms_evento.cables_suelo": "Floor cables",
+  "block.backrooms_evento.ascensor_fiesta_pared": "Elevator wall",
+  "block.backrooms_evento.ascensor_fiesta_suelo": "Elevator floor",
+  "block.backrooms_evento.ascensor_fiesta_techo": "Elevator ceiling light",
+  "block.backrooms_evento.ascensor_fiesta_marco": "Elevator frame",
+  "block.backrooms_evento.ascensor_fiesta_viga": "Elevator door header",
+  "block.backrooms_evento.ascensor_fiesta_panel": "Elevator buttons",
+  "block.backrooms_evento.ascensor_fiesta_indicador": "Floor indicator",
+  "block.backrooms_evento.ascensor_fiesta_barandilla": "Handrail"
 }

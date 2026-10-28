@@ -571,6 +571,120 @@ for (let v = 0; v < 4; v++) {
   json(`models/block/sangre_pared_${v}.json`, enPared(`sangre_pared_${v}`));
 }
 estados('sangre_pared', 4, (i) => `sangre_pared_${i}`);
+
+// el ascensor de la salida (salon final): cabina de acero cepillado, suelo de chapa estriada, plafon,
+// marco y viga de las puertas, las hojas correderas (las mueve la cinematica, SalidaFiestaCliente),
+// la botonera de dentro, el boton de llamada de fuera, el indicador de piso (7 segmentos) y el pasamanos
+const cepillado = (x, y, base, semilla) => escala(base, 0.84 + fbm(x * 0.12, y * 2.4, semilla, 16) * 0.18 + hash(x, y, semilla + 1) * 0.04);
+guardar(TEX, 'ascensor_fiesta_pared', new Lienzo(16).pintar((x, y) => {
+  let c = cepillado(x, y, [172, 176, 180], 701);
+  if (x === 0) c = [112, 116, 120];
+  if (x === 15) c = escala(c, 1.12);
+  if (y === 15) c = escala(c, 0.86);
+  return c;
+}));
+guardar(TEX, 'ascensor_fiesta_suelo', new Lienzo(16).pintar((x, y) => {
+  let c = escala([62, 64, 66], 0.9 + hash(x, y, 711) * 0.1);
+  // la chapa estriada: rayitas en diagonal alternadas
+  const bx = Math.floor(x / 4);
+  const by = Math.floor(y / 4);
+  const u = x % 4;
+  const v = y % 4;
+  const raya = (bx + by) % 2 === 0 ? u === v || u === v + 1 : u === 3 - v || u === 4 - v;
+  if (raya && u > 0 && v > 0) c = escala([96, 98, 100], 0.95 + hash(x, y, 712) * 0.1);
+  return c;
+}));
+guardar(TEX, 'ascensor_fiesta_techo', new Lienzo(16).pintar((x, y) => {
+  if (x < 2 || y < 2 || x > 13 || y > 13) return cepillado(x, y, [150, 154, 158], 721);
+  return (x === 7 || y === 7) ? [214, 216, 210] : escala([244, 244, 236], 0.97 + hash(x, y, 722) * 0.03);
+}));
+guardar(TEX, 'ascensor_fiesta_marco', new Lienzo(16).pintar((x, y) => {
+  let c = cepillado(x, y, [186, 190, 194], 731);
+  if (x === 0 || y === 0) c = escala(c, 1.12);
+  if (x === 15 || y === 15) c = escala(c, 0.78);
+  return c;
+}));
+guardar(TEX, 'ascensor_fiesta_viga', new Lienzo(16).pintar((x, y) => {
+  let c = cepillado(x, y, [104, 108, 114], 741);
+  if (y >= 12 && y <= 13) c = [38, 40, 44];                 // el carril de las hojas
+  if (y === 11 || y === 14) c = escala(c, 1.2);
+  if ((x === 3 || x === 12) && (y === 5 || y === 6)) c = [196, 200, 204];  // tornillos
+  return c;
+}));
+// la hoja: 16 x 32 (un bloque de ancho, dos de alto; la cinematica la escala a 1,5 x 3)
+guardar(TEX, 'ascensor_fiesta_hoja', new Lienzo(16, 32).pintar((x, y) => {
+  let c = cepillado(x, y, [176, 182, 188], 751);
+  c = escala(c, 1.0 + Math.max(0, 0.08 - Math.abs(x - 5) * 0.02));  // un reflejo vertical
+  if (x === 15) c = [64, 66, 70];                           // el canto donde se juntan
+  if (y >= 28) c = escala(cepillado(x, y, [120, 124, 128], 752), 0.95);  // el zocalo
+  if (y === 27) c = [90, 94, 98];
+  return c;
+}));
+guardar(TEX, 'ascensor_fiesta_hoja_canto', new Lienzo(16).pintar((x, y) => escala([80, 84, 88], 0.9 + hash(x, y, 753) * 0.1)));
+json('models/block/ascensor_fiesta_hoja.json', mod({ h: t('ascensor_fiesta_hoja'), c: t('ascensor_fiesta_hoja_canto'), particle: t('ascensor_fiesta_hoja') }, [{
+  from: [0, 0, 0], to: [16, 32, 2], faces: {
+    north: { texture: '#h', uv: [0, 0, 16, 16] }, south: { texture: '#h', uv: [16, 0, 0, 16] },
+    east: { texture: '#c' }, west: { texture: '#c' }, up: { texture: '#c' }, down: { texture: '#c' } } }]));
+json('blockstates/ascensor_fiesta_hoja.json', { variants: { '': { model: t('ascensor_fiesta_hoja') } } });
+for (const n of ['ascensor_fiesta_pared', 'ascensor_fiesta_suelo', 'ascensor_fiesta_marco', 'ascensor_fiesta_viga']) {
+  json(`models/block/${n}.json`, { parent: 'minecraft:block/cube_all', textures: { all: t(n) } });
+  json(`blockstates/${n}.json`, { variants: { '': { model: t(n) } } });
+  json(`items/${n}.json`, { model: { type: 'minecraft:model', model: t(n) } });
+}
+json('models/block/ascensor_fiesta_techo.json', mod({ a: t('ascensor_fiesta_techo'), particle: t('ascensor_fiesta_techo') }, [{
+  from: [0, 0, 0], to: [16, 16, 16], shade: false, light_emission: 13, faces: caras('#a') }]));
+json('blockstates/ascensor_fiesta_techo.json', { variants: { '': { model: t('ascensor_fiesta_techo') } } });
+json('items/ascensor_fiesta_techo.json', { model: { type: 'minecraft:model', model: t('ascensor_fiesta_techo') } });
+// la botonera de dentro (0) y el boton de llamada de fuera (1)
+{
+  const l = new Lienzo(16).pintar((x, y) => cepillado(x, y, [150, 154, 160], 761));
+  // dentro: 2 columnas x 4 filas de botones redondos (pisos 5..1 y 0), el de abajo amarillo (alarma)
+  for (let f = 0; f < 4; f++) {
+    for (let k = 0; k < 2; k++) {
+      const cx = 6 + k * 4;
+      const cy = 3 + f * 3;
+      l.disco(cx, cy, 1.2, [60, 62, 66]);
+      l.punto(cx, cy, f === 0 && k === 0 ? [255, 168, 60] : [200, 204, 208]);
+    }
+  }
+  l.disco(8, 14, 1.2, [220, 180, 40]);
+  guardar(TEX, 'ascensor_fiesta_panel_0', l);
+  const ll = new Lienzo(16).pintar((x, y) => cepillado(x, y, [150, 154, 160], 762));
+  ll.disco(8, 5.5, 1.4, [60, 62, 66]);
+  ll.disco(8, 10.5, 1.4, [60, 62, 66]);
+  ll.punto(8, 5, [220, 224, 228]); ll.punto(7, 6, [220, 224, 228]); ll.punto(9, 6, [220, 224, 228]);   // subir
+  ll.punto(8, 11, [255, 168, 60]); ll.punto(7, 10, [255, 168, 60]); ll.punto(9, 10, [255, 168, 60]); // bajar (encendido)
+  guardar(TEX, 'ascensor_fiesta_panel_1', ll);
+  json('models/block/ascensor_fiesta_panel_0.json', mod({ f: t('ascensor_fiesta_panel_0'), m: t('ascensor_fiesta_marco'), particle: t('ascensor_fiesta_marco') }, [{
+    from: [4, 1, 15], to: [12, 15, 16], faces: { north: { texture: '#f', uv: [4, 1, 12, 15] }, east: { texture: '#m' }, west: { texture: '#m' },
+      up: { texture: '#m' }, down: { texture: '#m' } } }]));
+  json('models/block/ascensor_fiesta_panel_1.json', mod({ f: t('ascensor_fiesta_panel_1'), m: t('ascensor_fiesta_marco'), particle: t('ascensor_fiesta_marco') }, [{
+    from: [6, 3, 15], to: [10, 13, 16], faces: { north: { texture: '#f', uv: [6, 3, 10, 13] }, east: { texture: '#m' }, west: { texture: '#m' },
+      up: { texture: '#m' }, down: { texture: '#m' } } }]));
+  estados('ascensor_fiesta_panel', 2, (i) => `ascensor_fiesta_panel_${i}`);
+}
+// el indicador de piso: 0..5, "-" (6) y apagado (7), en rojo de 7 segmentos con la flecha de bajada
+{
+  const SEG = { a: [[1, 0], [2, 0]], b: [[3, 1], [3, 2]], c: [[3, 4], [3, 5]], d: [[1, 6], [2, 6]], e: [[0, 4], [0, 5]], f: [[0, 1], [0, 2]], g: [[1, 3], [2, 3]] };
+  const DIG = ['abcdef', 'bc', 'abdeg', 'abcdg', 'bcfg', 'acdfg', 'g', ''];
+  const ROJO_LED = [255, 52, 36];
+  for (let v = 0; v < 8; v++) {
+    const l = new Lienzo(16).pintar((x, y) => (y >= 4 && y <= 12 && x >= 2 && x <= 13 ? [14, 10, 10] : cepillado(x, y, [150, 154, 160], 771)));
+    for (const s of DIG[v]) for (const [px, py] of SEG[s]) l.punto(8 + px, 5 + py, ROJO_LED);
+    if (v < 7) { l.punto(5, 7, ROJO_LED); l.punto(4, 6, ROJO_LED); l.punto(5, 6, ROJO_LED); l.punto(6, 6, ROJO_LED); }   // la flecha
+    guardar(TEX, `ascensor_fiesta_indicador_${v}`, l);
+    json(`models/block/ascensor_fiesta_indicador_${v}.json`, mod({ f: t(`ascensor_fiesta_indicador_${v}`), m: t('ascensor_fiesta_marco'), particle: t('ascensor_fiesta_marco') }, [{
+      from: [2, 3, 15], to: [14, 13, 16], shade: false, light_emission: 8, faces: { north: { texture: '#f', uv: [2, 3, 14, 13] },
+        east: { texture: '#m' }, west: { texture: '#m' }, up: { texture: '#m' }, down: { texture: '#m' } } }]));
+  }
+  estados('ascensor_fiesta_indicador', 8, (i) => `ascensor_fiesta_indicador_${i}`);
+}
+// el pasamanos (en la pared, a la altura de la cintura si el bloque esta a ras del suelo)
+json('models/block/ascensor_fiesta_barandilla.json', mod({ m: t('ascensor_fiesta_marco'), particle: t('ascensor_fiesta_marco') }, [
+  caja([0, 13.5, 13], [16, 15, 14.5], '#m'), caja([2, 13.7, 14.5], [3, 14.7, 16], '#m'), caja([13, 13.7, 14.5], [14, 14.7, 16], '#m')
+]));
+estados('ascensor_fiesta_barandilla', 1, () => 'ascensor_fiesta_barandilla');
+console.log('  ascensor de la salida: cabina, puertas, botonera, indicador y pasamanos');
 console.log('  decoracion: globos, guirnaldas, carteles, dibujos, mesas, tartas, regalos, sillitas, confeti, peluches, cocina, camitas, peluches rotos y sangre');
 
 /* ============================================================ para jugar */
@@ -718,6 +832,14 @@ const NOMBRES = {
   peluche_roto: ['Peluche destrozado', 'Torn plush toy'],
   sangre_fiesta: ['Sangre', 'Blood'],
   sangre_pared: ['Sangre en la pared', 'Blood on the wall'],
+  ascensor_fiesta_pared: ['Pared de ascensor', 'Elevator wall'],
+  ascensor_fiesta_suelo: ['Suelo de ascensor', 'Elevator floor'],
+  ascensor_fiesta_techo: ['Plafón de ascensor', 'Elevator ceiling light'],
+  ascensor_fiesta_marco: ['Marco de ascensor', 'Elevator frame'],
+  ascensor_fiesta_viga: ['Viga de las puertas', 'Elevator door header'],
+  ascensor_fiesta_panel: ['Botonera del ascensor', 'Elevator buttons'],
+  ascensor_fiesta_indicador: ['Indicador de piso', 'Floor indicator'],
+  ascensor_fiesta_barandilla: ['Pasamanos', 'Handrail'],
   olla: ['Olla', 'Pot'],
   bandeja: ['Bandeja', 'Tray'],
   camita: ['Camita', 'Nap bed'],

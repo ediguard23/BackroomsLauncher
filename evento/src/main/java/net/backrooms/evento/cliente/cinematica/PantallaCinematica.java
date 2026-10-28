@@ -265,6 +265,14 @@ public class PantallaCinematica extends Screen {
 		Texto.hud(g, sub, this.width / 2.0F - Texto.anchoHud(sub, ts, 0.3F) / 2.0F, y + tam * 1.05F, ts, 0.3F, alfa | 0xC8BC90);
 	}
 
+	/**
+	 * Los parpados (parpados.fsh) con esa abertura (0 cerrados, 1 abiertos), para otras cinematicas que
+	 * tambien despiertan (la llegada a la Estacion, SalidaFiestaCliente). t: segundos, para el temblor.
+	 */
+	static void parpados(GuiGraphics g, int w, int h, float abertura, float t) {
+		g.guiRenderState.submitGuiElement(new Capa(PARPADOS, new Matrix3x2f(g.pose()), w, h, abertura, t, TextureSetup.noTexture()));
+	}
+
 	static float abertura(float u) {
 		for (int i = 1; i < OJOS.length; i++) {
 			if (u < OJOS[i][0]) {

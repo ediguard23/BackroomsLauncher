@@ -5,6 +5,46 @@
 2026.10.23-a5f1fa08 con la 0.28.0 y `Downloads/Backrooms-servidor-beta3-0.28.0.zip` (el de la beta #2 con el mod
 nuevo, sin Krypton). El mismo hosting 66.51.99.171:25626.
 
+## 0.29.0 (cont.): el ascensor de la Fiesta y su cinemática, rehechos (2026-10-27; Bruno)
+
+**Sin publicar.** La Fiesta cambia de trazado otra vez (el ascensor): en un servidor con mundo jugado, borrar
+`backrooms_evento/fiesta`.
+
+- **Ascensor de verdad** en el salón final (`PlanoFiesta`, bloques `ascensor_fiesta_*` de `tools/texturas/fiesta.js`):
+  cabina de acero cepillado, suelo de chapa estriada, plafón, pasamanos, **botonera** con los botones de los pisos,
+  **indicador de piso** de 7 segmentos dentro y encima de la puerta (`ascensor_fiesta_indicador`: VARIANTE 0..5 el piso,
+  6 «-», 7 apagado), marco, **viga** de las puertas y botón de llamada. Las **hojas correderas** (`ascensor_fiesta_hoja`)
+  solo existen en la cinemática. (Primero se llamaron `ascensor_suelo` y `panel_ascensor`, que ya eran del ascensor
+  del Nivel 0: se renombraron y sus texturas volvieron a ser las de antes.)
+- **Cinemática nueva** (`SalidaFiestaCliente`, 58,6 s y un despertar de 16 s; el guion, en su cabecera): calma dentro
+  mirando la botonera y el indicador; un ruido; se asoma y hace zoom lento a la puerta morada; nada; **cinco golpes**
+  con polvo y la puerta que se sacude; pausa; la puerta **cae y se queda en el suelo**; los ojos del Anfitrión en el
+  hueco, sale, mira y **corre** (la animación de carrera va al ritmo del paso: `andar()`); la cámara le sigue y se mete
+  en la cabina; las puertas se cierran justo antes de que llegue; se estampa, «¡NO!», golpes que van a menos,
+  silencio, la amenaza tras las puertas, ruidos en el techo (cadena, radial, chispas); arranca (el indicador baja
+  5→4→3), falla la luz, chispazo, diferencial, se parten los cables, cae (el indicador cuenta deprisa y se apaga) y
+  el golpe: destello y negro. **En la Estación**, como el despertar del Nivel 0: negro con pitido y latido
+  amortiguados, párpados (`PantallaCinematica.parpados`) y desenfoque (`CinematicaBlurMixin`), tumbado mirando al
+  techo; se incorpora, se levanta y sale **«NIVEL 3 / LA ESTACIÓN ELÉCTRICA»** parpadeando como un fluorescente. Sin el
+  título de Minecraft (`Estacion.llegar(j, nueva, presentar)`); el servidor le tiene quieto e invulnerable
+  `SalidaFiesta.DESPIERTA` (345 ticks) y luego suena la radio. Los bloques que cambia la escena se vuelven a poner
+  cada tick (el servidor reenvía la puerta) y se devuelven como estaban si no hay viaje.
+- **Sonido con grabaciones reales** (`tools/sonidos/salida-fiesta.js`, con los mismos tiempos): sonidos **CC0** de
+  BigSoundBank (dominio público; la lista con sus números está en el script). No se suben: van en
+  `tools/sonidos/reales/` (en el .gitignore) y el script los baja solo de `https://bigsoundbank.com/UPLOAD/mp3/<n>.mp3`.
+- **Faltan las dos voces** (Higgsfield pedía iniciar sesión en Chrome): `tools/sonidos/voces/anfitrion_no.wav`
+  («¡NOOOO!», desesperado y largo) y `anfitrion_amenaza.wav` («¡No van a escapar! ¡Voy a cortar los cables!»), con la
+  voz del Anfitrión (Juan, Seed Audio). Al ponerlas: `node tools/sonidos/salida-fiesta.js` y recompilar. Mientras,
+  suenan `anfitrion_pierde` y `anfitrion_voz_2`.
+
+**Probado** (servidor y cliente de pruebas, con capturas a tiempo): el ascensor por fuera y por dentro; la cinemática
+entera (interior e indicador, zoom a la puerta, los golpes con polvo, la puerta caída en el suelo, el Anfitrión que
+sale y corre, las puertas que se cierran con él en la rendija, el indicador 5→4→3→…→apagado, el negro, el despertar
+tumbado con párpados y desenfoque, el título y el HUD al final); el viaje a la Estación a los 58,6 s. La mezcla se
+ha comprobado midiendo el nivel por tramos (golpes y silencios donde tocan).
+**Sin probar**: cómo suena de verdad en el juego (no se ha escuchado), con varios jugadores a la vez, y con las voces
+de Higgsfield.
+
 ## 0.29.0: tanda de cambios en todos los niveles (2026-10-27; Bruno)
 
 **Sin publicar** (ni pack ni servidor beta). Al ponerla en un servidor con mundo ya jugado, **hay que borrar las
@@ -37,12 +77,7 @@ Fiesta:
 - **Laberintos un 25 % más grandes**: el principal 48×48 celdas (90 salas seguras), el castillo 15×15 (32 semáforos).
 - Salón final: fuera la tarta; peluches destrozados (`peluche_roto`), sangre en el suelo (`sangre_fiesta`) y en las
   paredes (`sangre_pared`), con un montón delante de la salida.
-- **La salida es un ascensor** con cinemática (`SalidaFiesta` + `cliente/cinematica/SalidaFiestaCliente`, 13 s):
-  zoom a la puerta morada, el Anfitrión la revienta a golpes y entra («No te pierdas la fiesta...»), se cierran las
-  puertas del ascensor, gritos y golpes, corta los cables, cae y se estrella; llega a la Estación mareado (náusea y
-  lentitud). Sonido: `tools/sonidos/salida-fiesta.js`. **Falta la frase propia** («¿Ya te vas? La fiesta todavía
-  no ha terminado»): si se pone `tools/sonidos/voces/anfitrion_salida.wav` (Higgsfield, voz del Anfitrión) y se
-  vuelve a pasar el script, la usa; mientras, suena `anfitrion_voz_2`.
+- **La salida es un ascensor** con cinemática (rehecha: ver la sección de arriba).
 
 Nivel 3 (Estación):
 - **Pisos de unos 400×250**: cada zona, 100×19 celdas (`PlanoEstacion.MW`, `FILAS`); 4 escaleras con reja entre

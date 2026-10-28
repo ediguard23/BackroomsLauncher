@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,variante=0": {
+      "model": "backrooms_evento:block/ascensor_fiesta_panel_0"
+    },
+    "facing=north,variante=1": {
+      "model": "backrooms_evento:block/ascensor_fiesta_panel_1"
+    },
+    "facing=east,variante=0": {
+      "model": "backrooms_evento:block/ascensor_fiesta_panel_0",
+      "y": 90
+    },
+    "facing=east,variante=1": {
+      "model": "backrooms_evento:block/ascensor_fiesta_panel_1",
+      "y": 90
+    },
+    "facing=south,variante=0": {
+      "model": "backrooms_evento:block/ascensor_fiesta_panel_0",
+      "y": 180
+    },
+    "facing=south,variante=1": {
+      "model": "backrooms_evento:block/ascensor_fiesta_panel_1",
+      "y": 180
+    },
+    "facing=west,variante=0": {
+      "model": "backrooms_evento:block/ascensor_fiesta_panel_0",
+      "y": 270
+    },
+    "facing=west,variante=1": {
+      "model": "backrooms_evento:block/ascensor_fiesta_panel_1",
+      "y": 270
+    }
+  }
+}

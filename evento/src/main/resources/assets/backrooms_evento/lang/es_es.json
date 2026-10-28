@@ -207,5 +207,13 @@
   "block.backrooms_evento.sangre_fiesta": "Sangre",
   "block.backrooms_evento.sangre_pared": "Sangre en la pared",
   "block.backrooms_evento.rack_servidor": "Rack de servidores",
-  "block.backrooms_evento.cables_suelo": "Cables por el suelo"
+  "block.backrooms_evento.cables_suelo": "Cables por el suelo",
+  "block.backrooms_evento.ascensor_fiesta_pared": "Pared de ascensor",
+  "block.backrooms_evento.ascensor_fiesta_suelo": "Suelo de ascensor",
+  "block.backrooms_evento.ascensor_fiesta_techo": "Plafón de ascensor",
+  "block.backrooms_evento.ascensor_fiesta_marco": "Marco de ascensor",
+  "block.backrooms_evento.ascensor_fiesta_viga": "Viga de las puertas",
+  "block.backrooms_evento.ascensor_fiesta_panel": "Botonera del ascensor",
+  "block.backrooms_evento.ascensor_fiesta_indicador": "Indicador de piso",
+  "block.backrooms_evento.ascensor_fiesta_barandilla": "Pasamanos"
 }

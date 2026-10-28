@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north,variante=0": {
+      "model": "backrooms_evento:block/ascensor_fiesta_barandilla"
+    },
+    "facing=east,variante=0": {
+      "model": "backrooms_evento:block/ascensor_fiesta_barandilla",
+      "y": 90
+    },
+    "facing=south,variante=0": {
+      "model": "backrooms_evento:block/ascensor_fiesta_barandilla",
+      "y": 180
+    },
+    "facing=west,variante=0": {
+      "model": "backrooms_evento:block/ascensor_fiesta_barandilla",
+      "y": 270
+    }
+  }
+}

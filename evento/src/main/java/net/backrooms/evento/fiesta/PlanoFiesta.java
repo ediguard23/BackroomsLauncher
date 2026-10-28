@@ -1308,19 +1308,28 @@ public final class PlanoFiesta {
 		// dos ramos de globos a los lados de la boca del tobogan
 		racimo(FIN_X0 + 19, FIN_Z0, SUELO + 1, 1);
 		racimo(FIN_X0 + 25, FIN_Z0, SUELO + 1, 2);
-		// la salida: un ascensor viejo de servicio en la pared norte (cabina de acero de 3x3x3 con su luz,
-		// abierta al salon; las puertas que se cierran las pone la cinematica, SalidaFiestaCliente)
-		caja(FINAL_TOB_X0 - 1, SUELO, FINAL_TOB_Z0 - 1, FINAL_TOB_X1 + 1, SUELO + 4, FIN_Z0 - 1, s(net.backrooms.evento.bloques.Bloques.ACERO));
+		// la salida: un ascensor en la pared norte. Cabina de acero cepillado de 3x3 (y la fila de las puertas),
+		// suelo de chapa estriada, plafon en el techo, pasamanos, botonera e indicador de piso dentro; fuera,
+		// el marco, la viga de las puertas, el indicador encima y el boton de llamada. Las hojas correderas
+		// solo existen en la cinematica (SalidaFiestaCliente): abierto, se meten en la pared.
+		caja(FINAL_TOB_X0 - 1, SUELO, FINAL_TOB_Z0 - 1, FINAL_TOB_X1 + 1, SUELO + 4, FIN_Z0 - 1, s(BloquesFiesta.PARED_ASCENSOR));
 		aire(FINAL_TOB_X0, SUELO + 1, FINAL_TOB_Z0, FINAL_TOB_X1, SUELO + 3, FIN_Z0 - 1);
-		caja(FINAL_TOB_X0, SUELO, FINAL_TOB_Z0, FINAL_TOB_X1, SUELO, FIN_Z0 - 1, s(Blocks.POLISHED_DEEPSLATE));
-		bloque(FINAL_TOB_X0 + 1, SUELO + 4, FINAL_TOB_Z0 + 1, s(BloquesFiesta.LUZ_PARPADEO));
-		bloque(FINAL_TOB_X1, SUELO + 2, FINAL_TOB_Z0, Blocks.STONE_BUTTON.defaultBlockState()
-			.setValue(net.minecraft.world.level.block.ButtonBlock.FACING, Direction.SOUTH));
-		// el marco de las puertas del ascensor, a ras de la pared del salon
-		caja(FINAL_TOB_X0 - 1, SUELO + 1, FIN_Z0 - 1, FINAL_TOB_X0 - 1, SUELO + 4, FIN_Z0 - 1, s(Blocks.POLISHED_DEEPSLATE));
-		caja(FINAL_TOB_X1 + 1, SUELO + 1, FIN_Z0 - 1, FINAL_TOB_X1 + 1, SUELO + 4, FIN_Z0 - 1, s(Blocks.POLISHED_DEEPSLATE));
-		caja(FINAL_TOB_X0 - 1, SUELO + 4, FIN_Z0 - 1, FINAL_TOB_X1 + 1, SUELO + 4, FIN_Z0 - 1, s(Blocks.POLISHED_DEEPSLATE));
-		bloque(FIN_X0 + 22, SUELO + 5, FIN_Z0, variante(BloquesFiesta.LETRERO, Direction.SOUTH, 1));
+		caja(FINAL_TOB_X0, SUELO, FINAL_TOB_Z0, FINAL_TOB_X1, SUELO, FIN_Z0 - 1, s(BloquesFiesta.SUELO_ASCENSOR));
+		bloque(FINAL_TOB_X0 + 1, SUELO + 4, FINAL_TOB_Z0 + 1, s(BloquesFiesta.TECHO_ASCENSOR));
+		caja(FINAL_TOB_X0 - 1, SUELO + 1, FIN_Z0 - 1, FINAL_TOB_X0 - 1, SUELO + 4, FIN_Z0 - 1, s(BloquesFiesta.MARCO_ASCENSOR));
+		caja(FINAL_TOB_X1 + 1, SUELO + 1, FIN_Z0 - 1, FINAL_TOB_X1 + 1, SUELO + 4, FIN_Z0 - 1, s(BloquesFiesta.MARCO_ASCENSOR));
+		caja(FINAL_TOB_X0, SUELO + 4, FIN_Z0 - 1, FINAL_TOB_X1, SUELO + 4, FIN_Z0 - 1, s(BloquesFiesta.VIGA_ASCENSOR));
+		for (int x = FINAL_TOB_X0; x <= FINAL_TOB_X1; x++) {
+			bloque(x, SUELO + 1, FINAL_TOB_Z0, variante(BloquesFiesta.BARANDILLA_ASCENSOR, Direction.SOUTH, 0));
+		}
+		for (int z = FINAL_TOB_Z0; z <= FIN_Z0 - 2; z++) {
+			bloque(FINAL_TOB_X0, SUELO + 1, z, variante(BloquesFiesta.BARANDILLA_ASCENSOR, Direction.EAST, 0));
+		}
+		bloque(FINAL_TOB_X1, SUELO + 2, FIN_Z0 - 2, variante(BloquesFiesta.PANEL_ASCENSOR, Direction.WEST, 0));
+		bloque(FINAL_TOB_X1, SUELO + 3, FIN_Z0 - 2, variante(BloquesFiesta.INDICADOR_ASCENSOR, Direction.WEST, 5));
+		bloque(FINAL_TOB_X0 + 1, SUELO + 5, FIN_Z0, variante(BloquesFiesta.INDICADOR_ASCENSOR, Direction.SOUTH, 5));
+		bloque(FINAL_TOB_X1 + 2, SUELO + 2, FIN_Z0, variante(BloquesFiesta.PANEL_ASCENSOR, Direction.SOUTH, 1));
+		bloque(FIN_X0 + 22, SUELO + 7, FIN_Z0, variante(BloquesFiesta.LETRERO, Direction.SOUTH, 1));
 		bloque(FIN_X0, SUELO + 5, -30, variante(BloquesFiesta.ALTAVOZ, Direction.EAST, 0));
 		bloque(FIN_X1, SUELO + 5, -58, variante(BloquesFiesta.ALTAVOZ, Direction.WEST, 0));
 		ALTAVOCES.add(new int[] {FIN_X0 + 1, SUELO + 5, -30});

@@ -1,6 +1,7 @@
 package net.backrooms.evento.mixin.cliente;
 
 import net.backrooms.evento.cliente.cinematica.CinematicaCliente;
+import net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente;
 import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.client.sounds.SoundEngine;
 import org.spongepowered.asm.mixin.Mixin;
@@ -18,6 +19,10 @@ public abstract class CinematicaSonidoMixin {
 	private void backrooms$silenciarMundo(SoundInstance sonido, CallbackInfoReturnable<Float> cir) {
 		if (CinematicaCliente.activa() && !CinematicaCliente.esBanda(sonido.getIdentifier())) {
 			cir.setReturnValue(cir.getReturnValueF() * CinematicaCliente.volumenMundo());
+		}
+		// lo mismo al despertar en la Estacion tras la caida del ascensor de la Fiesta
+		if (SalidaFiestaCliente.activa() && !SalidaFiestaCliente.esBanda(sonido.getIdentifier())) {
+			cir.setReturnValue(cir.getReturnValueF() * SalidaFiestaCliente.volumenMundo());
 		}
 	}
 }

@@ -55,6 +55,14 @@ public final class Estacion {
 	 * radio); si no, reaparece. False si no hay dimension.
 	 */
 	public static boolean llegar(ServerPlayer j, boolean nueva) {
+		return llegar(j, nueva, true);
+	}
+
+	/**
+	 * Igual, y `presentar`: el titulo y la radio al llegar. Sin presentar (la cinematica del ascensor de la
+	 * Fiesta), el titulo lo pone el cliente al despertar y la radio, SalidaFiesta al acabar.
+	 */
+	public static boolean llegar(ServerPlayer j, boolean nueva, boolean presentar) {
 		ServerLevel nivel = nivel();
 		if (nivel == null) {
 			BackroomsEvento.LOG.error("No existe la dimension de la Estacion ({})", DIMENSION.identifier());
@@ -85,6 +93,8 @@ public final class Estacion {
 		}
 		if (nueva) {
 			net.backrooms.evento.mision.Misiones.get().asignarEstacion(j);
+		}
+		if (nueva && presentar) {
 			j.connection.send(new ClientboundSetTitlesAnimationPacket(20, 80, 30));
 			j.connection.send(new ClientboundSetTitleTextPacket(Component.literal(NOMBRE).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
 			j.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(SUBTITULO).withStyle(ChatFormatting.YELLOW)));

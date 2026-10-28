@@ -79,7 +79,9 @@ tools/
   texturas/fiesta.js             bloques de la Fiesta (papeles, suelos, decoracion, juegos)
   texturas/laberinto.js          los del laberinto, puertas, castillo, sala central y salon final (va despues de fiesta.js)
   texturas/estacion.js           bloques y objetos de la Estacion Electrica (Nivel 3)
-  sonidos/*.js                   sintetizan TODOS los sonidos (sin muestras de terceros);
+  sonidos/*.js                   sintetizan los sonidos; la excepcion es sonidos/salida-fiesta.js (la cinematica
+                                 del ascensor de la Fiesta), que mezcla grabaciones CC0 de BigSoundBank (se bajan
+                                 solas a sonidos/reales/, que no se sube);
                                  la Bacteria y el agarre en sonidos/bacteria.js; las Piscinas y la
                                  Serpiente en sonidos/nivel37.js; la Fiesta y el Anfitrion en sonidos/fiesta.js;
                                  la cinematica del tobogan en sonidos/tobogan.js; la Estacion y el Amasijo en
