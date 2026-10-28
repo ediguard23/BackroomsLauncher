@@ -31,7 +31,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 public final class SalidaFiesta {
 	private static final SalidaFiesta INSTANCIA = new SalidaFiesta();
 	/** Cuando le lleva a la Estacion (el cliente sigue a oscuras un poco mas). */
-	public static final int DURACION = 1172;
+	public static final int DURACION = 1334;
 	/** Lo que tarda en despertar en la Estacion (tumbado, abre los ojos, se levanta, el titulo). */
 	public static final int DESPIERTA = 345;
 	private static final Identifier QUIETO = BackroomsEvento.id("salida_fiesta_quieto");

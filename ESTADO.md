@@ -32,18 +32,33 @@ nuevo, sin Krypton). El mismo hosting 66.51.99.171:25626.
 - **Sonido con grabaciones reales** (`tools/sonidos/salida-fiesta.js`, con los mismos tiempos): sonidos **CC0** de
   BigSoundBank (dominio público; la lista con sus números está en el script). No se suben: van en
   `tools/sonidos/reales/` (en el .gitignore) y el script los baja solo de `https://bigsoundbank.com/UPLOAD/mp3/<n>.mp3`.
-- **Faltan las dos voces** (Higgsfield pedía iniciar sesión en Chrome): `tools/sonidos/voces/anfitrion_no.wav`
-  («¡NOOOO!», desesperado y largo) y `anfitrion_amenaza.wav` («¡No van a escapar! ¡Voy a cortar los cables!»), con la
-  voz del Anfitrión (Juan, Seed Audio). Al ponerlas: `node tools/sonidos/salida-fiesta.js` y recompilar. Mientras,
-  suenan `anfitrion_pierde` y `anfitrion_voz_2`.
+- **Voces del Anfitrión** (Higgsfield, voz Juan, 2 créditos): `tools/sonidos/voces/anfitrion_no.wav` (un «¡NOOO!»
+  desgarrado de 3,5 s) y `anfitrion_amenaza.wav` («¡No van a escapar... ¡No van a escapar! ¡Voy a cortar los cables!», 9 s),
+  recortadas de las tomas de Higgsfield. El guion se alarga a partir del choque: «¡NO!» 31,5–35,4; golpes 35,5–40,4;
+  silencio; amenaza 43,6; techo 53,5; motor 57,7; caída 62,1; golpe 65,7 (`SalidaFiesta.DURACION` 1334 ticks).
+- **Golpes en las puertas del ascensor más pesados** (sonaban a lata): la chapa a la mitad de tono y sin agudos, el
+  porrazo grave de los «tres golpes de teatro» (BigSoundBank 1025), puño y portazo grave, con los graves realzados y
+  menos eco de cabina. Medido: antes mandaban los agudos (>2 kHz a −3,7 dB frente a −10 dB en graves); ahora los graves
+  (−3 dB) y los agudos a −13 dB.
+- **Fuera la piscina de bolas** del centro del salón final (y su valla blanca).
+- **Ascensor simétrico**: botonera e indicador en las dos paredes de dentro, pasamanos en los dos lados y al fondo, un
+  botón de llamada a cada lado de la puerta y los globos iguales a los dos lados.
+- **La desesperación del jugador**: al caer la puerta da un paso atrás y le tiembla la vista; mientras el Anfitrión
+  viene corriendo, se vuelve dos veces a la botonera y la aporrea (clics; las puertas no hacen caso) y vuelve a
+  mirarle, cada vez más cerca; con el choque se refugia al fondo de la cabina. Suena su respiración a bocanadas
+  (BigSoundBank 1103) y el corazón acelerado desde que cae la puerta hasta la amenaza (contiene el aliento) y otra vez
+  cuando el ascensor falla.
 
 **Probado** (servidor y cliente de pruebas, con capturas a tiempo): el ascensor por fuera y por dentro; la cinemática
 entera (interior e indicador, zoom a la puerta, los golpes con polvo, la puerta caída en el suelo, el Anfitrión que
 sale y corre, las puertas que se cierran con él en la rendija, el indicador 5→4→3→…→apagado, el negro, el despertar
 tumbado con párpados y desenfoque, el título y el HUD al final); el viaje a la Estación a los 58,6 s. La mezcla se
 ha comprobado midiendo el nivel por tramos (golpes y silencios donde tocan).
-**Sin probar**: cómo suena de verdad en el juego (no se ha escuchado), con varios jugadores a la vez, y con las voces
-de Higgsfield.
+Después (voces, golpes, simetría, desesperación): **probado** con capturas: el ascensor simétrico por fuera y por
+dentro, el salón sin la piscina de bolas, las dos miradas a la botonera mientras se acerca, las puertas cerrándose
+con él en la rendija, el refugio al fondo, la cinemática entera hasta la Estación y el título.
+**Sin probar**: cómo suena de verdad en el juego (no se ha escuchado: los niveles se han medido), y con varios jugadores
+a la vez.
 
 ## 0.29.0: tanda de cambios en todos los niveles (2026-10-27; Bruno)
 

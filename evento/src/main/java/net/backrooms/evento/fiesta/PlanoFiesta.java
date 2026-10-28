@@ -1152,7 +1152,7 @@ public final class PlanoFiesta {
 
 	/**
 	 * El salon final: la fiesta de verdad, enorme. Damero grande rojo, blanco y morado, mesas largas
-	 * con tartas, globos, regalos, una piscina de bolas con su valla blanca, el escenario y, al
+	 * con tartas, globos, regalos, el escenario (el centro, despejado) y, al
 	 * fondo (norte), el tubo rojo del tobogan con el cartel de CERRAMOS: por ahi se sale.
 	 */
 	private static void salonFinal() {
@@ -1177,22 +1177,6 @@ public final class PlanoFiesta {
 					bloque(mx + 1, SUELO + 1, z, variante(BloquesFiesta.SILLITA, Direction.WEST, Math.floorMod(z + mx + 1, 4)));
 				}
 			}
-		}
-		// la piscina de bolas con su valla blanca
-		int bx0 = FIN_X0 + 17;
-		int bx1 = FIN_X0 + 27;
-		int bz0 = -44;
-		int bz1 = -36;
-		caja(bx0, SUELO, bz0, bx1, SUELO, bz1, s(BloquesFiesta.PISCINA_BOLAS));
-		for (int x = bx0 - 1; x <= bx1 + 1; x++) {
-			if (Math.abs(x - (FIN_X0 + 22)) > 1) {
-				bloque(x, SUELO + 1, bz0 - 1, mira(BloquesFiesta.VALLA, Direction.NORTH));
-				bloque(x, SUELO + 1, bz1 + 1, mira(BloquesFiesta.VALLA, Direction.NORTH));
-			}
-		}
-		for (int z = bz0; z <= bz1; z++) {
-			bloque(bx0 - 1, SUELO + 1, z, mira(BloquesFiesta.VALLA, Direction.EAST));
-			bloque(bx1 + 1, SUELO + 1, z, mira(BloquesFiesta.VALLA, Direction.EAST));
 		}
 		// el escenario al oeste: tarima, telon rojo y el carton del Anfitrion
 		caja(FIN_X0, SUELO + 1, -50, FIN_X0 + 3, SUELO + 1, -38, s(Blocks.DARK_OAK_PLANKS));
@@ -1305,9 +1289,9 @@ public final class PlanoFiesta {
 				}
 			}
 		}
-		// dos ramos de globos a los lados de la boca del tobogan
-		racimo(FIN_X0 + 19, FIN_Z0, SUELO + 1, 1);
-		racimo(FIN_X0 + 25, FIN_Z0, SUELO + 1, 2);
+		// dos ramos de globos iguales a los lados del ascensor (fuera de los botones de llamada)
+		racimo(FIN_X0 + 18, FIN_Z0, SUELO + 1, 1);
+		racimo(FIN_X0 + 26, FIN_Z0, SUELO + 1, 1);
 		// la salida: un ascensor en la pared norte. Cabina de acero cepillado de 3x3 (y la fila de las puertas),
 		// suelo de chapa estriada, plafon en el techo, pasamanos, botonera e indicador de piso dentro; fuera,
 		// el marco, la viga de las puertas, el indicador encima y el boton de llamada. Las hojas correderas
@@ -1319,15 +1303,22 @@ public final class PlanoFiesta {
 		caja(FINAL_TOB_X0 - 1, SUELO + 1, FIN_Z0 - 1, FINAL_TOB_X0 - 1, SUELO + 4, FIN_Z0 - 1, s(BloquesFiesta.MARCO_ASCENSOR));
 		caja(FINAL_TOB_X1 + 1, SUELO + 1, FIN_Z0 - 1, FINAL_TOB_X1 + 1, SUELO + 4, FIN_Z0 - 1, s(BloquesFiesta.MARCO_ASCENSOR));
 		caja(FINAL_TOB_X0, SUELO + 4, FIN_Z0 - 1, FINAL_TOB_X1, SUELO + 4, FIN_Z0 - 1, s(BloquesFiesta.VIGA_ASCENSOR));
+		// simetrico: pasamanos al fondo y en los dos lados; botonera e indicador a cada lado de la puerta; fuera,
+		// el indicador en el centro y un boton de llamada a cada lado
 		for (int x = FINAL_TOB_X0; x <= FINAL_TOB_X1; x++) {
 			bloque(x, SUELO + 1, FINAL_TOB_Z0, variante(BloquesFiesta.BARANDILLA_ASCENSOR, Direction.SOUTH, 0));
 		}
-		for (int z = FINAL_TOB_Z0; z <= FIN_Z0 - 2; z++) {
+		for (int z = FINAL_TOB_Z0 + 1; z <= FIN_Z0 - 2; z++) {
 			bloque(FINAL_TOB_X0, SUELO + 1, z, variante(BloquesFiesta.BARANDILLA_ASCENSOR, Direction.EAST, 0));
+			bloque(FINAL_TOB_X1, SUELO + 1, z, variante(BloquesFiesta.BARANDILLA_ASCENSOR, Direction.WEST, 0));
 		}
-		bloque(FINAL_TOB_X1, SUELO + 2, FIN_Z0 - 2, variante(BloquesFiesta.PANEL_ASCENSOR, Direction.WEST, 0));
-		bloque(FINAL_TOB_X1, SUELO + 3, FIN_Z0 - 2, variante(BloquesFiesta.INDICADOR_ASCENSOR, Direction.WEST, 5));
+		for (int[] lado : new int[][] {{FINAL_TOB_X0, 0}, {FINAL_TOB_X1, 1}}) {
+			Direction mira = lado[1] == 0 ? Direction.EAST : Direction.WEST;
+			bloque(lado[0], SUELO + 2, FIN_Z0 - 2, variante(BloquesFiesta.PANEL_ASCENSOR, mira, 0));
+			bloque(lado[0], SUELO + 3, FIN_Z0 - 2, variante(BloquesFiesta.INDICADOR_ASCENSOR, mira, 5));
+		}
 		bloque(FINAL_TOB_X0 + 1, SUELO + 5, FIN_Z0, variante(BloquesFiesta.INDICADOR_ASCENSOR, Direction.SOUTH, 5));
+		bloque(FINAL_TOB_X0 - 2, SUELO + 2, FIN_Z0, variante(BloquesFiesta.PANEL_ASCENSOR, Direction.SOUTH, 1));
 		bloque(FINAL_TOB_X1 + 2, SUELO + 2, FIN_Z0, variante(BloquesFiesta.PANEL_ASCENSOR, Direction.SOUTH, 1));
 		bloque(FIN_X0 + 22, SUELO + 7, FIN_Z0, variante(BloquesFiesta.LETRERO, Direction.SOUTH, 1));
 		bloque(FIN_X0, SUELO + 5, -30, variante(BloquesFiesta.ALTAVOZ, Direction.EAST, 0));

@@ -44,10 +44,11 @@ import org.jspecify.annotations.Nullable;
  *   GOLPES       cinco golpes, uno a uno: la puerta se sacude con cada uno
  *   ROMPE        la puerta cede y cae al suelo del pasillo (y ahi se queda)
  *   APARECE      el Anfitrion sale por el hueco y se queda mirando
- *   CORRE - LLEGA corre hacia el ascensor (la camara le sigue y se va metiendo en la cabina)
+ *   CORRE - LLEGA corre hacia el ascensor (la camara le sigue y se va metiendo en la cabina); VISTAZOS: se
+ *                vuelve a la botonera y la aporrea, desesperado, y vuelve a mirarle, cada vez mas cerca
  *   CIERRA       las puertas se cierran justo antes de que llegue; CHOCA: se estampa contra ellas
- *   31.5 - 33.3  «¡NOOO!»; GOLPES_ASCENSOR: golpes contra las puertas, cada vez mas flojos
- *   38.3 - 42.0  silencio; 42 - 45 la amenaza tras las puertas; 45.4 - 49.4 manipula los cables (arriba)
+ *   31.5 - 35.4  «¡NOOO!» (y se refugia al fondo); GOLPES_ASCENSOR: golpes contra las puertas, cada vez mas flojos
+ *   40.4 - 43.6  silencio; AMENAZA (9.5 s) tras las puertas; ARRIBA - 57.4 manipula los cables (arriba)
  *   MOTOR        arranca y baja (el indicador: 4, 3); FALLO: parpadea la luz, chispazo, el diferencial
  *   CABLES       se parten los cables; CAIDA - CHOQUE: cae (el indicador cuenta deprisa y se apaga)
  *   CHOQUE       el golpe: destello y negro (pierde el conocimiento); el servidor le lleva a la Estacion
@@ -69,6 +70,8 @@ public final class SalidaFiestaCliente {
 	private static final double Z_CABINA = PlanoFiesta.FIN_Z0 - 2.4;
 	private static final double Z_BOCA = PlanoFiesta.FIN_Z0 - 1.05;
 	private static final double Z_DENTRO = PlanoFiesta.FIN_Z0 - 2.2;
+	/** Pegado al fondo de la cabina (donde se refugia mientras golpean). */
+	private static final double Z_FONDO = PlanoFiesta.FIN_Z0 - 3.2;
 	private static final int PUERTA_Z = PlanoFiesta.FIN_PUERTA_Z;
 	/** Las hojas del ascensor: en la fila de las puertas, un poco hacia el salon. */
 	private static final double HOJAS_Z = 0.3;
@@ -88,18 +91,24 @@ public final class SalidaFiestaCliente {
 	private static final float CERRADA = 31.0F;
 	private static final float CHOCA = 31.3F;
 	/** Los golpes contra las puertas del ascensor y su fuerza (van a menos). */
-	private static final float[] GOLPES_ASCENSOR = {33.4F, 33.9F, 34.3F, 34.8F, 35.3F, 35.9F, 36.6F, 37.4F, 38.3F};
+	private static final float[] GOLPES_ASCENSOR = {35.5F, 36.0F, 36.4F, 36.9F, 37.4F, 38.0F, 38.7F, 39.5F, 40.4F};
 	private static final float[] FUERZA = {1.0F, 1.0F, 0.95F, 0.9F, 0.8F, 0.7F, 0.55F, 0.42F, 0.3F};
 	/** Lo que hace arriba (cadena, radial, soldador): golpecitos en el techo de la cabina. */
-	private static final float[] TECHO = {45.6F, 46.1F, 46.5F, 49.2F};
-	private static final float MOTOR = 49.6F;
-	private static final float FALLO = 52.4F;
-	private static final float DIFERENCIAL = 53.0F;
-	private static final float[] CABLES = {53.4F, 53.9F};
-	private static final float CAIDA = 54.0F;
-	private static final float CHOQUE = 57.6F;
+	/** La amenaza tras las puertas (9,5 s) y cuando empieza a manipular el techo. */
+	private static final float AMENAZA = 43.6F;
+	private static final float ARRIBA = 53.5F;
+	private static final float[] TECHO = {53.7F, 54.2F, 54.6F, 57.3F};
+	private static final float MOTOR = 57.7F;
+	private static final float FALLO = 60.5F;
+	private static final float DIFERENCIAL = 61.1F;
+	private static final float[] CABLES = {61.5F, 62.0F};
+	private static final float CAIDA = 62.1F;
+	private static final float CHOQUE = 65.7F;
+	/** Mientras viene corriendo: se vuelve a la botonera y la aporrea ({desde, hasta}) y cada pulsacion. */
+	private static final float[][] VISTAZOS = {{24.4F, 25.5F}, {27.2F, 28.2F}};
+	private static final float[] PULSA = {24.75F, 24.95F, 25.12F, 25.28F, 27.5F, 27.65F, 27.8F, 27.95F};
 	/** Lo que marca el indicador: {desde el segundo, variante} (0..5 el piso, 6 un guion, 7 apagado). */
-	private static final float[][] PISOS = {{0.0F, 5}, {50.8F, 4}, {52.0F, 3}, {54.6F, 2}, {55.4F, 1}, {56.2F, 0}, {56.8F, 6}, {57.2F, 7}};
+	private static final float[][] PISOS = {{0.0F, 5}, {58.9F, 4}, {60.1F, 3}, {62.7F, 2}, {63.5F, 1}, {64.3F, 0}, {64.9F, 6}, {65.3F, 7}};
 
 	/** El despertar en la Estacion (segundos desde que se ve el mundo nuevo). */
 	private static final float NEGRO_LLEGADA = 2.5F;
@@ -345,6 +354,7 @@ public final class SalidaFiestaCliente {
 		if (v != piso) {
 			piso = v;
 			indicador(mc, new BlockPos(PlanoFiesta.FINAL_TOB_X1, PlanoFiesta.SUELO + 3, PlanoFiesta.FIN_Z0 - 2), v);
+			indicador(mc, new BlockPos(PlanoFiesta.FINAL_TOB_X0, PlanoFiesta.SUELO + 3, PlanoFiesta.FIN_Z0 - 2), v);
 			indicador(mc, new BlockPos(PlanoFiesta.FINAL_TOB_X0 + 1, PlanoFiesta.SUELO + 5, PlanoFiesta.FIN_Z0), v);
 		}
 		puestos.forEach((p, e) -> {
@@ -607,8 +617,8 @@ public final class SalidaFiestaCliente {
 			x = Mth.lerp(k2, X + 0.2, X);
 			z = Mth.lerp(k2, Z_CABINA, Z_BOCA);
 		} else if (t < CORRE) {
-			// asomado mirando la puerta morada (con el zoom); cada golpe le encoge un poco
-			z = Z_BOCA;
+			// asomado mirando la puerta morada (con el zoom); cada golpe le encoge; al caer la puerta, da un paso atras
+			z = zAsomado(t);
 			double quieto = 1.0 - suave((t - CORRE + 1.0F) / 1.0F);
 			giro = giroSur + Math.sin((t - 6.8F) * 0.35) * 0.12 * quieto;
 			cabeceo = mirarAnfitrion(Z_BOCA, CORRE) + Math.sin((t - 6.8F) * 0.5) * 0.1 * quieto;
@@ -616,36 +626,49 @@ public final class SalidaFiestaCliente {
 				sacude = Math.max(sacude, pulso(t, g, 0.4F) * 0.5);
 			}
 			sacude = Math.max(sacude, pulso(t, ROMPE + CAE, 0.5F) * 0.9);
+			// al verle, le tiembla todo
+			sacude = Math.max(sacude, 0.3 * suave((t - APARECE) / 0.6F));
 		} else if (t < CHOCA) {
-			// le sigue mientras viene corriendo; se va metiendo en la cabina
+			// le sigue mientras viene corriendo y se va metiendo en la cabina; dos veces se vuelve a la botonera y la
+			// aporrea (las puertas no hacen caso) y vuelve a mirarle, cada vez mas cerca
 			double k = suave((t - 27.2F) / 2.4F);
-			z = Mth.lerp(k, Z_BOCA, Z_DENTRO);
-			giro = giroSur;
-			cabeceo = mirarAnfitrion(z, t);
-			sacude = 0.2 + 0.7 * suave((t - 26.0F) / 5.0F);
-		} else if (t < 45.6F) {
-			// dentro, mirando las puertas: el choque le echa atras; los golpes; el silencio; la amenaza
-			z = Z_DENTRO - 0.25 * pulso(t, CHOCA, 0.8F) + 0.12 * suave((t - 41.5F) / 1.5F) * (1.0 - suave((t - 44.5F) / 1.0F));
+			z = Mth.lerp(k, zAsomado(t), Z_DENTRO);
+			double v = vistazo(t);
+			double giroBoton = -Math.toDegrees(Math.atan2(1.45, PlanoFiesta.FIN_Z0 - 1.5 - z));
+			giro = Mth.lerp(v, giroSur, giroSur + giroBoton);
+			cabeceo = Mth.lerp(v, mirarAnfitrion(z, t), 8.0);
+			x = X + 0.3 * v;
+			sacude = 0.35 + 0.9 * suave((t - 26.0F) / 5.0F);
+			for (float p : PULSA) {
+				cabeceo += 3.0 * pulso(t, p, 0.14F);
+				sacude = Math.max(sacude, pulso(t, p, 0.14F) * 0.9);
+			}
+		} else if (t < ARRIBA) {
+			// el choque le echa al fondo de la cabina y ahi se queda, temblando: los golpes, el silencio; con la
+			// amenaza se acerca un poco a escuchar
+			z = Mth.lerp(suave((t - CHOCA) / 0.9F), Z_DENTRO, Z_FONDO)
+				+ 0.15 * suave((t - AMENAZA + 0.5F) / 1.5F) * (1.0 - suave((t - AMENAZA - 9.0F) / 1.0F));
 			giro = giroSur + Math.sin(t * 0.4) * 0.6;
 			cabeceo = Mth.lerp(suave((t - CHOCA) / 0.8F), mirarAnfitrion(Z_DENTRO, CHOCA), 2.0) + Math.sin(t * 0.9) * 0.4;
 			y += Math.sin(t * 1.7) * 0.008;
-			sacude = golpeAscensor(t) * 2.4;
+			sacude = 0.15 + golpeAscensor(t) * 2.4;
 		} else if (t < MOTOR) {
 			// algo anda en el techo: mira arriba y sigue los ruidos
-			double k = suave((t - 45.6F) / 1.4F);
-			z = Z_DENTRO;
-			giro = giroSur + 14.0 * Math.sin((t - 45.6F) * 0.8) * k;
+			double k = suave((t - ARRIBA) / 1.4F);
+			z = Z_FONDO;
+			giro = giroSur + 14.0 * Math.sin((t - ARRIBA) * 0.8) * k;
 			cabeceo = Mth.lerp(k, 2.0, -38.0);
+			sacude = 0.15;
 			for (float g : TECHO) {
 				sacude = Math.max(sacude, pulso(t, g, 0.3F) * 0.6);
 			}
 		} else if (t < CAIDA) {
 			// arranca (un tiron), mira el indicador; falla la luz, el chispazo, el diferencial y los cables
-			double k = suave((t - 49.9F) / 1.1F);
+			double k = suave((t - MOTOR - 0.3F) / 1.1F);
 			double k2 = suave((t - DIFERENCIAL) / 0.4F);
-			z = Z_DENTRO;
-			giro = Mth.lerp(k2, Mth.lerp(k, giroSur + 14.0 * Math.sin(4.0 * 0.8), giroSur - 64.0), giroSur - 20.0);
-			cabeceo = Mth.lerp(k2, Mth.lerp(k, -38.0, -29.0), -40.0);
+			z = Z_FONDO;
+			giro = Mth.lerp(k2, Mth.lerp(k, giroSur + 14.0 * Math.sin((MOTOR - ARRIBA) * 0.8), giroSur + GIRO_INDICADOR), giroSur - 20.0);
+			cabeceo = Mth.lerp(k2, Mth.lerp(k, -38.0, CABECEO_INDICADOR), -40.0);
 			y -= 0.03 * suave((t - MOTOR) / 0.2F);
 			sacude = 0.25 + pulso(t, MOTOR, 0.4F) * 1.5 + pulso(t, FALLO, 0.5F) * 1.6 + pulso(t, DIFERENCIAL, 0.3F) * 0.8;
 			for (float c : CABLES) {
@@ -655,20 +678,38 @@ public final class SalidaFiestaCliente {
 		} else if (t < CHOQUE) {
 			// cae: flota un poco, todo tiembla cada vez mas, mira las puertas y el indicador que baja
 			double k = (t - CAIDA) / (CHOQUE - CAIDA);
-			z = Z_DENTRO;
+			z = Z_FONDO;
 			y += -0.23 + 0.12 * suave((t - CAIDA) / 0.6F);
-			giro = Mth.lerp(suave((t - 54.6F) / 0.8F), giroSur - 20.0, giroSur - 55.0) + Math.sin(t * 3.1) * 4.0 * k;
-			cabeceo = Mth.lerp(suave((t - 54.2F) / 1.0F), -40.0, -12.0) + Math.sin(t * 2.3) * 6.0 * k;
+			giro = Mth.lerp(suave((t - CAIDA - 0.6F) / 0.8F), giroSur - 20.0, giroSur + GIRO_INDICADOR) + Math.sin(t * 3.1) * 4.0 * k;
+			cabeceo = Mth.lerp(suave((t - CAIDA - 0.2F) / 1.0F), -40.0, CABECEO_INDICADOR + 8.0) + Math.sin(t * 2.3) * 6.0 * k;
 			sacude = 1.6 + 3.0 * k;
 		} else {
 			// el golpe: se derrumba
-			z = Z_DENTRO;
+			z = Z_FONDO;
 			y = OJOS - 1.3 * suave((t - CHOQUE) / 0.12F);
-			giro = giroSur - 55.0;
-			cabeceo = Mth.lerp(suave((t - CHOQUE) / 0.12F), -12.0, 35.0);
+			giro = giroSur + GIRO_INDICADOR;
+			cabeceo = Mth.lerp(suave((t - CHOQUE) / 0.12F), CABECEO_INDICADOR + 8.0, 35.0);
 			sacude = 6.0 * Math.exp(-(t - CHOQUE) * 4.0);
 		}
 		return sacudir(x, y, z, giro, cabeceo, sacude, t);
+	}
+
+	/** Desde el fondo de la cabina, hacia el indicador de la derecha (encima de la botonera). */
+	private static final double GIRO_INDICADOR = -40.5;
+	private static final double CABECEO_INDICADOR = -21.5;
+
+	/** Asomado a la puerta; cuando cae la puerta morada da un paso atras. */
+	private static double zAsomado(float t) {
+		return Z_BOCA - 0.2 * suave((t - ROMPE) / 0.5F);
+	}
+
+	/** 0..1: cuanto esta vuelto hacia la botonera (se gira deprisa, la aporrea y vuelve). */
+	private static float vistazo(float t) {
+		float v = 0.0F;
+		for (float[] w : VISTAZOS) {
+			v = Math.max(v, suave((t - w[0]) / 0.22F) * (1.0F - suave((t - w[1] + 0.25F) / 0.25F)));
+		}
+		return v;
 	}
 
 	/** El cabeceo para mirarle (al pecho; de lejos, a la puerta) desde z. */
@@ -783,7 +824,7 @@ public final class SalidaFiestaCliente {
 			double d0 = zAnfitrion(CORRE) - Z_BOCA;
 			double d = Math.max(1.0, zAnfitrion(t) - pose(t)[2]);
 			float sigue = (float) Math.min(1.0, ZOOM * Math.pow(d0 / d, 0.9));
-			z = Mth.lerp(suave((t - 30.4F) / 0.8F), sigue, 1.0F);
+			z = Mth.lerp(Math.max(suave((t - 30.4F) / 0.8F), vistazo(t)), sigue, 1.0F);
 		}
 		return z;
 	}
