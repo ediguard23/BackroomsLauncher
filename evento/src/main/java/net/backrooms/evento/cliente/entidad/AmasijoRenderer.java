@@ -19,6 +19,18 @@ public class AmasijoRenderer extends MobRenderer<Amasijo, EstadoAmasijo, ModeloA
 	private static final Identifier TEXTURA = BackroomsEvento.id("textures/entity/amasijo.png");
 	private static final RenderType BRILLO = RenderTypes.eyes(BackroomsEvento.id("textures/entity/amasijo_brillo.png"));
 
+	/**
+	 * En el final de la Estacion (SalidaEstacionCliente) solo se ve el Amasijo de la cinematica: los de
+	 * verdad del piso 3 que anden cerca del ascensor se esconden para este jugador.
+	 */
+	@Override
+	public boolean shouldRender(Amasijo a, net.minecraft.client.renderer.culling.Frustum f, double x, double y, double z) {
+		if (net.backrooms.evento.cliente.cinematica.SalidaEstacionCliente.activa() && !net.backrooms.evento.cliente.cinematica.SalidaEstacionCliente.esSuyo(a)) {
+			return false;
+		}
+		return super.shouldRender(a, f, x, y, z);
+	}
+
 	public AmasijoRenderer(EntityRendererProvider.Context ctx) {
 		super(ctx, new ModeloAmasijo(ctx.bakeLayer(CAPA)), 0.7F);
 		this.addLayer(new EyesLayer<>(this) {

@@ -87,6 +87,9 @@ public final class JuegoEstacion {
 	private final Display.TextDisplay[] pantallas = new Display.TextDisplay[PlanoEstacion.PISOS];
 	/** Las puertas que se estan moviendo (subiendo o bajando), con sus piezas dibujadas. */
 	private final Map<PlanoEstacion.Puerta, Animacion> animando = new HashMap<>();
+	/** El corte de la cadena en marcha (la animacion) y cuando empezo: la persiana sube a los CorteCadena.PUERTA ticks. */
+	private CorteCadena corte;
+	private long corteDesde = -1;
 	private final java.util.Random azar = new java.util.Random();
 
 	/** Una puerta abriendose o cerrandose: sus piezas como BlockDisplay que se deslizan. */
@@ -246,6 +249,14 @@ public final class JuegoEstacion {
 			this.limpiarFuera();
 		}
 		this.animar(nivel);
+		if (this.corte != null && this.corte.tick(nivel)) {
+			this.corte = null;
+		}
+		if (this.corteDesde >= 0 && this.ticks - this.corteDesde == CorteCadena.PUERTA) {
+			int[] b = PlanoEstacion.puertaFinal.bloque(4);
+			nivel.playSound(null, b[0] + 0.5, b[1] + 0.5, b[2] + 0.5, Sonidos.ESTACION_PERSIANA, SoundSource.BLOCKS, 2.0F, 0.9F);
+			this.abrir(nivel, PlanoEstacion.puertaFinal, true);
+		}
 		if (this.ticks % 10 == 0 && alguien) {
 			for (int p = 0; p < PlanoEstacion.PISOS; p++) {
 				if (!this.e.activa[p] && this.completa(p)) {
@@ -335,7 +346,11 @@ public final class JuegoEstacion {
 			this.poner(nivel, c.x(), c.y(), c.z(), Interactivos.HECHO, this.e.activa[p]);
 			this.abrir(nivel, PlanoEstacion.SALIDAS[p], this.e.activa[p]);
 		}
-		this.abrir(nivel, PlanoEstacion.puertaFinal, this.e.cadena);
+		boolean cortando = this.corteDesde >= 0 && this.ticks - this.corteDesde < CorteCadena.PUERTA;
+		this.abrir(nivel, PlanoEstacion.puertaFinal, this.e.cadena && !cortando);
+		if (!cortando) {
+			this.cadena(nivel);
+		}
 		for (PlanoEstacion.Buzon b : PlanoEstacion.BUZONES) {
 			this.poner(nivel, b.x(), b.y(), b.z(), Interactivos.ABIERTA, this.e.buzones.contains(b.id()));
 		}
@@ -433,6 +448,30 @@ public final class JuegoEstacion {
 				a.piezas.forEach(Display.BlockDisplay::discard);
 				this.animando.remove(en.getKey());
 			}
+		}
+	}
+
+	/** La cadena de la puerta del final como dice el estado: puesta, o cortada y tirada en el suelo. */
+	private void cadena(ServerLevel nivel) {
+		int[] c = PlanoEstacion.CADENA;
+		BlockPos monton = new BlockPos(c[0] + 1, c[1] - 1, c[2]);
+		if (!nivel.isLoaded(monton)) {
+			return;
+		}
+		for (int k = 0; k < 3; k++) {
+			BlockPos p = new BlockPos(c[0] + k, c[1], c[2]);
+			BlockState s = nivel.getBlockState(p);
+			if (this.e.cadena && s.is(BloquesEstacion.CADENA)) {
+				nivel.setBlock(p, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
+			} else if (!this.e.cadena && s.isAir()) {
+				nivel.setBlock(p, CorteCadena.estado(k), Block.UPDATE_CLIENTS);
+			}
+		}
+		BlockState m = nivel.getBlockState(monton);
+		if (this.e.cadena && m.isAir()) {
+			nivel.setBlock(monton, CorteCadena.estado(5), Block.UPDATE_CLIENTS);
+		} else if (!this.e.cadena && m.is(BloquesEstacion.CADENA)) {
+			nivel.setBlock(monton, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
 		}
 	}
 
@@ -720,10 +759,14 @@ public final class JuegoEstacion {
 			this.e.cadena = true;
 			this.sucio = true;
 			this.guardar();
-			nivel.playSound(null, pos, Sonidos.ESTACION_PALANCA, SoundSource.BLOCKS, 2.0F, 1.4F);
+			// el corte: el candado salta, la cadena cae y despues sube la persiana (CorteCadena)
+			if (this.corte != null) {
+				this.corte.quitar();
+			}
+			this.corte = CorteCadena.empezar(nivel);
+			this.corteDesde = this.ticks;
 			this.anunciar(nivel, Component.literal(j.getGameProfile().name() + " ha cortado la cadena. La puerta del final está abierta: ¡cruzad la pasarela!")
-				.withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), Sonidos.ESTACION_PERSIANA);
-			this.abrir(nivel, PlanoEstacion.puertaFinal, true);
+				.withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD), null);
 		}
 	}
 
@@ -826,6 +869,11 @@ public final class JuegoEstacion {
 	/** Todo como al principio. */
 	public void reponerTodo() {
 		this.e = new Estado();
+		if (this.corte != null) {
+			this.corte.quitar();
+			this.corte = null;
+		}
+		this.corteDesde = -1;
 		this.vacios.clear();
 		this.focosDesde = -1;
 		this.animando.values().forEach(a -> a.piezas.forEach(Display.BlockDisplay::discard));

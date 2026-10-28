@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Cuantos Amasijos hay en la Estacion y donde salen: siempre POR_PISO (6 en el piso 1, 8 en el 2 y 10
+ * Cuantos Amasijos hay en la Estacion y donde salen: siempre POR_PISO (3 en el piso 1, 5 en el 2 y 7
  * en el 3), dando vueltas por su laberinto. Salen lejos de todos, en los pasillos de su piso, y nunca
  * de golpe: de uno en uno. No pasan a otro piso: el que se sale del suyo, se va.
  *
@@ -28,7 +28,7 @@ import org.jspecify.annotations.Nullable;
  */
 public final class AmasijoEstacion {
 	private static final AmasijoEstacion INSTANCIA = new AmasijoEstacion();
-	private static final int[] POR_PISO = {6, 8, 10};
+	private static final int[] POR_PISO = {3, 5, 7};
 	/** La etiqueta de los que pone el staff (invocar amasijo): no cuentan ni se quitan solos. */
 	public static final String INVOCADO = "invocado";
 	private static final List<List<int[]>> RONDAS = new ArrayList<>();
@@ -113,7 +113,12 @@ public final class AmasijoEstacion {
 		for (int p = 0; p < PlanoEstacion.PISOS; p++) {
 			List<ServerPlayer> js = todos;
 			List<Amasijo> vs = vivos.get(p);
-			int quiero = activo && !todos.isEmpty() ? POR_PISO[p] : 0;
+			if (activo && todos.isEmpty()) {
+				// nadie jugando (todos en creativo, espectador o recien llegados): se quedan como estan. Si se
+				// quitaran, al volver alguien saldrian todos de nuevo, uno tras otro
+				continue;
+			}
+			int quiero = activo ? POR_PISO[p] : 0;
 			if (vs.size() > quiero) {
 				vs.sort(Comparator.comparingDouble(a -> -cercania(a.position(), js)));
 				vs.get(0).discard();
@@ -140,8 +145,8 @@ public final class AmasijoEstacion {
 		}
 		a.snapTo(p.getX() + 0.5, p.getY(), p.getZ() + 0.5, this.azar.nextFloat() * 360.0F, 0.0F);
 		a.pisoOrigen = piso;
+		// sale en silencio (lejos de todos): el grito es solo cuando caza
 		nivel.addFreshEntity(a);
-		nivel.playSound(null, p.getX() + 0.5, p.getY() + 1.5, p.getZ() + 0.5, Sonidos.AMASIJO_GRITO, SoundSource.HOSTILE, 5.0F, 0.7F);
 		BackroomsEvento.LOG.info("Sale un Amasijo en el piso {} de la Estacion en {} {} ({} de {})", piso + 1, p.getX(), p.getZ(), vs.size() + 1, quiero);
 	}
 

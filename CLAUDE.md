@@ -53,9 +53,14 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
       estacion/                  la Estacion Electrica (Nivel 3), despues de la Fiesta, como la de Escape Together:
                                  PlanoEstacion (se aparece al azar en el piso 1; tres pisos que suben en diagonal:
                                  laberintos de 3 zonas con escaleras y rejas corredizas, pasillo final y central, cuya
-                                 puerta da al piso siguiente; arriba la pasarela y la puerta encadenada), GeneradorEstacion,
-                                 BloquesEstacion (Interactivos, Variante), JuegoEstacion (rejas con fusible y su
-                                 animacion, buzones, centrales, cadena; todo compartido), el Amasijo (2/3/4 por piso)
+                                 puerta da al piso siguiente; arriba la pasarela y la puerta encadenada, y detras el
+                                 ascensor del final), GeneradorEstacion, BloquesEstacion (Interactivos, Variante),
+                                 JuegoEstacion (rejas con fusible y su animacion, buzones, centrales, cadena; todo
+                                 compartido), CorteCadena (la animacion del corte), SalidaEstacion (la cinematica del
+                                 final y la llegada al vestibulo; cliente: cliente/cinematica/SalidaEstacionCliente),
+                                 el Amasijo (3/5/7 por piso)
+      esqueleto/                 el esqueleto articulado de las figuras de las cinematicas (Hueso, Pose, Animacion,
+                                 Ciclos, Figura; modelo y renderer en cliente/esqueleto). Ver ESQUELETO.md
       expedicion/                el /start (cinemática de la firma y el ascensor y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas
@@ -79,9 +84,11 @@ tools/
   texturas/fiesta.js             bloques de la Fiesta (papeles, suelos, decoracion, juegos)
   texturas/laberinto.js          los del laberinto, puertas, castillo, sala central y salon final (va despues de fiesta.js)
   texturas/estacion.js           bloques y objetos de la Estacion Electrica (Nivel 3)
-  sonidos/*.js                   sintetizan los sonidos; la excepcion es sonidos/salida-fiesta.js (la cinematica
-                                 del ascensor de la Fiesta), que mezcla grabaciones CC0 de BigSoundBank (se bajan
-                                 solas a sonidos/reales/, que no se sube);
+  texturas/superviviente.js      las pieles de las figuras con esqueleto (el traje del evento, y con sangre)
+  sonidos/*.js                   sintetizan los sonidos; las excepciones son sonidos/salida-fiesta.js (el ascensor de
+                                 la Fiesta) y sonidos/salida-estacion.js (el final y el corte de la cadena), que
+                                 mezclan grabaciones CC0 de BigSoundBank y la musica de Kevin MacLeod (CC BY:
+                                 CREDITOS.md) con sonidos/reales.js (se bajan solas a sonidos/reales/, que no se sube);
                                  la Bacteria y el agarre en sonidos/bacteria.js; las Piscinas y la
                                  Serpiente en sonidos/nivel37.js; la Fiesta y el Anfitrion en sonidos/fiesta.js;
                                  la cinematica del tobogan en sonidos/tobogan.js; la Estacion y el Amasijo en

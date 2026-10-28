@@ -1496,5 +1496,26 @@
         "name": "backrooms_evento:cinematica_salida_fiesta_despues"
       }
     ]
+  },
+  "estacion.corte": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:estacion_corte"
+      }
+    ]
+  },
+  "cinematica.salida_estacion": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica_salida_estacion"
+      }
+    ]
+  },
+  "cinematica.salida_estacion.despues": {
+    "sounds": [
+      {
+        "name": "backrooms_evento:cinematica_salida_estacion_despues"
+      }
+    ]
   }
 }

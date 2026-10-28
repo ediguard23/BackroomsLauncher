@@ -70,7 +70,7 @@ import net.minecraft.server.level.ServerPlayer;
  *  perdonar                   quita el ban a todos los que cayeron (al acabar el evento o tras una prueba)
  *  escapados [olvidar]       quienes han escapado y en que puesto
  *  estacion [jugador]        lo manda a la Estacion Electrica (Nivel 3) como si bajara del tobogan de la Fiesta
- *  estacion ir <sala>        a esa sala de la Estacion (nave, laberinto_1..3, pasillo_final_1..3, central_1..3,
+ *  estacion ir <sala>        a esa sala de la Estacion (final: delante de la puerta encadenada; nave, laberinto_1..3, pasillo_final_1..3, central_1..3,
  *                            llegada_2, llegada_3, pasarela)
  *  estacion combustible <n>  pone el deposito del generador en n (0..100)
  *  estacion avanzar|reponer|ver  activa la central siguiente (o corta la cadena), lo deja todo como al
@@ -520,6 +520,12 @@ public final class Comandos {
 		if (n == null) {
 			c.getSource().sendFailure(Component.literal("Este servidor no tiene la Estación."));
 			return 0;
+		}
+		if (nombre.equals("final")) {
+			// delante de la puerta encadenada del final, mirandola
+			int[] p = net.backrooms.evento.estacion.PlanoEstacion.PASARELA;
+			j.teleportTo(n, p[0] + 1.5, p[1] + 1, p[2] + 2.5, java.util.Set.of(), 180.0F, 0.0F, true);
+			return 1;
 		}
 		for (net.backrooms.evento.estacion.PlanoEstacion.Sala s : net.backrooms.evento.estacion.PlanoEstacion.SALAS) {
 			if (s.nombre().equals(nombre)) {

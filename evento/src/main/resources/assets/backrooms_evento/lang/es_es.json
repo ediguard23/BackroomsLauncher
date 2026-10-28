@@ -215,5 +215,6 @@
   "block.backrooms_evento.ascensor_fiesta_viga": "Viga de las puertas",
   "block.backrooms_evento.ascensor_fiesta_panel": "Botonera del ascensor",
   "block.backrooms_evento.ascensor_fiesta_indicador": "Indicador de piso",
-  "block.backrooms_evento.ascensor_fiesta_barandilla": "Pasamanos"
+  "block.backrooms_evento.ascensor_fiesta_barandilla": "Pasamanos",
+  "block.backrooms_evento.cadena_puerta": "Cadena con candado"
 }

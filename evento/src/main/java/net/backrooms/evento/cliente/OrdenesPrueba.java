@@ -16,7 +16,7 @@ import org.lwjgl.glfw.GLFW;
  * abrir pantallas sin tocar la ventana ni robar el foco.
  *
  *   inventario | pausa | cerrar | cinematica | linterna | camara | tab [n] | andar [s] | correr [s] | captura <nombre> | cursor
- *   agacharse [s] | vista <0|1|2> | girar <grados> | atras [s] | reaparecer | usar [s]
+ *   agacharse [s] | vista <0|1|2> | girar <grados> | atras [s] | reaparecer | usar [s] | figura <animacion> [lado]
  *
  * "usar <s>" deja pulsado el clic derecho s segundos (las valvulas y los lectores de las Piscinas).
  *
@@ -140,6 +140,12 @@ final class OrdenesPrueba {
 		if (orden.startsWith("piscinas")) {
 			// "piscinas <gota|agua|orilla|chapoteo|tuberia|grave|grunido|voz|susurro>": que suene ya
 			net.backrooms.evento.cliente.piscinas.AmbientePiscinas.forzar(mc, orden.substring(8).trim());
+			return;
+		}
+		if (orden.startsWith("figura")) {
+			// "figura <animacion> [lado]": una figura con el esqueleto articulado delante (esqueleto/Muestrario)
+			String[] p = orden.substring(6).trim().split(" ");
+			net.backrooms.evento.cliente.esqueleto.Muestrario.mostrar(mc, p[0], p.length > 1 && p[1].equals("lado"));
 			return;
 		}
 		if (orden.startsWith("girar")) {

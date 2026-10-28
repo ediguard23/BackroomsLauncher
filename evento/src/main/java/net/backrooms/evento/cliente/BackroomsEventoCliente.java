@@ -80,6 +80,8 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		BlockRenderLayerMap.putBlocks(ChunkSectionLayer.CUTOUT, net.backrooms.evento.estacion.BloquesEstacion.recortados());
 		EntityRenderers.register(Entidades.AMASIJO, net.backrooms.evento.cliente.entidad.AmasijoRenderer::new);
 		EntityModelLayerRegistry.registerModelLayer(net.backrooms.evento.cliente.entidad.AmasijoRenderer.CAPA, net.backrooms.evento.cliente.entidad.MallaAmasijo::crear);
+		EntityRenderers.register(Entidades.FIGURA, net.backrooms.evento.cliente.esqueleto.FiguraRenderer::new);
+		EntityModelLayerRegistry.registerModelLayer(net.backrooms.evento.cliente.esqueleto.FiguraRenderer.CAPA, net.backrooms.evento.cliente.esqueleto.ModeloArticulado::crear);
 		// los tubos encendidos se tinen: grises en el apagon, rojos con la alarma
 		ColorProviderRegistry.BLOCK.register((estado, mundo, pos, tinte) -> AmbienteCliente.colorTubos(),
 			Bloques.FLUORESCENTE, Bloques.FLUORESCENTE_PARPADEO);
@@ -111,12 +113,15 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		net.backrooms.evento.cliente.cinematica.ToboganCliente.registrar();
 		net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.registrar();
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.CinematicaSalidaFiesta.TYPE, (p, ctx) -> net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.empezar());
+		net.backrooms.evento.cliente.cinematica.SalidaEstacionCliente.registrar();
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.CinematicaSalidaEstacion.TYPE, (p, ctx) -> net.backrooms.evento.cliente.cinematica.SalidaEstacionCliente.empezar());
 		HuecoCliente.registrar();
 		AccesoCliente.registrar();
 		ColaCliente.registrar();
 
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {
 			PapelMisiones.tick(mc);
+			net.backrooms.evento.cliente.esqueleto.Muestrario.tick(mc);
 			MusicaRecepcion.tick(mc);
 			InundacionCliente.tick(mc);
 			AmbienteCliente.tick();
@@ -169,6 +174,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 			CinematicaCliente.olvidar();
 			net.backrooms.evento.cliente.cinematica.ToboganCliente.olvidar();
 			net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.olvidar();
+			net.backrooms.evento.cliente.cinematica.SalidaEstacionCliente.olvidar();
 			AmbienteCliente.olvidar();
 			HerramientasCliente.olvidar();
 			AscensorCliente.olvidar();

@@ -1,0 +1,61 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "c": "backrooms_evento:block/cadena_lado",
+    "a": "backrooms_evento:block/cadena_arriba",
+    "particle": "backrooms_evento:block/cadena_lado"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        5.5,
+        14
+      ],
+      "to": [
+        16,
+        10.5,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#c",
+          "uv": [
+            0,
+            5,
+            16,
+            11
+          ]
+        },
+        "south": {
+          "texture": "#c",
+          "uv": [
+            0,
+            5,
+            16,
+            11
+          ]
+        },
+        "up": {
+          "texture": "#a",
+          "uv": [
+            0,
+            5,
+            16,
+            6
+          ]
+        },
+        "down": {
+          "texture": "#a",
+          "uv": [
+            0,
+            5,
+            16,
+            6
+          ]
+        }
+      }
+    }
+  ],
+  "ambientocclusion": false
+}

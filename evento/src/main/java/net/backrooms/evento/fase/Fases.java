@@ -210,6 +210,11 @@ public final class Fases {
 
 	/** Sale de los Backrooms: se apunta su puesto y vuelve al vestibulo. */
 	public void escapar(ServerPlayer j) {
+		this.escapar(j, true);
+	}
+
+	/** Escapa; con llevar = false se queda donde esta (ya ha llegado al vestibulo en el ascensor). */
+	public void escapar(ServerPlayer j, boolean llevar) {
 		String nombre = j.getGameProfile().name();
 		if (!this.escapados.contains(nombre)) {
 			this.escapados.add(nombre);
@@ -219,7 +224,9 @@ public final class Fases {
 		Misiones.get().escapado(j, puesto);
 		j.removeEffect(MobEffects.SLOWNESS);
 		j.removeEffect(MobEffects.RESISTANCE);
-		Vestibulo.get().llevar(j);
+		if (llevar) {
+			Vestibulo.get().llevar(j);
+		}
 		this.servidor.getPlayerList().broadcastSystemMessage(
 			Component.literal(nombre + " ha escapado de los Backrooms (puesto #" + puesto + ")").withStyle(ChatFormatting.GOLD), false);
 		for (ServerPlayer o : this.servidor.getPlayerList().getPlayers()) {

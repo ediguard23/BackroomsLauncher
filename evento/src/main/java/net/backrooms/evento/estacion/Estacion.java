@@ -104,10 +104,14 @@ public final class Estacion {
 		return true;
 	}
 
-	/** Ha cruzado la pasarela: la mision hecha y, mientras no haya un nivel siguiente, escapa. */
+	/** Ha cruzado la pasarela y entra en el ascensor del final: la mision hecha y la cinematica del final. */
 	public static void salir(ServerPlayer j) {
 		net.backrooms.evento.mision.Misiones.get().completar(j, net.backrooms.evento.mision.TipoMision.PASARELA);
+		if (SalidaEstacion.get().enCurso(j)) {
+			return;
+		}
 		BackroomsEvento.LOG.info("{} cruza la pasarela de la Estacion", j.getGameProfile().name());
-		net.backrooms.evento.fase.Fases.get().escapar(j);
+		// el ascensor del final: la cinematica y, al acabar, el vestibulo (SalidaEstacion)
+		SalidaEstacion.get().empezar(j);
 	}
 }

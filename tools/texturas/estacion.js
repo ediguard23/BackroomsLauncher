@@ -802,6 +802,81 @@ console.log('  objetos');
 
 /* ============================================================ nombres */
 
+// la cadena con candado de la puerta del final (cadena_puerta, Interactivos.Cadena): VARIANTE 0 y 2 los
+// tramos de los lados, 1 el del medio con el candado, 3 el del medio sin el (para la animacion del corte), 4 el
+// candado solo con el arco partido y 5 la cadena tirada en el suelo con el candado al lado
+{
+  const ACERO = [104, 106, 112];
+  const BRILLO = [168, 170, 176];
+  const SOMBRA = [52, 54, 60];
+  // de lado: eslabones alternos (uno de canto, aro, y el siguiente de plano, barra)
+  guardar(TEX, 'cadena_lado', new Lienzo(16).pintar((x, y) => {
+    const k = Math.floor(x / 4);
+    const xx = x % 4;
+    if (k % 2 === 0) {
+      // el aro: 4 de ancho y 5 de alto, hueco por dentro
+      const borde = (y === 6 || y === 10) ? xx >= 1 && xx <= 2 : (y >= 7 && y <= 9 && (xx === 0 || xx === 3));
+      if (!borde) return null;
+      return y === 6 || xx === 0 ? BRILLO : y === 10 ? SOMBRA : ACERO;
+    }
+    if (y >= 7 && y <= 9) return y === 7 ? BRILLO : y === 9 ? SOMBRA : ACERO;
+    return null;
+  }));
+  // desde arriba: los mismos eslabones, al reves (el que era aro ahora es barra)
+  guardar(TEX, 'cadena_arriba', new Lienzo(16).pintar((x, y) => {
+    const k = Math.floor(x / 4);
+    const xx = x % 4;
+    if (k % 2 === 1) {
+      const borde = (y === 6 || y === 10) ? xx >= 1 && xx <= 2 : (y >= 7 && y <= 9 && (xx === 0 || xx === 3));
+      return borde ? ACERO : null;
+    }
+    return y >= 7 && y <= 9 ? (y === 7 ? BRILLO : ACERO) : null;
+  }));
+  guardar(TEX, 'candado', new Lienzo(16).pintar((x, y) => {
+    let c = escala([196, 152, 58], 0.86 + hash(x, y, 1701) * 0.2);
+    if (x === 0 || y === 0) c = escala(c, 1.18);
+    if (x === 15 || y === 15) c = escala(c, 0.7);
+    if (x >= 7 && x <= 8 && y >= 6 && y <= 10) c = [30, 26, 20]; // el ojo de la llave
+    if (x >= 6 && x <= 9 && y >= 6 && y <= 7) c = [30, 26, 20];
+    return c;
+  }));
+  guardar(TEX, 'candado_arco', new Lienzo(16).pintar((x, y) => escala([176, 178, 184], 0.85 + hash(x, y, 1702) * 0.25)));
+  const lado = { c: t('cadena_lado'), a: t('cadena_arriba'), particle: t('cadena_lado') };
+  const tramo = (y0, z0) => ({
+    from: [0, y0, z0], to: [16, y0 + 5, z0 + 1],
+    faces: {
+      north: { texture: '#c', uv: [0, 5, 16, 11] }, south: { texture: '#c', uv: [0, 5, 16, 11] },
+      up: { texture: '#a', uv: [0, 5, 16, 6] }, down: { texture: '#a', uv: [0, 5, 16, 6] }
+    }
+  });
+  // un poco combada: el tramo sube hacia el marco
+  const tramos = [tramo(5.5, 14), tramo(5.5, 14.2)];
+  const candado = (roto) => [
+    caja([5.5, 1, 13.2], [10.5, 6, 15], '#k'),
+    caja([6.5, 6, 13.7], [7.3, 9, 14.5], '#s'),
+    ...(roto ? [] : [caja([8.7, 6, 13.7], [9.5, 9, 14.5], '#s')]),
+    caja([6.5, 9, 13.7], [roto ? 8.2 : 9.5, 9.8, 14.5], '#s')
+  ];
+  const conCandado = { ...lado, k: t('candado'), s: t('candado_arco') };
+  json('models/block/cadena_puerta_0.json', mod(lado, [tramos[0]], { ambientocclusion: false }));
+  json('models/block/cadena_puerta_1.json', mod(conCandado, [tramos[1], ...candado(false)], { ambientocclusion: false }));
+  json('models/block/cadena_puerta_3.json', mod(lado, [tramos[1]], { ambientocclusion: false }));
+  json('models/block/cadena_puerta_4.json', mod(conCandado, candado(true), { ambientocclusion: false }));
+  // tirada en el suelo: tres tramos en monton y el candado de lado
+  const suelo = (x0, z, ang) => ({
+    from: [x0, 0, z], to: [x0 + 12, 1, z + 5],
+    rotation: { angle: ang, axis: 'y', origin: [8, 0, 8] },
+    faces: { up: { texture: '#a', uv: [0, 5, 12, 10] }, north: { texture: '#c', uv: [0, 7, 12, 8] }, south: { texture: '#c', uv: [0, 7, 12, 8] } }
+  });
+  json('models/block/cadena_puerta_5.json', mod(conCandado, [
+    suelo(1, 4, 22.5), suelo(3, 7, -22.5), { ...suelo(2, 6, 0), from: [2, 1, 6], to: [14, 2, 11] },
+    caja([10, 0, 1.5], [15, 3, 4], '#k'), caja([11, 3, 2.3], [12, 4.5, 3.2], '#s')
+  ], { ambientocclusion: false }));
+  estados('cadena_puerta', { facing: FAC, variante: rango(8) },
+    (e) => `cadena_puerta_${e.variante === 2 ? 0 : e.variante > 5 ? 0 : e.variante}`, 'cadena_puerta_1');
+  console.log('  cadena con candado de la puerta del final');
+}
+
 const NOMBRES = {
   hormigon_estacion: ['Hormigón de la estación', 'Station concrete'],
   pared_pintada: ['Pared pintada', 'Painted wall'],
@@ -836,7 +911,8 @@ const NOMBRES = {
   reja_estacion: ['Reja', 'Gate'],
   buzon_estacion: ['Buzón', 'Mailbox'],
   persiana_estacion: ['Persiana metálica', 'Roller shutter'],
-  foco_pasarela: ['Foco de la pasarela', 'Catwalk light']
+  foco_pasarela: ['Foco de la pasarela', 'Catwalk light'],
+  cadena_puerta: ['Cadena con candado', 'Chain and padlock']
 };
 const OTROS = {
   'item.backrooms_evento.cable_electrico': ['Cable eléctrico', 'Electrical cable'],

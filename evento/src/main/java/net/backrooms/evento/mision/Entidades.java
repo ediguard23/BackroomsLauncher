@@ -60,6 +60,11 @@ public final class Entidades {
 		EntityType.Builder.<net.backrooms.evento.estacion.Amasijo>of(net.backrooms.evento.estacion.Amasijo::new, MobCategory.MONSTER)
 			.sized(0.9F, 1.9F).eyeHeight(1.4F).clientTrackingRange(10));
 
+	/** Una figura humana con esqueleto articulado, solo de cliente, para las cinematicas (esqueleto/Figura). */
+	public static final EntityType<net.backrooms.evento.esqueleto.Figura> FIGURA = registrar("figura",
+		EntityType.Builder.<net.backrooms.evento.esqueleto.Figura>of(net.backrooms.evento.esqueleto.Figura::new, MobCategory.MISC)
+			.sized(0.6F, 1.8F).noLootTable().noSave().noSummon().clientTrackingRange(10));
+
 	private Entidades() {
 	}
 

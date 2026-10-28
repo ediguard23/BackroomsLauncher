@@ -161,6 +161,8 @@ public final class Sonidos {
 	public static final SoundEvent ESTACION_ESTRUENDO = registrar("estacion.estruendo");
 	public static final SoundEvent ESTACION_CHISPAS = registrar("estacion.chispas");
 	public static final SoundEvent ESTACION_RADIO = registrar("estacion.radio");
+	/** El corte de la cadena del final: la cizalla, el candado y la cadena que cae (CorteCadena). */
+	public static final SoundEvent ESTACION_CORTE = registrar("estacion.corte");
 	public static final SoundEvent AMASIJO_PASOS = registrar("amasijo.pasos");
 	public static final SoundEvent AMASIJO_GRITO = registrar("amasijo.grito");
 	public static final SoundEvent AMASIJO_RESPIRA = registrar("amasijo.respira");

@@ -24,5 +24,10 @@ public abstract class CinematicaSonidoMixin {
 		if (SalidaFiestaCliente.activa() && !SalidaFiestaCliente.esBanda(sonido.getIdentifier())) {
 			cir.setReturnValue(cir.getReturnValueF() * SalidaFiestaCliente.volumenMundo());
 		}
+		// y en el final de la Estacion: se corta al cerrarse las puertas y vuelve en el vestibulo
+		if (net.backrooms.evento.cliente.cinematica.SalidaEstacionCliente.activa()
+			&& !net.backrooms.evento.cliente.cinematica.SalidaEstacionCliente.esBanda(sonido.getIdentifier())) {
+			cir.setReturnValue(cir.getReturnValueF() * net.backrooms.evento.cliente.cinematica.SalidaEstacionCliente.volumenMundo());
+		}
 	}
 }

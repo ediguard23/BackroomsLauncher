@@ -215,5 +215,6 @@
   "block.backrooms_evento.ascensor_fiesta_viga": "Elevator door header",
   "block.backrooms_evento.ascensor_fiesta_panel": "Elevator buttons",
   "block.backrooms_evento.ascensor_fiesta_indicador": "Floor indicator",
-  "block.backrooms_evento.ascensor_fiesta_barandilla": "Handrail"
+  "block.backrooms_evento.ascensor_fiesta_barandilla": "Handrail",
+  "block.backrooms_evento.cadena_puerta": "Chain and padlock"
 }

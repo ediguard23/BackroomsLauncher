@@ -352,4 +352,35 @@ public final class Interactivos {
 			b.add(COLOR);
 		}
 	}
+
+	/**
+	 * La cadena con candado de la puerta del final (VARIANTE: 0 y 2 los lados, 1 el medio con el candado; 3, 4 y 5
+	 * los trozos de la animacion del corte y el monton del suelo, ver CorteCadena). Esta delante de la persiana
+	 * (pegada a ella): usarla es como empujar la puerta, y con la cizalla se corta.
+	 */
+	public static class Cadena extends Variante.Pared {
+		public static final MapCodec<Cadena> CODEC = simpleCodec(Cadena::new);
+
+		public Cadena(BlockBehaviour.Properties p) {
+			super(p, Block.box(0, 1, 12, 16, 12, 16));
+		}
+
+		@Override
+		protected MapCodec<? extends Cadena> codec() {
+			return CODEC;
+		}
+
+		@Override
+		protected InteractionResult useWithoutItem(BlockState e, Level nivel, BlockPos pos, Player j, BlockHitResult golpe) {
+			if (j instanceof ServerPlayer sp && e.getValue(Variante.VARIANTE) <= 2) {
+				JuegoEstacion.get().persianaCerrada(sp, pos.relative(e.getValue(FACING).getOpposite()));
+			}
+			return InteractionResult.SUCCESS;
+		}
+
+		@Override
+		protected InteractionResult useItemOn(ItemStack s, BlockState e, Level nivel, BlockPos pos, Player j, InteractionHand mano, BlockHitResult golpe) {
+			return this.useWithoutItem(e, nivel, pos, j, golpe);
+		}
+	}
 }

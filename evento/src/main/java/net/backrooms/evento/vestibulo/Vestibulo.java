@@ -160,6 +160,26 @@ public final class Vestibulo {
 	private static final double SPAWN_Y_RECEPCION = PlanoVestibulo.SUELO + 1;
 
 	/** Lleva al jugador al vestibulo (la sala del final), en el centro. */
+	/**
+	 * Al ascensor del vestibulo, dentro de la cabina mirando a las puertas (la llegada del final:
+	 * SalidaEstacion). false si no hay vestibulo.
+	 */
+	public boolean llevarAlAscensor(ServerPlayer j) {
+		ServerLevel v = this.nivel();
+		if (v == null) {
+			return false;
+		}
+		if (j.isPassenger()) {
+			j.stopRiding();
+		}
+		double[] l = PlanoVestibulo.LLEGADA_ASCENSOR;
+		j.teleportTo(v, l[0], l[1], l[2], Set.of(), (float) l[3], 0.0F, true);
+		j.resetFallDistance();
+		j.setHealth(j.getMaxHealth());
+		j.getFoodData().setFoodLevel(20);
+		return true;
+	}
+
 	public void llevar(ServerPlayer j) {
 		ServerLevel v = this.nivel();
 		if (v == null) {

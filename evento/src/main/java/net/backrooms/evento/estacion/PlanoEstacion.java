@@ -127,6 +127,10 @@ public final class PlanoEstacion {
 	/** La puerta de cada central (al piso siguiente; la del piso 3, a la pasarela). */
 	public static final Puerta[] SALIDAS = new Puerta[PISOS];
 	public static Puerta puertaFinal;
+	/** La pasarela: {x del primer bloque (3 de ancho), y del suelo, z0 (la plataforma del final), fin (donde empieza la rejilla), z1 (la puerta de la central)}. */
+	public static int[] PASARELA = new int[5];
+	/** La cadena de la puerta del final: {x del primer tramo, y, z} (tres tramos hacia el este). */
+	public static int[] CADENA = new int[3];
 	public static final Central[] CENTRALES = new Central[PISOS];
 	/** Los focos de la pasarela, en el orden en que se encienden. */
 	public static final List<int[]> FOCOS = new ArrayList<>();
@@ -878,9 +882,16 @@ public final class PlanoEstacion {
 		}
 		hueco(dx, y, z0 - 1, dx + 2, z0 - 1);
 		puertaFinal = puerta(BloquesEstacion.REJA, 0, dx, y, z0 - 1, Direction.NORTH, Direction.EAST, PISOS - 1, null, 3);
-		caja(dx - 1, y, z0 - 6, dx + 3, y + 4, z0 - 2, s(Blocks.BLACK_CONCRETE));
-		aire(dx, y + 1, z0 - 5, dx + 2, y + 3, z0 - 2);
-		FINAL = new int[] {dx, z0 - 5, dx + 2, z0 - 2, y};
+		// la cadena con candado, cruzada delante de la persiana a media altura (la corta la cizalla: CorteCadena)
+		CADENA = new int[] {dx, y + 2, z0};
+		for (int k = 0; k < 3; k++) {
+			bloque(dx + k, y + 2, z0, var(BloquesEstacion.CADENA, Direction.SOUTH, k));
+		}
+		// detras, el ascensor del final (el mismo que el de la Fiesta, simetrico): cabina de 3x3 y la fila de sus
+		// puertas pegada a la persiana. Las hojas solo existen en la cinematica (SalidaEstacionCliente)
+		ascensorFinal(dx, y, z0);
+		FINAL = new int[] {dx, z0 - 5, dx + 2, z0 - 3, y};
+		PASARELA = new int[] {dx, y, z0, fin, z1};
 		bloque(dx + 1, y + 4, z0, var(BloquesEstacion.LUZ_ROJA, Direction.SOUTH, 0));
 		bloque(dx - 2, y + 3, z0, var(BloquesEstacion.SENAL, Direction.SOUTH, 2));
 		// el fondo: maquinas, transformadores, bidones, cables colgando y luces rojas
@@ -899,6 +910,32 @@ public final class PlanoEstacion {
 				bloque(cx, yy, z + 2, var(BloquesEstacion.CABLES, Direction.NORTH, yy % 2));
 			}
 		}
+	}
+
+	/** El ascensor detras de la puerta del final: la cabina (z0-5..z0-3) y la fila de sus puertas (z0-2). */
+	private static void ascensorFinal(int dx, int y, int z0) {
+		BlockState pared = s(net.backrooms.evento.fiesta.BloquesFiesta.PARED_ASCENSOR);
+		caja(dx - 1, y, z0 - 6, dx + 3, y + 4, z0 - 2, pared);
+		aire(dx, y + 1, z0 - 5, dx + 2, y + 3, z0 - 2);
+		caja(dx, y, z0 - 5, dx + 2, y, z0 - 2, s(net.backrooms.evento.fiesta.BloquesFiesta.SUELO_ASCENSOR));
+		bloque(dx + 1, y + 4, z0 - 4, s(net.backrooms.evento.fiesta.BloquesFiesta.TECHO_ASCENSOR));
+		caja(dx - 1, y + 1, z0 - 2, dx - 1, y + 4, z0 - 2, s(net.backrooms.evento.fiesta.BloquesFiesta.MARCO_ASCENSOR));
+		caja(dx + 3, y + 1, z0 - 2, dx + 3, y + 4, z0 - 2, s(net.backrooms.evento.fiesta.BloquesFiesta.MARCO_ASCENSOR));
+		caja(dx, y + 4, z0 - 2, dx + 2, y + 4, z0 - 2, s(net.backrooms.evento.fiesta.BloquesFiesta.VIGA_ASCENSOR));
+		for (int x = dx; x <= dx + 2; x++) {
+			bloque(x, y + 1, z0 - 5, paredFiesta(net.backrooms.evento.fiesta.BloquesFiesta.BARANDILLA_ASCENSOR, Direction.SOUTH, 0));
+		}
+		bloque(dx, y + 1, z0 - 4, paredFiesta(net.backrooms.evento.fiesta.BloquesFiesta.BARANDILLA_ASCENSOR, Direction.EAST, 0));
+		bloque(dx + 2, y + 1, z0 - 4, paredFiesta(net.backrooms.evento.fiesta.BloquesFiesta.BARANDILLA_ASCENSOR, Direction.WEST, 0));
+		for (int[] l : new int[][] {{dx, 0}, {dx + 2, 1}}) {
+			Direction d = l[1] == 0 ? Direction.EAST : Direction.WEST;
+			bloque(l[0], y + 2, z0 - 3, paredFiesta(net.backrooms.evento.fiesta.BloquesFiesta.PANEL_ASCENSOR, d, 0));
+			bloque(l[0], y + 3, z0 - 3, paredFiesta(net.backrooms.evento.fiesta.BloquesFiesta.INDICADOR_ASCENSOR, d, 3));
+		}
+	}
+
+	private static BlockState paredFiesta(Block b, Direction d, int v) {
+		return b.defaultBlockState().setValue(net.backrooms.evento.bloques.EnPared.FACING, d).setValue(net.backrooms.evento.fiesta.ParedVariante.VARIANTE, v);
 	}
 
 	/* ------------------------------------------------------------ consultas */

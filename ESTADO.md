@@ -5,6 +5,62 @@
 2026.10.23-a5f1fa08 con la 0.28.0 y `Downloads/Backrooms-servidor-beta3-0.28.0.zip` (el de la beta #2 con el mod
 nuevo, sin Krypton). El mismo hosting 66.51.99.171:25626.
 
+## 0.29.0 (cont. 2): el final del evento, la cadena del Nivel 3 y el esqueleto articulado (2026-10-28; Bruno)
+
+**Sin publicar.** Cambian de trazado la **Estación** (el ascensor del final) y el **vestíbulo** (el ascensor de
+llegada en la pared sur): en un servidor con mundo jugado, borrar `backrooms_evento/estacion` y
+`backrooms_evento/vestibulo` (y `backrooms/estacion.json` si se quiere empezar la Estación de cero).
+
+- **Amasijos**: **3 / 5 / 7 por piso** (`AmasijoEstacion.POR_PISO`, antes 6/8/10). Ya **no gritan al aparecer**:
+  eso era la ola de gritos al entrar o al cambiar de modo de juego. Cuando nadie juega (todos en creativo o
+  espectador) ya no se quitan; antes se quitaban y al volver salían todos de nuevo, uno tras otro, gritando.
+  El grito queda solo para cuando ven a alguien y lo cazan.
+- **La cadena con candado** de la puerta del final (`cadena_puerta`, `Interactivos.Cadena`, dibujada en
+  `estacion.js`): cruza la persiana a media altura con el candado en medio. Con la cizalla, **CorteCadena**: el
+  chasquido, el candado salta con el arco partido y cae dando vueltas, la cadena se descuelga por los lados y
+  cae; queda el montón en el suelo con el candado (`VARIANTE` 5) y a los 1,8 s **sube la persiana**. Sonido
+  `estacion.corte` (real, CC0). `estacion ir final` (staff) lleva delante de la puerta.
+- **El final del evento** (`SalidaEstacion` + `cliente/cinematica/SalidaEstacionCliente`, 43 s; el guion
+  completo está en su cabecera). Detrás de la persiana hay ahora un **ascensor** (el mismo modelo simétrico que
+  el de la Fiesta, con el indicador en «3»). Al entrar:
+  1. se da la vuelta, tranquilo;
+  2. al fondo de la pasarela otro superviviente (una figura con el esqueleto articulado, voz de Higgsfield
+     «¡Espera! ¡No cierres!») corre hacia el ascensor;
+  3. el Amasijo trepa desde el pozo y se le echa encima; él forcejea, grita y deja de moverse, y el Amasijo
+     se lo come;
+  4. el jugador se vuelve a la botonera y marca el piso (pitidos y el zumbido de confirmación);
+  5. el Amasijo deja de comer, se queda quieto, se gira, chilla y viene corriendo por la pasarela;
+  6. las puertas se cierran por poco y se corta todo el sonido de fuera; silencio;
+  7. la música del ascensor («Local Forecast - Elevator», Kevin MacLeod, CC BY 4.0: ver `CREDITOS.md`) y el
+     indicador baja 3, 2, 1, 0;
+  8. baja la vista: **las manos manchadas de sangre** (una figura con `superviviente_sangre`, solo antebrazos y
+     manos, delante de la cámara; no cambia nada del jugador);
+  9. la campanilla y corte a negro.
+
+  El servidor le lleva al **ascensor del vestíbulo** (`PlanoVestibulo.LLEGADA_ASCENSOR`, pared sur); allí se abren
+  las puertas, se ve el vestíbulo y entra el murmullo. Con las puertas ya abiertas cuenta como **escapado**
+  (`Fases.escapar(j, false)`: el puesto, el mensaje a todos, la misión; sin moverle) y después se le suelta.
+  Durante todo el final el jugador está quieto e invulnerable, los Amasijos no le eligen
+  (`Amasijo.valido`), y los de verdad no se ven en su cliente (`AmasijoRenderer.shouldRender`). Cada jugador tiene
+  la suya (el superviviente y ese Amasijo solo existen en su cliente). Si se desconecta en la llegada, escapa
+  igual. Si el cliente no tiene el mod o no hay vestíbulo, escapa como antes.
+- **Esqueleto articulado** para las figuras de las cinemáticas: ver **`ESQUELETO.md`** (huesos con pivote en cada
+  articulación, poses, animaciones por fotogramas clave, ciclos de correr/andar/agacharse/caer/forcejear, la
+  entidad `Figura` y la orden de prueba `figura <animacion> [lado]`). Pieles en `tools/texturas/superviviente.js`.
+- Sonido: `tools/sonidos/salida-estacion.js` (con `reales.js`, lo común para mezclar grabaciones reales): CC0 de
+  BigSoundBank (cizalla, cerradura, cadenas, chapa, pasos, masticar, pitidos de teclado, timbre, murmullo de
+  restaurante...), voces de Higgsfield (`superviviente_espera.wav`, `superviviente_grito.wav`, voz Holden) y la
+  música. Al cerrarse las puertas se corta todo lo de fuera (`volumenMundo` a 0 y la banda en silencio).
+
+**Probado** (cliente y servidor de pruebas, con capturas): el esqueleto (correr, andar, agacharse, huir mirando
+atrás, tropezar y caer, forcejear) sin cortes en las articulaciones; la cadena con candado y su corte, el montón en
+el suelo y la persiana que sube; el final entero (el superviviente corriendo, el ataque y el banquete, la botonera,
+el Amasijo que se gira y corre, las puertas que se cierran por poco, las manos con sangre, el indicador 3→0, la
+campanilla, el negro, la llegada al vestíbulo con las puertas abriéndose, «ha escapado (puesto #1)» y el control de
+vuelta). Las mezclas, medidas por tramos.
+**Sin probar**: cómo suena de verdad (no se ha escuchado), varios jugadores en el ascensor a la vez, y los Amasijos
+3/5/7 y sin grito al aparecer (en la prueba el jugador no estaba en expedición y no salía ninguno).
+
 ## 0.29.0 (cont.): el ascensor de la Fiesta y su cinemática, rehechos (2026-10-27; Bruno)
 
 **Sin publicar.** La Fiesta cambia de trazado otra vez (el ascensor): en un servidor con mundo jugado, borrar

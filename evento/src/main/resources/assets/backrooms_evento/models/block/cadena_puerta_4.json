@@ -1,0 +1,109 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "c": "backrooms_evento:block/cadena_lado",
+    "a": "backrooms_evento:block/cadena_arriba",
+    "particle": "backrooms_evento:block/cadena_lado",
+    "k": "backrooms_evento:block/candado",
+    "s": "backrooms_evento:block/candado_arco"
+  },
+  "elements": [
+    {
+      "from": [
+        5.5,
+        1,
+        13.2
+      ],
+      "to": [
+        10.5,
+        6,
+        15
+      ],
+      "faces": {
+        "north": {
+          "texture": "#k"
+        },
+        "south": {
+          "texture": "#k"
+        },
+        "east": {
+          "texture": "#k"
+        },
+        "west": {
+          "texture": "#k"
+        },
+        "up": {
+          "texture": "#k"
+        },
+        "down": {
+          "texture": "#k"
+        }
+      }
+    },
+    {
+      "from": [
+        6.5,
+        6,
+        13.7
+      ],
+      "to": [
+        7.3,
+        9,
+        14.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#s"
+        },
+        "south": {
+          "texture": "#s"
+        },
+        "east": {
+          "texture": "#s"
+        },
+        "west": {
+          "texture": "#s"
+        },
+        "up": {
+          "texture": "#s"
+        },
+        "down": {
+          "texture": "#s"
+        }
+      }
+    },
+    {
+      "from": [
+        6.5,
+        9,
+        13.7
+      ],
+      "to": [
+        8.2,
+        9.8,
+        14.5
+      ],
+      "faces": {
+        "north": {
+          "texture": "#s"
+        },
+        "south": {
+          "texture": "#s"
+        },
+        "east": {
+          "texture": "#s"
+        },
+        "west": {
+          "texture": "#s"
+        },
+        "up": {
+          "texture": "#s"
+        },
+        "down": {
+          "texture": "#s"
+        }
+      }
+    }
+  ],
+  "ambientocclusion": false
+}

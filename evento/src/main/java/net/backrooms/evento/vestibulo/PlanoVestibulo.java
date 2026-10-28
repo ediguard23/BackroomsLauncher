@@ -41,7 +41,7 @@ public final class PlanoVestibulo {
 	public static final int X0 = -37;
 	public static final int X1 = 37;
 	public static final int Z0 = -69;
-	public static final int Z1 = 33;
+	public static final int Z1 = 38;
 	public static final int Y0 = 62;
 	public static final int Y1 = 79;
 
@@ -49,6 +49,10 @@ public final class PlanoVestibulo {
 	public static final double SPAWN_X = 0.5;
 	public static final double SPAWN_Y = SUELO + 1;
 	public static final double SPAWN_Z = 6.5;
+	/** Donde se aparece al llegar en el ascensor (el final de la Estacion): dentro de la cabina, mirando a las puertas. */
+	public static final double[] LLEGADA_ASCENSOR = {0.5, SUELO + 1, 35.5, 180.0};
+	/** La fila de las puertas del ascensor (en la pared sur, x -1..1). */
+	public static final int ASCENSOR_PUERTA_Z = 33;
 
 	/** Pedestales de la vitrina del equipo (x; z = VITRINA_Z). */
 	public static final int[] VITRINA_X = {-22, -19, -16, -13};
@@ -66,6 +70,39 @@ public final class PlanoVestibulo {
 	}
 
 	public static final List<Caja> CAJAS = new ArrayList<>();
+
+	/**
+	 * El ascensor de llegada, en el centro de la pared sur del vestibulo (el mismo que el de la Fiesta,
+	 * simetrico): por el llega quien escapa de la Estacion (SalidaEstacion). Las hojas de las puertas solo
+	 * existen en la cinematica (SalidaEstacionCliente): fuera de ella el hueco esta abierto.
+	 */
+	private static void ascensor() {
+		BlockState pared = b(net.backrooms.evento.fiesta.BloquesFiesta.PARED_ASCENSOR);
+		caja(-2, SUELO, 33, 2, SUELO + 4, 37, pared);
+		caja(-1, SUELO + 1, 33, 1, SUELO + 3, 36, b(Blocks.AIR));
+		caja(-1, SUELO, 34, 1, SUELO, 36, b(net.backrooms.evento.fiesta.BloquesFiesta.SUELO_ASCENSOR));
+		punto(0, SUELO + 4, 35, b(net.backrooms.evento.fiesta.BloquesFiesta.TECHO_ASCENSOR));
+		caja(-2, SUELO + 1, 33, -2, SUELO + 4, 33, b(net.backrooms.evento.fiesta.BloquesFiesta.MARCO_ASCENSOR));
+		caja(2, SUELO + 1, 33, 2, SUELO + 4, 33, b(net.backrooms.evento.fiesta.BloquesFiesta.MARCO_ASCENSOR));
+		caja(-1, SUELO + 4, 33, 1, SUELO + 4, 33, b(net.backrooms.evento.fiesta.BloquesFiesta.VIGA_ASCENSOR));
+		for (int x = -1; x <= 1; x++) {
+			punto(x, SUELO + 1, 36, variante(net.backrooms.evento.fiesta.BloquesFiesta.BARANDILLA_ASCENSOR, Direction.NORTH, 0));
+		}
+		punto(-1, SUELO + 1, 35, variante(net.backrooms.evento.fiesta.BloquesFiesta.BARANDILLA_ASCENSOR, Direction.EAST, 0));
+		punto(1, SUELO + 1, 35, variante(net.backrooms.evento.fiesta.BloquesFiesta.BARANDILLA_ASCENSOR, Direction.WEST, 0));
+		for (int[] l : new int[][] {{-1, 0}, {1, 1}}) {
+			Direction d = l[1] == 0 ? Direction.EAST : Direction.WEST;
+			punto(l[0], SUELO + 2, 34, variante(net.backrooms.evento.fiesta.BloquesFiesta.PANEL_ASCENSOR, d, 0));
+			punto(l[0], SUELO + 3, 34, variante(net.backrooms.evento.fiesta.BloquesFiesta.INDICADOR_ASCENSOR, d, 0));
+		}
+		punto(0, SUELO + 5, 32, variante(net.backrooms.evento.fiesta.BloquesFiesta.INDICADOR_ASCENSOR, Direction.NORTH, 0));
+		punto(-3, SUELO + 2, 32, variante(net.backrooms.evento.fiesta.BloquesFiesta.PANEL_ASCENSOR, Direction.NORTH, 1));
+		punto(3, SUELO + 2, 32, variante(net.backrooms.evento.fiesta.BloquesFiesta.PANEL_ASCENSOR, Direction.NORTH, 1));
+	}
+
+	private static BlockState variante(Block b, Direction d, int v) {
+		return b.defaultBlockState().setValue(EnPared.FACING, d).setValue(net.backrooms.evento.fiesta.ParedVariante.VARIANTE, v);
+	}
 
 	private PlanoVestibulo() {
 	}
@@ -140,6 +177,7 @@ public final class PlanoVestibulo {
 		caja(-37, SUELO + 1, -23, -37, TECHO - 1, 32, paredVestibulo);
 		caja(37, SUELO + 1, -23, 37, TECHO - 1, 32, paredVestibulo);
 		caja(-36, SUELO + 1, 33, 36, TECHO - 1, 33, paredVestibulo);
+		ascensor();
 		caja(-36, SUELO + 1, -24, -11, TECHO - 1, -24, paredVestibulo);
 		caja(11, SUELO + 1, -24, 36, TECHO - 1, -24, paredVestibulo);
 		caja(-10, SUELO + 9, -24, 10, TECHO - 1, -24, paredVestibulo);

@@ -104,6 +104,12 @@ public class Amasijo extends Monster {
 		builder.define(AGARRANDO, false);
 	}
 
+	/** Para las cinematicas (un Amasijo solo de cliente): cazando y agarrando, sin pasar por el servidor. */
+	public void cazandoCliente(boolean caza, boolean agarra) {
+		this.entityData.set(CAZANDO, caza);
+		this.entityData.set(AGARRANDO, agarra);
+	}
+
 	public boolean agarrando() {
 		return this.entityData.get(AGARRANDO);
 	}
@@ -229,6 +235,7 @@ public class Amasijo extends Monster {
 
 	private boolean valido(ServerPlayer j) {
 		return j.isAlive() && !j.isCreative() && !j.isSpectator() && j.level() == this.level() && Misiones.get().enExpedicion(j)
+			&& !SalidaEstacion.get().enCurso(j)
 			&& PlanoEstacion.piso(j.getZ()) == this.piso();
 	}
 

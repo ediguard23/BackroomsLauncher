@@ -87,6 +87,9 @@ public final class BloquesEstacion {
 		propiedades(MapColor.METAL, SoundType.METAL).noOcclusion()));
 	public static final Block PERSIANA = conObjeto(Blocks.register(clave("persiana_estacion"), Interactivos.Persiana::new,
 		propiedades(MapColor.METAL, SoundType.METAL).noOcclusion()));
+	/** La cadena con candado de la puerta del final (se corta con la cizalla: CorteCadena). */
+	public static final Block CADENA = conObjeto(Blocks.register(clave("cadena_puerta"), Interactivos.Cadena::new,
+		propiedades(MapColor.METAL, SoundType.CHAIN).noOcclusion()));
 	public static final Block FOCO = conObjeto(Blocks.register(clave("foco_pasarela"), Interactivos.Foco::new,
 		propiedades(MapColor.COLOR_YELLOW, SoundType.GLASS).lightLevel(e -> e.getValue(Interactivos.LIT) ? 15 : 0)));
 
@@ -124,7 +127,7 @@ public final class BloquesEstacion {
 	/** Los que se ven a traves (rejilla, cables, barandilla...): para el cliente, capa CUTOUT. */
 	public static Block[] recortados() {
 		return new Block[] {REJILLA, TUBERIAS, CUADRO, SENAL, LUZ_ROJA, ROTULO, CABLES, BARANDILLA, PUNTO, PANEL, REJA, BUZON,
-			ESTANTERIA, CONSOLA, ARMARIO, TRANSFORMADOR, MAQUINA, BIDONES, LAMPARA, LAMPARA_FUNDIDA};
+			ESTANTERIA, CONSOLA, ARMARIO, TRANSFORMADOR, MAQUINA, BIDONES, LAMPARA, LAMPARA_FUNDIDA, CADENA};
 	}
 
 	private static Block pared(String id, int luz, VoxelShape forma) {
