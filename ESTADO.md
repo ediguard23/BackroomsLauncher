@@ -1,11 +1,40 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-28 (hora de Honduras). Mod `backrooms_evento` **0.29.0**, launcher **1.0.1**
+Última actualización: 2026-10-30 (hora de Honduras). Mod `backrooms_evento` **0.29.0**, launcher **1.0.1**
 (publicado) y un launcher aparte para la beta. **Beta #4** (2026-10-28): pack-beta **2026.10.28-ca9d49cc** con la 0.29.0
 (jar sha1 6c9908058d61…; noticia «Beta #4») y `Downloads/Backrooms-servidor-beta4-0.29.0.zip` (el de la beta #3 con el
 mismo jar y el LEEME al día: borrar el mundo anterior y dejar un solo backrooms-evento en mods/). El mismo hosting
 66.51.99.171:25626. Los probadores no reinstalan nada: el launcher de la beta baja el pack al pulsar JUGAR. Del
 pack se quitó el mod de rodaje (tools/rodaje), que se había colado en pack/mods al grabar el tráiler.
+
+## 0.29.0 (cont. 3): más articulación en las cinemáticas del juego (2026-10-30; Bruno)
+
+**Sin publicar** (hace falta pack-beta y jar del servidor nuevos para que lo vea la beta). Las cinemáticas
+del tráiler no se tocan. Cambios:
+
+- **Final del Nivel 3** (`SalidaEstacionCliente`): al mirarse las manos se ve **el cuerpo entero** (menos la
+  cabeza) con el pecho justo detrás de los ojos: los brazos suben desde abajo unidos a los hombros hasta las
+  manos con sangre (antes eran dos manos flotando). Al marcar el piso, la cámara se pega a la botonera y **el
+  brazo derecho** sube y pulsa cada tecla (`CuerpoPrimeraPersona`, nuevo; ver `ESQUELETO.md`).
+- **El Amasijo del final** tiene más animación: salta con los brazos abiertos (`embiste`), agarra al caer,
+  **come a tirones** (se encorva, hunde los brazos por parejas y tira hacia arriba desgarrando, con sacudidas)
+  y al oír la botonera **se yergue alerta** con los brazos a medio alzar antes de girarse (`ModeloAmasijo`;
+  `Amasijo.embisteCliente/comeCliente/alertaCliente`, solo de cliente).
+- **Ascensor de la Fiesta** (`SalidaFiestaCliente`): en cada vistazo a la botonera se ve el brazo del jugador
+  aporreándola. **El Anfitrión** tiene codos y rodillas (`entidades.js` → `MallaAnfitrion`, `anfitrion.png`;
+  `ModeloAnfitrion`): al correr dobla las rodillas al adelantar la pierna y lleva los antebrazos doblados; al
+  abrazar, los cierra. Vale para el Anfitrión de todo el juego, no solo en la cinemática.
+- **El /start** (`cinematica.fsh`): el investigador tiene codos y rodillas (muslo/espinilla y
+  brazo/antebrazo, la tablilla va con el antebrazo izquierdo); llega de frente al botón de llamada, lo
+  **pulsa con el dedo** (el brazo sube con el codo doblado y lo estira justo cuando se enciende) mirándolo, y
+  luego se vuelve hacia ti.
+- Prueba: la orden `cinematica <segundo> [guion]` (OrdenesPrueba) empieza la del /start en ese segundo.
+
+**Probado** (cliente y servidor de pruebas, con capturas): el investigador andando con las rodillas y
+pulsando el botón; el final entero (salto, banquete a tirones, alerta, el brazo en la botonera, los brazos al
+mirarse las manos; escapa y llega al vestíbulo); el ascensor de la Fiesta (el brazo en la botonera, el
+Anfitrión corriendo con codos y rodillas). **Sin probar**: el Anfitrión abrazando y fuera de la cinemática
+(en la Fiesta normal), y el brazo con varios jugadores a la vez.
 
 ## Launcher: el código de entrada se pide SIEMPRE al pulsar JUGAR (2026-10-28; Edi)
 

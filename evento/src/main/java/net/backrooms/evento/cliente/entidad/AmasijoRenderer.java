@@ -56,5 +56,8 @@ public class AmasijoRenderer extends MobRenderer<Amasijo, EstadoAmasijo, ModeloA
 		super.extractRenderState(a, estado, parcial);
 		estado.caza = a.caza(parcial);
 		estado.agarrando = a.agarrando();
+		estado.embiste = a.embisteCliente;
+		estado.come = a.comeCliente;
+		estado.alerta = a.alertaCliente;
 	}
 }

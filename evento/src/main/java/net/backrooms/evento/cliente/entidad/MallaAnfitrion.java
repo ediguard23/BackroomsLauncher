@@ -39,23 +39,35 @@ public final class MallaAnfitrion {
 				.texOffs(4, 48).addBox(-1F, -10F, -1F, 2F, 1.5F, 2F),
 			PartPose.offsetAndRotation(1.5F, -12F, -0.5F, 0F, 0F, 0.244F));
 		PartDefinition brazo_izq = cadera.addOrReplaceChild("brazo_izq", CubeListBuilder.create()
-				.texOffs(12, 48).addBox(-1.25F, 0F, -1.25F, 2.5F, 14F, 2.5F)
-				.texOffs(24, 48).addBox(-1.75F, 14F, -1.75F, 3.5F, 3.5F, 3.5F)
-				.texOffs(40, 48).addBox(-2F, 13F, -2F, 4F, 1F, 4F),
+				.texOffs(12, 48).addBox(-1.25F, 0F, -1.25F, 2.5F, 7F, 2.5F),
 			PartPose.offsetAndRotation(5.8F, -10F, 0F, 0F, 0F, -0.07F));
+		PartDefinition antebrazo_izq = brazo_izq.addOrReplaceChild("antebrazo_izq", CubeListBuilder.create()
+				.texOffs(24, 48).addBox(-1.25F, 0F, -1.25F, 2.5F, 7F, 2.5F)
+				.texOffs(36, 48).addBox(-1.75F, 7F, -1.75F, 3.5F, 3.5F, 3.5F)
+				.texOffs(52, 48).addBox(-2F, 6F, -2F, 4F, 1F, 4F),
+			PartPose.offsetAndRotation(0F, 7F, 0F, 0F, 0F, 0F));
 		PartDefinition brazo_der = cadera.addOrReplaceChild("brazo_der", CubeListBuilder.create()
-				.texOffs(56, 48).addBox(-1.25F, 0F, -1.25F, 2.5F, 14F, 2.5F)
-				.texOffs(68, 48).addBox(-1.75F, 14F, -1.75F, 3.5F, 3.5F, 3.5F)
-				.texOffs(84, 48).addBox(-2F, 13F, -2F, 4F, 1F, 4F),
+				.texOffs(68, 48).addBox(-1.25F, 0F, -1.25F, 2.5F, 7F, 2.5F),
 			PartPose.offsetAndRotation(-5.8F, -10F, 0F, 0F, 0F, 0.07F));
+		PartDefinition antebrazo_der = brazo_der.addOrReplaceChild("antebrazo_der", CubeListBuilder.create()
+				.texOffs(80, 48).addBox(-1.25F, 0F, -1.25F, 2.5F, 7F, 2.5F)
+				.texOffs(92, 48).addBox(-1.75F, 7F, -1.75F, 3.5F, 3.5F, 3.5F)
+				.texOffs(108, 48).addBox(-2F, 6F, -2F, 4F, 1F, 4F),
+			PartPose.offsetAndRotation(0F, 7F, 0F, 0F, 0F, 0F));
 		PartDefinition pierna_izq = cadera.addOrReplaceChild("pierna_izq", CubeListBuilder.create()
-				.texOffs(100, 48).addBox(-1.25F, 0F, -1.25F, 2.5F, 10F, 2.5F)
-				.texOffs(0, 65).addBox(-2F, 10F, -5F, 4F, 3F, 7F),
+				.texOffs(0, 58).addBox(-1.25F, 0F, -1.25F, 2.5F, 5F, 2.5F),
 			PartPose.offsetAndRotation(2.2F, 0F, 0F, 0F, 0F, 0F));
+		PartDefinition espinilla_izq = pierna_izq.addOrReplaceChild("espinilla_izq", CubeListBuilder.create()
+				.texOffs(12, 58).addBox(-1.25F, 0F, -1.25F, 2.5F, 5F, 2.5F)
+				.texOffs(24, 58).addBox(-2F, 5F, -5F, 4F, 3F, 7F),
+			PartPose.offsetAndRotation(0F, 5F, 0F, 0F, 0F, 0F));
 		PartDefinition pierna_der = cadera.addOrReplaceChild("pierna_der", CubeListBuilder.create()
-				.texOffs(22, 65).addBox(-1.25F, 0F, -1.25F, 2.5F, 10F, 2.5F)
-				.texOffs(34, 65).addBox(-2F, 10F, -5F, 4F, 3F, 7F),
+				.texOffs(46, 58).addBox(-1.25F, 0F, -1.25F, 2.5F, 5F, 2.5F),
 			PartPose.offsetAndRotation(-2.2F, 0F, 0F, 0F, 0F, 0F));
+		PartDefinition espinilla_der = pierna_der.addOrReplaceChild("espinilla_der", CubeListBuilder.create()
+				.texOffs(58, 58).addBox(-1.25F, 0F, -1.25F, 2.5F, 5F, 2.5F)
+				.texOffs(70, 58).addBox(-2F, 5F, -5F, 4F, 3F, 7F),
+			PartPose.offsetAndRotation(0F, 5F, 0F, 0F, 0F, 0F));
 		return LayerDefinition.create(malla, 128, 128);
 	}
 }

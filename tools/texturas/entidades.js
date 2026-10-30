@@ -325,15 +325,27 @@ const SERPIENTE = {
 // demasiado flaco. Cabezota redonda de fieltro (tres cajas cruzadas) con la sonrisa cosida, ojos
 // de boton y nariz roja; gorrito de fiesta ladeado; mono de lunares con pajarita; brazos largos
 // con guantes blancos; piernas de rayas y zapatones. Mide unos 2,8 bloques con el gorro.
-const brazoAnf = (lado) => [`brazo_${lado}`, 'cadera', [lado === 'izq' ? 5.8 : -5.8, -10, 0], [0, 0, lado === 'izq' ? -4 : 4], [
-  [-1.25, 0, -1.25, 2.5, 14, 2.5, 'disfraz'],
-  [-1.75, 14, -1.75, 3.5, 3.5, 3.5, 'guante'],
-  [-2, 13, -2, 4, 1, 4, 'guante']
-]];
-const piernaAnf = (lado) => [`pierna_${lado}`, 'cadera', [lado === 'izq' ? 2.2 : -2.2, 0, 0], [0, 0, 0], [
-  [-1.25, 0, -1.25, 2.5, 10, 2.5, 'pantalon'],
-  [-2, 10, -5, 4, 3, 7, 'zapato']
-]];
+// brazos y piernas articulados (esqueleto): el brazo hasta el codo y, colgando del codo, el antebrazo con el
+// guante; la pierna hasta la rodilla y, colgando de ella, la espinilla con el zapaton (ModeloAnfitrion los dobla)
+const brazoAnf = (lado) => [
+  [`brazo_${lado}`, 'cadera', [lado === 'izq' ? 5.8 : -5.8, -10, 0], [0, 0, lado === 'izq' ? -4 : 4], [
+    [-1.25, 0, -1.25, 2.5, 7, 2.5, 'disfraz']
+  ]],
+  [`antebrazo_${lado}`, `brazo_${lado}`, [0, 7, 0], [0, 0, 0], [
+    [-1.25, 0, -1.25, 2.5, 7, 2.5, 'disfraz'],
+    [-1.75, 7, -1.75, 3.5, 3.5, 3.5, 'guante'],
+    [-2, 6, -2, 4, 1, 4, 'guante']
+  ]]
+];
+const piernaAnf = (lado) => [
+  [`pierna_${lado}`, 'cadera', [lado === 'izq' ? 2.2 : -2.2, 0, 0], [0, 0, 0], [
+    [-1.25, 0, -1.25, 2.5, 5, 2.5, 'pantalon']
+  ]],
+  [`espinilla_${lado}`, `pierna_${lado}`, [0, 5, 0], [0, 0, 0], [
+    [-1.25, 0, -1.25, 2.5, 5, 2.5, 'pantalon'],
+    [-2, 5, -5, 4, 3, 7, 'zapato']
+  ]]
+];
 const ANFITRION = {
   nombre: 'anfitrion',
   tex: [128, 128],
@@ -358,8 +370,8 @@ const ANFITRION = {
       [-0.5, -8.5, -0.5, 1, 2.5, 1, 'gorro'],
       [-1, -10, -1, 2, 1.5, 2, 'pompon']
     ]],
-    brazoAnf('izq'), brazoAnf('der'),
-    piernaAnf('izq'), piernaAnf('der')
+    ...brazoAnf('izq'), ...brazoAnf('der'),
+    ...piernaAnf('izq'), ...piernaAnf('der')
   ]
 };
 

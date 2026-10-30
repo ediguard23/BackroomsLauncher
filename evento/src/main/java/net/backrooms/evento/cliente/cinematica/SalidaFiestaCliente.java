@@ -4,6 +4,10 @@ import com.mojang.math.Transformation;
 import java.util.HashMap;
 import java.util.Map;
 import net.backrooms.evento.BackroomsEvento;
+import net.backrooms.evento.cliente.esqueleto.CuerpoPrimeraPersona;
+import net.backrooms.evento.esqueleto.Figura;
+import net.backrooms.evento.esqueleto.Hueso;
+import net.backrooms.evento.esqueleto.Pose;
 import net.backrooms.evento.fiesta.Anfitrion;
 import net.backrooms.evento.fiesta.BloquesFiesta;
 import net.backrooms.evento.fiesta.ParedVariante;
@@ -147,6 +151,9 @@ public final class SalidaFiestaCliente {
 	private static double tumbado;
 	private static @Nullable SoundInstance banda;
 	private static @Nullable Anfitrion anfitrion;
+	/** El brazo derecho del jugador que aporrea la botonera (solo se ve en los VISTAZOS). */
+	private static @Nullable Figura brazo;
+	private static final Identifier PIEL = BackroomsEvento.id("textures/entity/superviviente.png");
 	private static float pasos;
 	private static final Display.BlockDisplay[] puerta = new Display.BlockDisplay[2];
 	private static final Display.BlockDisplay[] hojas = new Display.BlockDisplay[2];
@@ -382,6 +389,32 @@ public final class SalidaFiestaCliente {
 			a.cazandoCliente(t >= CORRE && t < CHOCA + 0.5F);
 			andar(a, zancada(t));
 		}
+		// el brazo que aporrea la botonera: sube, cada pulsacion estira el codo de golpe, y baja al volverse
+		boolean pulsando = t >= VISTAZOS[0][0] - 0.1F && t < VISTAZOS[0][1] + 0.3F || t >= VISTAZOS[1][0] - 0.1F && t < VISTAZOS[1][1] + 0.3F;
+		if (pulsando && brazo == null) {
+			brazo = CuerpoPrimeraPersona.crear(mc, PIEL, siguienteId--, Hueso.BRAZO_D, Hueso.ANTEBRAZO_D, Hueso.MANO_D);
+			if (brazo != null) {
+				brazo.animador = (fig, p) -> poseBrazo(t0(p));
+			}
+		} else if (!pulsando && brazo != null) {
+			CuerpoPrimeraPersona.quitar(mc, brazo);
+			brazo = null;
+		}
+		if (brazo != null) {
+			double[] ojos = pose(t);
+			CuerpoPrimeraPersona.colocar(brazo, ojos[0], ojos[1], ojos[2], (float) ojos[3], 0.0);
+		}
+	}
+
+	/** El segundo de la escena en este fotograma (con lo que va del tick). */
+	private static float t0(float parcial) {
+		return (ticks + parcial) / 20.0F;
+	}
+
+	/** El brazo en cada vistazo a la botonera (las pulsaciones de ese vistazo). */
+	private static Pose poseBrazo(float t) {
+		int w = t < (VISTAZOS[0][1] + VISTAZOS[1][0]) / 2.0F ? 0 : 1;
+		return CuerpoPrimeraPersona.pulsar(t, VISTAZOS[w][0] + 0.02F, VISTAZOS[w][1] - 0.15F, PULSA, 20.0F);
 	}
 
 	private static void indicador(Minecraft mc, BlockPos p, int v) {
@@ -464,6 +497,7 @@ public final class SalidaFiestaCliente {
 				llegando = true;
 				camara = null;
 				anfitrion = null;
+				brazo = null;
 				java.util.Arrays.fill(puerta, null);
 				java.util.Arrays.fill(hojas, null);
 				originales.clear();
@@ -634,10 +668,11 @@ public final class SalidaFiestaCliente {
 			double k = suave((t - 27.2F) / 2.4F);
 			z = Mth.lerp(k, zAsomado(t), Z_DENTRO);
 			double v = vistazo(t);
-			double giroBoton = -Math.toDegrees(Math.atan2(1.45, PlanoFiesta.FIN_Z0 - 1.5 - z));
+			// se pega a la botonera (a 0,7 de ella) para alcanzarla con la mano
+			double giroBoton = -Math.toDegrees(Math.atan2(0.7, PlanoFiesta.FIN_Z0 - 1.5 - z));
 			giro = Mth.lerp(v, giroSur, giroSur + giroBoton);
-			cabeceo = Mth.lerp(v, mirarAnfitrion(z, t), 8.0);
-			x = X + 0.3 * v;
+			cabeceo = Mth.lerp(v, mirarAnfitrion(z, t), 12.0);
+			x = X + 0.75 * v;
 			sacude = 0.35 + 0.9 * suave((t - 26.0F) / 5.0F);
 			for (float p : PULSA) {
 				cabeceo += 3.0 * pulso(t, p, 0.14F);
@@ -909,7 +944,7 @@ public final class SalidaFiestaCliente {
 
 	private static void quitarDecorado(Minecraft mc) {
 		if (mc.level != null && mc.level == nivel) {
-			for (Entity e : new Entity[] {anfitrion, puerta[0], puerta[1], hojas[0], hojas[1]}) {
+			for (Entity e : new Entity[] {anfitrion, brazo, puerta[0], puerta[1], hojas[0], hojas[1]}) {
 				if (e != null) {
 					mc.level.removeEntity(e.getId(), Entity.RemovalReason.DISCARDED);
 				}
@@ -920,6 +955,7 @@ public final class SalidaFiestaCliente {
 		originales.clear();
 		puestos.clear();
 		anfitrion = null;
+		brazo = null;
 		java.util.Arrays.fill(puerta, null);
 		java.util.Arrays.fill(hojas, null);
 	}
@@ -959,6 +995,7 @@ public final class SalidaFiestaCliente {
 			nivel = null;
 			banda = null;
 			anfitrion = null;
+			brazo = null;
 			originales.clear();
 			puestos.clear();
 			java.util.Arrays.fill(puerta, null);

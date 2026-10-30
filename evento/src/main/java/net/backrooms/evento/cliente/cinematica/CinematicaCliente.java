@@ -106,6 +106,13 @@ public final class CinematicaCliente {
 		mc.setScreen(new PantallaCinematica());
 	}
 
+	/** Solo pruebas (OrdenesPrueba): salta esos segundos hacia delante. */
+	public static void adelantar(float s) {
+		if (activa()) {
+			inicio -= (long) (s * 1.0e9);
+		}
+	}
+
 	public static boolean activa() {
 		return inicio >= 0;
 	}

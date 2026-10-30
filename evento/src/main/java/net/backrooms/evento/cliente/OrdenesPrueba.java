@@ -142,6 +142,13 @@ final class OrdenesPrueba {
 			net.backrooms.evento.cliente.piscinas.AmbientePiscinas.forzar(mc, orden.substring(8).trim());
 			return;
 		}
+		if (orden.startsWith("cinematica ")) {
+			// "cinematica <segundo> [guion]": la cinematica empezada ya en ese segundo (para probar un tramo)
+			String[] p = orden.substring(11).trim().split(" ");
+			net.backrooms.evento.cliente.cinematica.CinematicaCliente.empezar(p.length > 1 ? Integer.parseInt(p[1]) : 0);
+			net.backrooms.evento.cliente.cinematica.CinematicaCliente.adelantar(Float.parseFloat(p[0]));
+			return;
+		}
 		if (orden.startsWith("figura")) {
 			// "figura <animacion> [lado]": una figura con el esqueleto articulado delante (esqueleto/Muestrario)
 			String[] p = orden.substring(6).trim().split(" ");

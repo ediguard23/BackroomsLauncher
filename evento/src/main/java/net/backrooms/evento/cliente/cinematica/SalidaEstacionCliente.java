@@ -105,6 +105,8 @@ public final class SalidaEstacionCliente {
 	private static @Nullable SoundInstance banda;
 	private static @Nullable Figura superviviente;
 	private static @Nullable Figura manos;
+	/** El brazo que pulsa la botonera (CuerpoPrimeraPersona). */
+	private static @Nullable Figura brazo;
 	private static @Nullable Amasijo amasijo;
 	private static float pasos;
 	private static final Display.BlockDisplay[] hojas = new Display.BlockDisplay[2];
@@ -342,16 +344,39 @@ public final class SalidaEstacionCliente {
 			a.setYBodyRot(g);
 			a.yHeadRotO = a.yHeadRot;
 			a.setYHeadRot(g);
-			boolean come = t >= ATAQUE + 0.2F && t < OYE;
-			a.cazandoCliente(t >= SUBE && t < ATAQUE + 0.2F || t >= GIRA + 0.8F && t < CERRADA - 0.3F, come);
+			// agarra al caer encima; luego come a tirones (ModeloAmasijo: come), se queda alerta al oir la botonera
+			boolean agarra = t >= ATAQUE + 0.2F && t < ATAQUE + 1.1F;
+			a.cazandoCliente(t >= SUBE && t < ATAQUE + 0.2F || t >= GIRA + 0.8F && t < CERRADA - 0.3F, agarra);
+			a.embisteCliente = suave((t - ATAQUE + 0.6F) / 0.3F) * (1.0F - suave((t - ATAQUE - 0.1F) / 0.25F));
+			a.comeCliente = suave((t - ATAQUE - 0.9F) / 0.5F) * (1.0F - suave((t - OYE) / 0.25F));
+			a.alertaCliente = suave((t - OYE) / 0.35F) * (1.0F - suave((t - CORRE + 0.2F) / 0.4F));
 			andar(a, t >= CORRE && t < LLEGA ? 1.3F : t >= SUBE && t < ATAQUE ? 0.6F : 0.0F);
+		}
+		// el brazo derecho que marca el piso en la botonera
+		if (t >= PANEL && t < OYE + 0.6F && brazo == null) {
+			brazo = net.backrooms.evento.cliente.esqueleto.CuerpoPrimeraPersona.crear(mc, PIEL_SANGRE, siguienteId--, Hueso.BRAZO_D, Hueso.ANTEBRAZO_D,
+				Hueso.MANO_D);
+			if (brazo != null) {
+				float[] pulsa = {PULSA[0], PULSA[1], PULSA[2], PULSA[3], CONFIRMA};
+				brazo.animador = (fig, p) -> net.backrooms.evento.cliente.esqueleto.CuerpoPrimeraPersona.pulsar(segundos(p), PANEL + 0.45F, OYE - 0.1F,
+					pulsa, 22.0F);
+			}
+		}
+		if (brazo != null) {
+			if (t >= OYE + 0.6F) {
+				net.backrooms.evento.cliente.esqueleto.CuerpoPrimeraPersona.quitar(mc, brazo);
+				brazo = null;
+			} else {
+				double[] c0 = pose(t);
+				net.backrooms.evento.cliente.esqueleto.CuerpoPrimeraPersona.colocar(brazo, c0[0], c0[1], c0[2], (float) c0[3], 0.0);
+			}
 		}
 		// las manos, al mirarlas
 		if (t >= MANOS && t < MANOS + 9.0F && manos == null) {
-			Figura m = figura(mc, PIEL_SANGRE);
+			// el cuerpo entero del jugador menos la cabeza: al bajar la vista se ven el pecho, los brazos
+			// unidos a los hombros y las manos manchadas, todo de una pieza
+			Figura m = net.backrooms.evento.cliente.esqueleto.CuerpoPrimeraPersona.crear(mc, PIEL_SANGRE, siguienteId--, Hueso.TODOS);
 			if (m != null) {
-				m.ocultar(Hueso.CADERA, Hueso.TORSO, Hueso.CABEZA, Hueso.BRAZO_D, Hueso.BRAZO_I, Hueso.MUSLO_D, Hueso.MUSLO_I, Hueso.PIERNA_D,
-					Hueso.PIERNA_I, Hueso.PIE_D, Hueso.PIE_I);
 				m.animador = (fig, p) -> poseManos(segundos(p));
 				manos = m;
 			}
@@ -361,16 +386,10 @@ public final class SalidaEstacionCliente {
 				mc.level.removeEntity(manos.getId(), Entity.RemovalReason.DISCARDED);
 				manos = null;
 			} else if (camara != null) {
-				// pegadas al cuerpo del jugador: los pies bajo los ojos de la camara
-				manos.xo = manos.getX();
-				manos.yo = manos.getY();
-				manos.zo = manos.getZ();
-				manos.yRotO = manos.getYRot();
+				// el cuerpo bajo los ojos, con el pecho justo por detras de ellos: al bajar la vista suben los
+				// brazos desde abajo, unidos a los hombros, y las manos quedan delante
 				double[] c0 = pose(t);
-				// un poco por delante de los ojos: las manos se ven enteras, sin pegarse a la camara
-				double g = Math.toRadians(c0[3]);
-				manos.setPos(c0[0] - Math.sin(g) * 0.18, c0[1] - 1.66, c0[2] + Math.cos(g) * 0.18);
-				manos.setYRot((float) c0[3]);
+				net.backrooms.evento.cliente.esqueleto.CuerpoPrimeraPersona.colocar(manos, c0[0], c0[1] - 0.14, c0[2], (float) c0[3], -0.22);
 			}
 		}
 	}
@@ -381,6 +400,9 @@ public final class SalidaEstacionCliente {
 		float sube = suave((t - MANOS - 1.0F) / 1.8F) * (1.0F - suave((t - MANOS - 6.6F) / 1.6F));
 		Pose p = Pose.mezcla(abajo, Ciclos.manos(t), sube);
 		float tiembla = (float) Math.sin(t * 23.0) * 1.2F * sube;
+		// los brazos mas caidos desde el hombro: las manos quedan mas lejos de los ojos
+		p = p.suma(Hueso.BRAZO_D, 12.0F * sube, 0, 0).suma(Hueso.BRAZO_I, 12.0F * sube, 0, 0)
+			.suma(Hueso.ANTEBRAZO_D, -8.0F * sube, 0, 0).suma(Hueso.ANTEBRAZO_I, -8.0F * sube, 0, 0);
 		return p.suma(Hueso.ANTEBRAZO_D, tiembla, 0, 0).suma(Hueso.ANTEBRAZO_I, -tiembla, 0, 0)
 			.suma(Hueso.MANO_D, 0, 12.0F * suave((t - MANOS - 3.5F) / 1.5F), 0).suma(Hueso.MANO_I, 0, -12.0F * suave((t - MANOS - 3.5F) / 1.5F), 0);
 	}
@@ -470,6 +492,7 @@ public final class SalidaEstacionCliente {
 				camara = null;
 				superviviente = null;
 				manos = null;
+				brazo = null;
 				amasijo = null;
 				java.util.Arrays.fill(hojas, null);
 				originales.clear();
@@ -541,6 +564,11 @@ public final class SalidaEstacionCliente {
 		m.xRotO = (float) antes[4];
 	}
 
+	/** El giro para mirar la botonera de la derecha desde donde se pega a ella (X + 0.9, Z0 - 2.9). */
+	private static double giroPanel() {
+		return giroSur - Math.toDegrees(Math.atan2(0.54, 0.4));
+	}
+
 	/** El cabeceo para mirar algo a esa altura y distancia. */
 	private static double mirar(double alto, double d) {
 		return Math.toDegrees(Math.atan2(OJOS - alto, Math.max(1.0, d)));
@@ -591,12 +619,13 @@ public final class SalidaEstacionCliente {
 			giro = giroSur + Math.sin(t * 0.5) * 0.15;
 			sacude = 0.12 + pulso(t, ATAQUE, 0.6F) * 0.6;
 		} else if (t < OYE + 0.1F) {
-			// se vuelve a la botonera y marca el piso, deprisa
+			// se lanza a la botonera (se pega a ella para alcanzarla) y marca el piso, deprisa
 			double k = suave((t - PANEL) / 0.6F);
-			giro = Mth.lerp(k, giroSur, giroBoton);
+			giro = Mth.lerp(k, giroSur, giroPanel());
 			double[] o = objetivo(PANEL);
-			cabeceo = Mth.lerp(k, mirar(o[0], o[1] - z), 6.0);
-			x = X + 0.25 * k;
+			cabeceo = Mth.lerp(k, mirar(o[0], o[1] - z), 9.0);
+			x = Mth.lerp(k, X, X + 0.9);
+			z = Mth.lerp(k, ZC, Z0 - 2.9);
 			sacude = 0.25;
 			for (float p : PULSA) {
 				cabeceo += 3.0 * pulso(t, p, 0.14F);
@@ -607,10 +636,10 @@ public final class SalidaEstacionCliente {
 			// se vuelve de golpe hacia fuera: el Amasijo le ha oido y viene; se echa hacia el fondo
 			double k = suave((t - OYE - 0.1F) / 0.45F);
 			double[] o = objetivo(t);
-			z = Mth.lerp(suave((t - 23.5F) / 2.0F), ZC, Z0 - 4.7);
-			giro = Mth.lerp(k, giroBoton, giroSur);
-			cabeceo = Mth.lerp(k, 6.0, mirar(o[0], o[1] - z));
-			x = X + 0.25 * (1.0 - k);
+			z = Mth.lerp(suave((t - 23.5F) / 2.0F), Mth.lerp(k, Z0 - 2.9, ZC), Z0 - 4.7);
+			giro = Mth.lerp(k, giroPanel(), giroSur);
+			cabeceo = Mth.lerp(k, 9.0, mirar(o[0], o[1] - z));
+			x = Mth.lerp(k, X + 0.9, X);
 			sacude = 0.3 + 0.9 * suave((t - CORRE) / 3.5F) + pulso(t, LLEGA, 0.5F) * 2.5;
 		} else if (t < MANOS) {
 			// las puertas cerradas; el silencio
@@ -715,7 +744,7 @@ public final class SalidaEstacionCliente {
 
 	private static void quitarDecorado(Minecraft mc) {
 		if (mc.level != null && mc.level == nivel) {
-			for (Entity e : new Entity[] {superviviente, manos, amasijo, hojas[0], hojas[1]}) {
+			for (Entity e : new Entity[] {superviviente, manos, brazo, amasijo, hojas[0], hojas[1]}) {
 				if (e != null) {
 					mc.level.removeEntity(e.getId(), Entity.RemovalReason.DISCARDED);
 				}
@@ -726,6 +755,7 @@ public final class SalidaEstacionCliente {
 		puestos.clear();
 		superviviente = null;
 		manos = null;
+		brazo = null;
 		amasijo = null;
 		java.util.Arrays.fill(hojas, null);
 	}
@@ -768,6 +798,7 @@ public final class SalidaEstacionCliente {
 			banda = null;
 			superviviente = null;
 			manos = null;
+			brazo = null;
 			amasijo = null;
 			originales.clear();
 			puestos.clear();

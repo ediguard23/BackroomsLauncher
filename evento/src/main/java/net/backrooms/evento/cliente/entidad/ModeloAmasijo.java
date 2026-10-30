@@ -69,5 +69,48 @@ public class ModeloAmasijo extends EntityModel<EstadoAmasijo> {
 			}
 			this.cuerpo.xRot += Mth.sin(t * 1.4F) * 0.04F;
 		}
+		// el salto sobre la presa: los brazos abiertos y estirados hacia delante, las patas atras
+		float e = s.embiste;
+		if (e > 0.0F) {
+			for (int i = 0; i < BRAZOS; i++) {
+				this.brazos[i].xRot = Mth.lerp(e, this.brazos[i].xRot, 0.55F);
+				this.brazos[i].yRot = Mth.lerp(e, this.brazos[i].yRot, (i % 2 == 0 ? 0.75F : -0.75F) * (i < 4 ? 1.0F : 0.6F));
+				this.antes[i].xRot = Mth.lerp(e, this.antes[i].xRot, -0.15F);
+			}
+			for (int i = 0; i < PATAS; i++) {
+				this.patas[i].xRot += 0.9F * e;
+			}
+			this.cuerpo.xRot -= 0.25F * e;
+		}
+		// comiendo: se hunde sobre la presa a tirones y desgarra con los brazos por parejas (bajan, agarran,
+		// tiran hacia arriba), con sacudidas del cuerpo en cada tiron
+		float k = s.come;
+		if (k > 0.0F) {
+			float tiron = (float) Math.pow(Math.max(0.0F, Mth.sin(t * 0.32F)), 6.0);
+			this.cuerpo.xRot += (0.42F + Mth.sin(t * 0.16F) * 0.1F - tiron * 0.3F) * k;
+			this.cuerpo.y += (2.5F + Mth.sin(t * 0.16F) * 1.2F) * k;
+			this.cuerpo.zRot += tiron * Mth.sin(t * 2.1F) * 0.12F * k;
+			for (int i = 0; i < BRAZOS; i++) {
+				float f = t * 0.24F + (i / 2) * 1.6F;
+				float baja = 0.5F + 0.5F * Mth.sin(f);
+				float desgarra = (float) Math.pow(Math.max(0.0F, Mth.sin(f + 1.2F)), 3.0);
+				this.brazos[i].xRot = Mth.lerp(k, this.brazos[i].xRot, 0.9F + 0.5F * baja - 1.1F * desgarra);
+				this.brazos[i].yRot = Mth.lerp(k, this.brazos[i].yRot, (i % 2 == 0 ? 0.25F : -0.25F) + Mth.sin(f * 0.7F) * 0.15F);
+				this.antes[i].xRot = Mth.lerp(k, this.antes[i].xRot, 1.25F * baja + 0.3F - 0.6F * desgarra);
+			}
+			for (int i = 0; i < PATAS; i++) {
+				this.patas[i].xRot += Mth.sin(t * 0.32F + i) * 0.08F * k;
+			}
+		}
+		// alerta (ha oido algo): se yergue, los brazos se quedan quietos a medio alzar, como escuchando
+		float al = s.alerta;
+		if (al > 0.0F) {
+			this.cuerpo.xRot -= 0.38F * al;
+			this.cuerpo.y -= 1.5F * al;
+			for (int i = 0; i < BRAZOS; i++) {
+				this.brazos[i].xRot = Mth.lerp(al, this.brazos[i].xRot, 0.2F + (i % 3) * 0.12F);
+				this.antes[i].xRot = Mth.lerp(al, this.antes[i].xRot, 0.5F);
+			}
+		}
 	}
 }

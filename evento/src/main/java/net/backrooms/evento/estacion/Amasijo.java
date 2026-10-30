@@ -104,6 +104,11 @@ public class Amasijo extends Monster {
 		builder.define(AGARRANDO, false);
 	}
 
+	/** Solo para las cinematicas (un Amasijo solo de cliente), 0..1: saltando, comiendo y alerta (ModeloAmasijo). */
+	public float embisteCliente;
+	public float comeCliente;
+	public float alertaCliente;
+
 	/** Para las cinematicas (un Amasijo solo de cliente): cazando y agarrando, sin pasar por el servidor. */
 	public void cazandoCliente(boolean caza, boolean agarra) {
 		this.entityData.set(CAZANDO, caza);

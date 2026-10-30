@@ -911,7 +911,9 @@ const float PX_INV = 0.05625; // un pixel del investigador (mide 32: 1.8 bloques
 // el investigador rodea la mesa y sale por el centro de la puerta (sin rozar el marco ni la hoja)
 const int NI = 8;
 const vec2 RUTA_I[8] = vec2[](vec2(0.0, -18.05), vec2(1.75, -17.85), vec2(1.75, -15.2), vec2(0.6, -14.6),
-  vec2(0.0, -14.1), vec2(0.0, -12.6), vec2(0.5, -4.0), vec2(1.25, -2.35));
+  vec2(0.0, -14.1), vec2(0.0, -12.6), vec2(1.4, -4.5), vec2(1.94, -2.13));
+// hacia donde mira al pulsar el boton de llamada (desde el final de la ruta, el hombro derecho justo delante)
+const vec2 MIRA_BOTON = vec2(0.247, 0.969);
 const vec2 PUESTO_I = vec2(0.35, -3.8); // donde se queda, delante de las puertas
 const int NJ = 6;
 const vec2 RUTA_J[8] = vec2[](vec2(-0.55, -15.0), vec2(-0.35, -14.3), vec2(0.0, -13.7), vec2(0.0, -13.0),
@@ -1117,7 +1119,8 @@ void boligrafo(float tg, out vec3 punta, out vec3 eje, out float mano) {
   eje = normalize(mix(ejeMesa, ejeFirma, k));
 }
 
-struct Pose { vec3 pie; float yaw; float inclina; float paso; float anda; float brazoD; float ladoD; float brazoI; float cabeza; float giro; };
+// brazoD/I: el hombro (hacia delante); codoD/I: el codo (la mano hacia delante); las rodillas van con el paso
+struct Pose { vec3 pie; float yaw; float inclina; float paso; float anda; float brazoD; float ladoD; float brazoI; float codoD; float codoI; float cabeza; float giro; };
 
 Pose investigador(float tg, vec3 cam) {
   Pose q;
@@ -1142,20 +1145,33 @@ Pose investigador(float tg, vec3 cam) {
   float yAnda = rumbo(dir);
   yAnda += 6.2831853 * floor((yMira - yAnda) / 6.2831853 + 0.5);
   q.yaw = mix(yMira, yAnda, smoothstep(0.0, 0.4, anda));
+  // al llamar al ascensor se pone de cara al boton
+  float yBoton = rumbo(MIRA_BOTON);
+  yBoton += 6.2831853 * floor((q.yaw - yBoton) / 6.2831853 + 0.5);
+  float alBoton = tramo(I_LLAMA - 0.9, I_LLAMA - 0.4, I_LLAMA + 0.5, I_LLAMA + 1.1, tg);
+  q.yaw = mix(q.yaw, yBoton, alBoton);
   q.anda = anda;
   q.paso = paso;
   q.inclina = 0.7 * tramo(2.1, 2.6, 3.4, 4.1, tg) + 0.45 * tramo(P_RECOGE0 - 0.1, P_RECOGE0 + 0.3, P_RECOGE0 + 0.8, P_RECOGE0 + 1.3, tg) + 0.12 * tramo(3.9, 4.2, 4.6, 5.0, tg);
+  // el boton: sube el brazo con el codo doblado, lo estira de golpe para pulsar (I_LLAMA) y lo baja
+  float llama = tramo(I_LLAMA - 0.55, I_LLAMA - 0.2, I_LLAMA + 0.25, I_LLAMA + 0.7, tg);
+  float pulsa = smoothstep(I_LLAMA - 0.16, I_LLAMA - 0.02, tg) * (1.0 - smoothstep(I_LLAMA + 0.12, I_LLAMA + 0.35, tg));
   q.brazoD = 1.5 * tramo(2.1, 2.6, 3.5, 4.2, tg) + 1.1 * tramo(3.9, 4.2, 4.6, 5.0, tg) + 1.45 * tramo(P_RECOGE0 - 0.1, P_RECOGE0 + 0.3, P_RECOGE0 + 0.9, P_RECOGE0 + 1.4, tg)
-    + 1.2 * tramo(I_LLAMA - 0.45, I_LLAMA - 0.15, I_LLAMA + 0.15, I_LLAMA + 0.5, tg)
+    + mix(1.25, 1.7, pulsa) * llama
     + 0.3 * tramo(I_ADIOS, I_ADIOS + 0.4, I_ADIOS + 1.3, I_ADIOS + 1.9, tg);
-  q.ladoD = 0.25 * tramo(3.9, 4.2, 4.6, 5.0, tg) + 0.15 * tramo(I_LLAMA - 0.45, I_LLAMA - 0.15, I_LLAMA + 0.15, I_LLAMA + 0.5, tg);
-  q.brazoI = 0.35;
+  q.ladoD = 0.25 * tramo(3.9, 4.2, 4.6, 5.0, tg);
+  q.brazoI = 0.2;
+  // los codos: al andar, un poco doblados; al alcanzar algo, se estiran; al despedirse, la mano en alto
+  q.codoD = 0.18 + 0.25 * anda + 0.35 * tramo(2.1, 2.6, 3.5, 4.2, tg) + 0.2 * tramo(P_RECOGE0 - 0.1, P_RECOGE0 + 0.3, P_RECOGE0 + 0.9, P_RECOGE0 + 1.4, tg)
+    + 0.75 * llama * (1.0 - pulsa) - 0.18 * llama + 1.1 * tramo(I_ADIOS, I_ADIOS + 0.4, I_ADIOS + 1.3, I_ADIOS + 1.9, tg);
+  // la izquierda lleva la tablilla delante, a la altura de la cintura
+  q.codoI = 0.55;
   // la cabeza te sigue (y asiente al despedirse)
   vec3 cl = cam - (q.pie + vec3(0.0, 1.55, 0.0));
   float rel = yMira - q.yaw;
   rel -= 6.2831853 * floor(rel / 6.2831853 + 0.5);
-  q.giro = clamp(rel, -0.9, 0.9);
-  q.cabeza = clamp(atan(cl.y, length(cl.xz)), -0.6, 0.45) + q.inclina * 0.8 - 0.3 * tramo(I_ADIOS + 0.2, I_ADIOS + 0.5, I_ADIOS + 0.8, I_ADIOS + 1.2, tg);
+  q.giro = clamp(rel, -0.9, 0.9) * (1.0 - alBoton);
+  q.cabeza = mix(clamp(atan(cl.y, length(cl.xz)), -0.6, 0.45), -0.35, alBoton) + q.inclina * 0.8 - 0.3 * tramo(I_ADIOS + 0.2, I_ADIOS + 0.5, I_ADIOS + 0.8, I_ADIOS + 1.2, tg);
   return q;
 }
 
@@ -1165,7 +1181,7 @@ struct Obj { float t; int id; vec3 n; vec3 q; vec3 h; };
 
 const int O_MESA = 1, O_PATA = 2, O_ASIENTO = 3, O_RESPALDO = 4, O_PIE_SILLA = 5, O_HOJA_PUERTA = 6, O_LIBRERIA = 7;
 const int O_MACETA = 8, O_HOJAS = 9, O_PAPEL = 10, O_BANCO = 11, O_EXTINTOR = 12, O_MANO = 13, O_DEDO = 14, O_BRAZO = 15;
-const int O_BOLI = 16, O_INV = 20; // 20..27: las partes del investigador
+const int O_BOLI = 16, O_INV = 20; // 20..31: las partes del investigador (28..31: espinillas y antebrazos)
 
 void caja(inout Obj o, vec3 ro, vec3 rd, vec3 b0, vec3 b1, int id) {
   vec3 m = 1.0 / rd;
@@ -1232,13 +1248,20 @@ void partesInvestigador(inout Obj o, vec3 ro, vec3 rd, Pose q) {
   vec3 nl;
   int parte = -1;
   // piernas (la derecha del modelo es +X)
+  float fase = cos(q.paso * 6.2831853 / 2.4);
   for (int k = 0; k < 2; k++) {
     float sx = k == 0 ? 2.0 : -2.0;
     float a = k == 0 ? sw : -sw;
+    // la rodilla se dobla (la espinilla hacia atras) mientras la pierna va hacia delante
+    float r = -q.anda * (0.12 + 0.95 * max(0.0, k == 0 ? fase : -fase));
     vec3 po = rotF(bo - vec3(sx, 12.0, 0.0), -a), pd = rotF(bd, -a);
     Obj m = l;
-    caja(m, po, pd, vec3(-2.0, -12.0, -2.0), vec3(2.0, 0.0, 2.0), 20 + k);
+    caja(m, po, pd, vec3(-2.0, -6.0, -2.0), vec3(2.0, 0.0, 2.0), 20 + k);
     if (m.t < l.t) { l = m; nl = rotF(m.n, a); parte = 20 + k; }
+    vec3 eo = rotF(po - vec3(0.0, -6.0, 0.0), -r), ed = rotF(pd, -r);
+    m = l;
+    caja(m, eo, ed, vec3(-2.0, -6.0, -2.0), vec3(2.0, 0.0, 2.0), 28 + k);
+    if (m.t < l.t) { l = m; nl = rotF(rotF(m.n, r), a); parte = 28 + k; }
   }
   // los faldones de la bata: cada mitad va con su pierna (si no, al andar las piernas la atraviesan)
   for (int k = 0; k < 2; k++) {
@@ -1267,16 +1290,21 @@ void partesInvestigador(inout Obj o, vec3 ro, vec3 rd, Pose q) {
     float sx = k == 0 ? 6.0 : -6.0;
     float a = k == 0 ? q.brazoD - sw * 0.8 : q.brazoI + sw * 0.5;
     float b = k == 0 ? q.ladoD : -0.05;
+    float e = k == 0 ? q.codoD : q.codoI;
     vec3 P = vec3(sx, 22.0, 0.0);
     vec3 po = rotF(rotL(uo - P, -b), -a), pd = rotF(rotL(ud, -b), -a);
     Obj m = l;
-    caja(m, po, pd, vec3(-2.0, -10.0, -2.0), vec3(2.0, 2.0, 2.0), 25 + k);
+    caja(m, po, pd, vec3(-2.0, -4.0, -2.0), vec3(2.0, 2.0, 2.0), 25 + k);
     if (m.t < l.t) { l = m; nl = rotF(rotL(rotF(m.n, a), b), -q.inclina); parte = 25 + k; }
+    vec3 eo = rotF(po - vec3(0.0, -4.0, 0.0), -e), ed = rotF(pd, -e);
+    m = l;
+    caja(m, eo, ed, vec3(-2.0, -6.0, -2.0), vec3(2.0, 0.0, 2.0), 30 + k);
+    if (m.t < l.t) { l = m; nl = rotF(rotL(rotF(rotF(m.n, e), a), b), -q.inclina); parte = 30 + k; }
     if (k == 1) {
-      // la tablilla con los papeles, en la mano izquierda
+      // la tablilla con los papeles, en la mano izquierda (va con el antebrazo)
       Obj c = l;
-      caja(c, po, pd, vec3(-2.6, -12.5, -1.0), vec3(-2.1, -5.5, 4.2), 27);
-      if (c.t < l.t) { l = c; nl = rotF(rotL(rotF(c.n, a), b), -q.inclina); parte = 27; }
+      caja(c, eo, ed, vec3(-2.6, -8.5, -1.0), vec3(-2.1, -1.5, 4.2), 27);
+      if (c.t < l.t) { l = c; nl = rotF(rotL(rotF(rotF(c.n, e), a), b), -q.inclina); parte = 27; }
     }
   }
   if (parte >= 0) {
@@ -1493,6 +1521,11 @@ vec3 pielInvestigador(int parte, vec3 n, vec3 q, vec3 h, float tg) {
   else if (n.y > 0.5) { lado = 4; uv = q.xz; }
   else { lado = 5; uv = q.xz; }
   ivec2 p = ivec2(floor(uv));
+  // espinillas (28, 29) y antebrazos (30, 31): la mitad de abajo de la pierna y del brazo enteros
+  if (parte >= 28) {
+    if (lado < 4) p.y += 6;
+    parte = parte < 30 ? parte - 8 : parte - 5;
+  }
   float r = 0.95 + 0.08 * h2(vec2(p) + float(parte * 31 + lado * 7));
   vec3 piel = vec3(0.86, 0.67, 0.55);
   vec3 pelo = vec3(0.27, 0.18, 0.12);

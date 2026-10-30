@@ -60,7 +60,7 @@ evento/                          el mod (Gradle, Loom 1.18, mappings de Mojang)
                                  final y la llegada al vestibulo; cliente: cliente/cinematica/SalidaEstacionCliente),
                                  el Amasijo (3/5/7 por piso)
       esqueleto/                 el esqueleto articulado de las figuras de las cinematicas (Hueso, Pose, Animacion,
-                                 Ciclos, Figura; modelo y renderer en cliente/esqueleto). Ver ESQUELETO.md
+                                 Ciclos, Figura; modelo, renderer y CuerpoPrimeraPersona en cliente/esqueleto). Ver ESQUELETO.md
       expedicion/                el /start (cinemática de la firma y el ascensor y viaje escalonado)
       mision/                    misiones, casetes, grabación con la cámara
       ambiente/                  apagones y alarmas

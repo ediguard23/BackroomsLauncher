@@ -78,7 +78,17 @@ entero (`Pose.cuerpo`) gira sobre los pies: x −88 lo tumba boca arriba y +88 b
    ```
 
    Cada tick, quien la usa la mueve (`xo/yo/zo` y `setPos`, como las demás entidades de las cinemáticas).
-   `f.ocultar(Hueso...)` esconde trozos (las manos solas, vistas desde los ojos).
+   `f.ocultar(Hueso...)` esconde trozos.
+
+   **El cuerpo del propio jugador** en una cinemática (la cámara va sola y el jugador de verdad no se dibuja):
+   `cliente/esqueleto/CuerpoPrimeraPersona`. `crear(mc, piel, id, huesos visibles...)` hace la figura (la
+   cabeza nunca se ve: estaría en la cámara) y cada tick `colocar(f, x, y, z, giro, adelante)` la pone con
+   los pies 1,62 bajo los ojos de la cámara, mirando a donde mira ella. `pulsar(t, desde, hasta, pulsaciones,
+   dentro)` es el brazo derecho marcando en una botonera que hay delante (sube, estira el codo de golpe en
+   cada pulsación y baja). Lo usan los dos ascensores (la Fiesta y el final) y las manos con sangre del final
+   (el cuerpo entero con el pecho justo detrás de los ojos: al bajar la vista suben los brazos desde abajo,
+   unidos a los hombros). Lo que queda muy cerca de la cámara se ve enorme: mejor el cuerpo un poco detrás de
+   los ojos que delante.
 
 5. Para verla mientras se diseña: añadirla a `Muestrario.animacion` y, con el cliente de pruebas
    (`BACKROOMS_PRUEBAS=1`), escribir en `%TEMP%/backrooms-ordenes.txt` `figura <nombre> lado` (de perfil) o
@@ -88,5 +98,11 @@ entero (`Pose.cuerpo`) gira sobre los pies: x −88 lo tumba boca arriba y +88 b
 
 - Es para figuras de cinemática (solo de cliente, sin IA). Los jugadores siguen con el modelo de Minecraft
   (cambiarlo afectaría a todo el juego y a otros mods); las entidades del evento (Amasijo, Anfitrión...) tienen
-  su propio modelo con su anatomía (`tools/texturas/entidades.js`) y pueden usar la misma idea si hace falta.
+  su propio modelo con su anatomía (`tools/texturas/entidades.js`) con la misma idea: el Anfitrión tiene codo
+  (`antebrazo_*` cuelga de `brazo_*`) y rodilla (`espinilla_*` de `pierna_*`), y `ModeloAnfitrion` los dobla
+  al correr. El Amasijo tiene, además, `embisteCliente` / `comeCliente` / `alertaCliente` (0..1, solo de
+  cliente) que ponen las cinemáticas: salta con los brazos abiertos, come a tirones, se yergue alerta.
+- La cinemática del /start (`cinematica.fsh`) no usa Figura: el investigador se dibuja en el shader, caja a
+  caja, con la misma idea (muslo y espinilla, brazo y antebrazo, cada uno girando sobre su articulación;
+  `partesInvestigador` y los campos `codoD/codoI` de `Pose`).
 - La cara de abajo de manos y pies toma unos píxeles del lado de la piel (no se ve en la práctica).
