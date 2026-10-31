@@ -10,6 +10,17 @@ servidor 66.51.99.171:25626. El organizador ya subió al hosting el zip del serv
 Al publicar la 1.0.2, electron-builder creó dos releases v1.0.2 a la vez (una con el .blockmap y otra con el
 instalador y latest.yml): se juntó todo en una y se borró la otra. **El pack-beta sigue en 2026.10.28-ca9d49cc.**
 
+## 0.29.0 (cont. 11): en Pojav el menú decía «SIN SERVIDOR» (2026-10-31; Bruno)
+
+**Sin publicar**, jar **1270d493…** (sustituye a 6030991c; lleva lo de cont. 9 y 10). Ya está en los dos zips de
+`Downloads` y en `pack/mods`.
+- El menú del mod lee el servidor de `config/backrooms-event.json`, que escribe el launcher. En Pojav no existe, así
+  que salía «SIN SERVIDOR» sin botón JUGAR y no había forma de entrar. Ahora, si no existe (`menu/Evento.cargar`),
+  usa el servidor del evento (66.51.99.171:25626), los enlaces de Discord y la tienda y una noticia de bienvenida que
+  dice que pulse JUGAR y escriba su código. Si el servidor cambia, hay que cambiarlo también ahí (`HOST_EVENTO`,
+  `PUERTO_EVENTO`).
+- **Probado** en el PC borrando ese archivo: sale JUGAR, el servidor del evento «EN DIRECTO» y la bienvenida.
+
 ## 0.29.0 (cont. 10): Pojav se quedaba en la pantalla de inicio (2026-10-31; Bruno)
 
 **Sin publicar**, jar **6030991c…** (sustituye a a3fd2454; lleva lo de cont. 9). Ya está en los dos zips de

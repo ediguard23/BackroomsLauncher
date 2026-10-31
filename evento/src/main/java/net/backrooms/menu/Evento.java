@@ -35,9 +35,28 @@ public final class Evento {
 	/** El jugador quiere el juego a pantalla completa (se pone al acabar de cargar: BackroomsMenu). */
 	public boolean pantallaCompleta = false;
 
+	/**
+	 * Sin launcher (Pojav en el movil, un Minecraft montado a mano) no hay backrooms-event.json: entonces el
+	 * menu usa el servidor y los enlaces del evento que lleva el mod, para que el boton JUGAR funcione igual.
+	 */
+	private static final String HOST_EVENTO = "66.51.99.171";
+	private static final int PUERTO_EVENTO = 25626;
+	private static final String DISCORD_EVENTO = "https://dc.peakmc.lat";
+	private static final String TIENDA_EVENTO = "https://tienda.peakmc.lat";
+
 	public static Evento cargar() {
 		Evento e = new Evento();
 		Path file = FabricLoader.getInstance().getConfigDir().resolve("backrooms-event.json");
+		if (!Files.exists(file)) {
+			e.host = HOST_EVENTO;
+			e.puerto = PUERTO_EVENTO;
+			e.discord = DISCORD_EVENTO;
+			e.tienda = TIENDA_EVENTO;
+			e.noticias.add(new Noticia("", "Bienvenido al Proyecto Umbral",
+				"Has salido de la realidad por accidente. Cumple tus misiones, cuida tu cordura y no te alejes demasiado de los demás: "
+					+ "solo unos pocos encontrarán la salida.\nPulsa JUGAR y escribe el código de tu entrada cuando te lo pida."));
+			return e;
+		}
 		try {
 			JsonObject o = JsonParser.parseString(Files.readString(file, StandardCharsets.UTF_8)).getAsJsonObject();
 			e.nombre = texto(o, "nombre", e.nombre);
