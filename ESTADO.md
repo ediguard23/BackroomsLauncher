@@ -1,17 +1,18 @@
 # Estado del proyecto (para la siguiente sesión)
 
-Última actualización: 2026-10-30 (hora de Honduras). Mod `backrooms_evento` **0.29.0**, launcher **1.0.1**
-(publicado). **Pack oficial (release "pack") 2026.10.30-3e247364** (2026-10-30, con permiso del organizador:
-«para el evento oficial»): mod 0.29.0 **ce3feff8ad8b…** (lo de cont. 3 y cont. 4: articulación, misiones sin bajón
-de FPS, sin dorsal), noticia «Actualización del evento», mismo servidor 66.51.99.171:25626. Se publicó con
-`publicar-pack.js --tag=pack --ficha=pack/.evento-oficial.json` (la ficha de la beta con su noticia). Zip del
-servidor: `Downloads/Backrooms-servidor-oficial-0.29.0.zip` (el de la beta #4 con el jar nuevo y el LEEME al día:
-en un servidor ya montado basta cambiar el jar, sin borrar el mundo ni tocar backrooms-acceso.json). **El pack-beta
-sigue en 2026.10.28-ca9d49cc** (jar 6c9908058d61…): el launcher de la beta ya no entra en ese servidor.
+Última actualización: 2026-10-31. Mod `backrooms_evento` **0.29.0**, launcher **1.0.2** (publicado, release
+v1.0.2, 2026-10-31, con permiso del organizador: «actualizar el PC Launcher»; los que tienen la 1.0.1 la reciben
+solos). **Pack oficial (release "pack") 2026.10.31-c7d86a5d** (2026-10-31, con permiso): mod 0.29.0
+**e9bae2072912…** (cont. 5 a 8: código de entrada para Pojav, agradecimiento a Grmnrt Hosting, el Amasijo con
+columna, el corte de la cadena), noticias «Bienvenido al Proyecto Umbral» y «Patrocinado por Grmnrt Hosting»,
+servidor 66.51.99.171:25626. El organizador ya subió al hosting el zip del servidor con ese mismo jar
+(`Downloads/Backrooms-servidor-oficial-0.29.0.zip`); el de Pojav es `Downloads/Backrooms-pojav-0.29.0.zip`.
+Al publicar la 1.0.2, electron-builder creó dos releases v1.0.2 a la vez (una con el .blockmap y otra con el
+instalador y latest.yml): se juntó todo en una y se borró la otra. **El pack-beta sigue en 2026.10.28-ca9d49cc.**
 
 ## 0.29.0 (cont. 8): el corte de la cadena, con física (2026-10-31; Bruno)
 
-**Sin publicar**, jar **e9bae207…** (sustituye a a4b354bf; lleva lo de cont. 5, 6 y 7). Ya está en los dos zips de
+**Publicado** (pack 2026.10.31-c7d86a5d), jar **e9bae207…** (sustituye a a4b354bf; lleva lo de cont. 5, 6 y 7). Ya está en los dos zips de
 `Downloads` y en `pack/mods`.
 - Antes la cadena "explotaba": los trozos salían disparados y quedaba un montón en el suelo. Ahora (`CorteCadena`)
   se corta el candado en el centro: el candado cae al suelo dando media vuelta y bota, y la cadena se parte en dos
