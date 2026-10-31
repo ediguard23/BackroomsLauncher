@@ -1,18 +1,14 @@
 # Estado del proyecto (para la siguiente sesión)
 
 Última actualización: 2026-10-31. Mod `backrooms_evento` **0.29.0**, launcher **1.0.2** (publicado, release
-v1.0.2, 2026-10-31, con permiso del organizador: «actualizar el PC Launcher»; los que tienen la 1.0.1 la reciben
-solos). **Pack oficial (release "pack") 2026.10.31-c7d86a5d** (2026-10-31, con permiso): mod 0.29.0
-**e9bae2072912…** (cont. 5 a 8: código de entrada para Pojav, agradecimiento a Grmnrt Hosting, el Amasijo con
-columna, el corte de la cadena), noticias «Bienvenido al Proyecto Umbral» y «Patrocinado por Grmnrt Hosting»,
-servidor 66.51.99.171:25626. El organizador ya subió al hosting el zip del servidor con ese mismo jar
-(`Downloads/Backrooms-servidor-oficial-0.29.0.zip`); el de Pojav es `Downloads/Backrooms-pojav-0.29.0.zip`.
-Al publicar la 1.0.2, electron-builder creó dos releases v1.0.2 a la vez (una con el .blockmap y otra con el
-instalador y latest.yml): se juntó todo en una y se borró la otra. **El pack-beta sigue en 2026.10.28-ca9d49cc.**
+v1.0.2). **Pack oficial (release "pack") 2026.10.31-097f4e4c** (2026-10-31, con permiso del organizador): mod 0.29.0
+**1270d493…** (cont. 5 a 11), noticias «Bienvenido al Proyecto Umbral» y «Patrocinado por Grmnrt Hosting», servidor
+66.51.99.171:25626. El organizador ya subió al hosting ese mismo jar; el zip de Pojav
+(`Downloads/Backrooms-pojav-0.29.0.zip`) lleva también ese. **El pack-beta sigue en 2026.10.28-ca9d49cc.**
 
 ## 0.29.0 (cont. 11): en Pojav el menú decía «SIN SERVIDOR» (2026-10-31; Bruno)
 
-**Sin publicar**, jar **1270d493…** (sustituye a 6030991c; lleva lo de cont. 9 y 10). Ya está en los dos zips de
+**Publicado** (pack 2026.10.31-097f4e4c), jar **1270d493…** (sustituye a 6030991c; lleva lo de cont. 9 y 10). Ya está en los dos zips de
 `Downloads` y en `pack/mods`.
 - El menú del mod lee el servidor de `config/backrooms-event.json`, que escribe el launcher. En Pojav no existe, así
   que salía «SIN SERVIDOR» sin botón JUGAR y no había forma de entrar. Ahora, si no existe (`menu/Evento.cargar`),
