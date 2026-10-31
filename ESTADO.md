@@ -10,6 +10,22 @@ servidor 66.51.99.171:25626. El organizador ya subió al hosting el zip del serv
 Al publicar la 1.0.2, electron-builder creó dos releases v1.0.2 a la vez (una con el .blockmap y otra con el
 instalador y latest.yml): se juntó todo en una y se borró la otra. **El pack-beta sigue en 2026.10.28-ca9d49cc.**
 
+## 0.29.0 (cont. 10): Pojav se quedaba en la pantalla de inicio (2026-10-31; Bruno)
+
+**Sin publicar**, jar **6030991c…** (sustituye a a3fd2454; lleva lo de cont. 9). Ya está en los dos zips de
+`Downloads` y en `pack/mods`.
+- Un jugador de Pojav (MojoLauncher, aarch64) no pasaba de la pantalla de inicio. En su log: `Couldn't compile program
+  for pipeline backrooms_evento:pipeline/cinematica ... Link failed because of invalid fragment shader` y luego
+  `Failed to load required shader programs`: su OpenGL no traga `cinematica.fsh`, y como el mod registraba sus
+  shaders en `RenderPipelines`, Minecraft los trata como obligatorios y recarga sin fin.
+- Ahora ningún shader del mod se registra (`menu/render/Tuberias`): se compilan al usarlos por primera vez y, si
+  fallan, Minecraft se salta ese dibujo y el juego sigue. Afecta a la cinta de la cinemática, los párpados, los
+  efectos del mundo (oscuridad, linterna) y el fondo del menú. Si la cinta no compila, se ve negro con el HUD de la
+  cámara, los subtítulos y el sonido (`PantallaCinematica`). Si son los efectos del mundo, se ve el mundo sin
+  oscurecer.
+- **Probado** en el PC: el menú, el mundo con sus efectos y la cinemática se ven igual que antes. **Sin probar** en
+  un móvil (no tenemos uno con ese fallo); no se ha tocado `cinematica.fsh` (no sabemos qué parte no le gusta).
+
 ## 0.29.0 (cont. 9): el rótulo del Nivel Fun y el silencio en las cinemáticas (2026-10-31; Bruno)
 
 **Sin publicar**, jar **a3fd2454…** (sustituye a e9bae207, que es el del pack 2026.10.31-c7d86a5d y el del hosting).

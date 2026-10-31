@@ -58,8 +58,7 @@ public final class EfectosMundo {
 	private static final int MAX_BRILLOS = 8;
 	private static final int TAMANO_UBO = 64 + 16 * 6 + 16 * MAX_LUCES * 2 + 16 * MAX_BRILLOS;
 
-	private static final RenderPipeline MUNDO = RenderPipelines.register(
-		RenderPipeline.builder(RenderPipelines.POST_PROCESSING_SNIPPET)
+	private static final RenderPipeline MUNDO = RenderPipeline.builder(RenderPipelines.POST_PROCESSING_SNIPPET)
 			.withLocation(BackroomsEvento.id("pipeline/efectos_mundo"))
 			.withVertexShader(Identifier.withDefaultNamespace("core/screenquad"))
 			.withFragmentShader(BackroomsEvento.id("core/efectos"))
@@ -67,16 +66,15 @@ public final class EfectosMundo {
 			.withSampler("DepthSampler")
 			.withSampler("AguaSampler")
 			.withUniform("Efectos", UniformType.UNIFORM_BUFFER)
-			.build());
-	private static final RenderPipeline MANO = RenderPipelines.register(
-		RenderPipeline.builder(RenderPipelines.POST_PROCESSING_SNIPPET)
+			.build();
+	private static final RenderPipeline MANO = RenderPipeline.builder(RenderPipelines.POST_PROCESSING_SNIPPET)
 			.withLocation(BackroomsEvento.id("pipeline/efectos_mano"))
 			.withVertexShader(Identifier.withDefaultNamespace("core/screenquad"))
 			.withFragmentShader(BackroomsEvento.id("core/efectos_mano"))
 			.withSampler("DepthSampler")
 			.withUniform("Efectos", UniformType.UNIFORM_BUFFER)
 			.withBlend(new BlendFunction(SourceFactor.ZERO, DestFactor.SRC_COLOR))
-			.build());
+			.build();
 
 	private static GpuTexture copia;
 	private static GpuTextureView copiaVista;

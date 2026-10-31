@@ -33,8 +33,7 @@ import org.lwjgl.glfw.GLFW;
  * (parpados.fsh).
  */
 public class PantallaCinematica extends Screen {
-	private static final RenderPipeline CINTA = RenderPipelines.register(
-		RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
+	private static final RenderPipeline CINTA = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
 			.withLocation(BackroomsEvento.id("pipeline/cinematica"))
 			.withVertexShader(Identifier.fromNamespaceAndPath("backrooms", "core/fondo"))
 			.withFragmentShader(BackroomsEvento.id("core/cinematica"))
@@ -43,9 +42,8 @@ public class PantallaCinematica extends Screen {
 			.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
 			.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
 			.withDepthWrite(false)
-			.build());
-	private static final RenderPipeline PARPADOS = RenderPipelines.register(
-		RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
+			.build();
+	private static final RenderPipeline PARPADOS = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
 			.withLocation(BackroomsEvento.id("pipeline/parpados"))
 			.withVertexShader(Identifier.fromNamespaceAndPath("backrooms", "core/fondo"))
 			.withFragmentShader(BackroomsEvento.id("core/parpados"))
@@ -53,7 +51,7 @@ public class PantallaCinematica extends Screen {
 			.withBlend(BlendFunction.TRANSLUCENT)
 			.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
 			.withDepthWrite(false)
-			.build());
+			.build();
 
 	/** Abertura de los ojos al despertar: {segundo desde DESPERTAR, abertura}. */
 	private static final float[][] OJOS = {
@@ -124,6 +122,10 @@ public class PantallaCinematica extends Screen {
 		int h = this.height;
 		int guion = CinematicaCliente.guion();
 		if (t < CinematicaCliente.finCinta()) {
+			if (!net.backrooms.menu.render.Tuberias.valida(CINTA)) {
+				// la grafica no traga el shader de la cinta (algunos moviles con Pojav): negro, con el sonido y el HUD
+				g.fill(0, 0, w, h, 0xFF000000);
+			}
 			g.guiRenderState.submitGuiElement(new Capa(CINTA, new Matrix3x2f(g.pose()), w, h, t, guion,
 				TextureSetup.doubleTexture(AtlasCinematica.vista(), AtlasCinematica.muestreo(), LienzoCinematica.vista(), LienzoCinematica.muestreo())));
 			this.hudCamara(g, t);

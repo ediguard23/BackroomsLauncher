@@ -45,16 +45,14 @@ public final class Fondo {
 	private final float periodo;
 
 	private Fondo(String shader, float velocidad, float periodo) {
-		this.pipeline = RenderPipelines.register(
-			RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
+		this.pipeline = RenderPipeline.builder(RenderPipelines.MATRICES_PROJECTION_SNIPPET, RenderPipelines.GLOBALS_SNIPPET)
 				.withLocation(Identifier.fromNamespaceAndPath("backrooms", "pipeline/" + shader))
 				.withVertexShader(Identifier.fromNamespaceAndPath("backrooms", "core/fondo"))
 				.withFragmentShader(Identifier.fromNamespaceAndPath("backrooms", "core/" + shader))
 				.withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
 				.withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
 				.withDepthWrite(false)
-				.build()
-		);
+				.build();
 		this.velocidad = velocidad;
 		this.periodo = periodo;
 	}
