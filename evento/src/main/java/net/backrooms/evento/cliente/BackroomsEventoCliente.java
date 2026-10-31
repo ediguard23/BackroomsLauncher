@@ -99,6 +99,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		});
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.CinematicaTobogan.TYPE, (s, ctx) -> net.backrooms.evento.cliente.cinematica.ToboganCliente.empezar(s));
 		ClientPlayNetworking.registerGlobalReceiver(ViajeAscensor.TYPE, (s, ctx) -> AscensorCliente.empezar(s));
+		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.TituloNivel.TYPE, (s, ctx) -> TituloNivelCliente.mostrar(s));
 		ClientPlayNetworking.registerGlobalReceiver(EstadoJugador.TYPE, (s, ctx) -> SupervivenciaCliente.recibir(s));
 		ClientPlayNetworking.registerGlobalReceiver(Susto.TYPE, (s, ctx) -> SupervivenciaCliente.susto(s));
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Eliminado.TYPE, (s, ctx) -> Eliminaciones.recibir(s));
@@ -139,6 +140,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 				EcoVoz.tick(mc);
 			}
 			net.backrooms.evento.cliente.piscinas.MordiscoCliente.tick(mc);
+			TituloNivelCliente.tick(mc);
 		});
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("supervivencia"), SupervivenciaCliente::render);
 		HudElementRegistry.attachElementBefore(VanillaHudElements.CHAT, BackroomsEvento.id("camara"), CamaraHud::render);
@@ -155,6 +157,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("agarre"), AgarreCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("mordisco"), net.backrooms.evento.cliente.piscinas.MordiscoCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("ascensor"), AscensorCliente::render);
+		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("titulo_nivel"), TituloNivelCliente::render);
 		HudElementRegistry.attachElementAfter(VanillaHudElements.SUBTITLES, BackroomsEvento.id("eliminaciones"), Eliminaciones::render);
 		// con la camara levantada no se ve nada del juego (mira, barra, vida, armadura, comida,
 		// aire, experiencia): solo el visor

@@ -10,6 +10,23 @@ servidor 66.51.99.171:25626. El organizador ya subió al hosting el zip del serv
 Al publicar la 1.0.2, electron-builder creó dos releases v1.0.2 a la vez (una con el .blockmap y otra con el
 instalador y latest.yml): se juntó todo en una y se borró la otra. **El pack-beta sigue en 2026.10.28-ca9d49cc.**
 
+## 0.29.0 (cont. 9): el rótulo del Nivel Fun y el silencio en las cinemáticas (2026-10-31; Bruno)
+
+**Sin publicar**, jar **a3fd2454…** (sustituye a e9bae207, que es el del pack 2026.10.31-c7d86a5d y el del hosting).
+Ya está en los dos zips de `Downloads` y en `pack/mods`.
+- El rótulo al llegar a la Fiesta («NIVEL FUN / FEEDING ROOMS») era el título de Minecraft; ahora es como el «NIVEL 3»
+  del final de la Fiesta: la letra del evento, los mismos colores y medidas, entra parpadeando y se va despacio, con
+  una sombra suave para que se lea en las salas claras. Paquete nuevo `red/TituloNivel` (si el cliente no tiene el
+  mod, el título de Minecraft) y `cliente/TituloNivelCliente` (espera a que acabe la cinemática del tobogán). La
+  Estación lo usa también cuando se llega sin la cinemática (comandos del staff). **Probado** con
+  `/backrooms fiesta <jugador>`.
+- Durante una cinemática solo se oye ella. `cliente/Cinematicas` junta las cuatro (el /start, el tobogán, el final
+  de la Fiesta, el final de la Estación): `CinematicaSonidoMixin` baja a cero todo lo que no es su banda sonora (antes
+  el final de la Fiesta dejaba el mundo al 30 % y el de la Estación al 55 %; el tobogán no bajaba nada), y `EcoVoz`
+  calla las voces del Simple Voice Chat (también las de la megafonía del staff, `StaticSound`). Al despertar vuelve
+  todo poco a poco, como antes. **Sin probar de oído** (compila; las cinemáticas solo ponían su banda, así que no se
+  pierde ningún sonido suyo); la voz, sin probar con otro jugador.
+
 ## 0.29.0 (cont. 8): el corte de la cadena, con física (2026-10-31; Bruno)
 
 **Publicado** (pack 2026.10.31-c7d86a5d), jar **e9bae207…** (sustituye a a4b354bf; lleva lo de cont. 5, 6 y 7). Ya está en los dos zips de

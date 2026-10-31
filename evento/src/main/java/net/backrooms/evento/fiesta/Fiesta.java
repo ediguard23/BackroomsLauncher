@@ -79,9 +79,7 @@ public final class Fiesta {
 			net.backrooms.evento.mision.Misiones.get().asignarFiesta(j);
 			JuegoFiesta.get().llega(j);
 			JuegoFiesta.get().nuevaVuelta(j);
-			j.connection.send(new ClientboundSetTitlesAnimationPacket(20, 80, 30));
-			j.connection.send(new ClientboundSetTitleTextPacket(Component.literal(NOMBRE).withStyle(ChatFormatting.LIGHT_PURPLE, ChatFormatting.BOLD)));
-			j.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(SUBTITULO).withStyle(ChatFormatting.YELLOW)));
+			net.backrooms.evento.red.TituloNivel.enviar(j, NOMBRE, SUBTITULO);
 			Sonidos.aJugador(j, Sonidos.FIESTA_BIENVENIDA, 0.9F);
 		}
 		if (!nueva) {

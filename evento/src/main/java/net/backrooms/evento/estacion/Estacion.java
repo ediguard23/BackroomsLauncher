@@ -95,9 +95,7 @@ public final class Estacion {
 			net.backrooms.evento.mision.Misiones.get().asignarEstacion(j);
 		}
 		if (nueva && presentar) {
-			j.connection.send(new ClientboundSetTitlesAnimationPacket(20, 80, 30));
-			j.connection.send(new ClientboundSetTitleTextPacket(Component.literal(NOMBRE).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD)));
-			j.connection.send(new ClientboundSetSubtitleTextPacket(Component.literal(SUBTITULO).withStyle(ChatFormatting.YELLOW)));
+			net.backrooms.evento.red.TituloNivel.enviar(j, NOMBRE, "LA " + SUBTITULO);
 			Sonidos.aJugador(j, Sonidos.ESTACION_RADIO, 0.9F);
 		}
 		BackroomsEvento.LOG.info("{} {} a la Estacion", j.getGameProfile().name(), nueva ? "llega" : "vuelve");

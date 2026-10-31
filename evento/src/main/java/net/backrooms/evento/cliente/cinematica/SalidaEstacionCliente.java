@@ -729,7 +729,7 @@ public final class SalidaEstacionCliente {
 		return Mth.lerp(entra * (1.0F - panel), 1.0F, z);
 	}
 
-	/** Cuanto se oye el resto del mundo: la Estacion de fondo hasta que se cierran las puertas; en el vestibulo vuelve. */
+	/** Cuanto se oye el resto del mundo: nada durante la cinematica (solo ella); en el vestibulo vuelve. */
 	public static float volumenMundo() {
 		if (!activa()) {
 			return 1.0F;
@@ -738,7 +738,7 @@ public final class SalidaEstacionCliente {
 		if (llegada >= 0) {
 			return Mth.clamp((t - llegada - ABRE) / 2.0F, 0.0F, 1.0F);
 		}
-		return llegando || t >= CERRADA ? 0.0F : 0.55F;
+		return 0.0F;
 	}
 
 	/* --------------------------------------------------------------- final */

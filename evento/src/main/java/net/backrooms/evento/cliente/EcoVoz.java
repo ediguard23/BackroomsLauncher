@@ -33,6 +33,8 @@ public final class EcoVoz {
 	/** Si el nivel donde estoy tiene eco (las Piscinas y la Estacion). */
 	private static volatile boolean conEco;
 	private static volatile boolean activo;
+	/** Cuanto se oyen las voces: nada mientras se ve una cinematica (Cinematicas), y vuelven con el mundo. */
+	private static volatile float volumen = 1.0F;
 	private static final Map<UUID, Sala> SALAS = new ConcurrentHashMap<>();
 
 	private EcoVoz() {
@@ -40,6 +42,7 @@ public final class EcoVoz {
 
 	public static void registrar(EventRegistration registro) {
 		registro.registerEvent(ClientReceiveSoundEvent.EntitySound.class, e -> procesar(e, posiciones.get(e.getEntityId())));
+		registro.registerEvent(ClientReceiveSoundEvent.StaticSound.class, EcoVoz::callar);
 		registro.registerEvent(ClientReceiveSoundEvent.LocationalSound.class, e -> {
 			Position p = e.getPosition();
 			procesar(e, p == null ? null : new Vec3(p.getX(), p.getY(), p.getZ()));
@@ -48,6 +51,7 @@ public final class EcoVoz {
 
 	/** En el hilo del juego: donde esta cada jugador del nivel (y yo). */
 	public static void tick(Minecraft mc) {
+		volumen = Cinematicas.volumenMundo();
 		if (mc.level == null || mc.player == null) {
 			activo = false;
 			SALAS.clear();
@@ -67,7 +71,28 @@ public final class EcoVoz {
 		SALAS.values().removeIf(s -> ahora - s.usada > 15_000L);
 	}
 
+	/** Durante una cinematica la voz se baja (a nada) como el resto del mundo. True si se ha callado del todo. */
+	private static boolean callar(ClientReceiveSoundEvent e) {
+		float v = volumen;
+		if (v >= 0.999F) {
+			return false;
+		}
+		short[] audio = e.getRawAudio();
+		if (audio == null) {
+			return true;
+		}
+		short[] out = new short[audio.length];
+		for (int n = 0; n < audio.length; n++) {
+			out[n] = (short) Math.round(audio[n] * v);
+		}
+		e.setRawAudio(out);
+		return v <= 0.001F;
+	}
+
 	private static void procesar(ClientReceiveSoundEvent e, Vec3 donde) {
+		if (callar(e)) {
+			return;
+		}
 		Vec3 aqui = yo;
 		if (!activo || !conEco || donde == null || aqui == null) {
 			return;

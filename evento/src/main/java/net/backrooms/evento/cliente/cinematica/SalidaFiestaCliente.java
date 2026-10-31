@@ -909,13 +909,13 @@ public final class SalidaFiestaCliente {
 		return r > 0 ? r : -1;
 	}
 
-	/** Cuanto se oye el resto del mundo: bajo en la Fiesta; al despertar, nada y vuelve poco a poco. */
+	/** Cuanto se oye el resto del mundo: nada en la Fiesta (solo la cinematica); al despertar vuelve poco a poco. */
 	public static float volumenMundo() {
 		if (!activa()) {
 			return 1.0F;
 		}
 		if (llegada < 0) {
-			return llegando ? 0.0F : 0.3F;
+			return 0.0F;
 		}
 		return Mth.clamp((despierta(0.0F) - NEGRO_LLEGADA - 1.0F) / 9.0F, 0.0F, 1.0F);
 	}

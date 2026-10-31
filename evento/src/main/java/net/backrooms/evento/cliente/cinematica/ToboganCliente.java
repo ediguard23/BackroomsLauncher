@@ -66,6 +66,22 @@ public final class ToboganCliente {
 		return ticks >= 0;
 	}
 
+	/** Si ese sonido es la banda de la cinematica (no se silencia). */
+	public static boolean esBanda(Identifier id) {
+		return id.equals(BANDA) || id.equals(BANDA_FIN);
+	}
+
+	/** Cuanto se oye el resto del mundo: nada hasta llegar a la Fiesta; vuelve al abrirse la imagen. */
+	public static float volumenMundo() {
+		if (!activa()) {
+			return 1.0F;
+		}
+		if (llegada < 0) {
+			return 0.0F;
+		}
+		return Mth.clamp((segundos(0.0F) - llegada - NEGRO_LLEGADA) / ABRE, 0.0F, 1.0F);
+	}
+
 	/** Si la camara esta en el pasillo (aun en las Piscinas). */
 	private static boolean enPiscinas() {
 		return activa() && llegada < 0;

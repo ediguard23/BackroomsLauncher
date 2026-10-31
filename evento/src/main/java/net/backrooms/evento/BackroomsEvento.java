@@ -61,6 +61,7 @@ public class BackroomsEvento implements ModInitializer {
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.CinematicaTobogan.TYPE, net.backrooms.evento.red.CinematicaTobogan.CODEC);
 		PayloadTypeRegistry.playS2C().register(Herramientas.TYPE, Herramientas.CODEC);
 		PayloadTypeRegistry.playS2C().register(ViajeAscensor.TYPE, ViajeAscensor.CODEC);
+		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.TituloNivel.TYPE, net.backrooms.evento.red.TituloNivel.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.EstadoJugador.TYPE, net.backrooms.evento.red.EstadoJugador.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Susto.TYPE, net.backrooms.evento.red.Susto.CODEC);
 		PayloadTypeRegistry.playS2C().register(net.backrooms.evento.red.Eliminado.TYPE, net.backrooms.evento.red.Eliminado.CODEC);
