@@ -7,6 +7,18 @@ mismo jar y el LEEME al día: borrar el mundo anterior y dejar un solo backrooms
 66.51.99.171:25626. Los probadores no reinstalan nada: el launcher de la beta baja el pack al pulsar JUGAR. Del
 pack se quitó el mod de rodaje (tools/rodaje), que se había colado en pack/mods al grabar el tráiler.
 
+## 0.29.0 (cont. 4): menos bajón de FPS con las misiones abiertas y sin número en la espalda (2026-10-30; Bruno)
+
+**Sin publicar** (va con lo de abajo en el próximo pack-beta y jar del servidor).
+
+- **Misiones (la M)**: las arrugas del papel () se pintaban punto a punto, unos 3.900
+  rectángulos de 2 píxeles en cada fotograma, aunque la hoja estuviera ya abierta. Ahora cada tramo recto del
+  doblez es un solo rectángulo (se ve igual). Medido en el cliente de pruebas (limitado a 30 FPS): antes 30 → 19-24
+  al abrirla; ahora se queda en 30. Orden de prueba nueva:  (escribe los FPS en el log).
+- **Dorsal quitado**: el número de participante ya no se pinta en la espalda del traje (). El
+  servidor sigue mandando los números (), pero el cliente no los dibuja. Probado: la espalda
+  del traje en tercera persona, sin número.
+
 ## 0.29.0 (cont. 3): más articulación en las cinemáticas del juego (2026-10-30; Bruno)
 
 **Sin publicar** (hace falta pack-beta y jar del servidor nuevos para que lo vea la beta). Las cinemáticas

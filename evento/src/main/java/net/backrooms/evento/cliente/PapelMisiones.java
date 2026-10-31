@@ -125,7 +125,7 @@ public final class PapelMisiones {
 			while (y < alto) {
 				float largo = 18 + h(i * 13.3F + y) * 30;
 				float nx = Mth.clamp(x + dx * largo / 10.0F + (h(y * 0.37F + i) - 0.5F) * 14, 4, HojaMisiones.ANCHO - 6);
-				linea(g, x, y, nx, Math.min(y + largo, alto - 1), oscuro, claro);
+				linea(g, x, y, nx, Math.min(y + largo, alto - 1), oscuro, claro, true);
 				x = nx;
 				y += largo;
 			}
@@ -136,21 +136,44 @@ public final class PapelMisiones {
 			while (x < HojaMisiones.ANCHO) {
 				float largo = 22 + h(i * 11.1F + x) * 40;
 				float ny = y + (h(x * 0.21F + i * 3) - 0.5F) * 12;
-				linea(g, x, y, x + largo, ny, oscuro, claro);
+				linea(g, x, y, x + largo, ny, oscuro, claro, false);
 				x += largo;
 				y = ny;
 			}
 		}
 	}
 
-	private static void linea(GuiGraphics g, float x0, float y0, float x1, float y1, int oscuro, int claro) {
+	/**
+	 * Un doblez de (x0, y0) a (x1, y1): una raya oscura con su brillo al lado. Se dibuja por tramos rectos
+	 * (cada tramo es un solo rectangulo) y no punto a punto: la hoja se pinta en cada fotograma y miles de
+	 * rectangulos de 2 pixeles hundian los FPS con las misiones abiertas.
+	 */
+	private static void linea(GuiGraphics g, float x0, float y0, float x1, float y1, int oscuro, int claro, boolean vertical) {
 		int n = (int) Math.ceil(Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)) / 2.0F);
-		for (int i = 0; i <= n; i++) {
-			float u = n == 0 ? 0 : (float) i / n;
+		int ax = Math.round(x0);
+		int ay = Math.round(y0);
+		int bx = ax;
+		int by = ay;
+		for (int i = 1; i <= n + 1; i++) {
+			float u = Math.min(1.0F, n == 0 ? 1.0F : (float) i / n);
 			int x = Math.round(Mth.lerp(u, x0, x1));
 			int y = Math.round(Mth.lerp(u, y0, y1));
-			g.fill(x, y, x + 2, y + 1, oscuro);
-			g.fill(x, y + 1, x + 2, y + 2, claro);
+			boolean sigue = i <= n && (vertical ? x == ax : y == ay);
+			if (sigue) {
+				bx = x;
+				by = y;
+				continue;
+			}
+			// cierra el tramo recto [a, b]
+			if (vertical) {
+				g.fill(ax, Math.min(ay, by), ax + 1, Math.max(ay, by) + 2, oscuro);
+				g.fill(ax + 1, Math.min(ay, by), ax + 2, Math.max(ay, by) + 2, claro);
+			} else {
+				g.fill(Math.min(ax, bx), ay, Math.max(ax, bx) + 2, ay + 1, oscuro);
+				g.fill(Math.min(ax, bx), ay + 1, Math.max(ax, bx) + 2, ay + 2, claro);
+			}
+			ax = bx = x;
+			ay = by = y;
 		}
 	}
 

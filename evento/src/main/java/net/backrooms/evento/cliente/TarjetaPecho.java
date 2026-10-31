@@ -18,7 +18,7 @@ import net.minecraft.world.entity.player.Player;
  * La acreditacion del Proyecto Umbral en el pecho del traje: una tarjetita blanca con una
  * franja cian y el nick de quien lo lleva. Sustituye al nombre flotante (que se quita a quien
  * lleva la chaqueta del traje: NombreTrajeMixin). Sin traje, en la recepcion, el nombre de
- * siempre. En la espalda, su numero de participante (Participantes), como un dorsal.
+ * siempre. (El numero de participante en la espalda se quito: lo pidio el organizador.)
  *
  * La tarjeta es estrecha (5 pixeles): las mangas del traje van infladas un pixel y empiezan a 3
  * del centro; si fuera mas ancha, al andar o agacharse las mangas la taparian.
@@ -80,28 +80,5 @@ public class TarjetaPecho extends RenderLayer<AvatarRenderState, PlayerModel> {
 			pose.popPose();
 		}
 		pose.popPose();
-		// el dorsal: el numero de participante en la espalda, en un parche blanco
-		Integer n = numeros.get(jugador.getUUID());
-		if (n != null && n > 0) {
-			FormattedCharSequence dorsal = Component.literal(String.format(java.util.Locale.ROOT, "%03d", n)).getVisualOrderText();
-			int anchoD = Math.max(font.width(dorsal), 1);
-			pose.pushPose();
-			this.getParentModel().body.translateAndRotate(pose);
-			// arriba de la espalda (sobre el simbolo del traje), mirando hacia atras
-			pose.translate(0.0F, 0.9F * PX, 3.15F * PX);
-			pose.mulPose(com.mojang.math.Axis.YP.rotationDegrees(180.0F));
-			float escD = Math.min(PX * 2.6F / 8.0F, PX * 5.2F / anchoD);
-			for (int pasada = 0; pasada < 2; pasada++) {
-				pose.pushPose();
-				if (pasada == 1) {
-					pose.translate(0.0F, 0.0F, -0.06F * PX);
-				}
-				pose.scale(escD, escD, escD);
-				cola.submitText(pose, -anchoD / 2.0F, 0, dorsal, false, Font.DisplayMode.POLYGON_OFFSET, luz,
-					pasada == 0 ? 0x00000000 : TINTA, pasada == 0 ? PAPEL : 0, 0);
-				pose.popPose();
-			}
-			pose.popPose();
-		}
 	}
 }

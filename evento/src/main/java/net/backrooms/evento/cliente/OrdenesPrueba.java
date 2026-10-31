@@ -169,6 +169,7 @@ final class OrdenesPrueba {
 			case "cerrar" -> mc.setScreen(null);
 			case "misiones" -> PapelMisiones.alternar(mc);
 			case "cinematica" -> net.backrooms.evento.cliente.cinematica.CinematicaCliente.empezar();
+			case "fps" -> net.backrooms.evento.BackroomsEvento.LOG.info("FPS: {}", mc.getFps());
 			case "linterna" -> HerramientasCliente.pulsar(net.backrooms.evento.red.AccionJugador.LINTERNA);
 			case "camara" -> HerramientasCliente.pulsar(net.backrooms.evento.red.AccionJugador.CAMARA);
 			default -> { }
