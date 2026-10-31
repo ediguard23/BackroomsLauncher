@@ -232,7 +232,25 @@ public final class Fases {
 		for (ServerPlayer o : this.servidor.getPlayerList().getPlayers()) {
 			net.backrooms.evento.Sonidos.aJugador(o, net.backrooms.evento.Sonidos.ESCAPADO, 0.9F);
 		}
+		agradecer(j);
 		BackroomsEvento.LOG.info("{} ha escapado (puesto {})", nombre, puesto);
+	}
+
+	/** Al acabar el evento: las gracias por jugar y el patrocinador (Grmnrt Hosting). */
+	private static void agradecer(ServerPlayer j) {
+		j.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitlesAnimationPacket(30, 140, 40));
+		j.connection.send(new net.minecraft.network.protocol.game.ClientboundSetSubtitleTextPacket(Component.literal("Patrocinado por ")
+			.withStyle(ChatFormatting.GRAY).append(Component.literal("Grmnrt Hosting").withStyle(ChatFormatting.GOLD))));
+		j.connection.send(new net.minecraft.network.protocol.game.ClientboundSetTitleTextPacket(
+			Component.literal("¡GRACIAS POR JUGAR!").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD)));
+		String raya = "━━━━━━━━━━━━━━━━━━━━━━━━";
+		j.sendSystemMessage(Component.literal(raya).withStyle(ChatFormatting.DARK_GRAY));
+		j.sendSystemMessage(Component.literal("¡Gracias por jugar BACKROOMS!").withStyle(ChatFormatting.YELLOW, ChatFormatting.BOLD));
+		j.sendSystemMessage(Component.literal("Esperamos que lo hayas disfrutado.").withStyle(ChatFormatting.WHITE));
+		j.sendSystemMessage(Component.literal("Este evento fue patrocinado por ").withStyle(ChatFormatting.GRAY)
+			.append(Component.literal("Grmnrt Hosting").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
+			.append(Component.literal(". ¡Feliz Halloween!").withStyle(ChatFormatting.GRAY)));
+		j.sendSystemMessage(Component.literal(raya).withStyle(ChatFormatting.DARK_GRAY));
 	}
 
 	/* ------------------------------------------------ puntos de llegada */

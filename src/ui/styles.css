@@ -472,3 +472,50 @@ body.noclip #pasillo { filter: hue-rotate(-20deg) saturate(1.6) contrast(1.3); }
   .lema { display: none; }
   .izquierda { gap: 16px; }
 }
+
+/* ------------------------------------------------------------ patrocinio */
+
+/* Un murcielago revolotea en el hueco entre las dos columnas con el cartel del patrocinador. */
+.patrocinio {
+  position: fixed; z-index: 12; top: 70px; left: calc(44px + var(--ancho-izq) + 46px);
+  pointer-events: none; opacity: 0; transition: opacity 1.2s ease 1.2s;
+}
+body.listo .patrocinio { opacity: 1; }
+body.en-avance .patrocinio { opacity: 0; transition-delay: 0s; }
+.murcielago {
+  display: flex; flex-direction: column; align-items: center; width: 210px;
+  animation: revolotea 14s ease-in-out infinite;
+}
+.murcielago > svg { width: 96px; height: 42px; fill: #120d06; filter: drop-shadow(0 0 6px rgba(255, 140, 40, 0.35)); }
+.murcielago .ojo { fill: #ff8a1c; }
+.murcielago .ala { transform-box: fill-box; animation: aletea 0.32s ease-in-out infinite alternate; }
+.murcielago .ala-i { transform-origin: 100% 60%; }
+.murcielago .ala-d { transform-origin: 0% 60%; }
+@keyframes aletea { from { transform: scaleY(1); } to { transform: scaleY(-0.35); } }
+.murcielago .hilo { width: 1px; height: 16px; background: rgba(242, 233, 196, 0.45); margin-top: -4px; }
+.cartel {
+  display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 9px;
+  background: rgba(18, 12, 6, 0.82); border: 1px solid rgba(255, 140, 40, 0.55); border-radius: 3px;
+  box-shadow: 0 0 14px rgba(255, 120, 30, 0.25);
+  animation: balancea 3.2s ease-in-out infinite alternate; transform-origin: 50% -16px;
+}
+.calabaza { width: 22px; height: 22px; flex: none; }
+.calabaza .cal { fill: #f07a14; }
+.calabaza .tallo { fill: #5d7a22; }
+.calabaza .cara { fill: #3a1600; animation: brilla 2.4s ease-in-out infinite; }
+@keyframes brilla { 50% { fill: #ffd34a; } }
+.cartel-txt { display: flex; flex-direction: column; line-height: 1; white-space: nowrap; }
+.cartel-txt small { font-size: 13px; letter-spacing: 0.2em; color: rgba(242, 233, 196, 0.75); }
+.cartel-txt b { font-weight: normal; font-size: 21px; letter-spacing: 0.06em; color: #ff9a3c; text-shadow: 0 0 8px rgba(255, 120, 30, 0.5); }
+@keyframes revolotea {
+  0%   { transform: translate(0, 0); }
+  20%  { transform: translate(28px, 14px); }
+  40%  { transform: translate(-6px, 30px); }
+  60%  { transform: translate(-14px, 10px); }
+  80%  { transform: translate(8px, -6px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes balancea { from { transform: rotate(-4deg); } to { transform: rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .murcielago, .murcielago .ala, .cartel, .calabaza .cara { animation: none; }
+}
