@@ -1,15 +1,17 @@
 # Estado del proyecto (para la siguiente sesión)
 
 Última actualización: 2026-10-30 (hora de Honduras). Mod `backrooms_evento` **0.29.0**, launcher **1.0.1**
-(publicado) y un launcher aparte para la beta. **Beta #4** (2026-10-28): pack-beta **2026.10.28-ca9d49cc** con la 0.29.0
-(jar sha1 6c9908058d61…; noticia «Beta #4») y `Downloads/Backrooms-servidor-beta4-0.29.0.zip` (el de la beta #3 con el
-mismo jar y el LEEME al día: borrar el mundo anterior y dejar un solo backrooms-evento en mods/). El mismo hosting
-66.51.99.171:25626. Los probadores no reinstalan nada: el launcher de la beta baja el pack al pulsar JUGAR. Del
-pack se quitó el mod de rodaje (tools/rodaje), que se había colado en pack/mods al grabar el tráiler.
+(publicado). **Pack oficial (release "pack") 2026.10.30-3e247364** (2026-10-30, con permiso del organizador:
+«para el evento oficial»): mod 0.29.0 **ce3feff8ad8b…** (lo de cont. 3 y cont. 4: articulación, misiones sin bajón
+de FPS, sin dorsal), noticia «Actualización del evento», mismo servidor 66.51.99.171:25626. Se publicó con
+`publicar-pack.js --tag=pack --ficha=pack/.evento-oficial.json` (la ficha de la beta con su noticia). Zip del
+servidor: `Downloads/Backrooms-servidor-oficial-0.29.0.zip` (el de la beta #4 con el jar nuevo y el LEEME al día:
+en un servidor ya montado basta cambiar el jar, sin borrar el mundo ni tocar backrooms-acceso.json). **El pack-beta
+sigue en 2026.10.28-ca9d49cc** (jar 6c9908058d61…): el launcher de la beta ya no entra en ese servidor.
 
 ## 0.29.0 (cont. 4): menos bajón de FPS con las misiones abiertas y sin número en la espalda (2026-10-30; Bruno)
 
-**Sin publicar** (va con lo de abajo en el próximo pack-beta y jar del servidor).
+**Publicado** en el pack oficial 2026.10.30-3e247364 (ver arriba).
 
 - **Misiones (la M)**: las arrugas del papel (`PapelMisiones.pliegues`) se pintaban punto a punto, unos 3.900
   rectángulos de 2 píxeles en cada fotograma, aunque la hoja estuviera ya abierta. Ahora cada tramo recto del
@@ -21,7 +23,7 @@ pack se quitó el mod de rodaje (tools/rodaje), que se había colado en pack/mod
 
 ## 0.29.0 (cont. 3): más articulación en las cinemáticas del juego (2026-10-30; Bruno)
 
-**Sin publicar** (hace falta pack-beta y jar del servidor nuevos para que lo vea la beta). Las cinemáticas
+**Publicado** en el pack oficial 2026.10.30-3e247364 (ver arriba). Las cinemáticas
 del tráiler no se tocan. Cambios:
 
 - **Final del Nivel 3** (`SalidaEstacionCliente`): al mirarse las manos se ve **el cuerpo entero** (menos la
