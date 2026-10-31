@@ -346,9 +346,10 @@ public final class JuegoEstacion {
 			this.poner(nivel, c.x(), c.y(), c.z(), Interactivos.HECHO, this.e.activa[p]);
 			this.abrir(nivel, PlanoEstacion.SALIDAS[p], this.e.activa[p]);
 		}
+		// mientras dura el corte no se tocan ni la persiana (sube a los PUERTA ticks) ni la cadena (la mueve la animacion)
 		boolean cortando = this.corteDesde >= 0 && this.ticks - this.corteDesde < CorteCadena.PUERTA;
 		this.abrir(nivel, PlanoEstacion.puertaFinal, this.e.cadena && !cortando);
-		if (!cortando) {
+		if (!cortando && this.corte == null) {
 			this.cadena(nivel);
 		}
 		for (PlanoEstacion.Buzon b : PlanoEstacion.BUZONES) {
@@ -451,7 +452,11 @@ public final class JuegoEstacion {
 		}
 	}
 
-	/** La cadena de la puerta del final como dice el estado: puesta, o cortada y tirada en el suelo. */
+	/**
+	 * La cadena de la puerta del final como dice el estado: puesta (sus tres bloques), o cortada: el bloque del medio
+	 * con las dos mitades colgando de los lados y el candado en el suelo (CorteCadena.estado(5)). Quita tambien el
+	 * monton que dejaban en el suelo las versiones de antes.
+	 */
 	private void cadena(ServerLevel nivel) {
 		int[] c = PlanoEstacion.CADENA;
 		BlockPos monton = new BlockPos(c[0] + 1, c[1] - 1, c[2]);
@@ -461,16 +466,13 @@ public final class JuegoEstacion {
 		for (int k = 0; k < 3; k++) {
 			BlockPos p = new BlockPos(c[0] + k, c[1], c[2]);
 			BlockState s = nivel.getBlockState(p);
-			if (this.e.cadena && s.is(BloquesEstacion.CADENA)) {
-				nivel.setBlock(p, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
-			} else if (!this.e.cadena && s.isAir()) {
-				nivel.setBlock(p, CorteCadena.estado(k), Block.UPDATE_CLIENTS);
+			BlockState quiere = this.e.cadena ? (k == 1 ? CorteCadena.estado(5) : net.minecraft.world.level.block.Blocks.AIR.defaultBlockState())
+				: CorteCadena.estado(k);
+			if (s != quiere && (s.isAir() || s.is(BloquesEstacion.CADENA))) {
+				nivel.setBlock(p, quiere, Block.UPDATE_CLIENTS);
 			}
 		}
-		BlockState m = nivel.getBlockState(monton);
-		if (this.e.cadena && m.isAir()) {
-			nivel.setBlock(monton, CorteCadena.estado(5), Block.UPDATE_CLIENTS);
-		} else if (!this.e.cadena && m.is(BloquesEstacion.CADENA)) {
+		if (nivel.getBlockState(monton).is(BloquesEstacion.CADENA)) {
 			nivel.setBlock(monton, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_CLIENTS);
 		}
 	}

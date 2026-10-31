@@ -804,7 +804,8 @@ console.log('  objetos');
 
 // la cadena con candado de la puerta del final (cadena_puerta, Interactivos.Cadena): VARIANTE 0 y 2 los
 // tramos de los lados, 1 el del medio con el candado, 3 el del medio sin el (para la animacion del corte), 4 el
-// candado solo con el arco partido y 5 la cadena tirada en el suelo con el candado al lado
+// candado solo con el arco partido, 5 la cadena cortada (las dos mitades colgando y el candado en el suelo) y 6 y 7
+// los eslabones sueltos de la animacion
 {
   const ACERO = [104, 106, 112];
   const BRILLO = [168, 170, 176];
@@ -862,18 +863,26 @@ console.log('  objetos');
   json('models/block/cadena_puerta_1.json', mod(conCandado, [tramos[1], ...candado(false)], { ambientocclusion: false }));
   json('models/block/cadena_puerta_3.json', mod(lado, [tramos[1]], { ambientocclusion: false }));
   json('models/block/cadena_puerta_4.json', mod(conCandado, candado(true), { ambientocclusion: false }));
-  // tirada en el suelo: tres tramos en monton y el candado de lado
-  const suelo = (x0, z, ang) => ({
-    from: [x0, 0, z], to: [x0 + 12, 1, z + 5],
-    rotation: { angle: ang, axis: 'y', origin: [8, 0, 8] },
-    faces: { up: { texture: '#a', uv: [0, 5, 12, 10] }, north: { texture: '#c', uv: [0, 7, 12, 8] }, south: { texture: '#c', uv: [0, 7, 12, 8] } }
-  });
+  // cortada (va en el bloque del medio y se sale de el): las dos mitades colgando de los lados del marco, quietas
+  // a un palmo del suelo, y el candado tumbado en el suelo. Es como acaba la animacion (CorteCadena): mismas medidas
+  const colgando = (x0) => [
+    { from: [x0, -8, 14], to: [x0 + 5, 8, 15], faces: { north: { texture: '#c', uv: [0, 5, 16, 11], rotation: 90 }, south: { texture: '#c', uv: [0, 5, 16, 11], rotation: 90 } } },
+    { from: [x0, -13.5, 14], to: [x0 + 5, -8, 15], faces: { north: { texture: '#c', uv: [0, 5, 5.5, 11], rotation: 90 }, south: { texture: '#c', uv: [0, 5, 5.5, 11], rotation: 90 } } }
+  ];
   json('models/block/cadena_puerta_5.json', mod(conCandado, [
-    suelo(1, 4, 22.5), suelo(3, 7, -22.5), { ...suelo(2, 6, 0), from: [2, 1, 6], to: [14, 2, 11] },
-    caja([10, 0, 1.5], [15, 3, 4], '#k'), caja([11, 3, 2.3], [12, 4.5, 3.2], '#s')
+    ...colgando(27), ...colgando(-16),
+    caja([5.5, -16, 9], [10.5, -14.2, 14], '#k'),
+    caja([8.7, -15.5, 6], [9.5, -14.7, 9], '#s'), caja([7.8, -15.5, 5.2], [9.5, -14.7, 6], '#s')
   ], { ambientocclusion: false }));
+  // los eslabones sueltos de la animacion del corte (CorteCadena): 6 uno de canto (aro) y 7 uno de plano (barra)
+  const eslabon = (u) => ({
+    from: [6, 5.5, 14], to: [10, 10.5, 15],
+    faces: { north: { texture: '#c', uv: [u, 5, u + 4, 11] }, south: { texture: '#c', uv: [u, 5, u + 4, 11] } }
+  });
+  json('models/block/cadena_puerta_6.json', mod(lado, [eslabon(0)], { ambientocclusion: false }));
+  json('models/block/cadena_puerta_7.json', mod(lado, [eslabon(4)], { ambientocclusion: false }));
   estados('cadena_puerta', { facing: FAC, variante: rango(8) },
-    (e) => `cadena_puerta_${e.variante === 2 ? 0 : e.variante > 5 ? 0 : e.variante}`, 'cadena_puerta_1');
+    (e) => `cadena_puerta_${e.variante === 2 ? 0 : e.variante}`, 'cadena_puerta_1');
   console.log('  cadena con candado de la puerta del final');
 }
 

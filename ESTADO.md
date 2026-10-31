@@ -9,9 +9,25 @@ servidor: `Downloads/Backrooms-servidor-oficial-0.29.0.zip` (el de la beta #4 co
 en un servidor ya montado basta cambiar el jar, sin borrar el mundo ni tocar backrooms-acceso.json). **El pack-beta
 sigue en 2026.10.28-ca9d49cc** (jar 6c9908058d61…): el launcher de la beta ya no entra en ese servidor.
 
+## 0.29.0 (cont. 8): el corte de la cadena, con física (2026-10-31; Bruno)
+
+**Sin publicar**, jar **e9bae207…** (sustituye a a4b354bf; lleva lo de cont. 5, 6 y 7). Ya está en los dos zips de
+`Downloads` y en `pack/mods`.
+- Antes la cadena "explotaba": los trozos salían disparados y quedaba un montón en el suelo. Ahora (`CorteCadena`)
+  se corta el candado en el centro: el candado cae al suelo dando media vuelta y bota, y la cadena se parte en dos
+  mitades que siguen sujetas a los lados del marco. Cada mitad es una cuerda de 6 eslabones simulada en el servidor
+  (Verlet: gravedad, rozamiento y el largo de cada eslabón); cada eslabón es una entidad de bloque (variantes 6 y 7:
+  uno de canto y uno de plano). Caen como un péndulo, se balancean y se quedan colgando; a los 100 ticks se quitan
+  y queda el bloque de la cadena cortada.
+- La variante 5 de `cadena_puerta` ahora es la cadena cortada: va en el bloque del medio (se sale de él) con las
+  dos mitades colgando a un palmo del suelo y el candado tumbado, con la misma pose en la que acaba la animación.
+  `JuegoEstacion.cadena` la pone ahí y quita el montón de las versiones de antes; mientras dura el corte no toca la
+  cadena (la persiana sigue subiendo a los 36 ticks).
+- **Probado** en local (cortando con la cizalla, capturas de 0,3 a 6 s): sin saltos al pasar de la animación al bloque.
+
 ## 0.29.0 (cont. 7): el Amasijo con columna y sin manos a través de las puertas (2026-10-31; Bruno)
 
-**Sin publicar**, jar **a4b354bf…** (sustituye a b75cc925; lleva lo de cont. 5 y 6). Ya está en los dos zips de
+**Sin publicar**, jar a4b354bf… (ya sustituido por e9bae207, cont. 8; lleva lo de cont. 5 y 6). Ya está en los dos zips de
 `Downloads` y en `pack/mods`.
 - El cuerpo del Amasijo era una sola pieza y comiendo se inclinaba entero ~25°, rígido. Ahora tiene columna
   (`tools/texturas/entidades.js`): `cuerpo` (la cadera, con las patas y la grupa), `torso` (la boca, los bultos y
