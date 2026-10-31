@@ -9,6 +9,29 @@ servidor: `Downloads/Backrooms-servidor-oficial-0.29.0.zip` (el de la beta #4 co
 en un servidor ya montado basta cambiar el jar, sin borrar el mundo ni tocar backrooms-acceso.json). **El pack-beta
 sigue en 2026.10.28-ca9d49cc** (jar 6c9908058d61…): el launcher de la beta ya no entra en ese servidor.
 
+## 0.29.0 (cont. 5): el código de entrada dentro del juego, para Pojav (2026-10-31; Bruno)
+
+**Sin publicar** (jar a22ea1e2c549…; hace falta publicar el pack oficial y cambiar el jar del servidor). Lo pidió
+Edi: a los de móvil (Pojav) se les dan los mods y abren ticket si algo falla, pero el servidor les tiene que pedir el
+código. Antes, sin el launcher no había forma de conseguir el pase y el servidor los echaba.
+
+- Si el servidor le echa por la entrada (`Acceso`: el mensaje lleva la tienda), en lugar de «SEÑAL PERDIDA» sale
+  **`PantallaCodigo`**: escribe el código, se canjea en la tienda igual que en el launcher (clave Ed25519 del
+  dispositivo, `POST /canjear`), se guarda `backrooms-pase.json` (con la pública aparte, para reutilizar la
+  clave) y vuelve a conectar solo. `AccesoCliente` apunta el servidor del inicio de sesión
+  (`InicioSesionAccessor`: Minecraft no lo tiene en `getCurrentServer` hasta haber entrado) y `MenuBackrooms` le
+  pregunta (`pedirCodigo`) al cambiar la pantalla de desconexión. El servidor no cambia nada.
+- Pruebas: `BACKROOMS_TIENDA` cambia la tienda (`tools/acceso/tienda-prueba.js`) y la orden `canjear <código>`
+  lo escribe y lo canjea en esa pantalla.
+- Archivos: `Downloads/Backrooms-pojav-0.29.0.zip` (el jar del evento + Fabric API y `LEEME-POJAV.txt`; Simple
+  Voice Chat solo con el enlace de Modrinth, no se resube) y `Downloads/Backrooms-servidor-oficial-0.29.0.zip`
+  rehecho con este jar.
+
+**Probado** (servidor de pruebas con entrada obligatoria y la tienda de prueba, en PC): sin pase le echa y sale la
+pantalla; un código malo enseña el error de la tienda; uno bueno se canjea, se guarda el pase y entra solo al
+servidor. **Sin probar**: en un móvil de verdad con Pojav (el teclado, la pantalla y cómo se ve el mod), y contra la
+tienda de verdad.
+
 ## 0.29.0 (cont. 4): menos bajón de FPS con las misiones abiertas y sin número en la espalda (2026-10-30; Bruno)
 
 **Publicado** en el pack oficial 2026.10.30-3e247364 (ver arriba).

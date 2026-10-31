@@ -96,8 +96,13 @@ final class OrdenesPrueba {
 			BackroomsEvento.LOG.info("Prueba: cursor {}", modo == GLFW.GLFW_CURSOR_NORMAL ? "visible" : modo == GLFW.GLFW_CURSOR_HIDDEN ? "oculto" : "capturado");
 			return;
 		}
+		if (orden.startsWith("canjear ") && mc.screen instanceof PantallaCodigo p) {
+			// "canjear <codigo>": lo escribe en la pantalla del codigo de entrada y lo canjea
+			p.probar(orden.substring(8).trim());
+			return;
+		}
 		if (mc.player == null) {
-			return; // fuera de un mundo solo valen la captura y el cursor
+			return; // fuera de un mundo solo valen la captura, el cursor y canjear
 		}
 		if (orden.startsWith("tab")) {
 			// "tab" o "tab <n>": el TAB pulsado 4 s, con n jugadores ficticios

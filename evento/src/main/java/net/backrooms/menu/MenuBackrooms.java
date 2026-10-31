@@ -77,7 +77,10 @@ public class MenuBackrooms extends Screen {
 			return hayMundo ? null : new MenuBackrooms();
 		}
 		if (pantalla instanceof net.minecraft.client.gui.screens.DisconnectedScreen d) {
-			return new SenalPerdida(((net.backrooms.menu.mixin.DisconnectedScreenAccessor) d).backrooms$detalles().reason());
+			var razon = ((net.backrooms.menu.mixin.DisconnectedScreenAccessor) d).backrooms$detalles().reason();
+			// sin entrada y sin el launcher (Pojav...): se pide el codigo ahi mismo
+			var codigo = net.backrooms.evento.cliente.AccesoCliente.pedirCodigo(razon);
+			return codigo != null ? codigo : new SenalPerdida(razon);
 		}
 		if (pantalla.getClass() == net.minecraft.client.gui.screens.inventory.InventoryScreen.class) {
 			// sin inventario: solo la barra de abajo (en creativo, el staff si lo abre)

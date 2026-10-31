@@ -120,6 +120,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		ColaCliente.registrar();
 
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+			AccesoCliente.tick(mc);
 			PapelMisiones.tick(mc);
 			net.backrooms.evento.cliente.esqueleto.Muestrario.tick(mc);
 			MusicaRecepcion.tick(mc);

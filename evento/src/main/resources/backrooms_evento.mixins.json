@@ -20,6 +20,7 @@
   ],
   "client": [
     "cliente.CinematicaBlurMixin",
+    "cliente.InicioSesionAccessor",
     "cliente.CinematicaSonidoMixin",
     "cliente.GameRendererEfectosMixin",
     "cliente.LightTextureMixin",
