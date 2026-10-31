@@ -9,13 +9,31 @@ servidor: `Downloads/Backrooms-servidor-oficial-0.29.0.zip` (el de la beta #4 co
 en un servidor ya montado basta cambiar el jar, sin borrar el mundo ni tocar backrooms-acceso.json). **El pack-beta
 sigue en 2026.10.28-ca9d49cc** (jar 6c9908058d61…): el launcher de la beta ya no entra en ese servidor.
 
+## 0.29.0 (cont. 7): el Amasijo con columna y sin manos a través de las puertas (2026-10-31; Bruno)
+
+**Sin publicar**, jar **a4b354bf…** (sustituye a b75cc925; lleva lo de cont. 5 y 6). Ya está en los dos zips de
+`Downloads` y en `pack/mods`.
+- El cuerpo del Amasijo era una sola pieza y comiendo se inclinaba entero ~25°, rígido. Ahora tiene columna
+  (`tools/texturas/entidades.js`): `cuerpo` (la cadera, con las patas y la grupa), `torso` (la boca, los bultos y
+  seis brazos; se dobla desde detrás de la cadera) y `joroba` (dos brazos). En reposo queda igual que antes.
+  `ModeloAmasijo`: cada tramo sigue al anterior con retraso al andar y al respirar; comiendo, la cadera baja con
+  las patas abiertas y el torso se encorva sobre la presa, la joroba muerde y tira a tirones y se mueve de lado a
+  lado; en alerta se yergue tramo a tramo y ladea la joroba; al girar, el torso se adelanta al giro
+  (`EstadoAmasijo.gira`). También vale para los Amasijos de la Estación.
+- Cinemática final: se gira hacia el ascensor dando pasos (antes giraba sobre sí mismo sin mover las patas), y se
+  para en `Z0 + 0,45` en vez de `Z0 - 0,25`: las hojas están en Z0 − 1,6 y las manos le llegan ~1,6 bloques por
+  delante, así que ya no las atraviesan. **Probado** con `final.sh` (capturas al comer, al girar y al llegar:
+  dentro de la cabina no asoma nada).
+- Ficha del pack (fuera del repo): la noticia «Actualización del evento» cambiada por «Bienvenido al Proyecto
+  Umbral» (resumen sin spoilers); se queda también la del patrocinador.
+
 ## 0.29.0 (cont. 6) y launcher 1.0.2: agradecimiento al patrocinador, Grmnrt Hosting (2026-10-31; Bruno)
 
 Lo piden los del hosting: algo pequeño, sin tocar el evento.
 - **Mod** (`Fases.agradecer`, solo servidor): al escapar, título «¡GRACIAS POR JUGAR!» con el subtítulo «Patrocinado
   por Grmnrt Hosting» y en el chat «¡Gracias por jugar BACKROOMS! Esperamos que lo hayas disfrutado. Este evento fue
   patrocinado por Grmnrt Hosting. ¡Feliz Halloween!». **Probado** en local con el final entero (`final.sh`): sale al
-  abrirse las puertas del ascensor del vestíbulo. Jar **b75cc925…** (sustituye a a22ea1e2: lleva también lo de
+  abrirse las puertas del ascensor del vestíbulo. Jar b75cc925… (ya sustituido por a4b354bf, cont. 7; lleva también lo de
   cont. 5). Ya va en `Downloads/Backrooms-servidor-oficial-0.29.0.zip` y `Backrooms-pojav-0.29.0.zip`.
 - **Launcher 1.0.2**: un murciélago que aletea y revolotea en el hueco entre las dos columnas con un cartel
   colgado («PATROCINADO POR · GRMNRT HOSTING» con una calabaza); todo dibujado (SVG y CSS), sin el logo del

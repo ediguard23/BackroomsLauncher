@@ -350,7 +350,7 @@ public final class SalidaEstacionCliente {
 			a.embisteCliente = suave((t - ATAQUE + 0.6F) / 0.3F) * (1.0F - suave((t - ATAQUE - 0.1F) / 0.25F));
 			a.comeCliente = suave((t - ATAQUE - 0.9F) / 0.5F) * (1.0F - suave((t - OYE) / 0.25F));
 			a.alertaCliente = suave((t - OYE) / 0.35F) * (1.0F - suave((t - CORRE + 0.2F) / 0.4F));
-			andar(a, t >= CORRE && t < LLEGA ? 1.3F : t >= SUBE && t < ATAQUE ? 0.6F : 0.0F);
+			andar(a, t >= CORRE && t < LLEGA ? 1.3F : t >= SUBE && t < ATAQUE ? 0.6F : t >= GIRA && t < CORRE ? 0.45F : 0.0F);
 		}
 		// el brazo derecho que marca el piso en la botonera
 		if (t >= PANEL && t < OYE + 0.6F && brazo == null) {
@@ -415,8 +415,9 @@ public final class SalidaEstacionCliente {
 		double xLado = X + 3.0;
 		double zSube = ZA - 1.2;
 		double zCome = ZA + 1.0;
-		// se para justo fuera de las puertas (con los brazos estirados llega a tocarlas, no a atravesarlas)
-		double zPuerta = Z0 - 0.25;
+		// se para justo fuera de las puertas: las hojas estan en Z0 - 1,6 y las manos le llegan ~1,6 bloques por
+		// delante del centro, asi que las toca sin atravesarlas
+		double zPuerta = Z0 + 0.45;
 		if (t < SUBE) {
 			return new double[] {xLado, Y - 8.0, zSube, 90.0};
 		}

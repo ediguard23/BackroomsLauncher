@@ -387,8 +387,9 @@ const pataAma = (i, x, z, rx) => [`pata_${i}`, 'cuerpo', [x, 3, z], [rx, 0, 0], 
   [-1.5, 0, -1.5, 3, 10, 3, 'carne'],
   [-2, 9.5, -3, 4, 1.5, 5, 'mano']
 ]];
-const brazoAma = (i, x, y, z, rx, ry) => [
-  [`brazo_${i}`, 'cuerpo', [x, y, z], [rx, ry, 0], [[-1.25, -1.25, -8, 2.5, 2.5, 8, 'carne']]],
+// el brazo cuelga de `padre` (el torso o la joroba); x, y, z, relativos a ese padre
+const brazoAma = (i, padre, x, y, z, rx, ry) => [
+  [`brazo_${i}`, padre, [x, y, z], [rx, ry, 0], [[-1.25, -1.25, -8, 2.5, 2.5, 8, 'carne']]],
   // al final del brazo, una mano: la palma, cuatro dedos largos y el pulgar (antes era una bola de carne)
   [`ante_${i}`, `brazo_${i}`, [0, 0, -8], [30, 0, 0], [
     [-1, -1, -8, 2, 2, 8, 'carne'],
@@ -398,6 +399,14 @@ const brazoAma = (i, x, y, z, rx, ry) => [
     [2, -0.5, -11.5, 1.6, 1, 1, 'mano']
   ]]
 ];
+/*
+ * El cuerpo tiene columna: la cadera (`cuerpo`, con las patas y la grupa), el `torso` (la boca, los bultos
+ * de los lados y seis brazos), que se dobla desde detras de la cadera, y la `joroba` de arriba (dos brazos),
+ * que se dobla desde el torso. Asi se encorva y se estira en vez de inclinarse de una pieza. En reposo
+ * queda igual que antes: el torso cuelga de (0, 0, 5) de la cadera y la joroba de (0, -12, -1) del torso.
+ */
+const T = [0, 0, 5];
+const J = [0, -12, -1];
 const AMASIJO = {
   nombre: 'amasijo',
   tex: [128, 128],
@@ -405,19 +414,24 @@ const AMASIJO = {
   vista: { esc: 6 },
   piezas: [
     ['cuerpo', null, [0, 10, 0], [0, 0, 0], [
-      [-9, -12, -8, 18, 16, 16, 'carne'],
-      [-7, -16, -6, 14, 4, 12, 'carne'],
-      [-10.5, -9, -5, 3, 10, 10, 'carne'],
-      [7.5, -10, -4, 3, 9, 9, 'carne'],
+      [-8, -4, -7, 16, 8, 14, 'carne'],
       [-6, -8, 6, 12, 10, 4, 'carne']
+    ]],
+    ['torso', 'cuerpo', T, [0, 0, 0], [
+      [-9, -12, -8 - T[2], 18, 16, 16, 'carne'],
+      [-10.5, -9, -5 - T[2], 3, 10, 10, 'carne'],
+      [7.5, -10, -4 - T[2], 3, 9, 9, 'carne']
+    ]],
+    ['joroba', 'torso', J, [0, 0, 0], [
+      [-7, -4, -6 - T[2] - J[2], 14, 4, 12, 'carne']
     ]],
     pataAma(0, -6, -5, -12), pataAma(1, 6, -5, -12),
     pataAma(2, -7, 1, 0), pataAma(3, 7, 1, 0),
     pataAma(4, -5, 6, 12), pataAma(5, 5, 6, 12),
-    ...brazoAma(0, -8, -9, -5, -35, 30), ...brazoAma(1, 8, -9, -5, -35, -30),
-    ...brazoAma(2, -9, -2, -6, 10, 45), ...brazoAma(3, 9, -2, -6, 10, -45),
-    ...brazoAma(4, -4, -14, -3, -45, 15), ...brazoAma(5, 4, -14, -1, -55, -20),
-    ...brazoAma(6, -9, -6, 3, -20, 110), ...brazoAma(7, 9, -6, 3, -20, -110)
+    ...brazoAma(0, 'torso', -8, -9, -5 - T[2], -35, 30), ...brazoAma(1, 'torso', 8, -9, -5 - T[2], -35, -30),
+    ...brazoAma(2, 'torso', -9, -2, -6 - T[2], 10, 45), ...brazoAma(3, 'torso', 9, -2, -6 - T[2], 10, -45),
+    ...brazoAma(4, 'joroba', -4, -14 - J[1], -3 - T[2] - J[2], -45, 15), ...brazoAma(5, 'joroba', 4, -14 - J[1], -1 - T[2] - J[2], -55, -20),
+    ...brazoAma(6, 'torso', -9, -6, 3 - T[2], -20, 110), ...brazoAma(7, 'torso', 9, -6, 3 - T[2], -20, -110)
   ]
 };
 
@@ -666,12 +680,12 @@ function caraAnfitrion (modelo, l, brillo) {
 }
 
 /**
- * La boca del Amasijo en la cara north del cuerpo (18x16): un ovalo enorme, encias rojas,
+ * La boca del Amasijo en la cara north del torso (18x16): un ovalo enorme, encias rojas,
  * dos filas de dientes torcidos hacia dentro y la garganta negra; y cinco ojillos humedos
  * repartidos por la carne que brillan en la oscuridad (tambien en `brillo`), como los dientes.
  */
 function caraAmasijo (modelo, l, brillo) {
-  const c = modelo.piezas.find((p) => p[0] === 'cuerpo')[4][0];
+  const c = modelo.piezas.find((p) => p[0] === 'torso')[4][0];
   const [u0, v0] = carasUV(c).north;
   const pon = (x, y, col) => l.punto(u0 + x, v0 + y, col);
   const luz = (x, y, col, f = 1) => { pon(x, y, col); brillo.punto(u0 + x, v0 + y, escala(col, f)); };

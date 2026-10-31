@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.layers.EyesLayer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
 
 /**
  * Dibuja al Amasijo (ModeloAmasijo) y, encima, el brillo de sus ojillos y de los dientes: en un
@@ -59,5 +60,6 @@ public class AmasijoRenderer extends MobRenderer<Amasijo, EstadoAmasijo, ModeloA
 		estado.embiste = a.embisteCliente;
 		estado.come = a.comeCliente;
 		estado.alerta = a.alertaCliente;
+		estado.gira = Mth.wrapDegrees(a.yBodyRot - a.yBodyRotO);
 	}
 }

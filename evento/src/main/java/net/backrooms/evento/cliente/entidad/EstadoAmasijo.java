@@ -11,4 +11,6 @@ public class EstadoAmasijo extends LivingEntityRenderState {
 	public float embiste;
 	public float come;
 	public float alerta;
+	/** Lo que gira el cuerpo, en grados por tick (el torso se adelanta al giro). */
+	public float gira;
 }
