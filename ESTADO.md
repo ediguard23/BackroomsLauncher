@@ -1,14 +1,14 @@
 # Estado del proyecto (para la siguiente sesión)
 
 Última actualización: 2026-10-31. Mod `backrooms_evento` **0.29.0**, launcher **1.0.2** (publicado, release
-v1.0.2). **Pack oficial (release "pack") 2026.10.31-097f4e4c** (2026-10-31, con permiso del organizador): mod 0.29.0
-**1270d493…** (cont. 5 a 11), noticias «Bienvenido al Proyecto Umbral» y «Patrocinado por Grmnrt Hosting», servidor
+v1.0.2). **Pack oficial (release "pack") 2026.10.31-9a073c62** (2026-10-31, con permiso del organizador): mod 0.29.0
+**8b10d04f…** (cont. 5 a 13), noticias «Bienvenido al Proyecto Umbral» y «Patrocinado por Grmnrt Hosting», servidor
 66.51.99.171:25626. El organizador ya subió al hosting ese mismo jar; el zip de Pojav
 (`Downloads/Backrooms-pojav-0.29.0.zip`) lleva también ese. **El pack-beta sigue en 2026.10.28-ca9d49cc.**
 
 ## 0.29.0 (cont. 13): espera de 1 s y silencio del staff (2026-10-31; Bruno)
 
-**Sin publicar**, jar **8b10d04f…** (sustituye a cdb6cd7d; lleva lo de cont. 12). Ya está en los dos zips de
+**Publicado** (pack 2026.10.31-9a073c62), jar **8b10d04f…** (sustituye a cdb6cd7d; lleva lo de cont. 12). Ya está en los dos zips de
 `Downloads` (el del servidor con Skin Restorer) y en `pack/mods`.
 - Los jugadores spameaban la linterna, la cámara y las sillas. Ahora entre un cambio y el siguiente pasa al menos 1 s:
   la linterna y la cámara en el cliente (`HerramientasCliente`, sin enviar nada) y en el servidor
