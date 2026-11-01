@@ -6,6 +6,17 @@ v1.0.2). **Pack oficial (release "pack") 2026.10.31-097f4e4c** (2026-10-31, con 
 66.51.99.171:25626. El organizador ya subió al hosting ese mismo jar; el zip de Pojav
 (`Downloads/Backrooms-pojav-0.29.0.zip`) lleva también ese. **El pack-beta sigue en 2026.10.28-ca9d49cc.**
 
+## Servidor: Skin Restorer para /skin (2026-10-31; Bruno)
+
+El organizador pidió que los jugadores puedan ponerse skins con `/skin`. **Skin Restorer** (Lionarius, Modrinth
+`skinrestorer`, MIT) `skinrestorer-2.11.0+1.21.11-fabric.jar` (sha1 9c9b70a1…): **solo servidor**, no va en el pack
+ni en el zip de Pojav. Añadido a `Downloads/Backrooms-servidor-oficial-0.29.0.zip` con `config/skinrestorer/config.json`
+(`language: es_ar`; `/skin` para todos, permiso 0) y una nota en el LEEME-HOSTING. Uso: `/skin set mojang <nick>`,
+`/skin clear`. Al entrar, a los de nick (no premium) les pone la skin de la cuenta premium de ese nombre.
+**Probado** en el servidor local: arranca, se entra con el pase (Acceso) sin problemas y `/skin set mojang Notch` cambia
+la skin sin mover al jugador ni tocar el HUD. Una segunda petición a Mojang dio «request timed out» (red). Ojo: con
+el traje antirradiación del evento casi no se ve la skin (solo la cara tras el visor).
+
 ## 0.29.0 (cont. 12): controles táctiles para Pojav; la cinemática del /start en negro (2026-10-31; Bruno)
 
 **Sin publicar**, jar **cdb6cd7d…** (sustituye a 1270d493, que es el del pack 2026.10.31-097f4e4c y el del hosting).
