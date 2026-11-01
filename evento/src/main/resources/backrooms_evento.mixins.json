@@ -38,7 +38,8 @@
     "cliente.ManoLinternaMixin",
     "cliente.CamaraAccessor",
     "cliente.OcultarJugadoresMixin",
-    "cliente.CargaToboganMixin"
+    "cliente.CargaToboganMixin",
+    "cliente.TeclaAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

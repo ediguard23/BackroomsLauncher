@@ -55,6 +55,9 @@ public final class Evento {
 			e.noticias.add(new Noticia("", "Bienvenido al Proyecto Umbral",
 				"Has salido de la realidad por accidente. Cumple tus misiones, cuida tu cordura y no te alejes demasiado de los demás: "
 					+ "solo unos pocos encontrarán la salida.\nPulsa JUGAR y escribe el código de tu entrada cuando te lo pida."));
+			e.noticias.add(new Noticia("", "Controles en el móvil",
+				"Misiones: el botón del inventario.\nLinterna y cámara: llévala en la mano y mantén pulsada la pantalla (golpear).\n"
+					+ "Válvulas: tócala una vez y sigue girando sola mientras la mires.\nMonedas y puertas: apunta y toca."));
 			return e;
 		}
 		try {

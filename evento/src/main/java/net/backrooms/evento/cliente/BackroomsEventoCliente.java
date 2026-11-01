@@ -111,6 +111,7 @@ public class BackroomsEventoCliente implements ClientModInitializer {
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.Mordisco.TYPE,
 			(s, ctx) -> net.backrooms.evento.cliente.piscinas.MordiscoCliente.empezar(s));
 		HerramientasCliente.registrar();
+		ControlesTactiles.registrar();
 		net.backrooms.evento.cliente.cinematica.ToboganCliente.registrar();
 		net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.registrar();
 		ClientPlayNetworking.registerGlobalReceiver(net.backrooms.evento.red.CinematicaSalidaFiesta.TYPE, (p, ctx) -> net.backrooms.evento.cliente.cinematica.SalidaFiestaCliente.empezar());

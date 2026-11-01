@@ -104,6 +104,16 @@ final class OrdenesPrueba {
 		if (mc.player == null) {
 			return; // fuera de un mundo solo valen la captura, el cursor y canjear
 		}
+		if (orden.startsWith("pulsar ")) {
+			// "pulsar <golpear|usar|inventario>": un toque de esa tecla, como en el movil (ControlesTactiles)
+			net.minecraft.client.KeyMapping k = switch (orden.substring(7).trim()) {
+				case "golpear" -> mc.options.keyAttack;
+				case "usar" -> mc.options.keyUse;
+				default -> mc.options.keyInventory;
+			};
+			net.minecraft.client.KeyMapping.click(com.mojang.blaze3d.platform.InputConstants.getKey(k.saveString()));
+			return;
+		}
 		if (orden.startsWith("tab")) {
 			// "tab" o "tab <n>": el TAB pulsado 4 s, con n jugadores ficticios
 			String n = orden.substring(3).trim();

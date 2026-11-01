@@ -6,6 +6,26 @@ v1.0.2). **Pack oficial (release "pack") 2026.10.31-097f4e4c** (2026-10-31, con 
 66.51.99.171:25626. El organizador ya subió al hosting ese mismo jar; el zip de Pojav
 (`Downloads/Backrooms-pojav-0.29.0.zip`) lleva también ese. **El pack-beta sigue en 2026.10.28-ca9d49cc.**
 
+## 0.29.0 (cont. 12): controles táctiles para Pojav; la cinemática del /start en negro (2026-10-31; Bruno)
+
+**Sin publicar**, jar **cdb6cd7d…** (sustituye a 1270d493, que es el del pack 2026.10.31-097f4e4c y el del hosting).
+Ya está en los dos zips de `Downloads` (el de Pojav con los controles en el LEEME) y en `pack/mods`.
+- En el móvil no hay F, C ni M ni se puede mantener el clic derecho. `cliente/ControlesTactiles`:
+  - **Para todos**: la tecla del inventario (la E; en el móvil, el botón de la mochila) abre y cierra el papel de las
+    misiones (el inventario del evento no se abría).
+  - **En modo táctil** (sin `backrooms-event.json`, Android o `BACKROOMS_TACTIL`): con la linterna o la cámara en la
+    mano, golpear (mantener pulsada la pantalla) la enciende o la apaga; tocar sigue siendo abrir puertas y coger
+    monedas. Un toque en una válvula la sigue girando sola (mantiene el clic) hasta otro toque, dejar de mirarla o 6 s.
+  - Las monedas (entidad, clic derecho) y los tornos (un clic) ya funcionaban con un toque apuntando.
+  - En el menú sin launcher sale también una noticia «Controles en el móvil».
+  - Orden de prueba nueva: `pulsar <golpear|usar|inventario>`. **Probado** en el PC con `BACKROOMS_TACTIL=1`: la
+    tecla del inventario abre las misiones; la cámara sube y baja golpeando con ella en la mano. **Sin probar** la
+    válvula que sigue girando sola (el `ir valvula` de prueba me dejaba fuera de la sala) y nada en un móvil de verdad.
+- La cinemática del /start en Pojav se ve negra con el sonido (lo de cont. 10). El shader **compila bien como GLSL ES
+  3.00** (probado con WebGL2/ANGLE en Electron: `scratchpad/glsl-es/valida.js`), así que no es un error de sintaxis:
+  lo más probable es que sea demasiado pesado para la gráfica del móvil (2.000 líneas de trazado de rayos). Sin
+  arreglar: haría falta un móvil para probar o una versión de la cinemática en vídeo/imágenes.
+
 ## 0.29.0 (cont. 11): en Pojav el menú decía «SIN SERVIDOR» (2026-10-31; Bruno)
 
 **Publicado** (pack 2026.10.31-097f4e4c), jar **1270d493…** (sustituye a 6030991c; lleva lo de cont. 9 y 10). Ya está en los dos zips de
