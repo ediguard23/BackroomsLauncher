@@ -32,9 +32,10 @@ function reglasPermiten (rules, features = {}) {
   for (const r of rules) {
     let encaja = true;
     if (r.os) {
-      if (r.os.name && r.os.name !== 'windows') encaja = false;
+      if (r.os.name && r.os.name !== (process.platform === 'darwin' ? 'osx' : 'windows')) encaja = false;
       // "x86" en las reglas significa Java de 32 bits; aqui siempre es x64.
-      if (r.os.arch && r.os.arch !== 'x64' && r.os.arch !== 'x86_64') encaja = false;
+      const arqActual = process.arch === 'arm64' ? 'arm64' : 'x64';
+      if (r.os.arch && r.os.arch !== arqActual && !(arqActual === 'x64' && r.os.arch === 'x86_64')) encaja = false;
       if (r.os.version) {
         try { if (!new RegExp(r.os.version).test(os.release())) encaja = false; } catch { encaja = false; }
       }
@@ -335,6 +336,8 @@ function argumentos (inst, { root, gameDir, cuenta, ramMB, ventana, marca, versi
     const i = jvm.indexOf('-cp');
     if (i >= 0) jvm.splice(i, 0, ...jvmExtra); else jvm.push(...jvmExtra);
   }
+  // macOS exige este argumento para abrir la ventana desde el proceso de Java
+  if (process.platform === 'darwin' && !jvm.includes('-XstartOnFirstThread')) jvm.unshift('-XstartOnFirstThread');
   return [...jvm, version.mainClass, ...game];
 }
 

@@ -18,12 +18,17 @@ const API = 'https://api.adoptium.net/v3/assets/latest';
 // que Minecraft acepta igual (1.17 pide 16 y funciona con 17).
 const SUSTITUTO = { 16: 17 };
 
+// macOS usa tar.gz y su Java va dentro de Contents/Home; Apple Silicon es arm64.
+const ES_MAC = process.platform === 'darwin';
+const SO = ES_MAC ? 'mac' : 'windows';
+const ARQUITECTURA = ES_MAC && process.arch === 'arm64' ? 'aarch64' : 'x64';
+
 function javawDe (dir) {
-  const candidato = path.join(dir, 'bin', 'javaw.exe');
-  return fs.existsSync(candidato) ? candidato : null;
+  const candidatos = [path.join(dir, 'bin', 'javaw.exe'), path.join(dir, 'bin', 'java'), path.join(dir, 'Contents', 'Home', 'bin', 'java')];
+  return candidatos.find((c) => fs.existsSync(c)) || null;
 }
 
-function buscarBin (dir, profundidad = 2) {
+function buscarBin (dir, profundidad = 4) {
   const directo = javawDe(dir);
   if (directo) return dir;
   if (profundidad === 0) return null;
@@ -53,12 +58,12 @@ async function asegurarJava (major, runtimeDir, { onEstado = () => {}, onProgres
   if (listo) return listo;
 
   onEstado(`Descargando Java ${major}`);
-  const lista = await getJson(`${API}/${major}/hotspot?architecture=x64&image_type=jre&os=windows&vendor=eclipse`);
+  const lista = await getJson(`${API}/${major}/hotspot?architecture=${ARQUITECTURA}&image_type=jre&os=${SO}&vendor=eclipse`);
   const pkg = lista && lista[0] && lista[0].binary && lista[0].binary.package;
-  if (!pkg) throw new Error(`Temurin no publica Java ${major} para Windows`);
+  if (!pkg) throw new Error(`Temurin no publica Java ${major} para este sistema`);
 
   fs.mkdirSync(runtimeDir, { recursive: true });
-  const zip = path.join(runtimeDir, `java-${major}.zip`);
+  const zip = path.join(runtimeDir, ES_MAC ? `java-${major}.tar.gz` : `java-${major}.zip`);
   let hecho = 0;
   await download(pkg.link, zip, {
     sha256: pkg.checksum,
@@ -70,7 +75,8 @@ async function asegurarJava (major, runtimeDir, { onEstado = () => {}, onProgres
   onEstado(`Preparando Java ${major}`);
   const tmp = path.join(runtimeDir, `.tmp-java-${major}`);
   fs.rmSync(tmp, { recursive: true, force: true });
-  await extraer(zip, tmp);
+  if (ES_MAC) require('child_process').execFileSync('tar', ['-xzf', zip, '-C', tmp], { stdio: 'ignore' });
+  else await extraer(zip, tmp);
   const raiz = buscarBin(tmp);
   if (!raiz) throw new Error('El paquete de Java no trae javaw.exe');
   fs.rmSync(destino, { recursive: true, force: true });
