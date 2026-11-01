@@ -6,6 +6,16 @@ v1.0.2). **Pack oficial (release "pack") 2026.10.31-9a073c62** (2026-10-31, con 
 66.51.99.171:25626. El organizador ya subió al hosting ese mismo jar; el zip de Pojav
 (`Downloads/Backrooms-pojav-0.29.0.zip`) lleva también ese. **El pack-beta sigue en 2026.10.28-ca9d49cc.**
 
+## Linux: Backrooms-Linux.mrpack (2026-10-31; Bruno)
+
+Para jugadores de Linux (Prism Launcher): `Downloads/Backrooms-Linux.mrpack` y `Downloads/Backrooms-Linux-PASOS.txt`.
+Lo arma `scratchpad/linux/mrpack.py` desde el manifest del pack oficial publicado: los 8 mods de Modrinth como descargas
+(sha1/sha512 de la API de Modrinth), el jar del evento 8b10d04f en `overrides/mods`, y en overrides el
+`config/backrooms-event.json` (servidor, enlaces y noticias, como lo escribe el launcher: así no entra en modo táctil),
+`servers.dat`, `options.txt` y `dynamic_fps.json`. Sin pase, el juego pide el código al entrar (PantallaCodigo).
+**Sin probar** en Prism (el formato es el mismo que el de la beta #2, que sí funcionó). Si cambia el mod, hay que
+rehacerlo.
+
 ## 0.29.0 (cont. 13): espera de 1 s y silencio del staff (2026-10-31; Bruno)
 
 **Publicado** (pack 2026.10.31-9a073c62), jar **8b10d04f…** (sustituye a cdb6cd7d; lleva lo de cont. 12). Ya está en los dos zips de
