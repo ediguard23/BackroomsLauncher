@@ -30,6 +30,11 @@ public class VozCinematica implements VoicechatPlugin {
 				return;
 			}
 			VoicechatConnection habla = e.getSenderConnection();
+			// el silencio del staff: solo hablan el staff y quien tenga el megafono
+			if (habla != null && habla.getPlayer() != null && !MegafonoStaff.puedeHablar(habla.getPlayer().getUuid())) {
+				e.cancel();
+				return;
+			}
 			if (habla != null && habla.getPlayer() != null && MegafonoStaff.activo(habla.getPlayer().getUuid())) {
 				megafono(e, habla.getPlayer().getUuid());
 			}

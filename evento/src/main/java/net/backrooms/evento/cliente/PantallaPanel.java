@@ -93,7 +93,7 @@ public class PantallaPanel extends Screen {
 						Accion.de("Entidades auto: NO", "backrooms acechadores false"))),
 					new Seccion("JUGADORES", List.of(Accion.de("Ver escapados", "backrooms escapados"), Accion.ojo("Perdonar a los caídos", "backrooms perdonar"),
 						Accion.de("Morir elimina", "backrooms muerte eliminar"), Accion.de("Morir reaparece", "backrooms muerte reaparecer"),
-						Accion.de("Megáfono (tu voz)", "backrooms megafono"), Accion.de("Mi cordura al 100", "backrooms cordura 100"),
+						Accion.de("Megáfono (tu voz)", "backrooms megafono"), Accion.de("Silenciar a todos (sí/no)", "backrooms silencio"), Accion.de("Mi cordura al 100", "backrooms cordura 100"),
 						Accion.de("Reponer la comida", "backrooms comida reponer")))));
 			case 1 -> new Pagina(
 				"Pasillos amarillos sin fin, moqueta húmeda y el zumbido de los tubos. Se llega con el /start (la cinemática y el ascensor). Cada uno tiene sus misiones; con ellas hechas, los ascensores de salida bajan a las Piscinas. Los sucesos se aplican en el nivel donde estás.",

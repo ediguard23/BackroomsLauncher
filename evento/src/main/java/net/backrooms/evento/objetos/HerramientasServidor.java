@@ -61,10 +61,11 @@ public final class HerramientasServidor {
 	public static void registrar() {
 		ServerLifecycleEvents.SERVER_STARTED.register(s -> INSTANCIA.servidor = s);
 		ServerTickEvents.END_SERVER_TICK.register(s -> INSTANCIA.tick());
-		ServerPlayNetworking.registerGlobalReceiver(AccionJugador.TYPE, (p, ctx) -> INSTANCIA.accion(ctx.player(), p.accion(), p.valor()));
+		ServerPlayNetworking.registerGlobalReceiver(AccionJugador.TYPE, (p, ctx) -> INSTANCIA.pedido(ctx.player(), p.accion(), p.valor()));
 		ServerPlayConnectionEvents.DISCONNECT.register((h, s) -> {
 			INSTANCIA.estados.remove(h.player.getUUID());
 			INSTANCIA.enviado.remove(h.player.getUUID());
+			INSTANCIA.ultimo.remove(h.player.getUUID());
 		});
 		ServerEntityEvents.ENTITY_LOAD.register((entidad, nivel) -> INSTANCIA.devolverSiSeTira(entidad));
 	}
@@ -87,6 +88,27 @@ public final class HerramientasServidor {
 
 	public static boolean lleva(ServerPlayer j, Item objeto) {
 		return j.getInventory().contains(s -> s.is(objeto));
+	}
+
+	/** Entre encender y apagar la linterna (o la camara) pasa al menos 1 s: habia quien lo spameaba. */
+	private static final long ESPERA = 20;
+	private final Map<UUID, long[]> ultimo = new HashMap<>();
+
+	/** Lo que pide el jugador (su tecla): si lo cambio hace menos de ESPERA, no se hace (y se le corrige). */
+	private void pedido(ServerPlayer j, int accion, boolean valor) {
+		if (accion != AccionJugador.LINTERNA && accion != AccionJugador.CAMARA) {
+			return;
+		}
+		long ahora = j.level().getGameTime();
+		long[] u = this.ultimo.computeIfAbsent(j.getUUID(), k -> new long[] {Long.MIN_VALUE / 2, Long.MIN_VALUE / 2});
+		if (ahora - u[accion] < ESPERA && ahora >= u[accion] && valor != this.estado(j)[accion]) {
+			this.enviado.remove(j.getUUID()); // le llega el estado bueno
+			return;
+		}
+		if (valor != this.estado(j)[accion]) {
+			u[accion] = ahora;
+		}
+		this.accion(j, accion, valor);
 	}
 
 	/** Enciende o apaga (si lleva el objeto). */

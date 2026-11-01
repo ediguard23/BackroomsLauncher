@@ -16,10 +16,14 @@ import net.minecraft.world.phys.BlockHitResult;
 
 /**
  * Butaca del auditorio (y sofas del vestibulo): clic derecho para sentarse,
- * Mayus para levantarse. FACING es hacia donde mira quien se sienta.
+ * Mayus para levantarse. FACING es hacia donde mira quien se sienta. Entre sentarse y volver a
+ * sentarse pasa al menos ESPERA (1 s): habia quien lo spameaba.
  */
 public class Butaca extends EnSuelo {
 	public static final MapCodec<Butaca> CODEC = simpleCodec(Butaca::new);
+	private static final long ESPERA = 20;
+	/** Cuando se sento cada jugador por ultima vez (tiempo del mundo). */
+	private static final java.util.Map<java.util.UUID, Long> SENTADO = new java.util.HashMap<>();
 
 	public Butaca(BlockBehaviour.Properties properties) {
 		super(properties, Block.box(1, 0, 1, 15, 16, 15), Block.box(1, 0, 1, 15, 8, 15));
@@ -38,6 +42,12 @@ public class Butaca extends EnSuelo {
 		if (!sl.getEntitiesOfClass(Asiento.class, new net.minecraft.world.phys.AABB(pos)).isEmpty()) {
 			return InteractionResult.SUCCESS; // ocupada
 		}
+		long ahora = sl.getGameTime();
+		Long antes = SENTADO.get(jugador.getUUID());
+		if (antes != null && ahora - antes < ESPERA && ahora >= antes) {
+			return InteractionResult.SUCCESS; // se acaba de sentar: espera un poco
+		}
+		SENTADO.put(jugador.getUUID(), ahora);
 		Asiento a = new Asiento(Entidades.ASIENTO, sl);
 		Direction mira = estado.getValue(FACING);
 		a.setPos(pos.getX() + 0.5, pos.getY() + 0.42, pos.getZ() + 0.5);

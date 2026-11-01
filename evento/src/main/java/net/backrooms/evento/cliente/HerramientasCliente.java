@@ -94,10 +94,18 @@ public final class HerramientasCliente {
 		}
 	}
 
+	/** Cuando se cambio cada una por ultima vez (ms): entre cambio y cambio, al menos 1 s (el servidor tambien lo mira). */
+	private static final long[] ULTIMO = {0L, 0L};
+
 	private static void cambiar(LocalPlayer j, int accion, Item objeto) {
 		if (j.isSpectator() || !j.getInventory().contains(s -> s.is(objeto))) {
 			return;
 		}
+		long ahora = net.minecraft.util.Util.getMillis();
+		if (ahora - ULTIMO[accion] < 1000L) {
+			return;
+		}
+		ULTIMO[accion] = ahora;
 		boolean nuevo = accion == AccionJugador.LINTERNA ? !linterna : !camara;
 		// se aplica ya (el servidor lo confirma o lo corrige enseguida)
 		if (accion == AccionJugador.LINTERNA) {

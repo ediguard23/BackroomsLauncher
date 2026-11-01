@@ -58,6 +58,7 @@ import net.minecraft.server.level.ServerPlayer;
  *                            (gota, agua, orilla, chapoteo, tuberia, grave, grunido, voz, susurro)
  *  recepcion [jugador]       lo lleva a la recepcion (donde se espera el /start)
  *  megafono                  enciende/apaga tu voz para todos (chat de voz sin distancia)
+ *  silencio                  enciende/apaga el silencio: los jugadores no pueden hablar por voz (el staff si)
  *  fiesta [jugador]          lo manda a la Fiesta (Nivel Fun) como si subiera de las Piscinas
  *  fiesta ir <sala>          a esa sala de la Fiesta (llegada, salon, laberinto, semaforo, cocina,
  *                            siesta, premio, secreta)
@@ -301,6 +302,12 @@ public final class Comandos {
 			.then(Commands.literal("megafono")
 				.executes(c -> {
 					net.backrooms.evento.expedicion.MegafonoStaff.alternar(c.getSource().getPlayerOrException());
+					return 1;
+				}))
+			.then(Commands.literal("silencio")
+				.executes(c -> {
+					boolean on = net.backrooms.evento.expedicion.MegafonoStaff.alternarSilencio(c.getSource().getServer());
+					c.getSource().sendSuccess(() -> Component.literal(on ? "Silencio encendido: los jugadores no pueden hablar por voz." : "Silencio apagado."), true);
 					return 1;
 				}))
 			.then(Commands.literal("recepcion")

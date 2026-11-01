@@ -6,6 +6,21 @@ v1.0.2). **Pack oficial (release "pack") 2026.10.31-097f4e4c** (2026-10-31, con 
 66.51.99.171:25626. El organizador ya subió al hosting ese mismo jar; el zip de Pojav
 (`Downloads/Backrooms-pojav-0.29.0.zip`) lleva también ese. **El pack-beta sigue en 2026.10.28-ca9d49cc.**
 
+## 0.29.0 (cont. 13): espera de 1 s y silencio del staff (2026-10-31; Bruno)
+
+**Sin publicar**, jar **8b10d04f…** (sustituye a cdb6cd7d; lleva lo de cont. 12). Ya está en los dos zips de
+`Downloads` (el del servidor con Skin Restorer) y en `pack/mods`.
+- Los jugadores spameaban la linterna, la cámara y las sillas. Ahora entre un cambio y el siguiente pasa al menos 1 s:
+  la linterna y la cámara en el cliente (`HerramientasCliente`, sin enviar nada) y en el servidor
+  (`HerramientasServidor.pedido`, por si acaso; si lo rechaza, le reenvía el estado bueno); sentarse en una butaca,
+  1 s desde la última vez que se sentó (`Butaca`).
+- **Silencio** (`/backrooms silencio`, botón «Silenciar a todos (sí/no)» del panel, sección JUGADORES): mientras dura,
+  `VozCinematica` corta el micrófono de los jugadores; solo hablan el staff (OP, nivel 2) y quien tenga el megáfono.
+  Mensaje a todos al encender y apagar, y en la barra de acción «SILENCIO: escucha al staff» para los demás.
+- **Probado**: el silencio avisa a todos y al jugador sin OP le sale la barra; el botón está en el panel; dos pulsos de
+  la cámara a 0,6 s solo cuentan el primero. **Sin probar**: el corte de voz con otro jugador hablando (hace falta
+  otra persona) y la espera de las butacas.
+
 ## Servidor: Skin Restorer para /skin (2026-10-31; Bruno)
 
 El organizador pidió que los jugadores puedan ponerse skins con `/skin`. **Skin Restorer** (Lionarius, Modrinth
